@@ -1,0 +1,30 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.6.18/dist/css/uikit.min.css"/>
+<head>
+    <meta charset="UTF-8">
+    <title>Generated COSE Certificate</title>
+</head>
+<body class="uk-flex-wrap uk-background-muted">
+<div class="uk-flex-wrap uk-padding">
+    <div class="uk-card uk-margin uk-default uk-card-body uk-background-default uk-flex-wrap">
+        <h2 class="">Submitted Data</h2>
+        <div style="word-wrap: break-word"><h3 class="uk-heading-bullet">Input</h3>[[${vaccinationData}]]</div>
+    </div>
+
+    <div th:each="cvm : ${cardViewModels}"
+         class="uk-card uk-margin uk-default uk-card-body uk-background-default uk-flex-wrap">
+        <h2 class="">[[${cvm.title}]]</h2>
+        <div th:each="base64Item: ${cvm.base64Items}" class="uk-margin" style="word-wrap: break-word"><h3
+                class="uk-heading-bullet">[[${base64Item.title}]] ([[${base64Item.value.length}]] chars):</h3>
+            [[${base64Item.value}]]
+        </div>
+        <div th:each="codeResource: ${cvm.codeResources}">
+            <h3 class="uk-heading-bullet">[[${codeResource.title}]]</h3>
+            <img th:src="'data:image/png;base64,'+${codeResource.qrCodeImage}" alt="QR Code Missing"/>
+            <img th:src="'data:image/png;base64,'+${codeResource.aztecCodeImage}" alt="Aztec Code Missing"/>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
