@@ -5,11 +5,15 @@ import kotlinx.serialization.json.Json
 
 class CborViewAdapter(
     private val cborProcessingChain: CborProcessingChain,
-    private val base45Service: Base45Service
+    private val base45Service: Base45Service,
+    private val qrCodeService: TwoDimCodeService,
+    private val aztecService: TwoDimCodeService
 ) {
 
     fun process(input: String): CardViewModel {
         val result = cborProcessingChain.process(Json { isLenient = true }.decodeFromString(input))
+        val qrCode = qrCodeService.encode(result.prefixedEncodedCompressedCose)
+        val aztecCode = aztecService.encode(result.prefixedEncodedCompressedCose)
         return CardViewModel(
             "COSE",
             base64Items = listOf(
@@ -22,7 +26,8 @@ class CborViewAdapter(
                 Base64Item("Prefixed Compressed COSE", result.prefixedEncodedCompressedCose)
             ),
             codeResources = listOf(
-                CodeResource("QR/Aztec code based on prefixed compressed COSE", result.qrCode, result.aztecCode)
+                CodeResource("QR code based on prefixed compressed COSE", qrCode),
+                CodeResource("Aztec code based on prefixed compressed COSE", aztecCode)
             )
         )
     }

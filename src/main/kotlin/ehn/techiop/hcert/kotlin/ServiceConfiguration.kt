@@ -44,26 +44,22 @@ class ServiceConfiguration {
 
     @Bean
     fun cborProcessingChain(
-        qrCodeService: TwoDimCodeService,
-        aztecService: TwoDimCodeService,
         cborService: CborService,
         valSuiteService: ValSuiteService,
         compressorService: CompressorService,
         base45Service: Base45Service
     ): CborProcessingChain {
-        return CborProcessingChain(
-            qrCodeService,
-            aztecService,
-            cborService,
-            valSuiteService,
-            compressorService,
-            base45Service
-        )
+        return CborProcessingChain(cborService, valSuiteService, compressorService, base45Service)
     }
 
     @Bean
-    fun coseProcessStrategy(cborProcessingChain: CborProcessingChain, base45Service: Base45Service): CborViewAdapter {
-        return CborViewAdapter(cborProcessingChain, base45Service)
+    fun coseProcessStrategy(
+        cborProcessingChain: CborProcessingChain,
+        base45Service: Base45Service,
+        qrCodeService: TwoDimCodeService,
+        aztecService: TwoDimCodeService
+    ): CborViewAdapter {
+        return CborViewAdapter(cborProcessingChain, base45Service, qrCodeService, aztecService)
     }
 
 

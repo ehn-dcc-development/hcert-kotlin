@@ -19,9 +19,8 @@ class CoseProcessStrategyTests {
     private val valSuiteService = ValSuiteService()
     private val compressorService = CompressorService()
     private val base45Service = Base45Service()
-    private val cborProcessingChain =
-        CborProcessingChain(qrCodeService, aztecService, cborService, valSuiteService, compressorService, base45Service)
-    private val cborViewAdapter = CborViewAdapter(cborProcessingChain, base45Service)
+    private val cborProcessingChain = CborProcessingChain(cborService, valSuiteService, compressorService, base45Service)
+    private val cborViewAdapter = CborViewAdapter(cborProcessingChain, base45Service, qrCodeService, aztecService)
 
     @Test
     fun pastInfected() {

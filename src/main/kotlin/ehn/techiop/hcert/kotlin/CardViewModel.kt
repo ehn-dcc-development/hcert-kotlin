@@ -13,7 +13,6 @@ data class Base64Item(
 
 data class CodeResource(
     val title: String,
-    val qrCodeImage: String,
-    val aztecCodeImage: String
+    val image: String
 )
 
