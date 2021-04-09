@@ -1,16 +1,13 @@
-package ehn.techiop.hcert.kotlin
+package ehn.techiop.hcert.kotlin.chain
 
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.aztec.AztecWriter
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.QRCodeWriter
-import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
 class TwoDimCodeService(private val size: Int, private val format: BarcodeFormat) {
-
-    private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val writer = when (format) {
         BarcodeFormat.QR_CODE -> QRCodeWriter()
@@ -29,8 +26,7 @@ class TwoDimCodeService(private val size: Int, private val format: BarcodeFormat
             ImageIO.write(bufferedImage, "png", bout)
             return bout.toByteArray().asBase64()
         } catch (e: Exception) {
-            logger.error("Cannot create 2D code", e)
-            return "ERROR"
+            throw IllegalArgumentException("Cannot create 2D code", e)
         }
     }
 

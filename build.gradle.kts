@@ -1,10 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.4.4"
-	id("io.spring.dependency-management") version "1.0.11.RELEASE"
+	id("maven-publish")
 	kotlin("jvm") version "1.4.31"
-	kotlin("plugin.spring") version "1.4.31"
 	kotlin("plugin.serialization") version "1.4.31"
 }
 
@@ -18,12 +16,20 @@ repositories {
 	mavenCentral()
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.31")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.1.0")
 	implementation("com.augustcellars.cose:cose-java:1.1.0")
@@ -31,9 +37,10 @@ dependencies {
 	implementation("com.google.zxing:javase:3.4.1")
 	implementation("org.bouncycastle:bcpkix-jdk15on:1.68")
 	implementation("com.squareup.okhttp3:okhttp:4.9.0")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.1")
+    testImplementation("org.hamcrest:hamcrest:2.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
 }
 
 tasks.withType<KotlinCompile> {

@@ -1,10 +1,11 @@
-# Electronic Health Certificate Service Kotlin
+# Electronic Health Certificate Kotlin Library
 
-Run the service with `./gradlew bootRun`, browse it at <http://localhost:8080/certservice>, fill in some data (use the provided data!) and click on "Generate COSE" to view the result.
-
-## Endpoints
-
-Get the certificate for verification at `/cert/{kid}`: Set your `Accept` to `text/plain` to get the certificate in Base64, or set it to `application/octet-stream` to get binary data.
+Implements a very basic validation and creation chain:
+ - Encode in CBOR
+ - Sign in COSE
+ - Compress with ZLib
+ - Prepend with national identifier
+ - Encode as QR Code and Aztec Code
 
 ## TODO
 

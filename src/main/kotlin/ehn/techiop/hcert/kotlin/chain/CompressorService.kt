@@ -1,4 +1,4 @@
-package ehn.techiop.hcert.kotlin
+package ehn.techiop.hcert.kotlin.chain
 
 import java.util.zip.Deflater
 import java.util.zip.Inflater

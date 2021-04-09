@@ -1,1 +1,1 @@
-rootProject.name = "hcert-service-kotlin"
+rootProject.name = "hcert-kotlin"

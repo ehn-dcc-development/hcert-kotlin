@@ -1,4 +1,4 @@
-package ehn.techiop.hcert.kotlin
+package ehn.techiop.hcert.kotlin.chain
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
