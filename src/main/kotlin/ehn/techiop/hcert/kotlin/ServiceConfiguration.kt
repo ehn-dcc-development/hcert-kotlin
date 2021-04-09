@@ -38,8 +38,8 @@ class ServiceConfiguration {
     }
 
     @Bean
-    fun base45Service(): ehn.techiop.hcert.kotlin.Base45Service {
-        return ehn.techiop.hcert.kotlin.Base45Service()
+    fun base45Service(): Base45Service {
+        return Base45Service()
     }
 
     @Bean
@@ -49,7 +49,7 @@ class ServiceConfiguration {
         cborService: CborService,
         valSuiteService: ValSuiteService,
         compressorService: CompressorService,
-        base45Service: ehn.techiop.hcert.kotlin.Base45Service
+        base45Service: Base45Service
     ): CborProcessingChain {
         return CborProcessingChain(
             qrCodeService,
@@ -62,7 +62,7 @@ class ServiceConfiguration {
     }
 
     @Bean
-    fun coseProcessStrategy(cborProcessingChain: CborProcessingChain, base45Service: ehn.techiop.hcert.kotlin.Base45Service): CborViewAdapter {
+    fun coseProcessStrategy(cborProcessingChain: CborProcessingChain, base45Service: Base45Service): CborViewAdapter {
         return CborViewAdapter(cborProcessingChain, base45Service)
     }
 

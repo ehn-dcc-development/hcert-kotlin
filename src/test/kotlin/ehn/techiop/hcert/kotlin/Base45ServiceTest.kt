@@ -9,7 +9,7 @@ import java.util.*
 
 class Base45ServiceTest {
 
-    private val base45Service = ehn.techiop.hcert.kotlin.Base45Service()
+    private val base45Service = Base45Service()
 
     @ParameterizedTest
     @MethodSource("stringProvider")

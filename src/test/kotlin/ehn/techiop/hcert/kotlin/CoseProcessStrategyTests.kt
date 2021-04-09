@@ -5,7 +5,9 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.greaterThan
+import org.hamcrest.Matchers.lessThan
 import org.junit.jupiter.api.Test
 
 class CoseProcessStrategyTests {
@@ -16,7 +18,7 @@ class CoseProcessStrategyTests {
     private val cborService = CborService(cryptoService)
     private val valSuiteService = ValSuiteService()
     private val compressorService = CompressorService()
-    private val base45Service = ehn.techiop.hcert.kotlin.Base45Service()
+    private val base45Service = Base45Service()
     private val cborProcessingChain =
         CborProcessingChain(qrCodeService, aztecService, cborService, valSuiteService, compressorService, base45Service)
     private val cborViewAdapter = CborViewAdapter(cborProcessingChain, base45Service)

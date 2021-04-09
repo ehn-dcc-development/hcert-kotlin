@@ -57,6 +57,6 @@ class Base45Service {
         generateSequence(seed) { if (it >= divisor) it.div(divisor) else null }
             .map { it.rem(divisor).toInt() }
 
-    private fun pow(base: BigInteger, exp: Int) = base.pow(exp).longValueExact()
+    private fun pow(base: BigInteger, exp: Int) = base.pow(exp).toLong()
 
 }

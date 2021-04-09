@@ -7,7 +7,7 @@ class CborProcessingChain(
     private val cborService: CborService,
     private val valSuiteService: ValSuiteService,
     private val compressorService: CompressorService,
-    private val base45Service: ehn.techiop.hcert.kotlin.Base45Service
+    private val base45Service: Base45Service
 ) {
 
     fun process(input: VaccinationData): ResultCbor {
