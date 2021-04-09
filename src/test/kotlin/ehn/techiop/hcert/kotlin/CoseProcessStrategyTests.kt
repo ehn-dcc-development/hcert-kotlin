@@ -19,7 +19,8 @@ class CoseProcessStrategyTests {
     private val valSuiteService = ValSuiteService()
     private val compressorService = CompressorService()
     private val base45Service = Base45Service()
-    private val cborProcessingChain = CborProcessingChain(cborService, valSuiteService, compressorService, base45Service)
+    private val cborProcessingChain =
+        CborProcessingChain(cborService, valSuiteService, compressorService, base45Service)
     private val cborViewAdapter = CborViewAdapter(cborProcessingChain, base45Service, qrCodeService, aztecService)
 
     @Test
@@ -67,11 +68,7 @@ class CoseProcessStrategyTests {
     private fun isAround(input: Int) = allOf(greaterThan(input.div(10) * 9), lessThan(input.div(10) * 11))
 
     private fun assertPlain(input: String, jsonInput: String) {
-        val plainInput = valSuiteService.decode(input)
-        val comCose = base45Service.decode(plainInput)
-        val cose = compressorService.decode(comCose)
-        val cbor = cborService.verify(cose)
-        val vaccinationData = cborService.decode<VaccinationData>(cbor)
+        val vaccinationData = cborProcessingChain.verify(input)
         val decodedFromInput = Json { isLenient = true }.decodeFromString<VaccinationData>(jsonInput)
         assertThat(vaccinationData, equalTo(decodedFromInput))
     }
