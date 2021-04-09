@@ -35,7 +35,7 @@ dependencies {
 	implementation("com.augustcellars.cose:cose-java:1.1.0")
 	implementation("com.google.zxing:core:3.4.1")
 	implementation("com.google.zxing:javase:3.4.1")
-	implementation("org.bouncycastle:bcpkix-jdk15on:1.68")
+	implementation("org.bouncycastle:bcpkix-jdk15to18:1.68")
 	implementation("com.squareup.okhttp3:okhttp:4.9.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.1")
