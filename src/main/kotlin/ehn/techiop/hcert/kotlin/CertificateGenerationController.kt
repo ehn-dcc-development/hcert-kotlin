@@ -16,6 +16,9 @@ class CertificateGenerationController(private val cborViewAdapter: CborViewAdapt
     @GetMapping("/")
     fun index(model: Model): String {
         log.info("index called")
+        model.addAttribute("pastInfectedJson", Input.pastInfectedJson)
+        model.addAttribute("vaccinatedJson", Input.vaccinatedJson)
+        model.addAttribute("testedJson", Input.testedJson)
         return "index"
     }
 

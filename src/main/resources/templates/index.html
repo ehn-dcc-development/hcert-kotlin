@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.6.18/dist/css/uikit.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/uikit@3.6.18/dist/js/uikit.min.js"></script>
 <head>
     <meta charset="UTF-8">
-    <title>Generate COSE</title>
+    <title>eHealth Certificate Service</title>
 </head>
 
 <body class="uk-background-muted">
@@ -13,28 +13,7 @@
         <h2 class="">Input Data</h2>
         <div class="" uk-grid>
             <div><h3>Previously Infected</h3>
-                <pre id="data_pastInfected">{
-    "sub": {
-        "n": "Gabi Musterfrau",
-        "dob": "1999-04-20",
-        "id": [{
-            "t": "pas",
-            "i": "c228f2ff"
-        }]
-    },
-    "rec": {
-        "dis": "U07.1",
-        "dat": "2020-12-20",
-        "cou": "AT"
-    },
-    "certificateMetadata": {
-        "issuer": "BMGSPK, Vienna, Austria",
-        "identifier": "01ATBA712FE030C797287CB97334452966470042",
-        "validFrom": "2021-01-20",
-        "validUntil": "2021-07-20",
-        "schemaVersion": "1.0.0"
-    }
-}</pre>
+                <pre id="data_pastInfected" th:text="${pastInfectedJson}"></pre>
 
                 <button class="uk-button-default uk-margin uk-padding-small uk-align-center"
                         onclick="document.getElementById('vaccinationData').value = document.getElementById('data_pastInfected').textContent;">
@@ -43,49 +22,7 @@
             </div>
 
             <div><h3>Vaccinated</h3>
-                <pre id="data_vaccinated">{
-    "sub": {
-        "n": "Gabi Musterfrau",
-        "dob": "1999-04-20",
-        "id": [{
-            "t": "pas",
-            "i": "c228f2ff"
-        }]
-    },
-    "vac": [
-        {
-            "dis": "U07.1",
-            "des": "J07BX03",
-            "nam": "COVID-19 Vaccine mRNA-1273",
-            "aut": "Pfizer BioNTech",
-            "seq": 1,
-            "tot": 2,
-            "lot": "AAZD7781-001",
-            "dat": "2021-02-22",
-            "adm": "Impfservice Town Town, Vienna",
-            "cou": "AT"
-        },
-        {
-            "dis": "U07.1",
-            "des": "J07BX03",
-            "nam": "COVID-19 Vaccine mRNA-1273",
-            "aut": "Pfizer BioNTech",
-            "seq": 2,
-            "tot": 2,
-            "lot": "AAZD8892-033",
-            "dat": "2021-03-16",
-            "adm": "Impfservice Town Town, Vienna",
-            "cou": "AT"
-        }
-    ],
-    "certificateMetadata": {
-        "issuer": "BMGSPK, Vienna, Austria",
-        "identifier": "01ATBA712FE030C797287CB97334452966470042",
-        "validFrom": "2021-01-20",
-        "validUntil": "2021-07-20",
-        "schemaVersion": "1.0.0"
-    }
- }</pre>
+                <pre id="data_vaccinated" th:text="${vaccinatedJson}"></pre>
                 <button class="uk-button-default uk-margin uk-padding-small uk-align-center"
                         onclick="document.getElementById('vaccinationData').value = document.getElementById('data_vaccinated').textContent;">
                     Fill in data
@@ -93,36 +30,7 @@
             </div>
 
             <div><h3>Tested</h3>
-                <pre id="data_tested">{
-    "sub": {
-        "n": "Gabi Musterfrau",
-        "dob": "1999-04-20",
-        "id": [{
-            "t": "pas",
-            "i": "c228f2ff"
-        }]
-    },
-    "tst": {
-        "dis": "U07.1",
-        "typ": "rapid antigen",
-        "tna": "CLINITEST Rapid COVID-19 Antigen Test",
-        "tma": "Siemens Healthineers",
-        "ori": "",
-        "dat": "2021-02-28T12:34:56+01:00",
-        "res": "negative",
-        "fac": "Teststrasse BMG",
-        "cou": "AT"
-    },
-    "certificateMetadata": {
-        "issuer": "BMGSPK, Vienna, Austria",
-        "identifier": "01ATBA712FE030C797287CB97334452966470042",
-        "validFrom": "2021-01-20",
-        "validUntil": "2021-07-20",
-        "validUntilextended": "2021-01-27T09:47:40.317Z",
-        "revokelistidentifier": "https://qr.gv.at/irl/",
-        "schemaVersion": "1.0.0"
-    }
-}</pre>
+                <pre id="data_tested" th:text="${testedJson}"></pre>
                 <button class="uk-button-default uk-margin uk-padding-small uk-align-center"
                         onclick="document.getElementById('vaccinationData').value = document.getElementById('data_tested').textContent;">
                     Fill in data
