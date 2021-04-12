@@ -1,5 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.decodeFromByteArray
+import kotlinx.serialization.encodeToByteArray
+
 
 class CborProcessingChain(
     private val cborService: CborService,
@@ -9,7 +13,7 @@ class CborProcessingChain(
 ) {
 
     fun process(input: VaccinationData): ResultCbor {
-        val cbor = cborService.encode(input)
+        val cbor = Cbor { ignoreUnknownKeys = true }.encodeToByteArray(input)
         val cose = cborService.sign(cbor)
         val comCose = compressorService.encode(cose)
         val encodedComCose = base45Service.encode(comCose)
@@ -22,7 +26,7 @@ class CborProcessingChain(
         val compressedCose = base45Service.decode(plainInput)
         val cose = compressorService.decode(compressedCose)
         val cbor = cborService.verify(cose)
-        return cborService.decode(cbor)
+        return Cbor { ignoreUnknownKeys = true }.decodeFromByteArray(cbor)
     }
 
 }
