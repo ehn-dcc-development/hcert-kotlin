@@ -18,12 +18,13 @@ class Input {
                 "dat": "2020-12-20",
                 "cou": "AT"
             },
-            "certificateMetadata": {
-                "issuer": "BMGSPK, Vienna, Austria",
-                "identifier": "01ATBA712FE030C797287CB97334452966470042",
-                "validFrom": "2021-01-20",
-                "validUntil": "2021-07-20",
-                "schemaVersion": "1.0.0"
+            "cert": {
+                "is": "BMGSPK, Vienna, Austria",
+                "id": "01ATBA712FE030C797287CB97334452966470042",
+                "vf": "2021-01-20",
+                "vu": "2021-07-20",
+                "co": "AT",
+                "vr": "1.0.0"
             }
         }
         """.trimIndent()
@@ -63,12 +64,13 @@ class Input {
                     "cou": "AT"
                 }
             ],
-            "certificateMetadata": {
-                "issuer": "BMGSPK, Vienna, Austria",
-                "identifier": "01ATBA712FE030C797287CB97334452966470042",
-                "validFrom": "2021-01-20",
-                "validUntil": "2021-07-20",
-                "schemaVersion": "1.0.0"
+            "cert": {
+                "is": "BMGSPK, Vienna, Austria",
+                "id": "01ATBA712FE030C797287CB97334452966470042",
+                "vf": "2021-01-20",
+                "vu": "2021-07-20",
+                "co": "AT",
+                "vr": "1.0.0"
             }
          }
         """.trimIndent()
@@ -93,14 +95,13 @@ class Input {
                 "fac": "Teststrasse BMG",
                 "cou": "AT"
             },
-            "certificateMetadata": {
-                "issuer": "BMGSPK, Vienna, Austria",
-                "identifier": "01ATBA712FE030C797287CB97334452966470042",
-                "validFrom": "2021-01-20",
-                "validUntil": "2021-07-20",
-                "validUntilextended": "2021-01-27T09:47:40.317Z",
-                "revokelistidentifier": "https://qr.gv.at/irl/",
-                "schemaVersion": "1.0.0"
+            "cert": {
+                "is": "BMGSPK, Vienna, Austria",
+                "id": "01ATBA712FE030C797287CB97334452966470042",
+                "vf": "2021-01-20",
+                "vu": "2021-07-20",
+                "co": "AT",
+                "vr": "1.0.0"
             }
         }
         """.trimIndent()

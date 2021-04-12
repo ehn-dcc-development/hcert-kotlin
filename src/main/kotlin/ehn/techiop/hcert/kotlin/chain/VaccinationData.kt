@@ -8,13 +8,16 @@ data class VaccinationData(
     val vac: List<Vaccination?>? = null,
     val rec: PastInfection? = null,
     val tst: Test? = null,
-    val certificateMetadata: CertificateMetadata? = null
+    val cert: CertificateMetadata? = null
 )
 
 @Serializable
 data class Person(
     val n: String? = null,
+    val gn: String? = null,
+    val fn: String? = null,
     val dob: String? = null,
+    val gen: String? = null,
     val id: List<Identifier?>? = null
 )
 
@@ -29,6 +32,8 @@ data class Vaccination(
     val dis: String? = null,
     val des: String? = null,
     val nam: String? = null,
+    val vap: String? = null,
+    val mep: String? = null,
     val aut: String? = null,
     val seq: Int? = null,
     val tot: Int? = null,
@@ -48,13 +53,12 @@ data class PastInfection(
 
 @Serializable
 data class CertificateMetadata(
-    val issuer: String? = null,
-    val identifier: String? = null,
-    val validFrom: String? = null,
-    val validUntil: String? = null,
-    val validUntilextended: String? = null,
-    val revokelistidentifier: String? = null,
-    val schemaVersion: String? = null
+    val `is`: String? = null,
+    val id: String? = null,
+    val vf: String? = null,
+    val vu: String? = null,
+    val co: String? = null,
+    val vr: String? = null
 )
 
 @Serializable
@@ -65,6 +69,8 @@ data class Test(
     val tma: String? = null,
     val ori: String? = null,
     val dat: String? = null,
+    val dts: String? = null,
+    val dtr: String? = null,
     val res: String? = null,
     val fac: String? = null,
     val cou: String? = null
