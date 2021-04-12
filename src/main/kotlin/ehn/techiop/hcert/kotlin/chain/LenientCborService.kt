@@ -21,8 +21,9 @@ class LenientCborService(private val cryptoService: CryptoService) : CborService
         }.EncodeToBytes()
     }
 
-    override fun verify(input: ByteArray): ByteArray {
+    override fun verify(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         val decoded = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
+        verificationResult.coseSignatureVerified = false
         return cwtService.unwrapPayload(decoded.GetContent())
     }
 

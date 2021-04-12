@@ -21,14 +21,24 @@ class CborProcessingChain(
         return ResultCbor(cbor, cose, comCose, prefEncodedComCose)
     }
 
-    fun verify(input: String): VaccinationData {
-        val plainInput = valSuiteService.decode(input)
-        val compressedCose = base45Service.decode(plainInput)
-        val cose = compressorService.decode(compressedCose)
-        val cbor = cborService.verify(cose)
-        return Cbor { ignoreUnknownKeys = true }.decodeFromByteArray(cbor)
+    fun verify(input: String, verificationResult: VerificationResult = VerificationResult()): VaccinationData {
+        val plainInput = valSuiteService.decode(input, verificationResult)
+        val compressedCose = base45Service.decode(plainInput, verificationResult)
+        val cose = compressorService.decode(compressedCose, verificationResult)
+        val cbor = cborService.verify(cose, verificationResult)
+        return Cbor { ignoreUnknownKeys = true }.decodeFromByteArray<VaccinationData>(cbor).also {
+            verificationResult.success = true
+        }
     }
 
+}
+
+class VerificationResult {
+    var base45Decoded = false
+    var valSuitePrefix: String? = null
+    var zlibDecoded = false
+    var coseSignatureVerified = false
+    var success = false
 }
 
 data class ResultCbor(

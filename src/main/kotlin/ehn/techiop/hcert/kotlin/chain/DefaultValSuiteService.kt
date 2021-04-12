@@ -9,8 +9,9 @@ class DefaultValSuiteService(private val prefix: String = "AT01") : ValSuiteServ
         return "$prefix$input";
     }
 
-    override fun decode(input: String): String {
+    override fun decode(input: String, verificationResult: VerificationResult): String {
         if (!input.startsWith(prefix)) throw IllegalArgumentException("Prefix not in input: $prefix")
+        verificationResult.valSuitePrefix = prefix
         return input.drop(prefix.length)
     }
 

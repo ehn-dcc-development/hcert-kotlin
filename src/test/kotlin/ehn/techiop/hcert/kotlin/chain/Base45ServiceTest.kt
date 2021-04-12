@@ -9,7 +9,7 @@ import java.util.*
 
 class Base45ServiceTest {
 
-    private val base45Service = Base45Service()
+    private val base45Service = Base45Encoder()
 
     @ParameterizedTest
     @MethodSource("stringProvider")
@@ -38,7 +38,7 @@ class Base45ServiceTest {
         // transfer
         val decoded = base45Service.decode(encoded)
         assertArrayEquals(deflated, decoded)
-        val inflated = compressorService.decode(decoded)
+        val inflated = compressorService.decode(decoded, VerificationResult())
         assertEquals(input, String(inflated))
     }
 

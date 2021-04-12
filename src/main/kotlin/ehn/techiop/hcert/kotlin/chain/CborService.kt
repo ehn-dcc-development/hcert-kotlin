@@ -4,6 +4,6 @@ interface CborService {
 
     fun sign(input: ByteArray): ByteArray
 
-    fun verify(input: ByteArray): ByteArray
+    fun verify(input: ByteArray, verificationResult: VerificationResult): ByteArray
 
 }

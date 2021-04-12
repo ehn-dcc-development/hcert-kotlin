@@ -9,9 +9,9 @@ class LenientValSuiteService(private val prefix: String = "AT01") : ValSuiteServ
         return "$prefix$input";
     }
 
-    override fun decode(input: String): String = when {
-        input.startsWith(prefix) -> input.drop(prefix.length)
-        else -> input
+    override fun decode(input: String, verificationResult: VerificationResult): String = when {
+        input.startsWith(prefix) -> input.drop(prefix.length).also { verificationResult.valSuitePrefix = prefix }
+        else -> input.also { verificationResult.valSuitePrefix = null }
     }
 
 }
