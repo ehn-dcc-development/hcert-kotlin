@@ -29,11 +29,11 @@ class CborService(private val cryptoService: CryptoService) {
     }
 
     inline fun <reified T> encode(input: T): ByteArray {
-        return Cbor.encodeToByteArray(input)
+        return Cbor{ ignoreUnknownKeys = true }.encodeToByteArray(input)
     }
 
     inline fun <reified T> decode(input: ByteArray): T {
-        return Cbor.decodeFromByteArray<T>(input)
+        return Cbor{ ignoreUnknownKeys = true }.decodeFromByteArray<T>(input)
     }
 
 }
