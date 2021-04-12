@@ -22,6 +22,8 @@ import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPrivateKey
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Random
 
@@ -71,11 +73,11 @@ class RandomKeyCryptoService : CryptoService {
     ): X509Certificate {
         val keyUsage = KeyUsage(KeyUsage.digitalSignature or KeyUsage.keyEncipherment)
         val keyUsageExt = Extension.create(Extension.keyUsage, true, keyUsage)
-        val notBefore = Date()
-        val notAfter = Date(notBefore.time + 24L * 60L * 60L * 1000L)
+        val notBefore = Instant.now()
+        val notAfter = notBefore.plus(30, ChronoUnit.DAYS)
         val serialNumber = BigInteger(32, Random()).abs()
         val builder = X509v3CertificateBuilder(
-            subjectName, serialNumber, notBefore, notAfter, subjectName, subjectPublicKeyInfo
+            subjectName, serialNumber, Date.from(notBefore), Date.from(notAfter), subjectName, subjectPublicKeyInfo
         )
         listOf(keyUsageExt).forEach<Extension> { builder.addExtension(it) }
         val contentSigner = JcaContentSignerBuilder("SHA256withECDSA").build(keyPair.private)
