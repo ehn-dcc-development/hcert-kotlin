@@ -10,7 +10,7 @@ class CompressorService {
      * Compresses input with ZLIB = deflating
      */
     fun encode(input: ByteArray): ByteArray {
-        return DeflaterInputStream(input.inputStream(), Deflater(9)).readAllBytes()
+        return DeflaterInputStream(input.inputStream(), Deflater(9)).readBytes()
     }
 
     /**
@@ -25,7 +25,7 @@ class CompressorService {
                 input[1] == 0x9C.toByte() || // Level 6
                 input[1] == 0xDA.toByte()    // Level 7 - 9
             ) {
-                return InflaterInputStream(input.inputStream()).readAllBytes()
+                return InflaterInputStream(input.inputStream()).readBytes()
             }
         }
         return input
