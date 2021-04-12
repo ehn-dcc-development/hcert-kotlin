@@ -18,7 +18,7 @@ class CoseProcessStrategyTests {
 
     @Test
     fun pastInfected() {
-        val input = Json { isLenient = true }.decodeFromString<VaccinationData>(Input.pastInfectedJson)
+        val input = Json { isLenient = true }.decodeFromString<VaccinationData>(SampleData.recovery)
 
         val output = cborProcessingChain.process(input)
 
@@ -28,7 +28,7 @@ class CoseProcessStrategyTests {
 
     @Test
     fun tested() {
-        val input = Json { isLenient = true }.decodeFromString<VaccinationData>(Input.testedJson)
+        val input = Json { isLenient = true }.decodeFromString<VaccinationData>(SampleData.test)
 
         val output = cborProcessingChain.process(input)
 
@@ -38,7 +38,7 @@ class CoseProcessStrategyTests {
 
     @Test
     fun vaccinated() {
-        val input = Json { isLenient = true }.decodeFromString<VaccinationData>(Input.vaccinatedJson)
+        val input = Json { isLenient = true }.decodeFromString<VaccinationData>(SampleData.vaccination)
 
         val output = cborProcessingChain.process(input)
 

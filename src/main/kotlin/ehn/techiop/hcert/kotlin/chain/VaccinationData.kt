@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 data class VaccinationData(
     val sub: Person? = null,
     val vac: List<Vaccination?>? = null,
-    val rec: PastInfection? = null,
-    val tst: Test? = null,
-    val cert: CertificateMetadata? = null
+    val rec: List<PastInfection?>? = null,
+    val tst: List<Test?>? = null,
+    val cert: DocumentMetadata? = null
 )
 
 @Serializable
@@ -52,7 +52,7 @@ data class PastInfection(
 )
 
 @Serializable
-data class CertificateMetadata(
+data class DocumentMetadata(
     val `is`: String? = null,
     val id: String? = null,
     val vf: String? = null,
