@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import COSE.HeaderKeys
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.hamcrest.CoreMatchers.equalTo
@@ -10,29 +11,37 @@ class CborProcessingChainTest {
 
     @Test
     fun pastInfected() {
-        verify(SampleData.recovery, buildChain(RandomRsaKeyCryptoService()))
-        verify(SampleData.recovery, buildChain(RandomEcKeyCryptoService()))
+        verify(SampleData.recovery, RandomRsaKeyCryptoService())
+        verify(SampleData.recovery, RandomEcKeyCryptoService())
     }
 
     @Test
     fun tested() {
-        verify(SampleData.test, buildChain(RandomRsaKeyCryptoService()))
-        verify(SampleData.test, buildChain(RandomEcKeyCryptoService()))
+        verify(SampleData.test, RandomRsaKeyCryptoService())
+        verify(SampleData.test, RandomEcKeyCryptoService())
     }
 
     @Test
     fun vaccinated() {
-        verify(SampleData.vaccination, buildChain(RandomRsaKeyCryptoService()))
-        verify(SampleData.vaccination, buildChain(RandomEcKeyCryptoService()))
+        verify(SampleData.vaccination, RandomRsaKeyCryptoService())
+        verify(SampleData.vaccination, RandomEcKeyCryptoService())
     }
 
-    private fun verify(s: String, cborProcessingChain: CborProcessingChain) {
-        val input = Json { isLenient = true }.decodeFromString<VaccinationData>(s)
+    private fun verify(jsonInput: String, cryptoService: CryptoService) {
+        val input = Json { isLenient = true }.decodeFromString<VaccinationData>(jsonInput)
         val verificationResult = VerificationResult()
 
-        val output = cborProcessingChain.process(input)
+        val encodingChain = buildChain(cryptoService)
+        val kid =
+            cryptoService.getCborHeaders().first { it.first.AsCBOR() == HeaderKeys.KID.AsCBOR() }.second.AsString()
+        val certificate = cryptoService.getCertificate(kid)
+        val certificateRepository = RemoteCachedCertificateRepository("doesntmatter")
+        certificateRepository.addCertificate(kid, certificate)
+        val decodingChain = buildChain(VerificationCryptoService(certificateRepository))
 
-        val vaccinationData = cborProcessingChain.verify(output.prefixedEncodedCompressedCose, verificationResult)
+        val output = encodingChain.process(input)
+
+        val vaccinationData = decodingChain.verify(output.prefixedEncodedCompressedCose, verificationResult)
         assertThat(vaccinationData, equalTo(input))
         assertThat(verificationResult.cborDecoded, equalTo(true))
     }
