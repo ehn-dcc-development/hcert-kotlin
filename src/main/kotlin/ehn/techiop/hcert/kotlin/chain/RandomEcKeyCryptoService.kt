@@ -27,14 +27,11 @@ import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Random
 
-class RandomKeyCryptoService : CryptoService {
+class RandomEcKeyCryptoService : CryptoService {
 
     private val keyPair = KeyPairGenerator.getInstance("EC")
         .apply { initialize(256) }.genKeyPair()
-    private val keyPairCert: X509Certificate = selfSignCertificate(
-        SubjectPublicKeyInfo.getInstance(ASN1Sequence.getInstance(keyPair.public.encoded)),
-        X500Name("CN=Me")
-    )
+    private val keyPairCert: X509Certificate = PkiUtils().selfSignCertificate(X500Name("CN=EC-Me"), keyPair)
 
     private val keyId: String = MessageDigest.getInstance("SHA-256")
         .digest(keyPairCert.encoded)
@@ -65,25 +62,6 @@ class RandomKeyCryptoService : CryptoService {
     override fun getCertificate(kid: String): Certificate {
         if (kid != keyId) throw IllegalArgumentException("kid not known: $kid")
         return keyPairCert
-    }
-
-    private fun selfSignCertificate(
-        subjectPublicKeyInfo: SubjectPublicKeyInfo,
-        subjectName: X500Name
-    ): X509Certificate {
-        val keyUsage = KeyUsage(KeyUsage.digitalSignature or KeyUsage.keyEncipherment)
-        val keyUsageExt = Extension.create(Extension.keyUsage, true, keyUsage)
-        val notBefore = Instant.now()
-        val notAfter = notBefore.plus(30, ChronoUnit.DAYS)
-        val serialNumber = BigInteger(32, Random()).abs()
-        val builder = X509v3CertificateBuilder(
-            subjectName, serialNumber, Date.from(notBefore), Date.from(notAfter), subjectName, subjectPublicKeyInfo
-        )
-        listOf(keyUsageExt).forEach<Extension> { builder.addExtension(it) }
-        val contentSigner = JcaContentSignerBuilder("SHA256withECDSA").build(keyPair.private)
-        val certificateHolder = builder.build(contentSigner)
-        return CertificateFactory.getInstance("X.509")
-            .generateCertificate(ByteArrayInputStream(certificateHolder.encoded)) as X509Certificate
     }
 
 }

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class CoseProcessStrategyTests {
 
-    private val cryptoService = RandomKeyCryptoService()
+    private val cryptoService = RandomEcKeyCryptoService()
     private val coseService = DefaultCoseService(cryptoService)
     private val valSuiteService = DefaultValSuiteService()
     private val compressorService = CompressorService()
