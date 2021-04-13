@@ -24,5 +24,5 @@ sealed class CwtHeaderKeys private constructor(value: Int) {
     object ISSUED_AT : CwtHeaderKeys(6)
     object CWT_ID : CwtHeaderKeys(7)
 
-    object HCERT : CwtHeaderKeys(99) // TODO not fixed yet
+    object HCERT : CwtHeaderKeys(-260)
 }
