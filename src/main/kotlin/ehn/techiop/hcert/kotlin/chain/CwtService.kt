@@ -7,7 +7,7 @@ import java.time.temporal.ChronoUnit
 
 class CwtService {
 
-    fun wrapPayload(input: ByteArray): ByteArray? {
+    fun wrapPayload(input: ByteArray): ByteArray {
         val issueTime = Instant.now()
         val expirationTime = issueTime.plus(365, ChronoUnit.DAYS)
         return CBORObject.NewMap().also { payload ->

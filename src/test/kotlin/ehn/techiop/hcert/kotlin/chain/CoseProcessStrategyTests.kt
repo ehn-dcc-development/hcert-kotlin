@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class CoseProcessStrategyTests {
 
     private val cryptoService = RandomKeyCryptoService()
-    private val cborService = DefaultCborService(cryptoService)
+    private val cborService = DefaultCoseService(cryptoService)
     private val valSuiteService = DefaultValSuiteService()
     private val compressorService = CompressorService()
     private val base45Service = Base45Service()
@@ -25,7 +25,7 @@ class CoseProcessStrategyTests {
 
         val vaccinationData = cborProcessingChain.verify(output.prefixedEncodedCompressedCose, verificationResult)
         assertThat(vaccinationData, equalTo(input))
-        assertThat(verificationResult.success, equalTo(true))
+        assertThat(verificationResult.cborDecoded, equalTo(true))
     }
 
     @Test
@@ -37,7 +37,7 @@ class CoseProcessStrategyTests {
 
         val vaccinationData = cborProcessingChain.verify(output.prefixedEncodedCompressedCose, verificationResult)
         assertThat(vaccinationData, equalTo(input))
-        assertThat(verificationResult.success, equalTo(true))
+        assertThat(verificationResult.cborDecoded, equalTo(true))
     }
 
     @Test
@@ -49,7 +49,7 @@ class CoseProcessStrategyTests {
 
         val vaccinationData = cborProcessingChain.verify(output.prefixedEncodedCompressedCose, verificationResult)
         assertThat(vaccinationData, equalTo(input))
-        assertThat(verificationResult.success, equalTo(true))
+        assertThat(verificationResult.cborDecoded, equalTo(true))
     }
 
 }

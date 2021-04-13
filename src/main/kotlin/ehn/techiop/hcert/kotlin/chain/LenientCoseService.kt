@@ -1,15 +1,17 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import COSE.Attribute
-import COSE.HeaderKeys
 import COSE.MessageTag
 import COSE.Sign1Message
 
-class DefaultCborService(private val cryptoService: CryptoService) : CborService {
+/**
+ * Does not verify the signature on [decode]
+ */
+class LenientCoseService(private val cryptoService: CryptoService) : CoseService {
 
     private val cwtService = CwtService()
 
-    override fun sign(input: ByteArray): ByteArray {
+    override fun encode(input: ByteArray): ByteArray {
         return Sign1Message().also {
             it.SetContent(cwtService.wrapPayload(input))
             for (header in cryptoService.getCborHeaders()) {
@@ -19,12 +21,9 @@ class DefaultCborService(private val cryptoService: CryptoService) : CborService
         }.EncodeToBytes()
     }
 
-    override fun verify(input: ByteArray, verificationResult: VerificationResult): ByteArray {
+    override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         val decoded = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
-        val kid = decoded.protectedAttributes.get(HeaderKeys.KID.AsCBOR()).AsString()
-        if (!decoded.validate(cryptoService.getCborVerificationKey(kid)))
-            throw IllegalArgumentException("Not validated")
-        verificationResult.coseSignatureVerified = true
+        verificationResult.coseVerified = false
         return cwtService.unwrapPayload(decoded.GetContent())
     }
 
