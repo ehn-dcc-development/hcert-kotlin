@@ -7,11 +7,9 @@ import COSE.Sign1Message
 
 class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
 
-    private val cwtService = CwtService()
-
     override fun encode(input: ByteArray): ByteArray {
         return Sign1Message().also {
-            it.SetContent(cwtService.wrapPayload(input))
+            it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
                 it.addAttribute(header.first, header.second, Attribute.PROTECTED)
             }
@@ -25,7 +23,7 @@ class DefaultCoseService(private val cryptoService: CryptoService) : CoseService
         if (!decoded.validate(cryptoService.getCborVerificationKey(kid)))
             throw IllegalArgumentException("Not validated")
         verificationResult.coseVerified = true
-        return cwtService.unwrapPayload(decoded.GetContent())
+        return decoded.GetContent()
     }
 
 }

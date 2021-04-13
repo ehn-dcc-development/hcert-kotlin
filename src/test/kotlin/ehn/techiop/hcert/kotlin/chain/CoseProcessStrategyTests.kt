@@ -9,12 +9,13 @@ import org.junit.jupiter.api.Test
 class CoseProcessStrategyTests {
 
     private val cryptoService = RandomKeyCryptoService()
-    private val cborService = DefaultCoseService(cryptoService)
+    private val coseService = DefaultCoseService(cryptoService)
     private val valSuiteService = DefaultValSuiteService()
     private val compressorService = CompressorService()
     private val base45Service = Base45Service()
+    private val cborService = CborService()
     private val cborProcessingChain =
-        CborProcessingChain(cborService, valSuiteService, compressorService, base45Service)
+        CborProcessingChain(cborService, coseService, valSuiteService, compressorService, base45Service)
 
     @Test
     fun pastInfected() {
