@@ -1,9 +1,11 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
 import com.google.zxing.aztec.AztecWriter
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
@@ -20,7 +22,8 @@ class TwoDimCodeService(private val size: Int, private val format: BarcodeFormat
      */
     fun encode(data: String): String {
         try {
-            val encoded = writer.encode(data, format, size, size)
+            val hints = mapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.Q)
+            val encoded = writer.encode(data, format, size, size, hints)
             val bufferedImage = MatrixToImageWriter.toBufferedImage(encoded)
             val bout = ByteArrayOutputStream()
             ImageIO.write(bufferedImage, "png", bout)
