@@ -4,6 +4,8 @@ import COSE.Attribute
 import COSE.HeaderKeys
 import COSE.MessageTag
 import COSE.Sign1Message
+import com.upokecenter.cbor.CBORObject
+import com.upokecenter.cbor.CBORType
 
 class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
 
@@ -18,12 +20,36 @@ class DefaultCoseService(private val cryptoService: CryptoService) : CoseService
     }
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
-        val decoded = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
-        val kid = decoded.protectedAttributes.get(HeaderKeys.KID.AsCBOR()).AsString()
-        if (!decoded.validate(cryptoService.getCborVerificationKey(kid)))
-            throw IllegalArgumentException("Not validated")
-        verificationResult.coseVerified = true
-        return decoded.GetContent()
+        verificationResult.coseVerified = false
+        return try {
+            (Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message).also {
+                getKid(it)?.let { kid ->
+                    try {
+                        val verificationKey = cryptoService.getCborVerificationKey(kid)
+                        verificationResult.coseVerified = it.validate(verificationKey)
+                    } catch (e: Throwable) {
+                        it.GetContent()
+                    }
+                }
+            }.GetContent()
+        } catch (e: Throwable) {
+            input
+        }
+    }
+
+    private fun getKid(it: Sign1Message): String? {
+        val key = HeaderKeys.KID.AsCBOR()
+        if (it.protectedAttributes.ContainsKey(key)) {
+            return asString(it.protectedAttributes.get(key))
+        } else if (it.unprotectedAttributes.ContainsKey(key)) {
+            return asString(it.unprotectedAttributes.get(key))
+        }
+        return null
+    }
+
+    private fun asString(get: CBORObject): String? = when (get.type) {
+        CBORType.ByteString -> get.GetByteString().toHexString()
+        else -> get.AsString()
     }
 
 }

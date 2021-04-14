@@ -48,10 +48,12 @@ class Base45Encoder {
         generateSequenceByDivRem(fromThreeCharValue(list), 256)
             .map { it.toUByte() }.toList()
 
-    private fun fromThreeCharValue(list: String) =
-        list.foldIndexed(0L) { index, acc, element ->
+    private fun fromThreeCharValue(list: String): Long {
+        return list.foldIndexed(0L, { index, acc: Long, element ->
+            if (!alphabet.contains(element)) throw IllegalArgumentException()
             pow(int45, index) * alphabet.indexOf(element) + acc
-        }
+        })
+    }
 
     private fun generateSequenceByDivRem(seed: Long, divisor: Int) =
         generateSequence(seed) { if (it >= divisor) it.div(divisor) else null }

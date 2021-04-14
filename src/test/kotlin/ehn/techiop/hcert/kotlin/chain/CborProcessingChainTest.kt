@@ -35,7 +35,7 @@ class CborProcessingChainTest {
         val kid =
             cryptoService.getCborHeaders().first { it.first.AsCBOR() == HeaderKeys.KID.AsCBOR() }.second.AsString()
         val certificate = cryptoService.getCertificate(kid)
-        val certificateRepository = RemoteCachedCertificateRepository("doesntmatter")
+        val certificateRepository = PrefilledCertificateRepository()
         certificateRepository.addCertificate(kid, certificate)
         val decodingChain = buildChain(VerificationCryptoService(certificateRepository))
 
@@ -49,9 +49,9 @@ class CborProcessingChainTest {
     private fun buildChain(cryptoService: CryptoService): CborProcessingChain {
         val coseService = DefaultCoseService(cryptoService)
         val valSuiteService = DefaultValSuiteService()
-        val compressorService = CompressorService()
-        val base45Service = Base45Service()
-        val cborService = CborService()
+        val compressorService = DefaultCompressorService()
+        val base45Service = DefaultBase45Service()
+        val cborService = DefaultCborService()
         return CborProcessingChain(cborService, coseService, valSuiteService, compressorService, base45Service)
     }
 

@@ -2,13 +2,21 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	id("maven-publish")
+    id("idea")
 	kotlin("jvm") version "1.4.31"
 	kotlin("plugin.serialization") version "1.4.31"
 }
 
 group = "ehn.techiop.hcert"
-version = "0.1.2-SNAPSHOT"
+version = "0.1.3-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+idea {
+    module {
+        isDownloadSources = true
+        isDownloadJavadoc = true
+    }
+}
 
 repositories {
 	mavenLocal()

@@ -31,7 +31,7 @@ class Base45ServiceTest {
 
     @Test
     fun testWithZlib() {
-        val compressorService = CompressorService()
+        val compressorService = DefaultCompressorService()
         val input = UUID.randomUUID().toString()
         val deflated = compressorService.encode(input.encodeToByteArray())
         val encoded = base45Service.encode(deflated)
