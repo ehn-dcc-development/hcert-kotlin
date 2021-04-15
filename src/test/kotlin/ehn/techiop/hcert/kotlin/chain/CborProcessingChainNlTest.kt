@@ -30,7 +30,7 @@ class CborProcessingChainNlTest {
 
         val vaccinationData = decodingChain.verify(qrCodeContents, verificationResult)
         assertThat(verificationResult.coseVerified, equalTo(false))
-        assertThat(vaccinationData.sub?.gen, notNullValue())
+        assertThat(vaccinationData.subject?.gender, notNullValue())
     }
 
     private fun buildChain(cryptoService: CryptoService): CborProcessingChain {

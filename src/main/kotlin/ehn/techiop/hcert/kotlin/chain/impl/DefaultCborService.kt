@@ -37,7 +37,7 @@ open class DefaultCborService : CborService {
                 val name = map["https://schema.org/nam"].AsString()
                 val gender = map["https://schema.org/gen"].AsString()
                 val date = map["https://schema.org/dat"].AsString()
-                return VaccinationData(Person(n = name, gen = gender), tst = listOf(Test(dat = date))).also {
+                return VaccinationData(Person(givenName = name, gender = gender), tests = listOf(Test(dateTimeSample = date))).also {
                     verificationResult.cborDecoded = true
                 }
             }
