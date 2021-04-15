@@ -4,10 +4,13 @@ import COSE.Attribute
 import COSE.HeaderKeys
 import COSE.MessageTag
 import COSE.Sign1Message
+import com.upokecenter.cbor.CBORObject
+import com.upokecenter.cbor.CBORType
 import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
+import ehn.techiop.hcert.kotlin.chain.toHexString
 
 class FaultyCoseService(private val cryptoService: CryptoService) : CoseService {
 
@@ -26,7 +29,12 @@ class FaultyCoseService(private val cryptoService: CryptoService) : CoseService 
         return try {
             (Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message).also {
                 getKid(it)?.let { kid ->
-                    verificationResult.coseVerified = it.validate(cryptoService.getCborVerificationKey(kid))
+                    try {
+                        val verificationKey = cryptoService.getCborVerificationKey(kid)
+                        verificationResult.coseVerified = it.validate(verificationKey)
+                    } catch (e: Throwable) {
+                        it.GetContent()
+                    }
                 }
             }.GetContent()
         } catch (e: Throwable) {
@@ -35,12 +43,18 @@ class FaultyCoseService(private val cryptoService: CryptoService) : CoseService 
     }
 
     private fun getKid(it: Sign1Message): String? {
-        if (it.protectedAttributes.ContainsKey(HeaderKeys.KID.AsCBOR())) {
-            return it.protectedAttributes.get(HeaderKeys.KID.AsCBOR()).AsString()
-        } else if (it.unprotectedAttributes.ContainsKey(HeaderKeys.KID.AsCBOR())) {
-            return it.unprotectedAttributes.get(HeaderKeys.KID.AsCBOR()).AsString()
+        val key = HeaderKeys.KID.AsCBOR()
+        if (it.protectedAttributes.ContainsKey(key)) {
+            return asString(it.protectedAttributes.get(key))
+        } else if (it.unprotectedAttributes.ContainsKey(key)) {
+            return asString(it.unprotectedAttributes.get(key))
         }
         return null
+    }
+
+    private fun asString(get: CBORObject): String? = when (get.type) {
+        CBORType.ByteString -> get.GetByteString().toHexString()
+        else -> get.AsString()
     }
 
 }
