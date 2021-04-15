@@ -1,6 +1,11 @@
-package ehn.techiop.hcert.kotlin.chain
+package ehn.techiop.hcert.kotlin.chain.impl
 
 import com.upokecenter.cbor.CBORObject
+import ehn.techiop.hcert.kotlin.chain.CborService
+import ehn.techiop.hcert.kotlin.chain.Person
+import ehn.techiop.hcert.kotlin.chain.Test
+import ehn.techiop.hcert.kotlin.chain.VaccinationData
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.cwt.CwtHeaderKeys
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
@@ -8,13 +13,21 @@ import kotlinx.serialization.encodeToByteArray
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class FaultyCborService : CborService {
+class DefaultCborService : CborService {
 
     override fun encode(input: VaccinationData): ByteArray {
         val cbor = Cbor { ignoreUnknownKeys = true }.encodeToByteArray(input)
-        return CBORObject.FromObject(cbor).EncodeToBytes()
+        val issueTime = Instant.now()
+        val expirationTime = issueTime.plus(365, ChronoUnit.DAYS)
+        return CBORObject.NewMap().also {
+            it[CwtHeaderKeys.ISSUER.AsCBOR()] = CBORObject.FromObject("AT")
+            it[CwtHeaderKeys.ISSUED_AT.AsCBOR()] = CBORObject.FromObject(issueTime.epochSecond)
+            it[CwtHeaderKeys.EXPIRATION.AsCBOR()] = CBORObject.FromObject(expirationTime.epochSecond)
+            it[CwtHeaderKeys.HCERT.AsCBOR()] = CBORObject.NewMap().also {
+                it[CBORObject.FromObject(1)] = CBORObject.FromObject(cbor)
+            }
+        }.EncodeToBytes()
     }
-
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): VaccinationData {
         verificationResult.cborDecoded = false

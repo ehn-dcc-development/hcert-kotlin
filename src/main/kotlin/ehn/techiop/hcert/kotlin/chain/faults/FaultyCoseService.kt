@@ -1,9 +1,13 @@
-package ehn.techiop.hcert.kotlin.chain
+package ehn.techiop.hcert.kotlin.chain.faults
 
 import COSE.Attribute
 import COSE.HeaderKeys
 import COSE.MessageTag
 import COSE.Sign1Message
+import ehn.techiop.hcert.kotlin.chain.CoseService
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
 class FaultyCoseService(private val cryptoService: CryptoService) : CoseService {
 

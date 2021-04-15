@@ -1,4 +1,4 @@
-package ehn.techiop.hcert.kotlin.chain
+package ehn.techiop.hcert.kotlin.chain.impl
 
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.x500.X500Name

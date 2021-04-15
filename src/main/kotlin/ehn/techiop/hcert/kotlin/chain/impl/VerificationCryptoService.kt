@@ -1,9 +1,11 @@
-package ehn.techiop.hcert.kotlin.chain
+package ehn.techiop.hcert.kotlin.chain.impl
 
 import COSE.HeaderKeys
 import COSE.KeyKeys
 import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
+import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.CryptoService
 import java.math.BigInteger
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPublicKey

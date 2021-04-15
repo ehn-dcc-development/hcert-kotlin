@@ -1,16 +1,20 @@
-package ehn.techiop.hcert.kotlin.chain
+package ehn.techiop.hcert.kotlin.chain.faults
 
+import ehn.techiop.hcert.kotlin.chain.CompressorService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import java.util.zip.Deflater
 import java.util.zip.DeflaterInputStream
 import java.util.zip.InflaterInputStream
 
-class DefaultCompressorService : CompressorService {
+class FaultyCompressorService : CompressorService {
 
     /**
      * Compresses input with ZLIB = deflating
      */
     override fun encode(input: ByteArray): ByteArray {
-        return DeflaterInputStream(input.inputStream(), Deflater(9)).readBytes()
+        return DeflaterInputStream(input.inputStream(), Deflater(9)).readBytes().also {
+            it.plus(byteArrayOf(0x00, 0x01, 0x02, 0x03))
+        }
     }
 
     /**

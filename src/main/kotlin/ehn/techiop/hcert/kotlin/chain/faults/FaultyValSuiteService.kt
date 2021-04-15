@@ -1,12 +1,12 @@
-package ehn.techiop.hcert.kotlin.chain
+package ehn.techiop.hcert.kotlin.chain.faults
 
-/**
- * Appends/drops a country-specific prefix from contents, e.g. "HC1"
- */
-class DefaultValSuiteService(private val prefix: String = "HC1") : ValSuiteService {
+import ehn.techiop.hcert.kotlin.chain.ValSuiteService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+
+class FaultyValSuiteService(private val prefix: String = "HC1") : ValSuiteService {
 
     override fun encode(input: String): String {
-        return "$prefix$input";
+        return input;
     }
 
     override fun decode(input: String, verificationResult: VerificationResult): String = when {

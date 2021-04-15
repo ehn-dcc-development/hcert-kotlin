@@ -1,4 +1,4 @@
-package ehn.techiop.hcert.kotlin.chain
+package ehn.techiop.hcert.kotlin.chain.impl
 
 import COSE.Attribute
 import COSE.HeaderKeys
@@ -6,6 +6,10 @@ import COSE.MessageTag
 import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import com.upokecenter.cbor.CBORType
+import ehn.techiop.hcert.kotlin.chain.CoseService
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.toHexString
 
 class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
 
@@ -13,6 +17,7 @@ class DefaultCoseService(private val cryptoService: CryptoService) : CoseService
         return Sign1Message().also {
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
+                //TODO separate class that puts it into UNPROTECTED for testing issues
                 it.addAttribute(header.first, header.second, Attribute.PROTECTED)
             }
             it.sign(cryptoService.getCborSigningKey())
