@@ -11,7 +11,7 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.toHexString
 
-class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
+open class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
 
     override fun encode(input: ByteArray): ByteArray {
         return Sign1Message().also {

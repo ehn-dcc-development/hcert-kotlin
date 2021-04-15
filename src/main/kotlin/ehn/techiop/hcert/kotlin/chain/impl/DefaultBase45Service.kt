@@ -3,7 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import ehn.techiop.hcert.kotlin.chain.Base45Service
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
-class DefaultBase45Service : Base45Service {
+open class DefaultBase45Service : Base45Service {
 
     private val encoder = Base45Encoder()
 

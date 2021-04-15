@@ -6,7 +6,7 @@ import java.util.zip.Deflater
 import java.util.zip.DeflaterInputStream
 import java.util.zip.InflaterInputStream
 
-class DefaultCompressorService : CompressorService {
+open class DefaultCompressorService : CompressorService {
 
     /**
      * Compresses input with ZLIB = deflating

@@ -13,7 +13,7 @@ import kotlinx.serialization.encodeToByteArray
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class DefaultCborService : CborService {
+open class DefaultCborService : CborService {
 
     override fun encode(input: VaccinationData): ByteArray {
         val cbor = Cbor { ignoreUnknownKeys = true }.encodeToByteArray(input)
