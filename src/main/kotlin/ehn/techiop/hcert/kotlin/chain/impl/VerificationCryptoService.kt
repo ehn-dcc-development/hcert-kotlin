@@ -35,15 +35,23 @@ class VerificationCryptoService(private val repository: CertificateRepository) :
     private fun buildEcKey(publicKey: ECPublicKey): OneKey {
         return OneKey(CBORObject.NewMap().also {
             it[KeyKeys.KeyType.AsCBOR()] = KeyKeys.KeyType_EC2
-            it[KeyKeys.EC2_Curve.AsCBOR()] = KeyKeys.EC2_P256
+            it[KeyKeys.EC2_Curve.AsCBOR()] = getEcCurve(publicKey)
             it[KeyKeys.EC2_X.AsCBOR()] = stripLeadingZero(publicKey.w.affineX)
             it[KeyKeys.EC2_Y.AsCBOR()] = stripLeadingZero(publicKey.w.affineY)
         })
     }
 
+    private fun getEcCurve(publicKey: ECPublicKey) = when (publicKey.params.order.bitLength()) {
+        384 -> KeyKeys.EC2_P384
+        521 -> KeyKeys.EC2_P521
+        else -> KeyKeys.EC2_P256
+    }
+
     override fun getCertificate(kid: ByteArray) = repository.loadCertificate(kid)
 
-    // Java's BigInteger adds a leading sign bit
+    /**
+     * Strip the possibly leading zero (used as the sign bit) added from Java's BigInteger implementation
+     */
     private fun stripLeadingZero(input: BigInteger): CBORObject {
         val bytes = input.toByteArray()
         val stripped = when {

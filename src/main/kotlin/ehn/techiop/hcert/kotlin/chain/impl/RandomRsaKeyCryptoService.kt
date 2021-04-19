@@ -12,7 +12,7 @@ import java.security.Security
 import java.security.cert.Certificate
 import java.security.cert.X509Certificate
 
-class RandomRsaKeyCryptoService : CryptoService {
+class RandomRsaKeyCryptoService(private val keySize: Int = 2048) : CryptoService {
 
     init {
         Security.addProvider(BouncyCastleProvider()) // for SHA256withRSA/PSS
@@ -21,7 +21,7 @@ class RandomRsaKeyCryptoService : CryptoService {
     private val pkiUtils = PkiUtils()
 
     private val keyPair = KeyPairGenerator.getInstance("RSA")
-        .apply { initialize(2048) }.genKeyPair()
+        .apply { initialize(keySize) }.genKeyPair()
 
     private val keyPairCert: X509Certificate = pkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair)
 

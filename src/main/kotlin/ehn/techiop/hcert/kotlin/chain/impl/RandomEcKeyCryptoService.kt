@@ -10,12 +10,12 @@ import java.security.KeyPairGenerator
 import java.security.cert.Certificate
 import java.security.cert.X509Certificate
 
-class RandomEcKeyCryptoService : CryptoService {
+class RandomEcKeyCryptoService(private val keySize: Int = 256) : CryptoService {
 
     private val pkiUtils = PkiUtils()
 
     private val keyPair = KeyPairGenerator.getInstance("EC")
-        .apply { initialize(256) }.genKeyPair()
+        .apply { initialize(keySize) }.genKeyPair()
 
     private val keyPairCert: X509Certificate = pkiUtils.selfSignCertificate(X500Name("CN=EC-Me"), keyPair)
 
