@@ -4,7 +4,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultValSuiteService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.VerificationCryptoService
 import org.hamcrest.CoreMatchers.equalTo
@@ -35,7 +35,7 @@ class CborProcessingChainNlTest {
 
     private fun buildChain(cryptoService: CryptoService): CborProcessingChain {
         val coseService = DefaultCoseService(cryptoService)
-        val valSuiteService = DefaultValSuiteService()
+        val valSuiteService = DefaultContextIdentifierService()
         val compressorService = DefaultCompressorService()
         val base45Service = DefaultBase45Service()
         val cborService = DefaultCborService()

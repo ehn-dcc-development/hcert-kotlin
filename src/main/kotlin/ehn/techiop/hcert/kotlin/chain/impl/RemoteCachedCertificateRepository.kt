@@ -16,7 +16,7 @@ class RemoteCachedCertificateRepository(private val baseUrl: String) : Certifica
     override fun loadCertificate(kid: ByteArray): Certificate {
         val key = byteArrayForKey(kid)
         if (map.containsKey(key)) return map[key]!!
-        val request = Request.Builder().get().url("$baseUrl/$kid").build()
+        val request = Request.Builder().get().url("$baseUrl/$key").build()
         val response = OkHttpClient.Builder().build().newCall(request).execute()
         response.body?.let {
             val certificate = CertificateFactory.getInstance("X.509").generateCertificate(it.byteStream())
@@ -24,7 +24,7 @@ class RemoteCachedCertificateRepository(private val baseUrl: String) : Certifica
             map[key] = certificate
             return certificate
         }
-        throw IllegalArgumentException("Unable to get certificate for $kid at $baseUrl")
+        throw IllegalArgumentException("Unable to get certificate for $kid ($key) at $baseUrl")
     }
 
     internal fun addCertificate(kid: ByteArray, certificate: Certificate) {

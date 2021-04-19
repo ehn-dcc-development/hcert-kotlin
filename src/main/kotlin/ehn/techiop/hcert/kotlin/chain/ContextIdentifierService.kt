@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
-interface ValSuiteService {
+interface ContextIdentifierService {
 
     fun encode(input: String): String
 

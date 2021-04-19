@@ -25,13 +25,13 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
         verificationResult.coseVerified = false
         return try {
             (Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message).also {
-                getKid(it)?.let { kid ->
-                    try {
+                try {
+                    getKid(it)?.let { kid ->
                         val verificationKey = cryptoService.getCborVerificationKey(kid)
                         verificationResult.coseVerified = it.validate(verificationKey)
-                    } catch (e: Throwable) {
-                        it.GetContent()
                     }
+                } catch (e: Throwable) {
+                    it.GetContent()
                 }
             }.GetContent()
         } catch (e: Throwable) {
