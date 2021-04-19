@@ -105,8 +105,8 @@ class SampleData {
                     "tna": "tbd tbd tbd",
                     "tma": "tbd tbd tbd",
                     "ori": "258500001",
-                    "dts": "2021-02-20T12:34:56+00:00",
-                    "dtr": "2021-02-20T14:56:01+00:00",
+                    "dts": "441759600",
+                    "dtr": "441759600",
                     "res": "1240591000000102",
                     "fac": "Testing center Vienna 1",
                     "cou": "AT"

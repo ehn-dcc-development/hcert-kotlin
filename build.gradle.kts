@@ -1,8 +1,10 @@
+import org.jetbrains.kotlin.fir.declarations.builder.buildFile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	id("maven-publish")
     id("idea")
+    id("org.jsonschema2dataclass") version "3.0.0"
 	kotlin("jvm") version "1.4.31"
 	kotlin("plugin.serialization") version "1.4.31"
 }
@@ -53,6 +55,9 @@ dependencies {
 	implementation("com.google.zxing:javase:3.4.1")
 	implementation("org.bouncycastle:bcpkix-jdk15to18:1.68")
 	implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.3")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.1")
     testImplementation("org.hamcrest:hamcrest:2.2")
@@ -68,4 +73,19 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+configure <com.github.eirnym.js2p.JsonSchemaExtension> {
+    source.from("src/main/resources/json")
+    targetPackage = "ehn.techiop.hcert.data"
+    includeGeneratedAnnotation = false
+    serializable = true
+    useTitleAsClassname = true
+    dateTimeType = "java.time.Instant"
+}
+
+sourceSets {
+    named("main") {
+        java.srcDir("build/generated/sources/js2d/main")
+    }
 }

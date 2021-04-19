@@ -1,15 +1,14 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
+import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.upokecenter.cbor.CBORObject
+import ehn.techiop.hcert.data.DigitalGreenCertificate
+import ehn.techiop.hcert.data.Sub
+import ehn.techiop.hcert.data.Tst
 import ehn.techiop.hcert.kotlin.chain.CborService
-import ehn.techiop.hcert.kotlin.chain.Person
-import ehn.techiop.hcert.kotlin.chain.Test
-import ehn.techiop.hcert.kotlin.chain.VaccinationData
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.cwt.CwtHeaderKeys
-import kotlinx.serialization.cbor.Cbor
-import kotlinx.serialization.decodeFromByteArray
-import kotlinx.serialization.encodeToByteArray
 import java.time.Instant
 import java.time.Period
 
@@ -20,8 +19,8 @@ open class DefaultCborService(
 
     private val keyEuDgcV1 = CBORObject.FromObject(1)
 
-    override fun encode(input: VaccinationData): ByteArray {
-        val cbor = Cbor { ignoreUnknownKeys = true }.encodeToByteArray(input)
+    override fun encode(input: DigitalGreenCertificate): ByteArray {
+        val cbor = CBORMapper().apply { registerModule(JavaTimeModule()) }.writeValueAsBytes(input)
         val issueTime = Instant.now()
         val expirationTime = issueTime + expirationPeriod
         return CBORObject.NewMap().also {
@@ -34,7 +33,7 @@ open class DefaultCborService(
         }.EncodeToBytes()
     }
 
-    override fun decode(input: ByteArray, verificationResult: VerificationResult): VaccinationData {
+    override fun decode(input: ByteArray, verificationResult: VerificationResult): DigitalGreenCertificate {
         verificationResult.cborDecoded = false
         try {
             val map = CBORObject.DecodeFromBytes(input)
@@ -51,25 +50,31 @@ open class DefaultCborService(
 
             map[CwtHeaderKeys.HCERT.AsCBOR()]?.let { hcert -> // SPEC
                 hcert[keyEuDgcV1]?.let {
-                    return Cbor { ignoreUnknownKeys = true }
-                        .decodeFromByteArray<VaccinationData>(it.GetByteString())
+                    return CBORMapper()
+                        .apply { registerModule(JavaTimeModule()) }
+                        .readValue(it.GetByteString(), DigitalGreenCertificate::class.java)
                         .also { verificationResult.cborDecoded = true }
                 }
             }
 
             map["@context"]?.let { // NL from https://demo.uvci.eu/
                 val name = map["https://schema.org/nam"]?.AsString()
-                val gender = map["https://schema.org/gen"]?.AsString()
-                val date = map["https://schema.org/dat"]?.AsString()
-                return VaccinationData(
-                    Person(givenName = name, gender = gender),
-                    tests = listOf(Test(dateTimeSample = date))
-                ).also { verificationResult.cborDecoded = true }
+                //val gender = map["https://schema.org/gen"]?.AsString()
+                //val date = map["https://schema.org/dat"]?.AsInt32()
+                return DigitalGreenCertificate().apply {
+                    sub = Sub().apply {
+                        gn = name
+                        gen = Sub.AdministrativeGender.UNKNOWN
+                    }
+                    //tst = listOf(Tst().apply {
+                    //    dts = date
+                    //})
+                }.also { verificationResult.cborDecoded = true }
             }
 
-            return VaccinationData()
+            return DigitalGreenCertificate()
         } catch (e: Throwable) {
-            return VaccinationData()
+            return DigitalGreenCertificate()
         }
     }
 

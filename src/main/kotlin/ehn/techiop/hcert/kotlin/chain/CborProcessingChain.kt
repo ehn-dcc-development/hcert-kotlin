@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import ehn.techiop.hcert.data.DigitalGreenCertificate
 import java.time.Instant
 
 
@@ -11,7 +12,7 @@ class CborProcessingChain(
     private val base45Service: Base45Service
 ) {
 
-    fun process(input: VaccinationData): ResultCbor {
+    fun process(input: DigitalGreenCertificate): ResultCbor {
         val cbor = cborService.encode(input)
         val cose = coseService.encode(cbor)
         val comCose = compressorService.encode(cose)
@@ -20,7 +21,7 @@ class CborProcessingChain(
         return ResultCbor(cbor, cose, comCose, prefEncodedComCose)
     }
 
-    fun verify(input: String, verificationResult: VerificationResult = VerificationResult()): VaccinationData {
+    fun verify(input: String, verificationResult: VerificationResult = VerificationResult()): DigitalGreenCertificate {
         val plainInput = contextIdentifierService.decode(input, verificationResult)
         val compressedCose = base45Service.decode(plainInput, verificationResult)
         val cose = compressorService.decode(compressedCose, verificationResult)
@@ -80,3 +81,4 @@ data class ResultCbor(
     val compressedCose: ByteArray,
     val prefixedEncodedCompressedCose: String
 )
+

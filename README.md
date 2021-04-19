@@ -9,9 +9,13 @@ Implements a very basic validation and creation chain:
 
 All services are implemented according to the [Specification 1.0.5](https://github.com/ehn-digital-green-development/hcert-spec).
 
-## TODO
+The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/hcert-schema/blob/main/eu_dgc_v1_schema.json>.
 
-- Use the JSON schema for data classes
+Build this library with
+
+```
+./gradlew clean generateJsonSchema2DataClass test build 
+```
 
 ## Publishing
 
@@ -23,6 +27,7 @@ This library uses the following dependencies:
  - [Kotlin](https://github.com/JetBrains/kotlin), under the Apache-2.0 License
  - [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization), under the Apache-2.0 License
  - [COSE-JAVA](https://github.com/cose-wg/cose-java), under the BSD-3-Clause License
+ - [Jackson](https://github.com/FasterXML/jackson-databind), under the Apache-2.0 License
  - [ZXing](https://github.com/zxing/zxing), under the Apache-2.0 License
  - [Bouncycastle](https://github.com/bcgit/bc-java), under an [MIT-compatible license](https://www.bouncycastle.org/licence.html)
  - [OkHttp](https://github.com/square/okhttp), under the Apache-2.0 License
