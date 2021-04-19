@@ -14,22 +14,22 @@ class TestSuiteTests {
     private val cryptoService = RandomEcKeyCryptoService()
     private val cborService = DefaultCborService()
     private val coseService = DefaultCoseService(cryptoService)
-    private val valSuiteService = DefaultContextIdentifierService()
+    private val contextIdentifierService = DefaultContextIdentifierService()
     private val compressorService = DefaultCompressorService()
     private val base45Service = DefaultBase45Service()
     private val chainCorrect =
-        CborProcessingChain(cborService, coseService, valSuiteService, compressorService, base45Service)
+        CborProcessingChain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
     private val chainFaultyBase45 =
-        CborProcessingChain(cborService, coseService, valSuiteService, compressorService, FaultyBase45Service())
+        CborProcessingChain(cborService, coseService, contextIdentifierService, compressorService, FaultyBase45Service())
     private val chainFaultyCompressor =
-        CborProcessingChain(cborService, coseService, valSuiteService, FaultyCompressorService(), base45Service)
+        CborProcessingChain(cborService, coseService, contextIdentifierService, FaultyCompressorService(), base45Service)
     private val chainNoopCompressor =
-        CborProcessingChain(cborService, coseService, valSuiteService, NoopCompressorService(), base45Service)
-    private val chainFaultyValSuite =
+        CborProcessingChain(cborService, coseService, contextIdentifierService, NoopCompressorService(), base45Service)
+    private val chainNoopContextIdentifier =
         CborProcessingChain(
             cborService,
             coseService,
-            FaultyContextIdentifierService(),
+            NoopContextIdentifierService(),
             compressorService,
             base45Service
         )
@@ -37,12 +37,12 @@ class TestSuiteTests {
         CborProcessingChain(
             cborService,
             FaultyCoseService(cryptoService),
-            valSuiteService,
+            contextIdentifierService,
             compressorService,
             base45Service
         )
     private val chainFaultyCbor =
-        CborProcessingChain(FaultyCborService(), coseService, valSuiteService, compressorService, base45Service)
+        CborProcessingChain(FaultyCborService(), coseService, contextIdentifierService, compressorService, base45Service)
 
 
     @Test
@@ -65,7 +65,7 @@ class TestSuiteTests {
             false,
             VerificationResult().apply { contextIdentifier = "HC1:" })
         assertVerification(
-            chainFaultyValSuite.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainNoopContextIdentifier.process(decodedFromInput).prefixedEncodedCompressedCose,
             decodedFromInput,
             true,
             VerificationResult().apply {
@@ -84,8 +84,7 @@ class TestSuiteTests {
             decodedFromInput,
             false,
             VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false; cborDecoded = false; coseVerified =
-                false
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false
             })
         assertVerification(
             chainFaultyCose.process(decodedFromInput).prefixedEncodedCompressedCose,

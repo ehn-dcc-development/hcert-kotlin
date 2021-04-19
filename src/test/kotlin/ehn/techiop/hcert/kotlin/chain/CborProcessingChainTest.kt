@@ -57,11 +57,11 @@ class CborProcessingChainTest {
 
     private fun buildChain(cryptoService: CryptoService): CborProcessingChain {
         val coseService = DefaultCoseService(cryptoService)
-        val valSuiteService = DefaultContextIdentifierService()
+        val contextIdentifierService = DefaultContextIdentifierService()
         val compressorService = DefaultCompressorService()
         val base45Service = DefaultBase45Service()
         val cborService = DefaultCborService()
-        return CborProcessingChain(cborService, coseService, valSuiteService, compressorService, base45Service)
+        return CborProcessingChain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
     }
 
 }
