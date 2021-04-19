@@ -14,7 +14,6 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
         return Sign1Message().also {
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
-                //TODO separate class that puts it into UNPROTECTED for testing issues
                 it.addAttribute(header.first, header.second, Attribute.PROTECTED)
             }
             it.sign(cryptoService.getCborSigningKey())

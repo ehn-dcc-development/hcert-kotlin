@@ -6,6 +6,9 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
 
+/**
+ * Encodes the input without the required structure around it
+ */
 class FaultyCborService : DefaultCborService() {
 
     override fun encode(input: VaccinationData): ByteArray {
