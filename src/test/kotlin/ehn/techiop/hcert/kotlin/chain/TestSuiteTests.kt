@@ -1,16 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyCborService
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyCompressorService
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
+import ehn.techiop.hcert.kotlin.chain.faults.*
+import ehn.techiop.hcert.kotlin.chain.impl.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.hamcrest.CoreMatchers.equalTo
@@ -32,6 +23,8 @@ class TestSuiteTests {
         CborProcessingChain(cborService, coseService, valSuiteService, compressorService, FaultyBase45Service())
     private val chainFaultyCompressor =
         CborProcessingChain(cborService, coseService, valSuiteService, FaultyCompressorService(), base45Service)
+    private val chainNoopCompressor =
+        CborProcessingChain(cborService, coseService, valSuiteService, NoopCompressorService(), base45Service)
     private val chainFaultyValSuite =
         CborProcessingChain(
             cborService,
@@ -79,12 +72,20 @@ class TestSuiteTests {
                 contextIdentifier = null; base45Decoded = true; zlibDecoded = true; cborDecoded = true; coseVerified = true
             })
         assertVerification(
-            chainFaultyCompressor.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainNoopCompressor.process(decodedFromInput).prefixedEncodedCompressedCose,
             decodedFromInput,
             true,
             VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; cborDecoded = true; coseVerified =
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false; cborDecoded = true; coseVerified =
                 true
+            })
+        assertVerification(
+            chainFaultyCompressor.process(decodedFromInput).prefixedEncodedCompressedCose,
+            decodedFromInput,
+            false,
+            VerificationResult().apply {
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false; cborDecoded = false; coseVerified =
+                false
             })
         assertVerification(
             chainFaultyCose.process(decodedFromInput).prefixedEncodedCompressedCose,

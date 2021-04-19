@@ -5,12 +5,12 @@ import java.util.zip.Deflater
 import java.util.zip.DeflaterInputStream
 
 /**
- * Reverses the ZLIB encoding, resulting in a non-decodable output
+ * Does not compress the input at all -- should not impact validation
  */
-class FaultyCompressorService : DefaultCompressorService() {
+class NoopCompressorService : DefaultCompressorService() {
 
     override fun encode(input: ByteArray): ByteArray {
-        return DeflaterInputStream(input.inputStream(), Deflater(9)).readBytes().reversedArray()
+        return input
     }
 
 }
