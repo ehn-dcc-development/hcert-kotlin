@@ -42,7 +42,7 @@ class CborProcessingChainTest {
 
         val encodingChain = buildChain(cryptoService)
         val kid =
-            cryptoService.getCborHeaders().first { it.first.AsCBOR() == HeaderKeys.KID.AsCBOR() }.second.AsString()
+            cryptoService.getCborHeaders().first { it.first.AsCBOR() == HeaderKeys.KID.AsCBOR() }.second.GetByteString()
         val certificate = cryptoService.getCertificate(kid)
         val certificateRepository = PrefilledCertificateRepository()
         certificateRepository.addCertificate(kid, certificate)

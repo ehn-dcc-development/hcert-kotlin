@@ -16,7 +16,7 @@ class VerificationCryptoService(private val repository: CertificateRepository) :
 
     override fun getCborSigningKey() = OneKey(CBORObject.NewMap())
 
-    override fun getCborVerificationKey(kid: String): OneKey {
+    override fun getCborVerificationKey(kid: ByteArray): OneKey {
         val certificate = getCertificate(kid)
         return when (certificate.publicKey) {
             is ECPublicKey -> buildEcKey(certificate.publicKey as ECPublicKey)
@@ -41,15 +41,16 @@ class VerificationCryptoService(private val repository: CertificateRepository) :
         })
     }
 
-    override fun getCertificate(kid: String) = repository.loadCertificate(kid)
+    override fun getCertificate(kid: ByteArray) = repository.loadCertificate(kid)
 
     // Java's BigInteger adds a leading sign bit
-    private fun stripLeadingZero(bigInteger: BigInteger): CBORObject {
-        val bytes = bigInteger.toByteArray()
-        return when {
-            bytes.size % 8 != 0 && bytes[0] == 0x00.toByte() -> CBORObject.FromObject(bytes.drop(1).toByteArray())
-            else -> CBORObject.FromObject(bytes)
+    private fun stripLeadingZero(input: BigInteger): CBORObject {
+        val bytes = input.toByteArray()
+        val stripped = when {
+            bytes.size % 8 != 0 && bytes[0] == 0x00.toByte() -> bytes.drop(1).toByteArray()
+            else -> bytes
         }
+        return CBORObject.FromObject(stripped)
     }
 
 }

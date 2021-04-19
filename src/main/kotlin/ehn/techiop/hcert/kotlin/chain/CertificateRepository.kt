@@ -4,6 +4,6 @@ import java.security.cert.Certificate
 
 interface CertificateRepository {
 
-    fun loadCertificate(kid: String): Certificate
+    fun loadCertificate(kid: ByteArray): Certificate
 
 }
