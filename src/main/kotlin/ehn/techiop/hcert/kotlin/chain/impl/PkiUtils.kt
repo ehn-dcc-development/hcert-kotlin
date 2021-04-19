@@ -10,6 +10,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import java.io.ByteArrayInputStream
 import java.math.BigInteger
 import java.security.KeyPair
+import java.security.MessageDigest
 import java.security.PrivateKey
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -20,6 +21,10 @@ import java.util.Date
 import java.util.Random
 
 class PkiUtils {
+
+    fun calcKid(certificate: X509Certificate) = MessageDigest.getInstance("SHA-256")
+        .digest(certificate.encoded)
+        .copyOf(8)
 
     fun selfSignCertificate(subjectName: X500Name, keyPair: KeyPair): X509Certificate {
         val subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(ASN1Sequence.getInstance(keyPair.public.encoded))
