@@ -54,7 +54,7 @@ class VerificationResult {
     var base45Decoded = false
 
     /**
-     * `HC1` SHALL be used as a prefix in the Base45 encoded data
+     * `HC1:` SHALL be used as a prefix in the Base45 encoded data
      */
     var contextIdentifier: String? = null
 

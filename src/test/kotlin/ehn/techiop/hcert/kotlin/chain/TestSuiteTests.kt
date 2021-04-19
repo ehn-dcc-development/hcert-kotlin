@@ -63,14 +63,14 @@ class TestSuiteTests {
             decodedFromInput,
             true,
             VerificationResult().apply {
-                contextIdentifier = "HC1"; base45Decoded = true; zlibDecoded = true; cborDecoded = true; coseVerified =
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; cborDecoded = true; coseVerified =
                 true
             })
         assertVerification(
             chainFaultyBase45.process(decodedFromInput).prefixedEncodedCompressedCose,
             decodedFromInput,
             false,
-            VerificationResult().apply { contextIdentifier = "HC1" })
+            VerificationResult().apply { contextIdentifier = "HC1:" })
         assertVerification(
             chainFaultyValSuite.process(decodedFromInput).prefixedEncodedCompressedCose,
             decodedFromInput,
@@ -83,7 +83,7 @@ class TestSuiteTests {
             decodedFromInput,
             true,
             VerificationResult().apply {
-                contextIdentifier = "HC1"; base45Decoded = true; zlibDecoded = true; cborDecoded = true; coseVerified =
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; cborDecoded = true; coseVerified =
                 true
             })
         assertVerification(
@@ -91,14 +91,14 @@ class TestSuiteTests {
             decodedFromInput,
             true,
             VerificationResult().apply {
-                contextIdentifier = "HC1"; base45Decoded = true; zlibDecoded = true; cborDecoded = true
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; cborDecoded = true
             })
         assertVerification(
             chainFaultyCbor.process(decodedFromInput).prefixedEncodedCompressedCose,
             decodedFromInput,
             false,
             VerificationResult().apply {
-                contextIdentifier = "HC1"; base45Decoded = true; zlibDecoded = true; coseVerified = true
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true
             })
     }
 

@@ -4,9 +4,9 @@ import ehn.techiop.hcert.kotlin.chain.ContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
 /**
- * Appends/drops the Context identifier prefix from contents, e.g. "HC1"
+ * Appends/drops the Context identifier prefix from contents, e.g. "HC1:"
  */
-open class DefaultContextIdentifierService(private val prefix: String = "HC1") : ContextIdentifierService {
+open class DefaultContextIdentifierService(private val prefix: String = "HC1:") : ContextIdentifierService {
 
     override fun encode(input: String): String {
         return "$prefix$input"
