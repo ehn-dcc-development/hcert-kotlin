@@ -11,12 +11,6 @@ All services are implemented according to the [Specification 1.0.5](https://gith
 
 The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/hcert-schema/blob/main/eu_dgc_v1_schema.json>.
 
-Build this library with
-
-```
-./gradlew clean generateJsonSchema2DataClass test build 
-```
-
 ## Publishing
 
 To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`

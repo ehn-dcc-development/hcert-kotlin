@@ -24,14 +24,8 @@ class SampleData {
                     "cou": "AT"
                 }
             ],
-            "cert": {
-                "is": "Ministry of Health, Austria",
-                "id": "01AT42196560275230427402470256520250042",
-                "vf": "2021-04-04",
-                "vu": "2021-10-04",
-                "co": "AT",
-                "vr": "v1.0"
-            }
+            "v": "v1.0.0",
+            "dgcid": "01AT42196560275230427402470256520250042"
         }
         """.trimIndent()
         val vaccination = """
@@ -74,14 +68,8 @@ class SampleData {
                     "adm": "Vaccination centre Vienna 23"
                 }
             ],
-            "cert": {
-                "is": "Ministry of Health, Austria",
-                "id": "01AT42196560275230427402470256520250042",
-                "vf": "2021-04-04",
-                "vu": "2021-10-04",
-                "co": "AT",
-                "vr": "v1.0"
-            }
+            "v": "v1.0.0",
+            "dgcid": "01AT42196560275230427402470256520250042"
         }
         """.trimIndent()
         val test = """
@@ -112,14 +100,8 @@ class SampleData {
                     "cou": "AT"
                 }
             ],
-            "cert": {
-                "is": "Ministry of Health, Austria",
-                "id": "01AT42196560275230427402470256520250042",
-                "vf": "2021-04-04",
-                "vu": "2021-10-04",
-                "co": "AT",
-                "vr": "v1.0"
-            }
+            "v": "v1.0.0",
+            "dgcid": "01AT42196560275230427402470256520250042"
         }
         """.trimIndent()
     }

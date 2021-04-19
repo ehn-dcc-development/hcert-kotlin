@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "ehn.techiop.hcert"
-version = "0.1.6-SNAPSHOT"
+version = "0.1.7-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 idea {
@@ -88,4 +88,8 @@ sourceSets {
     named("main") {
         java.srcDir("build/generated/sources/js2d/main")
     }
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("generateJsonSchema2DataClass")
 }
