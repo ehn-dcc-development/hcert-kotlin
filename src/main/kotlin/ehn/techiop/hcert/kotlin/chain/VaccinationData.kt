@@ -5,7 +5,6 @@ import ehn.techiop.hcert.data.Id
 import ehn.techiop.hcert.data.Rec
 import ehn.techiop.hcert.data.Tst
 import ehn.techiop.hcert.data.Vac
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -15,20 +14,21 @@ import kotlinx.serialization.encoding.Encoder
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class Data {
     companion object {
         @JvmStatic
         fun fromSchema(input: DigitalGreenCertificate) = GreenCertificate(
-            subject = input.sub?.let {
+            subject = input.sub.let {
                 Person(
                     givenName = it.gn,
                     givenNameTransliterated = it.gnt,
                     familyName = it.fn,
                     familyNameTransliterated = it.fnt,
                     dateOfBirth = parseLocalDate(it.dob),
-                    gender = it.gen?.value(),
+                    gender = it.gen?.value()?.let { Gender.findByValue(it) },
                     identifiers = it.id?.let { createIdentifiers(it) }
                 )
             },
@@ -39,15 +39,15 @@ class Data {
             identifier = input.dgcid
         )
 
-        private fun createIdentifiers(list: List<Id>) = list.filterNotNull().map {
+        private fun createIdentifiers(list: List<Id>) = list.map {
             Identifier(
-                type = it.t?.value(),
+                type = it.t.value().let { type -> IdentifierType.findByValue(type) },
                 id = it.i,
                 country = it.c
             )
         }
 
-        private fun createVaccinations(list: List<Vac>) = list.filterNotNull().map {
+        private fun createVaccinations(list: List<Vac>) = list.map {
             Vaccination(
                 disease = it.dis,
                 vaccine = it.vap,
@@ -62,7 +62,7 @@ class Data {
             )
         }
 
-        private fun createTestResult(list: List<Tst>) = list.filterNotNull().map {
+        private fun createTestResult(list: List<Tst>) = list.map {
             Test(
                 disease = it.dis,
                 type = it.typ,
@@ -70,13 +70,13 @@ class Data {
                 sampleOrigin = it.ori,
                 dateTimeSample = parseLocalDateTime(it.dts),
                 dateTimeResult = parseLocalDateTime(it.dtr),
-                result = it.res,
+                resultPositive = parseTestResult(it.res),
                 testFacility = it.fac,
                 country = it.cou
             )
         }
 
-        private fun createRecovery(list: List<Rec>) = list.filterNotNull().map {
+        private fun createRecovery(list: List<Rec>) = list.map {
             RecoveryStatement(
                 disease = it.dis,
                 date = parseLocalDate(it.dat),
@@ -84,14 +84,13 @@ class Data {
             )
         }
 
-        private fun parseLocalDate(input: String?) =
-            input?.let { LocalDate.parse(input, DateTimeFormatter.ISO_DATE) }
+        private fun parseLocalDate(input: String?) = LocalDate.parse(input, DateTimeFormatter.ISO_DATE)
 
-        private fun parseLocalDateTime(input: String?) =
-            input?.let { LocalDateTime.parse(input, DateTimeFormatter.ISO_DATE_TIME) }
+        private fun parseLocalDateTime(input: String) = LocalDateTime.parse(input, DateTimeFormatter.ISO_DATE_TIME)
 
-        private fun parseLocalDateTime(input: Int?) =
-            input?.let { LocalDateTime.from(Instant.ofEpochSecond(it.toLong())) }
+        private fun parseLocalDateTime(input: Int) = LocalDateTime.from(Instant.ofEpochSecond(input.toLong()))
+
+        private fun parseTestResult(input: String) = input == "1240591000000104"
 
     }
 
@@ -100,15 +99,20 @@ class Data {
 @Serializable
 data class GreenCertificate(
     @SerialName("v")
-    val schemaVersion: String? = null,
+    val schemaVersion: String,
+
     @SerialName("dgcid")
-    val identifier: String? = null,
+    val identifier: String,
+
     @SerialName("sub")
-    val subject: Person? = null,
+    val subject: Person,
+
     @SerialName("vac")
     val vaccinations: List<Vaccination?>? = listOf(),
+
     @SerialName("rec")
     val recoveryStatements: List<RecoveryStatement?>? = listOf(),
+
     @SerialName("tst")
     val tests: List<Test?>? = listOf(),
 )
@@ -116,93 +120,170 @@ data class GreenCertificate(
 @Serializable
 data class Person(
     @SerialName("gn")
-    val givenName: String? = null,
+    val givenName: String,
+
     @SerialName("gnt")
     val givenNameTransliterated: String? = null,
+
     @SerialName("fn")
     val familyName: String? = null,
+
     @SerialName("fnt")
     val familyNameTransliterated: String? = null,
+
     @SerialName("id")
     val identifiers: List<Identifier?>? = null,
+
     @SerialName("dob")
     @Serializable(with = LocalDateSerializer::class)
-    val dateOfBirth: LocalDate? = null,
+    val dateOfBirth: LocalDate,
+
     @SerialName("gen")
-    val gender: String? = null,
+    val gender: Gender? = null,
 )
+
+@Serializable
+enum class Gender(val value: String) {
+    @SerialName("male")
+    MALE("male"),
+
+    @SerialName("female")
+    FEMALE("female"),
+
+    @SerialName("other")
+    OTHER("other"),
+
+    @SerialName("unknown")
+    UNKNOWN("unknown");
+
+    companion object {
+        fun findByValue(value: String): Gender {
+            return values().firstOrNull { it.value == value } ?: UNKNOWN
+        }
+    }
+}
 
 @Serializable
 data class Identifier(
     @SerialName("t")
-    val type: String? = null,
+    val type: IdentifierType,
+
     @SerialName("i")
-    val id: String? = null,
+    val id: String,
+
     @SerialName("c")
     val country: String? = null
 )
 
 @Serializable
+enum class IdentifierType(val value: String) {
+    @SerialName("PP")
+    PASSPORT("PP"),
+
+    @SerialName("NN")
+    NATIONAL_IDENTIFIER("NN"),
+
+    @SerialName("CZ")
+    CITIZENSHIP("CZ"),
+
+    @SerialName("HC")
+    HEALTH("HC"),
+
+    @SerialName("NI")
+    NATIONAL_UNIQUE_INDIVIDUAL("NI"),
+
+    @SerialName("MB")
+    MEMBER("MB"),
+
+    @SerialName("NH")
+    NATIONAL_HEALTH("NH");
+
+    companion object {
+        fun findByValue(value: String): IdentifierType {
+            return values().firstOrNull { it.value == value } ?: NATIONAL_IDENTIFIER
+        }
+    }
+}
+
+@Serializable
 data class Vaccination(
     @SerialName("dis")
-    val disease: String? = null,
+    val disease: String,
+
     @SerialName("vap")
-    val vaccine: String? = null,
+    val vaccine: String,
+
     @SerialName("mep")
-    val medicinalProduct: String? = null,
+    val medicinalProduct: String,
+
     @SerialName("aut")
-    val authorizationHolder: String? = null,
+    val authorizationHolder: String,
+
     @SerialName("seq")
-    val doseSequence: Int? = null,
+    val doseSequence: Int,
+
     @SerialName("tot")
-    val doseTotalNumber: Int? = null,
+    val doseTotalNumber: Int,
+
     @SerialName("lot")
     val lotNumber: String? = null,
+
     @SerialName("dat")
     @Serializable(with = LocalDateSerializer::class)
-    val date: LocalDate? = null,
+    val date: LocalDate,
+
     @SerialName("adm")
     val administeringCentre: String? = null,
+
     @SerialName("cou")
-    val country: String? = null
+    val country: String
 )
 
 
 @Serializable
 data class RecoveryStatement(
     @SerialName("dis")
-    val disease: String? = null,
+    val disease: String,
+
     @SerialName("dat")
     @Serializable(with = LocalDateSerializer::class)
-    val date: LocalDate? = null,
+    val date: LocalDate,
+
     @SerialName("cou")
-    val country: String? = null
+    val country: String
 )
 
 @Serializable
 data class Test(
     @SerialName("dis")
-    val disease: String? = null,
+    val disease: String,
+
     @SerialName("typ")
-    val type: String? = null,
-    @SerialName("tna")
-    val name: String? = null,
+    val type: String,
+
     @SerialName("tma")
     val manufacturer: String? = null,
+
     @SerialName("ori")
     val sampleOrigin: String? = null,
+
     @SerialName("dts")
-    @Contextual
-    val dateTimeSample: LocalDateTime? = null,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val dateTimeSample: LocalDateTime,
+
     @SerialName("dtr")
-    @Contextual
-    val dateTimeResult: LocalDateTime? = null,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val dateTimeResult: LocalDateTime,
+
     @SerialName("res")
-    val result: String? = null,
+    @Serializable(with = TestResultSerializer::class)
+    val resultPositive: Boolean,
+
     @SerialName("fac")
-    val testFacility: String? = null,
+    val testFacility: String,
+
     @SerialName("cou")
-    val country: String? = null
+    val country: String
 )
 
 
@@ -214,6 +295,34 @@ object LocalDateSerializer : KSerializer<LocalDate> {
 
     override fun serialize(encoder: Encoder, value: LocalDate) {
         encoder.encodeString(value.format(DateTimeFormatter.ISO_DATE))
+    }
+}
+
+@Serializer(forClass = LocalDateTime::class)
+object LocalDateTimeSerializer : KSerializer<LocalDateTime> {
+    override fun deserialize(decoder: Decoder): LocalDateTime {
+        return LocalDateTime.from(Instant.ofEpochSecond(decoder.decodeLong()))
+    }
+
+    override fun serialize(encoder: Encoder, value: LocalDateTime) {
+        encoder.encodeLong(value.atZone(ZoneId.systemDefault()).toInstant().epochSecond)
+    }
+}
+
+/**
+ * Values from hcert-schema, according to SNOMED CT
+ */
+@Serializer(forClass = Boolean::class)
+object TestResultSerializer : KSerializer<Boolean> {
+    override fun deserialize(decoder: Decoder): Boolean {
+        return when (decoder.decodeString()) {
+            "1240591000000104" -> true
+            else -> false
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: Boolean) {
+        encoder.encodeString(if (value) "1240591000000104" else "1240591000000102")
     }
 }
 

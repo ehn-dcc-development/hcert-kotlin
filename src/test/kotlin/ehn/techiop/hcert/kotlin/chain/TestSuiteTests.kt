@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import ehn.techiop.hcert.data.DigitalGreenCertificate
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCborService
@@ -17,9 +16,6 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.serializer
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
@@ -98,7 +94,7 @@ class TestSuiteTests {
     @Test
     fun vaccination() {
         val input = SampleData.vaccination
-        val decodedFromInput = buildObjectMapper().readValue(input, DigitalGreenCertificate::class.java)
+        val decodedFromInput = ObjectMapper().readValue(input, DigitalGreenCertificate::class.java)
 
         assertVerification(
             chainCorrect.process(decodedFromInput).prefixedEncodedCompressedCose,
@@ -167,8 +163,6 @@ class TestSuiteTests {
                 contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true
             })
     }
-
-    private fun buildObjectMapper() = ObjectMapper().apply { registerModule(JavaTimeModule()) }
 
     private fun assertVerification(
         chainOutput: String,

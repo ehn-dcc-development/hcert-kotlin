@@ -58,6 +58,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.3")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
+    implementation("javax.validation:validation-api:2.0.1.Final")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.1")
     testImplementation("org.hamcrest:hamcrest:2.2")
@@ -76,12 +78,13 @@ tasks.withType<Test> {
 }
 
 configure <com.github.eirnym.js2p.JsonSchemaExtension> {
-    source.from("src/main/resources/json")
     targetPackage = "ehn.techiop.hcert.data"
     includeGeneratedAnnotation = false
     serializable = true
     useTitleAsClassname = true
-    dateTimeType = "java.time.Instant"
+    includeJsr303Annotations = true
+    includeJsr305Annotations = true
+    targetVersion = "1.8"
 }
 
 sourceSets {

@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.faults
 
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.data.DigitalGreenCertificate
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
@@ -12,7 +11,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 class FaultyCborService : DefaultCborService() {
 
     override fun encode(input: DigitalGreenCertificate): ByteArray {
-        val cbor = CBORMapper().apply { registerModule(JavaTimeModule()) }.writeValueAsBytes(input)
+        val cbor = CBORMapper().writeValueAsBytes(input)
         return CBORObject.FromObject(cbor).EncodeToBytes()
     }
 

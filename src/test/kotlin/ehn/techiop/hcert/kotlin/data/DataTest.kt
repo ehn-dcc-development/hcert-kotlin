@@ -2,7 +2,6 @@ package ehn.techiop.hcert.kotlin.data
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import ehn.techiop.hcert.data.DigitalGreenCertificate
 import ehn.techiop.hcert.kotlin.chain.Data
 import ehn.techiop.hcert.kotlin.chain.GreenCertificate
@@ -26,13 +25,12 @@ class DataTest {
     @MethodSource("stringProvider")
     fun decodeEncodeTest() {
         val dataOurs = Json { }.decodeFromString<GreenCertificate>(SampleData.recovery)
-        val dataTheirs = ObjectMapper().apply { registerModule(JavaTimeModule()) }
-            .readValue(SampleData.recovery, DigitalGreenCertificate::class.java)
+        val dataTheirs = ObjectMapper().readValue(SampleData.recovery, DigitalGreenCertificate::class.java)
         assertEquals(dataOurs, Data.fromSchema(dataTheirs))
 
         val cborOur = Cbor { }.encodeToByteArray(dataOurs)
         //println(cborOur.toHexString())
-        val cborTheirs = CBORMapper().apply { registerModule(JavaTimeModule()) }.writeValueAsBytes(dataTheirs)
+        //val cborTheirs = CBORMapper().writeValueAsBytes(dataTheirs)
         //println(cborTheirs.toHexString())
         // will never be exactly the same ... because of default values and empty arrays
         // assertArrayEquals(cborOur, cborTheirs)

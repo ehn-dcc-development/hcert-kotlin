@@ -1,16 +1,15 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.data.DigitalGreenCertificate
 import ehn.techiop.hcert.data.Sub
-import ehn.techiop.hcert.data.Tst
 import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.cwt.CwtHeaderKeys
 import java.time.Instant
 import java.time.Period
+import java.util.Optional
 
 open class DefaultCborService(
     private val countryCode: String = "AT",
@@ -20,7 +19,7 @@ open class DefaultCborService(
     private val keyEuDgcV1 = CBORObject.FromObject(1)
 
     override fun encode(input: DigitalGreenCertificate): ByteArray {
-        val cbor = CBORMapper().apply { registerModule(JavaTimeModule()) }.writeValueAsBytes(input)
+        val cbor = CBORMapper().writeValueAsBytes(input)
         val issueTime = Instant.now()
         val expirationTime = issueTime + expirationPeriod
         return CBORObject.NewMap().also {
@@ -28,7 +27,7 @@ open class DefaultCborService(
             it[CwtHeaderKeys.ISSUED_AT.AsCBOR()] = CBORObject.FromObject(issueTime.epochSecond)
             it[CwtHeaderKeys.EXPIRATION.AsCBOR()] = CBORObject.FromObject(expirationTime.epochSecond)
             it[CwtHeaderKeys.HCERT.AsCBOR()] = CBORObject.NewMap().also {
-                it[keyEuDgcV1] = CBORObject.FromObject(cbor)
+                it[keyEuDgcV1] = CBORObject.DecodeFromBytes(cbor)
             }
         }.EncodeToBytes()
     }
@@ -51,8 +50,7 @@ open class DefaultCborService(
             map[CwtHeaderKeys.HCERT.AsCBOR()]?.let { hcert -> // SPEC
                 hcert[keyEuDgcV1]?.let {
                     return CBORMapper()
-                        .apply { registerModule(JavaTimeModule()) }
-                        .readValue(it.GetByteString(), DigitalGreenCertificate::class.java)
+                        .readValue(getContents(it), DigitalGreenCertificate::class.java)
                         .also { verificationResult.cborDecoded = true }
                 }
             }
@@ -64,7 +62,7 @@ open class DefaultCborService(
                 return DigitalGreenCertificate().apply {
                     sub = Sub().apply {
                         gn = name
-                        gen = Sub.AdministrativeGender.UNKNOWN
+                        //gen = Optional.of(Sub.AdministrativeGender.UNKNOWN)
                     }
                     //tst = listOf(Tst().apply {
                     //    dts = date
@@ -76,6 +74,12 @@ open class DefaultCborService(
         } catch (e: Throwable) {
             return DigitalGreenCertificate()
         }
+    }
+
+    private fun getContents(it: CBORObject) = try {
+        it.GetByteString()
+    } catch (e: Throwable) {
+        it.EncodeToBytes()
     }
 
 }

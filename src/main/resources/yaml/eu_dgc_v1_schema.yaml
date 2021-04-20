@@ -30,7 +30,6 @@ properties:
     required:
       - gn
       - dob
-      - gen
     properties:
       gn:
         title: Given name
@@ -79,7 +78,7 @@ properties:
                 NH = National Helth Plan Identifier
               type: string
               enum:
-                - PPN
+                - PP
                 - NN
                 - CZ
                 - HC

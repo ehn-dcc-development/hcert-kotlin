@@ -10,7 +10,7 @@ class SampleData {
                 "fn": "Musterfrau",
                 "id": [
                     {
-                        "t": "PPN",
+                        "t": "PP",
                         "i": "12345ABC-321"
                     }
                 ],
@@ -35,7 +35,7 @@ class SampleData {
                 "fn": "Musterfrau",
                 "id": [
                     {
-                        "t": "PPN",
+                        "t": "PP",
                         "i": "12345ABC-321"
                     }
                 ],
@@ -79,7 +79,7 @@ class SampleData {
                 "fn": "Musterfrau",
                 "id": [
                     {
-                        "t": "PPN",
+                        "t": "PP",
                         "i": "12345ABC-321"
                     }
                 ],

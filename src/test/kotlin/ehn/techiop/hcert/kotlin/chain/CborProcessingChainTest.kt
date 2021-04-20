@@ -2,7 +2,6 @@ package ehn.techiop.hcert.kotlin.chain
 
 import COSE.HeaderKeys
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import ehn.techiop.hcert.data.DigitalGreenCertificate
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
@@ -38,7 +37,7 @@ class CborProcessingChainTest {
     }
 
     private fun verify(jsonInput: String, cryptoService: CryptoService) {
-        val input = buildObjectMapper().readValue(jsonInput, DigitalGreenCertificate::class.java)
+        val input = ObjectMapper().readValue(jsonInput, DigitalGreenCertificate::class.java)
         val verificationResult = VerificationResult()
 
         val encodingChain = buildChain(cryptoService)
@@ -55,8 +54,6 @@ class CborProcessingChainTest {
         assertThat(vaccinationData, equalTo(input))
         assertThat(verificationResult.cborDecoded, equalTo(true))
     }
-
-    private fun buildObjectMapper() = ObjectMapper().apply { registerModule(JavaTimeModule()) }
 
     private fun buildChain(cryptoService: CryptoService): CborProcessingChain {
         val coseService = DefaultCoseService(cryptoService)
