@@ -54,22 +54,6 @@ open class DefaultCborService(
                         .also { verificationResult.cborDecoded = true }
                 }
             }
-
-            map["@context"]?.let { // NL from https://demo.uvci.eu/
-                val name = map["https://schema.org/nam"]?.AsString()
-                //val gender = map["https://schema.org/gen"]?.AsString()
-                //val date = map["https://schema.org/dat"]?.AsInt32()
-                return DigitalGreenCertificate().apply {
-                    sub = Sub().apply {
-                        gn = name
-                        //gen = Optional.of(Sub.AdministrativeGender.UNKNOWN)
-                    }
-                    //tst = listOf(Tst().apply {
-                    //    dts = date
-                    //})
-                }.also { verificationResult.cborDecoded = true }
-            }
-
             return DigitalGreenCertificate()
         } catch (e: Throwable) {
             return DigitalGreenCertificate()

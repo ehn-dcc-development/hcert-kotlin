@@ -10,3 +10,4 @@ fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
 
 fun String.fromBase64() = Base64.getDecoder().decode(this)
 
+fun String.fromHexString() = chunked(2).map { it.toInt(16).toByte() }.toByteArray()

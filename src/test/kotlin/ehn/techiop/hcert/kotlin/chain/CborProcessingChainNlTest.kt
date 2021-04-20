@@ -3,8 +3,8 @@ package ehn.techiop.hcert.kotlin.chain
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.VerificationCryptoService
 import org.hamcrest.CoreMatchers.equalTo
@@ -16,9 +16,8 @@ class CborProcessingChainNlTest {
 
     @Test
     fun pastInfected() {
-        verify(
-            "NCFOXN%TSMAHN-H5L486Q-LCBYUN+CWI47-5Y8EN6QBL53+LZEB\$ZJ*DJH75*84T*K.UKO KKFRV4C%47DK4V:6S16S45B.3A9J.6ANEBWD1UCIC2K%4HCW4C 1A CWHC2.9G58QWGNO37QQG UZ\$UBZP/BEMWIIOH%HMI*5O0I172Y5SX5Q.+HU1CQKQD1UACR96IDESM-FLX6WDDGAQZ1AUMJHE0ZKNL-K31J/7I*2VUWUE08NA9T141 LXRL QE4OB\$DVX A/DSU0AM361309JLU1"
-        )
+        //  From https://github.com/ehn-digital-green-development/hcert-testdata/blob/main/testdata/test1.bin
+        verify("5XK2F39WFMWU4F30\$BBOELJC+6BY50.FK NK\$QE6LCCEC-DDGEC3EF82B QE%JCZVCYNK4WE+6A7ECAED*96DL6WW6F:6YNK4WEL+97EC5EDNA74:6UW6UL6JPCT3E5JDNA7NW69463W5TG6K/E4QCB7L6VC\$QE-M8*+A%R81A6L44AIAMA8K/EIPCZEDZ C..DJ\$DSN8J\$D:KEIECPFFJECHWEH7A2FD5\$CN34 EDR+9Z C%8DLQE*CEZPC24EQD02VCCWENF6OF63W5KF6746GPCEVCWUC9C9Y 9JPC6\$C4\$EF1A B94W5:97- D8+9U441ECOPC1/DTPCBEC\$DD+3E*ED..DRWEGPC8%EB3ER.CDLFBJE H893E5UANPCYPC4\$CQD0HWE/TEJPCIEC6JD846Y969463W5/A62ECE\$D5IA/+A")
     }
 
     private fun verify(qrCodeContents: String) {
@@ -30,7 +29,7 @@ class CborProcessingChainNlTest {
 
         val vaccinationData = decodingChain.verify(qrCodeContents, verificationResult)
         assertThat(verificationResult.coseVerified, equalTo(false))
-        assertThat(vaccinationData.sub?.gn, notNullValue())
+        assertThat(vaccinationData.sub.dob, notNullValue())
     }
 
     private fun buildChain(cryptoService: CryptoService): CborProcessingChain {
