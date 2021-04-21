@@ -32,7 +32,6 @@ class Data {
                         familyName = it.fn,
                         familyNameTransliterated = it.fnt,
                         dateOfBirth = parseLocalDate(it.dob),
-                        gender = it.gen?.value()?.let { Gender.findByValue(it) },
                         identifiers = it.id?.let { createIdentifiers(it) }
                     )
                 },
@@ -143,31 +142,7 @@ data class Person(
     @SerialName("dob")
     @Serializable(with = LocalDateSerializer::class)
     val dateOfBirth: LocalDate,
-
-    @SerialName("gen")
-    val gender: Gender? = null,
 )
-
-@Serializable
-enum class Gender(val value: String) {
-    @SerialName("male")
-    MALE("male"),
-
-    @SerialName("female")
-    FEMALE("female"),
-
-    @SerialName("other")
-    OTHER("other"),
-
-    @SerialName("unknown")
-    UNKNOWN("unknown");
-
-    companion object {
-        fun findByValue(value: String): Gender {
-            return values().firstOrNull { it.value == value } ?: UNKNOWN
-        }
-    }
-}
 
 @Serializable
 data class Identifier(
@@ -193,16 +168,7 @@ enum class IdentifierType(val value: String) {
     CITIZENSHIP("CZ"),
 
     @SerialName("HC")
-    HEALTH("HC"),
-
-    @SerialName("NI")
-    NATIONAL_UNIQUE_INDIVIDUAL("NI"),
-
-    @SerialName("MB")
-    MEMBER("MB"),
-
-    @SerialName("NH")
-    NATIONAL_HEALTH("NH");
+    HEALTH("HC");
 
     companion object {
         fun findByValue(value: String): IdentifierType {
@@ -307,7 +273,7 @@ object LocalDateSerializer : KSerializer<LocalDate> {
 @Serializer(forClass = LocalDateTime::class)
 object LocalDateTimeSerializer : KSerializer<LocalDateTime> {
     override fun deserialize(decoder: Decoder): LocalDateTime {
-        return LocalDateTime.from(Instant.ofEpochSecond(decoder.decodeLong()))
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(decoder.decodeLong()), ZoneId.systemDefault())
     }
 
     override fun serialize(encoder: Encoder, value: LocalDateTime) {

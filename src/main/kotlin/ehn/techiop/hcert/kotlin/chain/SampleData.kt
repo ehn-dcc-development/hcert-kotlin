@@ -11,11 +11,11 @@ class SampleData {
                 "id": [
                     {
                         "t": "PP",
-                        "i": "12345ABC-321"
+                        "i": "12345ABC-321",
+                        "c": "AT"
                     }
                 ],
-                "dob": "1998-02-26",
-                "gen": "female"
+                "dob": "1998-02-26"
             },
             "rec": [
                 {
@@ -36,11 +36,11 @@ class SampleData {
                 "id": [
                     {
                         "t": "PP",
-                        "i": "12345ABC-321"
+                        "i": "12345ABC-321",
+                        "c": "AT"
                     }
                 ],
-                "dob": "1998-02-26",
-                "gen": "female"
+                "dob": "1998-02-26"
             },
             "vac": [
                 {
@@ -80,17 +80,16 @@ class SampleData {
                 "id": [
                     {
                         "t": "PP",
-                        "i": "12345ABC-321"
+                        "i": "12345ABC-321",
+                        "c": "AT"
                     }
                 ],
-                "dob": "1998-02-26",
-                "gen": "female"
+                "dob": "1998-02-26"
             },
             "tst": [
                 {
                     "dis": "840539006",
                     "typ": "LP6464-4",
-                    "tna": "tbd tbd tbd",
                     "tma": "tbd tbd tbd",
                     "ori": "258500001",
                     "dts": "441759600",

@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.data
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import ehn.techiop.hcert.data.DigitalGreenCertificate
 import ehn.techiop.hcert.kotlin.chain.Data
 import ehn.techiop.hcert.kotlin.chain.GreenCertificate
@@ -23,9 +22,9 @@ class DataTest {
 
     @ParameterizedTest
     @MethodSource("stringProvider")
-    fun decodeEncodeTest() {
-        val dataOurs = Json { }.decodeFromString<GreenCertificate>(SampleData.recovery)
-        val dataTheirs = ObjectMapper().readValue(SampleData.recovery, DigitalGreenCertificate::class.java)
+    fun decodeEncodeTest(input: String) {
+        val dataOurs = Json { }.decodeFromString<GreenCertificate>(input)
+        val dataTheirs = ObjectMapper().readValue(input, DigitalGreenCertificate::class.java)
         assertEquals(dataOurs, Data.fromSchema(dataTheirs))
 
         val cborOur = Cbor { }.encodeToByteArray(dataOurs)
