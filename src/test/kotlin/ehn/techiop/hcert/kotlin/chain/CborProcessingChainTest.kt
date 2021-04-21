@@ -20,20 +20,29 @@ class CborProcessingChainTest {
 
     @Test
     fun pastInfected() {
-        verify(SampleData.recovery, RandomRsaKeyCryptoService())
-        verify(SampleData.recovery, RandomEcKeyCryptoService())
+        verify(SampleData.recovery, RandomRsaKeyCryptoService(2048))
+        verify(SampleData.recovery, RandomRsaKeyCryptoService(3072))
+        verify(SampleData.recovery, RandomEcKeyCryptoService(256))
+        verify(SampleData.recovery, RandomEcKeyCryptoService(384))
+        verify(SampleData.recovery, RandomEcKeyCryptoService(521))
     }
 
     @Test
     fun tested() {
-        verify(SampleData.test, RandomRsaKeyCryptoService())
-        verify(SampleData.test, RandomEcKeyCryptoService())
+        verify(SampleData.test, RandomRsaKeyCryptoService(2048))
+        verify(SampleData.test, RandomRsaKeyCryptoService(3072))
+        verify(SampleData.test, RandomEcKeyCryptoService(256))
+        verify(SampleData.test, RandomEcKeyCryptoService(384))
+        verify(SampleData.test, RandomEcKeyCryptoService(521))
     }
 
     @Test
     fun vaccinated() {
-        verify(SampleData.vaccination, RandomRsaKeyCryptoService())
-        verify(SampleData.vaccination, RandomEcKeyCryptoService())
+        verify(SampleData.vaccination, RandomRsaKeyCryptoService(2048))
+        verify(SampleData.vaccination, RandomRsaKeyCryptoService(3072))
+        verify(SampleData.vaccination, RandomEcKeyCryptoService(256))
+        verify(SampleData.vaccination, RandomEcKeyCryptoService(384))
+        verify(SampleData.vaccination, RandomEcKeyCryptoService(521))
     }
 
     private fun verify(jsonInput: String, cryptoService: CryptoService) {
@@ -41,11 +50,7 @@ class CborProcessingChainTest {
         val verificationResult = VerificationResult()
 
         val encodingChain = buildChain(cryptoService)
-        val kid =
-            cryptoService.getCborHeaders().first { it.first.AsCBOR() == HeaderKeys.KID.AsCBOR() }.second.GetByteString()
-        val certificate = cryptoService.getCertificate(kid)
-        val certificateRepository = PrefilledCertificateRepository()
-        certificateRepository.addCertificate(kid, certificate)
+        val certificateRepository = buildPrefilledCertificateRepo(cryptoService)
         val decodingChain = buildChain(VerificationCryptoService(certificateRepository))
 
         val output = encodingChain.process(input)
@@ -53,6 +58,15 @@ class CborProcessingChainTest {
         val vaccinationData = decodingChain.verify(output.prefixedEncodedCompressedCose, verificationResult)
         assertThat(vaccinationData, equalTo(input))
         assertThat(verificationResult.cborDecoded, equalTo(true))
+    }
+
+    private fun buildPrefilledCertificateRepo(cryptoService: CryptoService): PrefilledCertificateRepository {
+        val kid =
+            cryptoService.getCborHeaders().first { it.first.AsCBOR() == HeaderKeys.KID.AsCBOR() }.second.GetByteString()
+        val certificate = cryptoService.getCertificate(kid)
+        val certificateRepository = PrefilledCertificateRepository()
+        certificateRepository.addCertificate(kid, certificate)
+        return certificateRepository
     }
 
     private fun buildChain(cryptoService: CryptoService): CborProcessingChain {

@@ -20,24 +20,29 @@ import java.time.format.DateTimeFormatter
 class Data {
     companion object {
         @JvmStatic
-        fun fromSchema(input: DigitalGreenCertificate) = GreenCertificate(
-            subject = input.sub.let {
-                Person(
-                    givenName = it.gn,
-                    givenNameTransliterated = it.gnt,
-                    familyName = it.fn,
-                    familyNameTransliterated = it.fnt,
-                    dateOfBirth = parseLocalDate(it.dob),
-                    gender = it.gen?.value()?.let { Gender.findByValue(it) },
-                    identifiers = it.id?.let { createIdentifiers(it) }
-                )
-            },
-            vaccinations = input.vac?.let { createVaccinations(it) },
-            tests = input.tst?.let { createTestResult(it) },
-            recoveryStatements = input.rec?.let { createRecovery(it) },
-            schemaVersion = input.v,
-            identifier = input.dgcid
-        )
+        fun fromSchema(input: DigitalGreenCertificate): GreenCertificate? {
+            if (input.sub == null || input.v == null || input.dgcid == null) {
+                return null
+            }
+            return GreenCertificate(
+                subject = input.sub.let {
+                    Person(
+                        givenName = it.gn,
+                        givenNameTransliterated = it.gnt,
+                        familyName = it.fn,
+                        familyNameTransliterated = it.fnt,
+                        dateOfBirth = parseLocalDate(it.dob),
+                        gender = it.gen?.value()?.let { Gender.findByValue(it) },
+                        identifiers = it.id?.let { createIdentifiers(it) }
+                    )
+                },
+                vaccinations = input.vac?.let { createVaccinations(it) },
+                tests = input.tst?.let { createTestResult(it) },
+                recoveryStatements = input.rec?.let { createRecovery(it) },
+                schemaVersion = input.v,
+                identifier = input.dgcid
+            )
+        }
 
         private fun createIdentifiers(list: List<Id>) = list.map {
             Identifier(
@@ -88,7 +93,8 @@ class Data {
 
         private fun parseLocalDateTime(input: String) = LocalDateTime.parse(input, DateTimeFormatter.ISO_DATE_TIME)
 
-        private fun parseLocalDateTime(input: Int) = LocalDateTime.from(Instant.ofEpochSecond(input.toLong()))
+        private fun parseLocalDateTime(input: Int) =
+            LocalDateTime.ofInstant(Instant.ofEpochSecond(input.toLong()), ZoneId.systemDefault())
 
         private fun parseTestResult(input: String) = input == "1240591000000104"
 
