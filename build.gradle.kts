@@ -1,16 +1,15 @@
-import org.jetbrains.kotlin.fir.declarations.builder.buildFile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("maven-publish")
+    id("maven-publish")
     id("idea")
     id("org.jsonschema2dataclass") version "3.0.0"
-	kotlin("jvm") version "1.4.31"
-	kotlin("plugin.serialization") version "1.4.31"
+    kotlin("jvm") version "1.4.31"
+    kotlin("plugin.serialization") version "1.4.31"
 }
 
 group = "ehn.techiop.hcert"
-version = "0.1.7-SNAPSHOT"
+version = "0.1.8-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 idea {
@@ -21,9 +20,9 @@ idea {
 }
 
 repositories {
-	mavenLocal()
+    mavenLocal()
     jcenter()
-	mavenCentral()
+    mavenCentral()
 }
 
 publishing {
@@ -46,15 +45,14 @@ publishing {
 }
 
 dependencies {
-	implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.31")
-	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31")
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.1.0")
-	implementation("com.augustcellars.cose:cose-java:1.1.0")
-	implementation("com.google.zxing:core:3.4.1")
-	implementation("com.google.zxing:javase:3.4.1")
-	implementation("org.bouncycastle:bcpkix-jdk15to18:1.68")
-	implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.31")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.1.0")
+    implementation("com.augustcellars.cose:cose-java:1.1.0")
+    implementation("com.google.zxing:core:3.4.1")
+    implementation("com.google.zxing:javase:3.4.1")
+    implementation("org.bouncycastle:bcpkix-jdk15to18:1.68")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.3")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
@@ -67,17 +65,21 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs = listOf("-Xjsr305=strict", "-Xopt-in=kotlin.ExperimentalUnsignedTypes", "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi")
-		jvmTarget = "1.8"
-	}
+    kotlinOptions {
+        freeCompilerArgs = listOf(
+            "-Xjsr305=strict",
+            "-Xopt-in=kotlin.ExperimentalUnsignedTypes",
+            "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
+        )
+        jvmTarget = "1.8"
+    }
 }
 
 tasks.withType<Test> {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
-configure <com.github.eirnym.js2p.JsonSchemaExtension> {
+configure<com.github.eirnym.js2p.JsonSchemaExtension> {
     targetPackage = "ehn.techiop.hcert.data"
     includeGeneratedAnnotation = false
     serializable = true

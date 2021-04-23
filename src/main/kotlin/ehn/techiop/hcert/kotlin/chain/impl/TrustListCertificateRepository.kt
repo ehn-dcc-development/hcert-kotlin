@@ -9,7 +9,7 @@ import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
 
 
-class FileBasedCertificateRepository(input: ByteArray, certificateRepository: CertificateRepository) :
+class TrustListCertificateRepository(input: ByteArray, certificateRepository: CertificateRepository) :
     CertificateRepository {
 
     private val list = TrustListService(VerificationCryptoService(certificateRepository)).decode(input).certificates

@@ -1,10 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.kotlin.chain.impl.FileBasedCertificateRepository
-import ehn.techiop.hcert.kotlin.chain.impl.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
+import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.VerificationCryptoService
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -19,14 +18,13 @@ class TrustListTest {
     fun serverClientExchange() {
         val cryptoService = RandomEcKeyCryptoService()
         val x509Certificate = cryptoService.getCertificate()
-        val kid = PkiUtils().calcKid(x509Certificate)
         val trustListEncoded = TrustListService(cryptoService).encode(randomCertificates())
 
         // might never happen on the client, that the trust list is loaded in this way
-        val clientTrustRoot = PrefilledCertificateRepository().apply { addCertificate(kid, x509Certificate) }
+        val clientTrustRoot = PrefilledCertificateRepository(x509Certificate)
         val clientTrustList = TrustListService(VerificationCryptoService(clientTrustRoot)).decode(trustListEncoded)
         // that's the way to go: Trust List used for verification of QR-codes
-        val clientTrustListAdapter = FileBasedCertificateRepository(trustListEncoded, clientTrustRoot)
+        val clientTrustListAdapter = TrustListCertificateRepository(trustListEncoded, clientTrustRoot)
 
         assertThat(clientTrustList.validFrom.epochSecond, lessThanOrEqualTo(Instant.now().epochSecond))
         assertThat(clientTrustList.validUntil.epochSecond, greaterThanOrEqualTo(Instant.now().epochSecond))

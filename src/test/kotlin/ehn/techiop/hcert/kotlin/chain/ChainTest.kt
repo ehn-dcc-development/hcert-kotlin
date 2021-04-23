@@ -2,7 +2,6 @@ package ehn.techiop.hcert.kotlin.chain
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import ehn.techiop.hcert.data.DigitalGreenCertificate
-import ehn.techiop.hcert.kotlin.chain.impl.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
@@ -44,7 +43,7 @@ class ChainTest {
         val verificationResult = VerificationResult()
 
         val encodingChain = Chain.buildCreationChain(cryptoService)
-        val certificateRepository = buildPrefilledCertificateRepo(cryptoService)
+        val certificateRepository = PrefilledCertificateRepository(cryptoService.getCertificate())
         val decodingChain = Chain.buildVerificationChain(certificateRepository)
 
         val output = encodingChain.process(input)
@@ -52,14 +51,6 @@ class ChainTest {
         val vaccinationData = decodingChain.verify(output.prefixedEncodedCompressedCose, verificationResult)
         assertThat(vaccinationData, equalTo(input))
         assertThat(verificationResult.cborDecoded, equalTo(true))
-    }
-
-    private fun buildPrefilledCertificateRepo(cryptoService: CryptoService): PrefilledCertificateRepository {
-        val certificate = cryptoService.getCertificate()
-        val kid = PkiUtils().calcKid(certificate)
-        val certificateRepository = PrefilledCertificateRepository()
-        certificateRepository.addCertificate(kid, certificate)
-        return certificateRepository
     }
 
 }

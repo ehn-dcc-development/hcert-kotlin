@@ -24,6 +24,5 @@ This library uses the following dependencies:
  - [Jackson](https://github.com/FasterXML/jackson-databind), under the Apache-2.0 License
  - [ZXing](https://github.com/zxing/zxing), under the Apache-2.0 License
  - [Bouncycastle](https://github.com/bcgit/bc-java), under an [MIT-compatible license](https://www.bouncycastle.org/licence.html)
- - [OkHttp](https://github.com/square/okhttp), under the Apache-2.0 License
  - [JUnit](https://github.com/junit-team/junit5), under the Eclipse Public License v2.0
  - [Hamcrest](https://github.com/hamcrest/JavaHamcrest), under the BSD-3-Clause License
