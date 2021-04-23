@@ -1,6 +1,5 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import COSE.HeaderKeys
 import com.fasterxml.jackson.databind.ObjectMapper
 import ehn.techiop.hcert.data.DigitalGreenCertificate
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
@@ -61,9 +60,7 @@ class CborProcessingChainTest {
     }
 
     private fun buildPrefilledCertificateRepo(cryptoService: CryptoService): PrefilledCertificateRepository {
-        val kid =
-            cryptoService.getCborHeaders().first { it.first.AsCBOR() == HeaderKeys.KID.AsCBOR() }.second.GetByteString()
-        val certificate = cryptoService.getCertificate(kid)
+        val (kid, certificate) = cryptoService.getCertificate()
         val certificateRepository = PrefilledCertificateRepository()
         certificateRepository.addCertificate(kid, certificate)
         return certificateRepository

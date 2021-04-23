@@ -1,7 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.data.DigitalGreenCertificate
+import java.security.cert.Certificate
 import java.time.Instant
+import java.time.LocalDateTime
 
 
 class CborProcessingChain(
@@ -32,6 +34,7 @@ class CborProcessingChain(
 }
 
 class VerificationResult {
+
     /**
      * `exp` claim SHALL hold a timestamp.
      * Verifier MUST reject the payload after expiration.
@@ -73,6 +76,16 @@ class VerificationResult {
      * The payload is structured and encoded as a CBOR with a COSE digital signature.
      */
     var cborDecoded = false
+
+    /**
+     * Lifetime of certificate used for verification of COSE
+     */
+    var certificateValidFrom: Instant? = null
+
+    /**
+     * Lifetime of certificate used for verification of COSE
+     */
+    var certificateValidUntil: Instant? = null
 }
 
 data class ResultCbor(

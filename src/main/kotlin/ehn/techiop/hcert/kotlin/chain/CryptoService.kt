@@ -3,7 +3,7 @@ package ehn.techiop.hcert.kotlin.chain
 import COSE.HeaderKeys
 import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
-import java.security.cert.Certificate
+import java.security.cert.X509Certificate
 
 interface CryptoService {
 
@@ -11,9 +11,9 @@ interface CryptoService {
 
     fun getCborSigningKey(): OneKey
 
-    fun getCborVerificationKey(kid: ByteArray): OneKey
+    fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult = VerificationResult()): OneKey
 
-    fun getCertificate(kid: ByteArray): Certificate
+    fun getCertificate(): Pair<ByteArray, X509Certificate>
 
 
 }

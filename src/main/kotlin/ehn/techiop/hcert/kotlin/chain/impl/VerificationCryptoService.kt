@@ -6,7 +6,9 @@ import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import java.math.BigInteger
+import java.security.cert.X509Certificate
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPublicKey
 
@@ -16,11 +18,11 @@ class VerificationCryptoService(private val repository: CertificateRepository) :
 
     override fun getCborSigningKey() = OneKey(CBORObject.NewMap())
 
-    override fun getCborVerificationKey(kid: ByteArray): OneKey {
-        val certificate = getCertificate(kid)
-        return when (certificate.publicKey) {
-            is ECPublicKey -> buildEcKey(certificate.publicKey as ECPublicKey)
-            else -> buildRsaKey(certificate.publicKey as RSAPublicKey)
+    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): OneKey {
+        return when (val publicKey = repository.loadPublicKey(kid, verificationResult)) {
+            is ECPublicKey -> buildEcKey(publicKey)
+            is RSAPublicKey -> buildRsaKey(publicKey)
+            else -> throw IllegalArgumentException("Key type not known")
         }
     }
 
@@ -47,7 +49,9 @@ class VerificationCryptoService(private val repository: CertificateRepository) :
         else -> KeyKeys.EC2_P256
     }
 
-    override fun getCertificate(kid: ByteArray) = repository.loadCertificate(kid)
+    override fun getCertificate(): Pair<ByteArray, X509Certificate> {
+        throw NotImplementedError()
+    }
 
     /**
      * Strip the possibly leading zero (used as the sign bit) added from Java's BigInteger implementation

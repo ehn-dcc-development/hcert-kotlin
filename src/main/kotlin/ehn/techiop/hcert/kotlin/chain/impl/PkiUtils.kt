@@ -48,6 +48,10 @@ class PkiUtils {
         else -> "SHA256withRSA"
     }
 
+    fun getValidFrom(certificate: X509Certificate): Instant = certificate.notBefore.toInstant()
+
+    fun getValidUntil(certificate: X509Certificate): Instant = certificate.notAfter.toInstant()
+
 }
 
 

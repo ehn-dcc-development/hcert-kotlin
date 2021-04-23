@@ -1,9 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import java.security.cert.Certificate
+import java.security.PublicKey
 
 interface CertificateRepository {
 
-    fun loadCertificate(kid: ByteArray): Certificate
+    fun loadPublicKey(kid: ByteArray, verificationResult: VerificationResult): PublicKey
 
 }

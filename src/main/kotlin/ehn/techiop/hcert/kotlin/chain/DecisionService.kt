@@ -5,22 +5,29 @@ import java.time.Instant
 class DecisionService {
 
     fun decide(verificationResult: VerificationResult): VerificationDecision {
-        if (!verificationResult.coseVerified) {
+        if (!verificationResult.coseVerified)
             return VerificationDecision.FAIL
-        }
-        if (!verificationResult.base45Decoded) {
+
+        if (!verificationResult.base45Decoded)
             return VerificationDecision.FAIL
-        }
-        if (!verificationResult.cborDecoded) {
+
+        if (!verificationResult.cborDecoded)
             return VerificationDecision.FAIL
-        }
+
         verificationResult.issuedAt?.let { issuedAt ->
-            // TODO More checks with certificate used for verification of COSE
+            verificationResult.certificateValidFrom?.let { certValidFrom ->
+                if (issuedAt.isBefore(certValidFrom))
+                    return VerificationDecision.FAIL
+            }
             if (issuedAt.isAfter(Instant.now()))
                 return VerificationDecision.FAIL
         }
+
         verificationResult.expirationTime?.let { expirationTime ->
-            // TODO More checks with certificate used for verification of COSE
+            verificationResult.certificateValidUntil?.let { certValidUntil ->
+                if (certValidUntil.isAfter(expirationTime))
+                    return VerificationDecision.FAIL
+            }
             if (expirationTime.isBefore(Instant.now()))
                 return VerificationDecision.FAIL
         }

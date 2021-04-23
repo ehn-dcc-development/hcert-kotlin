@@ -13,7 +13,7 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
     override fun encode(input: ByteArray): ByteArray {
         return Sign1Message().also {
             it.SetContent(input)
-            for (header in cryptoService.getCborHeaders()) {
+            cryptoService.getCborHeaders().forEach { header ->
                 it.addAttribute(header.first, header.second, Attribute.PROTECTED)
             }
             it.sign(cryptoService.getCborSigningKey())
@@ -26,7 +26,7 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
             (Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message).also {
                 try {
                     getKid(it)?.let { kid ->
-                        val verificationKey = cryptoService.getCborVerificationKey(kid)
+                        val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
                         verificationResult.coseVerified = it.validate(verificationKey)
                     }
                 } catch (e: Throwable) {
@@ -38,14 +38,16 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
         }
     }
 
-    private fun getKid(it: Sign1Message): ByteArray? {
-        val key = HeaderKeys.KID.AsCBOR()
-        if (it.protectedAttributes.ContainsKey(key)) {
-            return it.protectedAttributes.get(key).GetByteString()
-        } else if (it.unprotectedAttributes.ContainsKey(key)) {
-            return it.unprotectedAttributes.get(key).GetByteString()
+    companion object {
+        fun getKid(it: Sign1Message): ByteArray? {
+            val key = HeaderKeys.KID.AsCBOR()
+            if (it.protectedAttributes.ContainsKey(key)) {
+                return it.protectedAttributes.get(key).GetByteString()
+            } else if (it.unprotectedAttributes.ContainsKey(key)) {
+                return it.unprotectedAttributes.get(key).GetByteString()
+            }
+            return null
         }
-        return null
     }
 
 }

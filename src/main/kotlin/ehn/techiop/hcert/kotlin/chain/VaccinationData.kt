@@ -281,6 +281,17 @@ object LocalDateTimeSerializer : KSerializer<LocalDateTime> {
     }
 }
 
+@Serializer(forClass = Instant::class)
+object InstantSerializer : KSerializer<Instant> {
+    override fun deserialize(decoder: Decoder): Instant {
+        return Instant.ofEpochSecond(decoder.decodeLong())
+    }
+
+    override fun serialize(encoder: Encoder, value: Instant) {
+        encoder.encodeLong(value.epochSecond)
+    }
+}
+
 /**
  * Values from hcert-schema, according to SNOMED CT
  */
