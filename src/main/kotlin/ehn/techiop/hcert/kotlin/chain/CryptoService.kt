@@ -15,5 +15,8 @@ interface CryptoService {
 
     fun getCertificate(): X509Certificate
 
+    fun exportPrivateKeyAsPem(): String
+
+    fun exportCertificateAsPem(): String
 
 }

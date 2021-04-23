@@ -1,6 +1,5 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import COSE.HeaderKeys
 import COSE.KeyKeys
 import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
@@ -13,9 +12,9 @@ import java.security.interfaces.RSAPublicKey
 
 class VerificationCryptoService(private val repository: CertificateRepository) : CryptoService {
 
-    override fun getCborHeaders() = listOf<Pair<HeaderKeys, CBORObject>>()
+    override fun getCborHeaders() = throw NotImplementedError()
 
-    override fun getCborSigningKey() = OneKey(CBORObject.NewMap())
+    override fun getCborSigningKey() = throw NotImplementedError()
 
     override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): OneKey {
         return when (val publicKey = repository.loadPublicKey(kid, verificationResult)) {
@@ -49,6 +48,10 @@ class VerificationCryptoService(private val repository: CertificateRepository) :
     }
 
     override fun getCertificate() = throw NotImplementedError()
+
+    override fun exportPrivateKeyAsPem() = throw NotImplementedError()
+
+    override fun exportCertificateAsPem() = throw NotImplementedError()
 
     /**
      * Strip the possibly leading zero (used as the sign bit) added from Java's BigInteger implementation
