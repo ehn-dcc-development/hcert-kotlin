@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import ehn.techiop.hcert.data.DigitalGreenCertificate
+import ehn.techiop.hcert.kotlin.chain.impl.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
@@ -54,7 +55,8 @@ class ChainTest {
     }
 
     private fun buildPrefilledCertificateRepo(cryptoService: CryptoService): PrefilledCertificateRepository {
-        val (kid, certificate) = cryptoService.getCertificate()
+        val certificate = cryptoService.getCertificate()
+        val kid = PkiUtils().calcKid(certificate)
         val certificateRepository = PrefilledCertificateRepository()
         certificateRepository.addCertificate(kid, certificate)
         return certificateRepository

@@ -13,7 +13,7 @@ interface CryptoService {
 
     fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult = VerificationResult()): OneKey
 
-    fun getCertificate(): Pair<ByteArray, X509Certificate>
+    fun getCertificate(): X509Certificate
 
 
 }

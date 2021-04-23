@@ -31,26 +31,31 @@ data class TrustedCertificate(
     @Serializable(with = InstantSerializer::class)
     val validUntil: Instant,
 
-    @SerialName("k")
+    @SerialName("i")
     val kid: ByteArray,
 
-    @SerialName("t")
+    @SerialName("k")
     val keyType: KeyType,
 
     @SerialName("p")
     val publicKey: ByteArray,
+
+    @SerialName("t")
+    val certType: List<CertType>,
 ) {
     companion object {
         fun fromCert(kid: ByteArray, certificate: X509Certificate) = TrustedCertificate(
-            kid = kid,
             validFrom = certificate.notBefore.toInstant(),
             validUntil = certificate.notAfter.toInstant(),
+            kid = kid,
             keyType = when (certificate.publicKey) {
                 is RSAPublicKey -> KeyType.RSA
                 is ECPublicKey -> KeyType.EC
                 else -> throw IllegalArgumentException("Unknown key type")
             },
-            publicKey = certificate.publicKey.encoded
+            publicKey = certificate.publicKey.encoded,
+            // TODO read from OID
+            certType = listOf(CertType.VACCINATION, CertType.TEST, CertType.RECOVERY)
         )
     }
 }
@@ -62,4 +67,16 @@ enum class KeyType {
 
     @SerialName("e")
     EC
+}
+
+@Serializable
+enum class CertType {
+    @SerialName("v")
+    VACCINATION,
+
+    @SerialName("t")
+    TEST,
+
+    @SerialName("r")
+    RECOVERY;
 }

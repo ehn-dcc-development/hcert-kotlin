@@ -8,7 +8,6 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import org.bouncycastle.asn1.x500.X500Name
 import java.security.KeyPairGenerator
-import java.security.cert.X509Certificate
 
 class RandomEcKeyCryptoService(private val keySize: Int = 256) : CryptoService {
 
@@ -35,9 +34,7 @@ class RandomEcKeyCryptoService(private val keySize: Int = 256) : CryptoService {
         return OneKey(keyPair.public, keyPair.private)
     }
 
-    override fun getCertificate(): Pair<ByteArray, X509Certificate> {
-        return Pair(keyId, keyPairCert)
-    }
+    override fun getCertificate() = keyPairCert
 
 }
 

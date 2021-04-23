@@ -10,8 +10,6 @@ import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.KeyPairGenerator
 import java.security.Security
-import java.security.cert.Certificate
-import java.security.cert.X509Certificate
 
 class RandomRsaKeyCryptoService(private val keySize: Int = 2048) : CryptoService {
 
@@ -42,9 +40,7 @@ class RandomRsaKeyCryptoService(private val keySize: Int = 2048) : CryptoService
         return OneKey(keyPair.public, keyPair.private)
     }
 
-    override fun getCertificate(): Pair<ByteArray, X509Certificate> {
-        return Pair(keyId, keyPairCert)
-    }
+    override fun getCertificate() = keyPairCert
 
 
 }

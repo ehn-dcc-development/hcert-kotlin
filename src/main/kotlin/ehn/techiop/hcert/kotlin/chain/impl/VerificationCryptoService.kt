@@ -8,7 +8,6 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import java.math.BigInteger
-import java.security.cert.X509Certificate
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPublicKey
 
@@ -49,9 +48,7 @@ class VerificationCryptoService(private val repository: CertificateRepository) :
         else -> KeyKeys.EC2_P256
     }
 
-    override fun getCertificate(): Pair<ByteArray, X509Certificate> {
-        throw NotImplementedError()
-    }
+    override fun getCertificate() = throw NotImplementedError()
 
     /**
      * Strip the possibly leading zero (used as the sign bit) added from Java's BigInteger implementation

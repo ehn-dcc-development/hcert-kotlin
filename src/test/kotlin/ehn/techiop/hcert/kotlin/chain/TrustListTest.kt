@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.chain.impl.FileBasedCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.impl.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
@@ -17,7 +18,8 @@ class TrustListTest {
     @Test
     fun serverClientExchange() {
         val cryptoService = RandomEcKeyCryptoService()
-        val (kid, x509Certificate) = cryptoService.getCertificate()
+        val x509Certificate = cryptoService.getCertificate()
+        val kid = PkiUtils().calcKid(x509Certificate)
         val trustListEncoded = TrustListService(cryptoService).encode(randomCertificates())
 
         // might never happen on the client, that the trust list is loaded in this way
@@ -34,6 +36,7 @@ class TrustListTest {
             assertThat(cert.validUntil.epochSecond, greaterThanOrEqualTo(Instant.now().epochSecond))
             assertThat(cert.kid.size, equalTo(8))
             assertThat(cert.publicKey.size, greaterThanOrEqualTo(32))
+            assertThat(cert.certType.size, equalTo(3))
 
             val loadPublicKey = clientTrustListAdapter.loadPublicKey(cert.kid, VerificationResult())
             assertThat(loadPublicKey.encoded, equalTo(cert.publicKey))
@@ -42,7 +45,7 @@ class TrustListTest {
 
     private fun randomCertificates() =
         listOf(RandomEcKeyCryptoService(), RandomRsaKeyCryptoService())
-            .map { it.getCertificate().second }
+            .map { it.getCertificate() }
             .toSet()
 
 }
