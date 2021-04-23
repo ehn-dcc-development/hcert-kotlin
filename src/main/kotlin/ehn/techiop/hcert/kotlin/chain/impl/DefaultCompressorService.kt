@@ -6,13 +6,13 @@ import java.util.zip.Deflater
 import java.util.zip.DeflaterInputStream
 import java.util.zip.InflaterInputStream
 
-open class DefaultCompressorService : CompressorService {
+open class DefaultCompressorService(private val level: Int = 9) : CompressorService {
 
     /**
      * Compresses input with ZLIB = deflating
      */
     override fun encode(input: ByteArray): ByteArray {
-        return DeflaterInputStream(input.inputStream(), Deflater(9)).readBytes()
+        return DeflaterInputStream(input.inputStream(), Deflater(level)).readBytes()
     }
 
     /**

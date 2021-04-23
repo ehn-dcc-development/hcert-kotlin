@@ -30,9 +30,9 @@ class TestSuiteTests {
     private val compressorService = DefaultCompressorService()
     private val base45Service = DefaultBase45Service()
     private val chainCorrect =
-        CborProcessingChain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
+        Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
     private val chainFaultyBase45 =
-        CborProcessingChain(
+        Chain(
             cborService,
             coseService,
             contextIdentifierService,
@@ -40,7 +40,7 @@ class TestSuiteTests {
             FaultyBase45Service()
         )
     private val chainFaultyCompressor =
-        CborProcessingChain(
+        Chain(
             cborService,
             coseService,
             contextIdentifierService,
@@ -48,9 +48,9 @@ class TestSuiteTests {
             base45Service
         )
     private val chainNoopCompressor =
-        CborProcessingChain(cborService, coseService, contextIdentifierService, NoopCompressorService(), base45Service)
+        Chain(cborService, coseService, contextIdentifierService, NoopCompressorService(), base45Service)
     private val chainNoopContextIdentifier =
-        CborProcessingChain(
+        Chain(
             cborService,
             coseService,
             NoopContextIdentifierService(),
@@ -58,7 +58,7 @@ class TestSuiteTests {
             base45Service
         )
     private val chainUnverifiableCose =
-        CborProcessingChain(
+        Chain(
             cborService,
             NonVerifiableCoseService(cryptoService),
             contextIdentifierService,
@@ -66,7 +66,7 @@ class TestSuiteTests {
             base45Service
         )
     private val chainUnprotectedCose =
-        CborProcessingChain(
+        Chain(
             cborService,
             UnprotectedCoseService(cryptoService),
             contextIdentifierService,
@@ -74,7 +74,7 @@ class TestSuiteTests {
             base45Service
         )
     private val chainFaultyCose =
-        CborProcessingChain(
+        Chain(
             cborService,
             FaultyCoseService(cryptoService),
             contextIdentifierService,
@@ -82,7 +82,7 @@ class TestSuiteTests {
             base45Service
         )
     private val chainFaultyCbor =
-        CborProcessingChain(
+        Chain(
             FaultyCborService(),
             coseService,
             contextIdentifierService,
