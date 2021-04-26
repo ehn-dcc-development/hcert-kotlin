@@ -7,4 +7,9 @@ interface TwoDimCodeService {
      */
     fun encode(data: String): String
 
+    /**
+     * Decodes the content of a Base64 encoded image of a 2D code
+     */
+    fun decode(input: String): String
+
 }
