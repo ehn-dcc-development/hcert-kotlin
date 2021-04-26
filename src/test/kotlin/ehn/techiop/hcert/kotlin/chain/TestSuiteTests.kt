@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import ehn.techiop.hcert.data.DigitalGreenCertificate
+import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCborService
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCompressorService
@@ -94,7 +94,7 @@ class TestSuiteTests {
     @Test
     fun vaccination() {
         val input = SampleData.vaccination
-        val decodedFromInput = ObjectMapper().readValue(input, DigitalGreenCertificate::class.java)
+        val decodedFromInput = ObjectMapper().readValue(input, Eudgc::class.java)
 
         assertVerification(
             chainCorrect.encode(decodedFromInput).step5Prefixed,
@@ -166,7 +166,7 @@ class TestSuiteTests {
 
     private fun assertVerification(
         chainOutput: String,
-        input: DigitalGreenCertificate,
+        input: Eudgc,
         expectDataToMatch: Boolean,
         expectedResult: VerificationResult
     ) {

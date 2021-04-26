@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.data.DigitalGreenCertificate
+import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
@@ -11,7 +11,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.VerificationCryptoService
 /**
  * Main entry point for the creation and verification of HCERT
  *
- * @see [DigitalGreenCertificate]
+ * @see [Eudgc]
  */
 class Chain(
     private val cborService: CborService,
@@ -24,7 +24,7 @@ class Chain(
     /**
      * Process the [input], apply encoding from [CborService], [CoseService], [CompressorService], [Base45Service] and [ContextIdentifierService] (in that order). The [ChainResult] will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
      */
-    fun encode(input: DigitalGreenCertificate): ChainResult {
+    fun encode(input: Eudgc): ChainResult {
         val cbor = cborService.encode(input)
         val cose = coseService.encode(cbor)
         val compressed = compressorService.encode(cose)
@@ -38,7 +38,7 @@ class Chain(
      *
      * Beware that [verificationResult] will be filled with detailed information about the decoding, which shall be passed to [DecisionService] to decide on a final verdict.
      */
-    fun decode(input: String, verificationResult: VerificationResult): DigitalGreenCertificate {
+    fun decode(input: String, verificationResult: VerificationResult): Eudgc {
         val plainInput = contextIdentifierService.decode(input, verificationResult)
         val compressedCose = base45Service.decode(plainInput, verificationResult)
         val cose = compressorService.decode(compressedCose, verificationResult)

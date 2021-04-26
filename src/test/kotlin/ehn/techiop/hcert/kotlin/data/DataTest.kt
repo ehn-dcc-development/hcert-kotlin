@@ -1,9 +1,7 @@
 package ehn.techiop.hcert.kotlin.data
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import ehn.techiop.hcert.data.DigitalGreenCertificate
-import ehn.techiop.hcert.kotlin.chain.Data
-import ehn.techiop.hcert.kotlin.chain.GreenCertificate
+import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.SampleData
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
@@ -24,8 +22,8 @@ class DataTest {
     @MethodSource("stringProvider")
     fun decodeEncodeTest(input: String) {
         val dataOurs = Json { }.decodeFromString<GreenCertificate>(input)
-        val dataTheirs = ObjectMapper().readValue(input, DigitalGreenCertificate::class.java)
-        assertEquals(dataOurs, Data.fromSchema(dataTheirs))
+        val dataTheirs = ObjectMapper().readValue(input, Eudgc::class.java)
+        assertEquals(dataOurs, GreenCertificate.fromEuSchema(dataTheirs))
 
         val cborOur = Cbor { }.encodeToByteArray(dataOurs)
         //println(cborOur.toHexString())
@@ -36,18 +34,18 @@ class DataTest {
 
         val decodedFromCbor = Cbor { }.decodeFromByteArray<GreenCertificate>(cborOur)
         assertEquals(dataOurs, decodedFromCbor)
-        assertEquals(Data.fromSchema(dataTheirs), decodedFromCbor)
+        assertEquals(GreenCertificate.fromEuSchema(dataTheirs), decodedFromCbor)
     }
 
 
     companion object {
 
-        // from RFC draft
         @JvmStatic
         @Suppress("unused")
         fun stringProvider() = listOf(
             SampleData.recovery,
-            SampleData.test,
+            SampleData.testRat,
+            SampleData.testNaa,
             SampleData.vaccination
         )
 

@@ -5,102 +5,103 @@ class SampleData {
     companion object {
         val recovery = """
         {
-            "sub": {
+            "ver": "1.0.0",
+            "nam": {
+                "fn": "Musterfrau-G\u00f6\u00dfinger",
                 "gn": "Gabriele",
-                "fn": "Musterfrau",
-                "id": [
-                    {
-                        "t": "PP",
-                        "i": "12345ABC-321",
-                        "c": "AT"
-                    }
-                ],
-                "dob": "1998-02-26"
+                "fnt": "MUSTERFRAU<GOESSINGER",
+                "gnt": "GABRIELE"
             },
-            "rec": [
+            "dob": "1998-02-26",
+            "r": [
                 {
-                    "dis": "840539006",
-                    "dat": "2021-02-20",
-                    "cou": "AT"
+                    "tg": "840539006",
+                    "fr": "2021-02-20",
+                    "co": "AT",
+                    "is": "BMGSPK Austria",
+                    "df": "2021-04-04",
+                    "du": "2021-10-04",
+                    "ci": "ATOJSWGY3IOJUXGYTBOVWWC3TO"
                 }
-            ],
-            "v": "v1.0.0",
-            "dgcid": "01AT42196560275230427402470256520250042"
+            ]
         }
         """.trimIndent()
         val vaccination = """
         {
-            "sub": {
+            "ver": "1.0.0",
+            "nam": {
+                "fn": "Musterfrau-G\u00f6\u00dfinger",
                 "gn": "Gabriele",
-                "fn": "Musterfrau",
-                "id": [
-                    {
-                        "t": "PP",
-                        "i": "12345ABC-321",
-                        "c": "AT"
-                    }
-                ],
-                "dob": "1998-02-26"
+                "fnt": "MUSTERFRAU<GOESSINGER",
+                "gnt": "GABRIELE"
             },
-            "vac": [
+            "dob": "1998-02-26",
+            "v": [
                 {
-                    "dis": "840539006",
-                    "vap": "1119305005",
-                    "mep": "EU\/1\/20\/1528",
-                    "aut": "ORG-100030215",
-                    "seq": 1,
-                    "tot": 2,
-                    "dat": "2021-02-18",
-                    "cou": "AT",
-                    "lot": "C22-862FF-001",
-                    "adm": "Vaccination centre Vienna 23"
-                },
-                {
-                    "dis": "840539006",
-                    "vap": "1119305005",
-                    "mep": "EU\/1\/20\/1528",
-                    "aut": "ORG-100030215",
-                    "seq": 2,
-                    "tot": 2,
-                    "dat": "2021-03-12",
-                    "cou": "AT",
-                    "lot": "C22-H62FF-010",
-                    "adm": "Vaccination centre Vienna 23"
+                    "tg": "840539006",
+                    "vp": "1119305005",
+                    "mp": "EU\/1\/20\/1528",
+                    "ma": "ORG-100030215",
+                    "dn": 1,
+                    "sd": 2,
+                    "dt": "2021-02-18",
+                    "co": "AT",
+                    "is": "BMGSPK Austria",
+                    "ci": "ATOZQWGY3IOJUXGYTBOVWWC3TO"
                 }
-            ],
-            "v": "v1.0.0",
-            "dgcid": "01AT42196560275230427402470256520250042"
+            ]
         }
         """.trimIndent()
-        val test = """
+        val testRat = """
         {
-            "sub": {
+            "ver": "1.0.0",
+            "nam": {
+                "fn": "Musterfrau-G\u00f6\u00dfinger",
                 "gn": "Gabriele",
-                "fn": "Musterfrau",
-                "id": [
-                    {
-                        "t": "PP",
-                        "i": "12345ABC-321",
-                        "c": "AT"
-                    }
-                ],
-                "dob": "1998-02-26"
+                "fnt": "MUSTERFRAU<GOESSINGER",
+                "gnt": "GABRIELE"
             },
-            "tst": [
+            "dob": "1998-02-26",
+            "t": [
                 {
-                    "dis": "840539006",
-                    "typ": "LP6464-4",
-                    "tma": "tbd tbd tbd",
-                    "ori": "258500001",
-                    "dts": "441759600",
-                    "dtr": "441759600",
-                    "res": "1240591000000102",
-                    "fac": "Testing center Vienna 1",
-                    "cou": "AT"
+                    "tg": "840539006",
+                    "tt": "LP6464-4",
+                    "tr": "260415000",
+                    "ma": "1232",
+                    "sc": "2021-02-20T12:34:56+00:00",
+                    "dr": "2021-02-20T12:45:01+00:00",
+                    "tc": "Testing center Vienna 1",
+                    "co": "AT",
+                    "is": "BMGSPK Austria",
+                    "ci": "ATOJQXIY3IOJUXGYTBOVWWC3TO"
                 }
-            ],
-            "v": "v1.0.0",
-            "dgcid": "01AT42196560275230427402470256520250042"
+            ]
+        }
+        """.trimIndent()
+        val testNaa = """
+        {
+            "ver": "1.0.0",
+            "nam": {
+                "fn": "Musterfrau-G\u00f6\u00dfinger",
+                "gn": "Gabriele",
+                "fnt": "MUSTERFRAU<GOESSINGER",
+                "gnt": "GABRIELE"
+            },
+            "dob": "1998-02-26",
+            "t": [
+                {
+                    "tg": "840539006",
+                    "tt": "LP6464-4",
+                    "tr": "260415000",
+                    "nm": "Roche LightCycler qPCR",
+                    "sc": "2021-02-20T12:34:56+00:00",
+                    "dr": "2021-02-20T14:56:01+00:00",
+                    "tc": "Testing center Vienna 1",
+                    "co": "AT",
+                    "is": "BMGSPK Austria",
+                    "ci": "ATNZQWCY3IOJUXGYTBOVWWC3TO"
+                }
+            ]
         }
         """.trimIndent()
     }

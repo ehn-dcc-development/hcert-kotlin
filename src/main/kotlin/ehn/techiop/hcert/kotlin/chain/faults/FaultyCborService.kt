@@ -2,7 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.faults
 
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import com.upokecenter.cbor.CBORObject
-import ehn.techiop.hcert.data.DigitalGreenCertificate
+import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 
 
@@ -13,7 +13,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
  */
 class FaultyCborService : DefaultCborService() {
 
-    override fun encode(input: DigitalGreenCertificate): ByteArray {
+    override fun encode(input: Eudgc): ByteArray {
         val cbor = CBORMapper().writeValueAsBytes(input)
         return CBORObject.FromObject(cbor).EncodeToBytes()
     }

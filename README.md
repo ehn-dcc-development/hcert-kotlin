@@ -9,11 +9,11 @@ Implements a very basic validation and creation chain of electronic health certi
 
 All services are implemented according to the [Specification 1.0.5](https://github.com/ehn-digital-green-development/hcert-spec), Version 1.0.5 from 2021-04-18.
 
-The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/hcert-schema/blob/main/eu_dgc_v1_schema.json>, from 2021-04-21.
+The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, from 2021-04-23.
 
 ## Usage
 
-`ehn.techiop.hcert.kotlin.chain.Chain` is the main class for encoding and decoding HCERT data. For encoding, pass an instance of a `DigitalGreenCertificate` (class generated from the JSON schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
+`ehn.techiop.hcert.kotlin.chain.Chain` is the main class for encoding and decoding HCERT data. For encoding, pass an instance of a `Eudgc` (class generated from the JSON schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
 
 The usage of interfaces for all services (CBOR, COSE, ZLib, Context) in the chain may seem over-engineered at first, but it allows us to create wrongly encoded results, by passing faulty implementations of the service. Those services reside in the namespace `ehn.techiop.hcert.kotlin.chain.faults` and should, obviously, not be used for production code.
 
@@ -31,7 +31,7 @@ Chain chain = Chain.buildCreationChain(cryptoService);
 
 // Load the input data from somewhere ...
 String json = "{ \"sub\": { \"gn\": \"Gabriele\", ...";
-String input = new ObjectMapper().readValue(jsonInput, DigitalGreenCertificate.class);
+String input = new ObjectMapper().readValue(jsonInput, Eudgc.class);
 ChainResult result = chain.process(input);
 
 // Optionally encode it as a QR-Code with 350 pixel in width and height
@@ -51,7 +51,7 @@ Chain chain = Chain.buildVerificationChain();
 String input = "HC1:NCFC:MVIMAP2SQ20MU...";
 
 VerificationResult verificationResult = new VerificationResult();
-DigitalGreenCertificate dgc = chain.decode(input, verificationResult);
+Eudgc dgc = chain.decode(input, verificationResult);
 VerificationDecision decision = new DecisionService().decide(verificationResult);
 // is either VerificationDecision.GOOD or VerificationDecision.FAIL
 
@@ -84,12 +84,19 @@ Chain chain = Chain.buildVerificationChain(repository);
 
 // Continue as in the example above ...
 VerificationResult verificationResult = new VerificationResult();
-DigitalGreenCertificate dgc = chain.decode(input, verificationResult);
+Eudgc dgc = chain.decode(input, verificationResult);
 ```
+
+## Data Classes
+
+The JSON schema is copied to `src/main/resources/json`. From there, the Gradle plugin `org.jsonschema2dataclass` will create Java classes into the package `ehn.techiop.hcert.data`. The Gradle task `compileKotlin` depends on `generateJsonSchema2DataClass`, so that fresh classes are used for each compilation. The data classes can be de-/serialized with the Jackson library.
+
+Sample data objects are provided in `SampleData`, with special thanks to Christian Baumann.
+
+Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for data deserialized from an HCERT structure. It can be converted using `GreenCertificate.fromEuSchema(eudgcObject)`.
 
 ## TODO
 
-- Update schema to <https://github.com/ehn-digital-green-development/ehn-dgc-schema>
 - KID of certs can collide, be aware of that
 - Implement decoding and verifying OID for specifying allowed signature
 

@@ -2,14 +2,12 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import com.upokecenter.cbor.CBORObject
-import ehn.techiop.hcert.data.DigitalGreenCertificate
-import ehn.techiop.hcert.data.Sub
+import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.cwt.CwtHeaderKeys
+import ehn.techiop.hcert.kotlin.impl.CwtHeaderKeys
 import java.time.Instant
 import java.time.Period
-import java.util.Optional
 
 open class DefaultCborService(
     private val countryCode: String = "AT",
@@ -18,7 +16,7 @@ open class DefaultCborService(
 
     private val keyEuDgcV1 = CBORObject.FromObject(1)
 
-    override fun encode(input: DigitalGreenCertificate): ByteArray {
+    override fun encode(input: Eudgc): ByteArray {
         val cbor = CBORMapper().writeValueAsBytes(input)
         val issueTime = Instant.now()
         val expirationTime = issueTime + expirationPeriod
@@ -32,7 +30,7 @@ open class DefaultCborService(
         }.EncodeToBytes()
     }
 
-    override fun decode(input: ByteArray, verificationResult: VerificationResult): DigitalGreenCertificate {
+    override fun decode(input: ByteArray, verificationResult: VerificationResult): Eudgc {
         verificationResult.cborDecoded = false
         try {
             val map = CBORObject.DecodeFromBytes(input)
@@ -50,13 +48,13 @@ open class DefaultCborService(
             map[CwtHeaderKeys.HCERT.AsCBOR()]?.let { hcert -> // SPEC
                 hcert[keyEuDgcV1]?.let {
                     return CBORMapper()
-                        .readValue(getContents(it), DigitalGreenCertificate::class.java)
+                        .readValue(getContents(it), Eudgc::class.java)
                         .also { verificationResult.cborDecoded = true }
                 }
             }
-            return DigitalGreenCertificate()
+            return Eudgc()
         } catch (e: Throwable) {
-            return DigitalGreenCertificate()
+            return Eudgc()
         }
     }
 
