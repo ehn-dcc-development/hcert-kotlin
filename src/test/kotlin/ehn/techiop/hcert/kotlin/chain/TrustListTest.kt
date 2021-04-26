@@ -4,7 +4,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
-import ehn.techiop.hcert.kotlin.chain.impl.VerificationCryptoService
+import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
@@ -18,11 +18,11 @@ class TrustListTest {
     fun serverClientExchange() {
         val cryptoService = RandomEcKeyCryptoService()
         val certificate = cryptoService.getCertificate()
-        val trustListEncoded = TrustListService(cryptoService).encode(randomCertificates())
+        val trustListEncoded = TrustListEncodeService(cryptoService).encode(randomCertificates())
 
         // might never happen on the client, that the trust list is loaded in this way
         val clientTrustRoot = PrefilledCertificateRepository(certificate)
-        val clientTrustList = TrustListService(VerificationCryptoService(clientTrustRoot)).decode(trustListEncoded)
+        val clientTrustList = TrustListDecodeService(VerificationCoseService(clientTrustRoot)).decode(trustListEncoded)
         // that's the way to go: Trust List used for verification of QR-codes
         val clientTrustListAdapter = TrustListCertificateRepository(trustListEncoded, clientTrustRoot)
 
@@ -36,8 +36,9 @@ class TrustListTest {
             assertThat(cert.publicKey.size, greaterThanOrEqualTo(32))
             assertThat(cert.certType.size, equalTo(3))
 
-            val loadPublicKey = clientTrustListAdapter.loadPublicKey(cert.kid, VerificationResult())
-            assertThat(loadPublicKey.encoded, equalTo(cert.publicKey))
+            clientTrustListAdapter.loadTrustedCertificates(cert.kid, VerificationResult()).forEach {
+                assertThat(it.publicKey, equalTo(cert.publicKey))
+            }
         }
     }
 

@@ -1,31 +1,23 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.chain.KeyType
-import ehn.techiop.hcert.kotlin.chain.TrustListService
+import ehn.techiop.hcert.kotlin.chain.TrustListDecodeService
+import ehn.techiop.hcert.kotlin.chain.TrustedCertificate
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import java.security.KeyFactory
-import java.security.PublicKey
-import java.security.spec.X509EncodedKeySpec
 
 
 class TrustListCertificateRepository(input: ByteArray, certificateRepository: CertificateRepository) :
     CertificateRepository {
 
-    private val list = TrustListService(VerificationCryptoService(certificateRepository)).decode(input).certificates
+    private val list = TrustListDecodeService(VerificationCoseService(certificateRepository)).decode(input).certificates
 
-    override fun loadPublicKey(kid: ByteArray, verificationResult: VerificationResult): PublicKey {
-        val trustedCert = list.firstOrNull { it.kid contentEquals kid }
-            ?: throw IllegalArgumentException("kid not known: $kid")
-        val keyFactory = when (trustedCert.keyType) {
-            KeyType.RSA -> KeyFactory.getInstance("RSA")
-            KeyType.EC -> KeyFactory.getInstance("EC")
-            else -> throw IllegalArgumentException("Unknown key type")
-        }
-        verificationResult.certificateValidFrom = trustedCert.validFrom
-        verificationResult.certificateValidUntil = trustedCert.validUntil
-        verificationResult.certificateValidContent = trustedCert.certType
-        return keyFactory.generatePublic(X509EncodedKeySpec(trustedCert.publicKey))
+    override fun loadTrustedCertificates(
+        kid: ByteArray,
+        verificationResult: VerificationResult
+    ): List<TrustedCertificate> {
+        val trustedCert = list.filter { it.kid contentEquals kid }
+        if (trustedCert.isEmpty()) throw IllegalArgumentException("kid not known: $kid")
+        return trustedCert
     }
 
 }

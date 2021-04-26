@@ -6,7 +6,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.VerificationCryptoService
+import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
 
 /**
  * Main entry point for the creation and verification of HCERT
@@ -59,7 +59,7 @@ class Chain(
         @JvmStatic
         fun buildVerificationChain(repository: CertificateRepository) = Chain(
             DefaultCborService(),
-            DefaultCoseService(VerificationCryptoService(repository)),
+            VerificationCoseService(repository),
             DefaultContextIdentifierService(),
             DefaultCompressorService(),
             DefaultBase45Service()

@@ -67,7 +67,7 @@ The server can create it:
 String privateKeyPem = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADAN...";
 String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 CryptoService cryptoService = new FileBasedCryptoService(privateKeyPem, certificatePem);
-TrustListService trustListService = new TrustListService(cryptoService);
+TrustListEncodeService trustListService = new TrustListEncodeService(cryptoService);
 
 // Load the list of trusted certificates from somewhere ...
 Set<X509Certificate> trustedCerts = new HashSet<>(cert1, cert2, ...);
@@ -94,10 +94,6 @@ The JSON schema is copied to `src/main/resources/json`. From there, the Gradle p
 Sample data objects are provided in `SampleData`, with special thanks to Christian Baumann.
 
 Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for data deserialized from an HCERT structure. It can be converted using `GreenCertificate.fromEuSchema(eudgcObject)`.
-
-## TODO
-
-- KID of certs can collide, be aware of that
 
 ## Publishing
 
