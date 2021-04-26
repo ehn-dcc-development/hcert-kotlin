@@ -4,7 +4,7 @@ import COSE.Attribute
 import COSE.MessageTag
 import COSE.Sign1Message
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.PkiUtils
+import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
@@ -14,17 +14,16 @@ import java.time.temporal.ChronoUnit
 
 class TrustListService(private val signingService: CryptoService) {
 
-    private val pkiUtils = PkiUtils()
-
     fun encode(certificates: Set<X509Certificate>): ByteArray {
         val now = Instant.now()
         val trustList = TrustList(
             validFrom = now,
             validUntil = now.plus(7, ChronoUnit.DAYS),
-            certificates = certificates.map { TrustedCertificate.fromCert(pkiUtils.calcKid(it), it) }
+            certificates = certificates.map { TrustedCertificate.fromCert(PkiUtils.calcKid(it), it) }
         )
         return Sign1Message().also {
             it.SetContent(Cbor { }.encodeToByteArray(trustList))
+            // TODO Version-Info in den Header, falls sich die Struktur doch noch ändert!
             signingService.getCborHeaders().forEach { header ->
                 it.addAttribute(header.first, header.second, Attribute.PROTECTED)
             }

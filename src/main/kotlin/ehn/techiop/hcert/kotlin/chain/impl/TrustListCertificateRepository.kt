@@ -22,10 +22,9 @@ class TrustListCertificateRepository(input: ByteArray, certificateRepository: Ce
             KeyType.EC -> KeyFactory.getInstance("EC")
             else -> throw IllegalArgumentException("Unknown key type")
         }
-        val publicKey = keyFactory.generatePublic(X509EncodedKeySpec(trustedCert.publicKey))
         verificationResult.certificateValidFrom = trustedCert.validFrom
         verificationResult.certificateValidUntil = trustedCert.validUntil
-        return publicKey
+        return keyFactory.generatePublic(X509EncodedKeySpec(trustedCert.publicKey))
     }
 
 }

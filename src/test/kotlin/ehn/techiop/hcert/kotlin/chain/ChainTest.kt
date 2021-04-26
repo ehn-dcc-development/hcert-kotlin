@@ -46,9 +46,9 @@ class ChainTest {
         val certificateRepository = PrefilledCertificateRepository(cryptoService.getCertificate())
         val decodingChain = Chain.buildVerificationChain(certificateRepository)
 
-        val output = encodingChain.process(input)
+        val output = encodingChain.encode(input)
 
-        val vaccinationData = decodingChain.verify(output.prefixedEncodedCompressedCose, verificationResult)
+        val vaccinationData = decodingChain.decode(output.step5Prefixed, verificationResult)
         assertThat(vaccinationData, equalTo(input))
         assertThat(verificationResult.cborDecoded, equalTo(true))
     }

@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest

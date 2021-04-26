@@ -4,7 +4,9 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 
 /**
- * Encodes the input into an non-parsable COSE structure (i.e. reversed)
+ * Encodes the input into an non-parsable COSE structure (i.e. reversed).
+ *
+ * **Should not be used in production.**
  */
 class FaultyCoseService(private val cryptoService: CryptoService) : DefaultCoseService(cryptoService) {
 

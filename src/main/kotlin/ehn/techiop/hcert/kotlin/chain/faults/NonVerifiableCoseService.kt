@@ -7,7 +7,9 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 
 /**
- * Signs the input with a random key, i.e. it is never verifiable
+ * Signs the input with a random key, i.e. it is never verifiable.
+ *
+ * **Should not be used in production.**
  */
 class NonVerifiableCoseService(private val cryptoService: CryptoService) : DefaultCoseService(cryptoService) {
 

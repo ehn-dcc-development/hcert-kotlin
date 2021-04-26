@@ -4,10 +4,11 @@ import COSE.Attribute
 import COSE.Sign1Message
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 
 /**
- * Puts header entries into the unprotected COSE header
+ * Puts header entries into the unprotected COSE header.
+ *
+ * Actually, this conforms to the specification, but we'll prefer to put the entries into the protected COSE header.
  */
 class UnprotectedCoseService(private val cryptoService: CryptoService) : DefaultCoseService(cryptoService) {
 

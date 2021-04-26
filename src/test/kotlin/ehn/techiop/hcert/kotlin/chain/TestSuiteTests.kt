@@ -97,7 +97,7 @@ class TestSuiteTests {
         val decodedFromInput = ObjectMapper().readValue(input, DigitalGreenCertificate::class.java)
 
         assertVerification(
-            chainCorrect.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainCorrect.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
             VerificationResult().apply {
@@ -105,12 +105,12 @@ class TestSuiteTests {
                 true
             })
         assertVerification(
-            chainFaultyBase45.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainFaultyBase45.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
             VerificationResult().apply { contextIdentifier = "HC1:" })
         assertVerification(
-            chainNoopContextIdentifier.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainNoopContextIdentifier.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
             VerificationResult().apply {
@@ -118,7 +118,7 @@ class TestSuiteTests {
                 true
             })
         assertVerification(
-            chainNoopCompressor.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainNoopCompressor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
             VerificationResult().apply {
@@ -127,21 +127,21 @@ class TestSuiteTests {
                 true
             })
         assertVerification(
-            chainFaultyCompressor.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainFaultyCompressor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
             VerificationResult().apply {
                 contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false
             })
         assertVerification(
-            chainUnverifiableCose.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainUnverifiableCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
             VerificationResult().apply {
                 contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; cborDecoded = true
             })
         assertVerification(
-            chainUnprotectedCose.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainUnprotectedCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
             VerificationResult().apply {
@@ -149,14 +149,14 @@ class TestSuiteTests {
                 true
             })
         assertVerification(
-            chainFaultyCose.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainFaultyCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
             VerificationResult().apply {
                 contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true
             })
         assertVerification(
-            chainFaultyCbor.process(decodedFromInput).prefixedEncodedCompressedCose,
+            chainFaultyCbor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
             VerificationResult().apply {
@@ -171,7 +171,7 @@ class TestSuiteTests {
         expectedResult: VerificationResult
     ) {
         val verificationResult = VerificationResult()
-        val vaccinationData = chainCorrect.verify(chainOutput, verificationResult)
+        val vaccinationData = chainCorrect.decode(chainOutput, verificationResult)
         assertThat(verificationResult.base45Decoded, equalTo(expectedResult.base45Decoded))
         assertThat(verificationResult.cborDecoded, equalTo(expectedResult.cborDecoded))
         assertThat(verificationResult.coseVerified, equalTo(expectedResult.coseVerified))

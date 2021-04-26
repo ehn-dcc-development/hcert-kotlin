@@ -17,11 +17,11 @@ class TrustListTest {
     @Test
     fun serverClientExchange() {
         val cryptoService = RandomEcKeyCryptoService()
-        val x509Certificate = cryptoService.getCertificate()
+        val certificate = cryptoService.getCertificate()
         val trustListEncoded = TrustListService(cryptoService).encode(randomCertificates())
 
         // might never happen on the client, that the trust list is loaded in this way
-        val clientTrustRoot = PrefilledCertificateRepository(x509Certificate)
+        val clientTrustRoot = PrefilledCertificateRepository(certificate)
         val clientTrustList = TrustListService(VerificationCryptoService(clientTrustRoot)).decode(trustListEncoded)
         // that's the way to go: Trust List used for verification of QR-codes
         val clientTrustListAdapter = TrustListCertificateRepository(trustListEncoded, clientTrustRoot)

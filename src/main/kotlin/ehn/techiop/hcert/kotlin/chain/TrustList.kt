@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.cbor.ByteString
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPublicKey
@@ -32,12 +33,15 @@ data class TrustedCertificate(
     val validUntil: Instant,
 
     @SerialName("i")
+    @ByteString
     val kid: ByteArray,
 
     @SerialName("k")
     val keyType: KeyType,
 
+    // TODO SPKI encoden!
     @SerialName("p")
+    @ByteString
     val publicKey: ByteArray,
 
     @SerialName("t")
@@ -54,7 +58,7 @@ data class TrustedCertificate(
                 else -> throw IllegalArgumentException("Unknown key type")
             },
             publicKey = certificate.publicKey.encoded,
-            // TODO read from OID
+            // TODO read from OID, per default for all types accepted
             certType = listOf(CertType.VACCINATION, CertType.TEST, CertType.RECOVERY)
         )
     }

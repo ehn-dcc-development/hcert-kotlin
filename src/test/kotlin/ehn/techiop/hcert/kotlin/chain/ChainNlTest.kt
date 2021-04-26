@@ -32,7 +32,7 @@ class ChainNlTest {
         )
         val decodingChain = Chain.buildVerificationChain(certificateRepository)
 
-        val vaccinationData = decodingChain.verify(qrCodeContents, verificationResult)
+        val vaccinationData = decodingChain.decode(qrCodeContents, verificationResult)
         assertThat(verificationResult.coseVerified, equalTo(false))
         assertThat(vaccinationData.sub.dob, notNullValue())
     }

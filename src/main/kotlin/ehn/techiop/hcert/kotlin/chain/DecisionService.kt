@@ -2,6 +2,11 @@ package ehn.techiop.hcert.kotlin.chain
 
 import java.time.Instant
 
+/**
+ * Decides if the [VerificationResult] from [Chain.decode] was correct, i.e. it can be accepted.
+ *
+ * TODO Implement some national rules on the data?
+ */
 class DecisionService {
 
     fun decide(verificationResult: VerificationResult): VerificationDecision {
@@ -35,11 +40,4 @@ class DecisionService {
         return VerificationDecision.GOOD
     }
 
-}
-
-
-enum class VerificationDecision {
-    GOOD,
-    FAIL,
-    WARNING
 }

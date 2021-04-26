@@ -5,8 +5,11 @@ import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.data.DigitalGreenCertificate
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 
+
 /**
- * Encodes the input without the required structure around it
+ * Encodes the input without the required structure around it.
+ *
+ * **Should not be used in production.**
  */
 class FaultyCborService : DefaultCborService() {
 

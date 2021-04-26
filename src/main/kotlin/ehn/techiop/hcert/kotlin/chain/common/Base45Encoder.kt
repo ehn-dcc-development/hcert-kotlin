@@ -1,4 +1,4 @@
-package ehn.techiop.hcert.kotlin.chain.impl
+package ehn.techiop.hcert.kotlin.chain.common
 
 import java.math.BigInteger
 

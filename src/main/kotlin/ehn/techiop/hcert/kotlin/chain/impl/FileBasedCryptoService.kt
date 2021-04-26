@@ -6,6 +6,7 @@ import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.PEMParser
@@ -24,7 +25,6 @@ import java.security.interfaces.RSAPrivateKey
 
 class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: String) : CryptoService {
 
-    private val pkiUtils = PkiUtils()
     private val privateKey: PrivateKey
     private val publicKey: PublicKey
     private val algorithmID: AlgorithmID
@@ -43,7 +43,7 @@ class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: S
         certificate = CertificateFactory.getInstance("X.509")
             .generateCertificate(pemEncodedCertificate.byteInputStream()) as X509Certificate
         publicKey = certificate.publicKey
-        keyId = pkiUtils.calcKid(certificate)
+        keyId = PkiUtils.calcKid(certificate)
     }
 
     override fun getCborHeaders() = listOf(
@@ -55,8 +55,8 @@ class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: S
 
     override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): OneKey {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
-        verificationResult.certificateValidFrom = pkiUtils.getValidFrom(certificate)
-        verificationResult.certificateValidUntil = pkiUtils.getValidUntil(certificate)
+        verificationResult.certificateValidFrom = certificate.notBefore.toInstant()
+        verificationResult.certificateValidUntil = certificate.notAfter.toInstant()
         return OneKey(publicKey, privateKey)
     }
 
