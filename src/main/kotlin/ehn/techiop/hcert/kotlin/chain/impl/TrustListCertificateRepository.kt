@@ -24,6 +24,7 @@ class TrustListCertificateRepository(input: ByteArray, certificateRepository: Ce
         }
         verificationResult.certificateValidFrom = trustedCert.validFrom
         verificationResult.certificateValidUntil = trustedCert.validUntil
+        verificationResult.certificateValidContent = trustedCert.certType
         return keyFactory.generatePublic(X509EncodedKeySpec(trustedCert.publicKey))
     }
 

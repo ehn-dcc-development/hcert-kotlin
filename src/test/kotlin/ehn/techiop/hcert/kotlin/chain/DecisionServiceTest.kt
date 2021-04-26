@@ -21,6 +21,84 @@ class DecisionServiceTest {
     }
 
     @Test
+    fun goodContentTest() {
+        val verificationResult = VerificationResult().apply {
+            base45Decoded = true
+            coseVerified = true
+            cborDecoded = true
+            content = mutableListOf(CertType.TEST)
+            certificateValidContent = mutableListOf(CertType.TEST)
+        }
+
+        assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
+    }
+
+    @Test
+    fun goodContentVaccination() {
+        val verificationResult = VerificationResult().apply {
+            base45Decoded = true
+            coseVerified = true
+            cborDecoded = true
+            content = mutableListOf(CertType.VACCINATION)
+            certificateValidContent = mutableListOf(CertType.VACCINATION)
+        }
+
+        assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
+    }
+
+    @Test
+    fun goodContentRecovery() {
+        val verificationResult = VerificationResult().apply {
+            base45Decoded = true
+            coseVerified = true
+            cborDecoded = true
+            content = mutableListOf(CertType.RECOVERY)
+            certificateValidContent = mutableListOf(CertType.RECOVERY)
+        }
+
+        assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
+    }
+
+    @Test
+    fun failContentTest() {
+        val verificationResult = VerificationResult().apply {
+            base45Decoded = true
+            coseVerified = true
+            cborDecoded = true
+            content = mutableListOf(CertType.TEST)
+            certificateValidContent = mutableListOf()
+        }
+
+        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+    }
+
+    @Test
+    fun failContentVaccination() {
+        val verificationResult = VerificationResult().apply {
+            base45Decoded = true
+            coseVerified = true
+            cborDecoded = true
+            content = mutableListOf(CertType.VACCINATION)
+            certificateValidContent = mutableListOf(CertType.RECOVERY, CertType.TEST)
+        }
+
+        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+    }
+
+    @Test
+    fun failContentRecovery() {
+        val verificationResult = VerificationResult().apply {
+            base45Decoded = true
+            coseVerified = true
+            cborDecoded = true
+            content = mutableListOf(CertType.RECOVERY)
+            certificateValidContent = mutableListOf(CertType.VACCINATION)
+        }
+
+        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+    }
+
+    @Test
     fun goodTimes() {
         val verificationResult = VerificationResult().apply {
             base45Decoded = true

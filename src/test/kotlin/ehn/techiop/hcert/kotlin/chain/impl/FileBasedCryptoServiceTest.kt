@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.ValueSource
 class FileBasedCryptoServiceTest {
 
     @ParameterizedTest
-    @ValueSource(ints = [256, 384, 521])
+    @ValueSource(ints = [256, 384])
     fun testEcImport(keySize: Int) {
         val input = RandomEcKeyCryptoService(keySize)
         val privateKeyPem = input.exportPrivateKeyAsPem()

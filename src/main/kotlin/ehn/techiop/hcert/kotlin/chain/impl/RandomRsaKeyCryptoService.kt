@@ -4,6 +4,7 @@ import COSE.AlgorithmID
 import COSE.HeaderKeys
 import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
+import ehn.techiop.hcert.kotlin.chain.CertType
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
@@ -16,7 +17,10 @@ import java.io.StringWriter
 import java.security.KeyPairGenerator
 import java.security.Security
 
-class RandomRsaKeyCryptoService(private val keySize: Int = 2048) : CryptoService {
+class RandomRsaKeyCryptoService(
+    private val keySize: Int = 2048,
+    certType: List<CertType> = listOf(CertType.TEST, CertType.VACCINATION, CertType.RECOVERY)
+) : CryptoService {
 
     init {
         Security.addProvider(BouncyCastleProvider()) // for SHA256withRSA/PSS
@@ -24,7 +28,7 @@ class RandomRsaKeyCryptoService(private val keySize: Int = 2048) : CryptoService
 
     private val keyPair = KeyPairGenerator.getInstance("RSA")
         .apply { initialize(keySize) }.genKeyPair()
-    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair)
+    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair, certType)
     private val keyId = PkiUtils.calcKid(certificate)
 
     override fun getCborHeaders() = listOf(
@@ -38,6 +42,7 @@ class RandomRsaKeyCryptoService(private val keySize: Int = 2048) : CryptoService
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
         verificationResult.certificateValidFrom = certificate.notBefore.toInstant()
         verificationResult.certificateValidUntil = certificate.notAfter.toInstant()
+        verificationResult.certificateValidContent = PkiUtils.getValidContentTypes(certificate)
         return OneKey(keyPair.public, keyPair.private)
     }
 

@@ -19,7 +19,7 @@ class TrustListService(private val signingService: CryptoService) {
         val trustList = TrustList(
             validFrom = now,
             validUntil = now.plus(7, ChronoUnit.DAYS),
-            certificates = certificates.map { TrustedCertificate.fromCert(PkiUtils.calcKid(it), it) }
+            certificates = certificates.map { TrustedCertificate.fromCert(it) }
         )
         return Sign1Message().also {
             it.SetContent(Cbor { }.encodeToByteArray(trustList))

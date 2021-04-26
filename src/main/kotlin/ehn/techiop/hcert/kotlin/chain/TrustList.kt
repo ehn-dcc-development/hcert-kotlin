@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.data.InstantSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -40,7 +41,6 @@ data class TrustedCertificate(
     @SerialName("k")
     val keyType: KeyType,
 
-    // TODO SPKI encoden!
     @SerialName("p")
     @ByteString
     val publicKey: ByteArray,
@@ -49,19 +49,19 @@ data class TrustedCertificate(
     val certType: List<CertType>,
 ) {
     companion object {
-        fun fromCert(kid: ByteArray, certificate: X509Certificate) = TrustedCertificate(
+        fun fromCert(certificate: X509Certificate) = TrustedCertificate(
             validFrom = certificate.notBefore.toInstant(),
             validUntil = certificate.notAfter.toInstant(),
-            kid = kid,
+            kid = PkiUtils.calcKid(certificate),
             keyType = when (certificate.publicKey) {
                 is RSAPublicKey -> KeyType.RSA
                 is ECPublicKey -> KeyType.EC
                 else -> throw IllegalArgumentException("Unknown key type")
             },
             publicKey = certificate.publicKey.encoded,
-            // TODO read from OID, per default for all types accepted
-            certType = listOf(CertType.VACCINATION, CertType.TEST, CertType.RECOVERY)
+            certType = PkiUtils.getValidContentTypes(certificate)
         )
+
     }
 }
 
@@ -76,11 +76,11 @@ enum class KeyType {
 
 @Serializable
 enum class CertType {
-    @SerialName("v")
-    VACCINATION,
-
     @SerialName("t")
     TEST,
+
+    @SerialName("v")
+    VACCINATION,
 
     @SerialName("r")
     RECOVERY;

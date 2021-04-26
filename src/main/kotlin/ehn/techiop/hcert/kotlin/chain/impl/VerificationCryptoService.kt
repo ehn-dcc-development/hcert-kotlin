@@ -43,8 +43,8 @@ class VerificationCryptoService(private val repository: CertificateRepository) :
 
     private fun getEcCurve(publicKey: ECPublicKey) = when (publicKey.params.order.bitLength()) {
         384 -> KeyKeys.EC2_P384
-        521 -> KeyKeys.EC2_P521
-        else -> KeyKeys.EC2_P256
+        256 -> KeyKeys.EC2_P256
+        else -> throw IllegalArgumentException("curveSize")
     }
 
     override fun getCertificate() = throw NotImplementedError()

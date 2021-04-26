@@ -55,4 +55,34 @@ class VerificationResult {
      * Lifetime of certificate used for verification of COSE
      */
     var certificateValidUntil: Instant? = null
+
+    /**
+     * Indicates, which content may be signed with the certificate, defaults to all content types
+     */
+    var certificateValidContent: List<CertType> = listOf(CertType.TEST, CertType.VACCINATION, CertType.RECOVERY)
+
+    /**
+     * Indicates, which content actually has been decoded
+     */
+    var content: MutableList<CertType> = mutableListOf()
+
+
+    override fun toString(): String {
+        return "VerificationResult(" +
+                "expirationTime=$expirationTime, " +
+                "issuedAt=$issuedAt, " +
+                "issuer=$issuer, " +
+                "base45Decoded=$base45Decoded, " +
+                "contextIdentifier=$contextIdentifier, " +
+                "zlibDecoded=$zlibDecoded, " +
+                "coseVerified=$coseVerified, " +
+                "cborDecoded=$cborDecoded, " +
+                "certificateValidFrom=$certificateValidFrom, " +
+                "certificateValidUntil=$certificateValidUntil, " +
+                "certificateValidContent=$certificateValidContent, " +
+                "content=$content" +
+                ")"
+    }
+
+
 }

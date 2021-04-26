@@ -57,6 +57,7 @@ class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: S
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
         verificationResult.certificateValidFrom = certificate.notBefore.toInstant()
         verificationResult.certificateValidUntil = certificate.notAfter.toInstant()
+        verificationResult.certificateValidContent = PkiUtils.getValidContentTypes(certificate)
         return OneKey(publicKey, privateKey)
     }
 

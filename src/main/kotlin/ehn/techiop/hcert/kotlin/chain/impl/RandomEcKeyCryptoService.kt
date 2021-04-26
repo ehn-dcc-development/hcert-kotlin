@@ -4,6 +4,7 @@ import COSE.AlgorithmID
 import COSE.HeaderKeys
 import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
+import ehn.techiop.hcert.kotlin.chain.CertType
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
@@ -14,15 +15,23 @@ import org.bouncycastle.util.io.pem.PemWriter
 import java.io.StringWriter
 import java.security.KeyPairGenerator
 
-class RandomEcKeyCryptoService(private val keySize: Int = 256) : CryptoService {
+class RandomEcKeyCryptoService(
+    private val keySize: Int = 256,
+    certType: List<CertType> = listOf(CertType.TEST, CertType.VACCINATION, CertType.RECOVERY)
+) : CryptoService {
 
     private val keyPair = KeyPairGenerator.getInstance("EC")
         .apply { initialize(keySize) }.genKeyPair()
-    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=EC-Me"), keyPair)
+    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=EC-Me"), keyPair, certType)
     private val keyId = PkiUtils.calcKid(certificate)
+    private val algorithmId = when (keySize) {
+        384 -> AlgorithmID.ECDSA_384
+        256 -> AlgorithmID.ECDSA_256
+        else -> throw IllegalArgumentException("keySize")
+    }
 
     override fun getCborHeaders() = listOf(
-        Pair(HeaderKeys.Algorithm, AlgorithmID.ECDSA_256.AsCBOR()),
+        Pair(HeaderKeys.Algorithm, algorithmId.AsCBOR()),
         Pair(HeaderKeys.KID, CBORObject.FromObject(keyId))
     )
 
@@ -32,6 +41,7 @@ class RandomEcKeyCryptoService(private val keySize: Int = 256) : CryptoService {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
         verificationResult.certificateValidFrom = certificate.notBefore.toInstant()
         verificationResult.certificateValidUntil = certificate.notAfter.toInstant()
+        verificationResult.certificateValidContent = PkiUtils.getValidContentTypes(certificate)
         return OneKey(keyPair.public, keyPair.private)
     }
 

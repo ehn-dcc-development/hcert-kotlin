@@ -35,6 +35,7 @@ class PrefilledCertificateRepository : CertificateRepository {
         val certificate = map[key]!!.also {
             verificationResult.certificateValidFrom = it.notBefore.toInstant()
             verificationResult.certificateValidUntil = it.notAfter.toInstant()
+            verificationResult.certificateValidContent = PkiUtils.getValidContentTypes(it)
         }
         return certificate.publicKey
     }

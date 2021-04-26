@@ -37,6 +37,11 @@ class DecisionService {
                 return VerificationDecision.FAIL
         }
 
+        for (content in verificationResult.content) {
+            if (!verificationResult.certificateValidContent.contains(content))
+                return VerificationDecision.FAIL
+        }
+
         return VerificationDecision.GOOD
     }
 

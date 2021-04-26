@@ -98,7 +98,6 @@ Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for dat
 ## TODO
 
 - KID of certs can collide, be aware of that
-- Implement decoding and verifying OID for specifying allowed signature
 
 ## Publishing
 
