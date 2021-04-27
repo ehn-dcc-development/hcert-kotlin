@@ -54,4 +54,30 @@ data class TrustedCertificate(
         )
 
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TrustedCertificate
+
+        if (validFrom != other.validFrom) return false
+        if (validUntil != other.validUntil) return false
+        if (!kid.contentEquals(other.kid)) return false
+        if (keyType != other.keyType) return false
+        if (!publicKey.contentEquals(other.publicKey)) return false
+        if (validContentTypes != other.validContentTypes) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = validFrom.hashCode()
+        result = 31 * result + validUntil.hashCode()
+        result = 31 * result + kid.contentHashCode()
+        result = 31 * result + keyType.hashCode()
+        result = 31 * result + publicKey.contentHashCode()
+        result = 31 * result + validContentTypes.hashCode()
+        return result
+    }
 }
