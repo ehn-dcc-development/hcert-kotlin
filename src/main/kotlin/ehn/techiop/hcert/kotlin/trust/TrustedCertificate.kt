@@ -5,10 +5,12 @@ import ehn.techiop.hcert.kotlin.data.InstantSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.cbor.ByteString
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPublicKey
 import java.time.Instant
+
 
 @Serializable
 data class TrustedCertificate(
@@ -27,6 +29,9 @@ data class TrustedCertificate(
     @SerialName("k")
     val keyType: KeyType,
 
+    /**
+     * PKCS#1 encoding, i.e. without algorithm identifiers around it
+     */
     @SerialName("p")
     @ByteString
     val publicKey: ByteArray,
@@ -44,7 +49,7 @@ data class TrustedCertificate(
                 is ECPublicKey -> KeyType.EC
                 else -> throw IllegalArgumentException("keyType")
             },
-            publicKey = certificate.publicKey.encoded,
+            publicKey = SubjectPublicKeyInfo.getInstance(certificate.publicKey.encoded).publicKeyData.bytes,
             validContentTypes = PkiUtils.getValidContentTypes(certificate)
         )
 

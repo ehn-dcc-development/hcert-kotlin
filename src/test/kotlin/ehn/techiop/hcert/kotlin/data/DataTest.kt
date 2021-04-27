@@ -30,7 +30,7 @@ class DataTest {
         // will never be exactly the same ... because Kotlin serializes lists
         // in CBOR as indefinite-length, but Jackson uses the actual length
         val cborOur = Cbor.encodeToByteArray(dataOurs)
-        val cborTheirs = CBORMapper().writeValueAsBytes(dataTheirs)
+        CBORMapper().writeValueAsBytes(dataTheirs)
         //assertThat(cborOur, equalTo(cborTheirs))
 
         val decodedFromCbor = Cbor.decodeFromByteArray<GreenCertificate>(cborOur)
