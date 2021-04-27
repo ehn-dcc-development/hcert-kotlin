@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.common
 
-import ehn.techiop.hcert.kotlin.chain.CertType
+import ehn.techiop.hcert.kotlin.trust.ContentType
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.x500.X500Name
@@ -34,13 +34,13 @@ class PkiUtils {
         fun selfSignCertificate(
             subjectName: X500Name,
             keyPair: KeyPair,
-            certType: List<CertType> = listOf(CertType.TEST, CertType.VACCINATION, CertType.RECOVERY)
+            contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY)
         ): X509Certificate {
             val subjectPublicKeyInfo =
                 SubjectPublicKeyInfo.getInstance(ASN1Sequence.getInstance(keyPair.public.encoded))
             val keyUsage = KeyUsage(KeyUsage.digitalSignature or KeyUsage.keyEncipherment)
             val keyUsageExt = Extension.create(Extension.keyUsage, true, keyUsage)
-            val extendedKeyUsage = ExtendedKeyUsage(certTypeToKeyUsages(certType))
+            val extendedKeyUsage = ExtendedKeyUsage(certTypeToKeyUsages(contentType))
             val testUsage = Extension.create(Extension.extendedKeyUsage, false, extendedKeyUsage)
             val notBefore = Instant.now()
             val notAfter = notBefore.plus(30, ChronoUnit.DAYS)
@@ -60,26 +60,26 @@ class PkiUtils {
                 .generateCertificate(ByteArrayInputStream(certificateHolder.encoded)) as X509Certificate
         }
 
-        private fun certTypeToKeyUsages(certType: List<CertType>): Array<KeyPurposeId> {
+        private fun certTypeToKeyUsages(contentType: List<ContentType>): Array<KeyPurposeId> {
             var result = arrayOf<KeyPurposeId>()
-            if (certType.contains(CertType.TEST))
+            if (contentType.contains(ContentType.TEST))
                 result += KeyPurposeId.getInstance(ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.1"))
-            if (certType.contains(CertType.VACCINATION))
+            if (contentType.contains(ContentType.VACCINATION))
                 result += KeyPurposeId.getInstance(ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.2"))
-            if (certType.contains(CertType.RECOVERY))
+            if (contentType.contains(ContentType.RECOVERY))
                 result += KeyPurposeId.getInstance(ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.3"))
             return result
         }
 
-        fun getValidContentTypes(certificate: X509Certificate): List<CertType> {
-            val result = mutableListOf<CertType>()
+        fun getValidContentTypes(certificate: X509Certificate): List<ContentType> {
+            val result = mutableListOf<ContentType>()
             if (hasOid(certificate, ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.1")))
-                result += CertType.TEST
+                result += ContentType.TEST
             if (hasOid(certificate, ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.2")))
-                result += CertType.VACCINATION
+                result += ContentType.VACCINATION
             if (hasOid(certificate, ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.3")))
-                result += CertType.RECOVERY
-            return if (result.isEmpty()) listOf(CertType.TEST, CertType.VACCINATION, CertType.RECOVERY) else result
+                result += ContentType.RECOVERY
+            return if (result.isEmpty()) listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY) else result
 
         }
 

@@ -4,7 +4,7 @@ import COSE.AlgorithmID
 import COSE.HeaderKeys
 import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
-import ehn.techiop.hcert.kotlin.chain.CertType
+import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
@@ -19,7 +19,7 @@ import java.security.Security
 
 class RandomRsaKeyCryptoService(
     private val keySize: Int = 2048,
-    certType: List<CertType> = listOf(CertType.TEST, CertType.VACCINATION, CertType.RECOVERY)
+    contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY)
 ) : CryptoService {
 
     init {
@@ -28,7 +28,7 @@ class RandomRsaKeyCryptoService(
 
     private val keyPair = KeyPairGenerator.getInstance("RSA")
         .apply { initialize(keySize) }.genKeyPair()
-    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair, certType)
+    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair, contentType)
     private val keyId = PkiUtils.calcKid(certificate)
 
     override fun getCborHeaders() = listOf(

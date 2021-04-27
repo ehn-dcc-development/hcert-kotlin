@@ -6,8 +6,8 @@ import COSE.OneKey
 import COSE.Sign1Message
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CoseService
-import ehn.techiop.hcert.kotlin.chain.KeyType
-import ehn.techiop.hcert.kotlin.chain.TrustedCertificate
+import ehn.techiop.hcert.kotlin.trust.KeyType
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
@@ -25,7 +25,7 @@ class VerificationCoseService(private val repository: CertificateRepository) : C
                         repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
                             verificationResult.certificateValidFrom = trustedCert.validFrom
                             verificationResult.certificateValidUntil = trustedCert.validUntil
-                            verificationResult.certificateValidContent = trustedCert.certType
+                            verificationResult.certificateValidContent = trustedCert.validContentTypes
                             val buildOneKey = buildOneKey(trustedCert)
                             if (it.validate(buildOneKey)) {
                                 verificationResult.coseVerified = true

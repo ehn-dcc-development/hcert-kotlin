@@ -1,4 +1,4 @@
-package ehn.techiop.hcert.kotlin.chain
+package ehn.techiop.hcert.kotlin.trust
 
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.data.InstantSerializer
@@ -9,20 +9,6 @@ import java.security.cert.X509Certificate
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPublicKey
 import java.time.Instant
-
-@Serializable
-data class TrustList(
-    @SerialName("f")
-    @Serializable(with = InstantSerializer::class)
-    val validFrom: Instant,
-
-    @SerialName("u")
-    @Serializable(with = InstantSerializer::class)
-    val validUntil: Instant,
-
-    @SerialName("c")
-    val certificates: List<TrustedCertificate>
-)
 
 @Serializable
 data class TrustedCertificate(
@@ -46,7 +32,7 @@ data class TrustedCertificate(
     val publicKey: ByteArray,
 
     @SerialName("t")
-    val certType: List<CertType>,
+    val validContentTypes: List<ContentType>,
 ) {
     companion object {
         fun fromCert(certificate: X509Certificate) = TrustedCertificate(
@@ -56,32 +42,11 @@ data class TrustedCertificate(
             keyType = when (certificate.publicKey) {
                 is RSAPublicKey -> KeyType.RSA
                 is ECPublicKey -> KeyType.EC
-                else -> throw IllegalArgumentException("Unknown key type")
+                else -> throw IllegalArgumentException("keyType")
             },
             publicKey = certificate.publicKey.encoded,
-            certType = PkiUtils.getValidContentTypes(certificate)
+            validContentTypes = PkiUtils.getValidContentTypes(certificate)
         )
 
     }
-}
-
-@Serializable
-enum class KeyType {
-    @SerialName("r")
-    RSA,
-
-    @SerialName("e")
-    EC
-}
-
-@Serializable
-enum class CertType {
-    @SerialName("t")
-    TEST,
-
-    @SerialName("v")
-    VACCINATION,
-
-    @SerialName("r")
-    RECOVERY;
 }

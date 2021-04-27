@@ -1,5 +1,6 @@
-package ehn.techiop.hcert.kotlin.chain
+package ehn.techiop.hcert.kotlin.trust
 
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
@@ -34,7 +35,7 @@ class TrustListTest {
             assertThat(cert.validUntil.epochSecond, greaterThanOrEqualTo(Instant.now().epochSecond))
             assertThat(cert.kid.size, equalTo(8))
             assertThat(cert.publicKey.size, greaterThanOrEqualTo(32))
-            assertThat(cert.certType.size, equalTo(3))
+            assertThat(cert.validContentTypes.size, equalTo(3))
 
             clientTrustListAdapter.loadTrustedCertificates(cert.kid, VerificationResult()).forEach {
                 assertThat(it.publicKey, equalTo(cert.publicKey))

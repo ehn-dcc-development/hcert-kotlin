@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import ehn.techiop.hcert.kotlin.trust.ContentType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -26,8 +27,8 @@ class DecisionServiceTest {
             base45Decoded = true
             coseVerified = true
             cborDecoded = true
-            content = mutableListOf(CertType.TEST)
-            certificateValidContent = mutableListOf(CertType.TEST)
+            content = mutableListOf(ContentType.TEST)
+            certificateValidContent = mutableListOf(ContentType.TEST)
         }
 
         assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
@@ -39,8 +40,8 @@ class DecisionServiceTest {
             base45Decoded = true
             coseVerified = true
             cborDecoded = true
-            content = mutableListOf(CertType.VACCINATION)
-            certificateValidContent = mutableListOf(CertType.VACCINATION)
+            content = mutableListOf(ContentType.VACCINATION)
+            certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
 
         assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
@@ -52,8 +53,8 @@ class DecisionServiceTest {
             base45Decoded = true
             coseVerified = true
             cborDecoded = true
-            content = mutableListOf(CertType.RECOVERY)
-            certificateValidContent = mutableListOf(CertType.RECOVERY)
+            content = mutableListOf(ContentType.RECOVERY)
+            certificateValidContent = mutableListOf(ContentType.RECOVERY)
         }
 
         assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
@@ -65,7 +66,7 @@ class DecisionServiceTest {
             base45Decoded = true
             coseVerified = true
             cborDecoded = true
-            content = mutableListOf(CertType.TEST)
+            content = mutableListOf(ContentType.TEST)
             certificateValidContent = mutableListOf()
         }
 
@@ -78,8 +79,8 @@ class DecisionServiceTest {
             base45Decoded = true
             coseVerified = true
             cborDecoded = true
-            content = mutableListOf(CertType.VACCINATION)
-            certificateValidContent = mutableListOf(CertType.RECOVERY, CertType.TEST)
+            content = mutableListOf(ContentType.VACCINATION)
+            certificateValidContent = mutableListOf(ContentType.RECOVERY, ContentType.TEST)
         }
 
         assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
@@ -91,8 +92,8 @@ class DecisionServiceTest {
             base45Decoded = true
             coseVerified = true
             cborDecoded = true
-            content = mutableListOf(CertType.RECOVERY)
-            certificateValidContent = mutableListOf(CertType.VACCINATION)
+            content = mutableListOf(ContentType.RECOVERY)
+            certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
 
         assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))

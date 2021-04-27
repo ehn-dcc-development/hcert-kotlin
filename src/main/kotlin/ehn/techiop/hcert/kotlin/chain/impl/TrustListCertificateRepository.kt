@@ -1,8 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.chain.TrustListDecodeService
-import ehn.techiop.hcert.kotlin.chain.TrustedCertificate
+import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
 

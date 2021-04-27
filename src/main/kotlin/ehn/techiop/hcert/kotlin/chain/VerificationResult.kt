@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import ehn.techiop.hcert.kotlin.trust.ContentType
 import java.time.Instant
 
 class VerificationResult {
@@ -59,12 +60,12 @@ class VerificationResult {
     /**
      * Indicates, which content may be signed with the certificate, defaults to all content types
      */
-    var certificateValidContent: List<CertType> = listOf(CertType.TEST, CertType.VACCINATION, CertType.RECOVERY)
+    var certificateValidContent: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY)
 
     /**
      * Indicates, which content actually has been decoded
      */
-    var content: MutableList<CertType> = mutableListOf()
+    var content: MutableList<ContentType> = mutableListOf()
 
 
     override fun toString(): String {

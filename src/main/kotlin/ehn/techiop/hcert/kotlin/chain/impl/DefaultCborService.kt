@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.CborService
-import ehn.techiop.hcert.kotlin.chain.CertType
+import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.impl.CwtHeaderKeys
 import java.time.Instant
@@ -52,11 +52,11 @@ open class DefaultCborService(
                         .readValue(getContents(it), Eudgc::class.java)
                         .also { verificationResult.cborDecoded = true }
                     if (eudgc.t?.filterNotNull()?.isNotEmpty() == true)
-                        verificationResult.content.add(CertType.TEST)
+                        verificationResult.content.add(ContentType.TEST)
                     if (eudgc.v?.filterNotNull()?.isNotEmpty() == true)
-                        verificationResult.content.add(CertType.VACCINATION)
+                        verificationResult.content.add(ContentType.VACCINATION)
                     if (eudgc.r?.filterNotNull()?.isNotEmpty() == true)
-                        verificationResult.content.add(CertType.RECOVERY)
+                        verificationResult.content.add(ContentType.RECOVERY)
                     return eudgc
                 }
             }
