@@ -12,8 +12,6 @@ import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import ehn.techiop.hcert.kotlin.chain.TwoDimCodeService
-import ehn.techiop.hcert.kotlin.chain.asBase64
-import ehn.techiop.hcert.kotlin.chain.fromBase64
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
@@ -33,9 +31,9 @@ class DefaultTwoDimCodeService(private val size: Int, private val format: Barcod
     }
 
     /**
-     * Generates a 2D code, returns the image itself as Base64 encoded string
+     * Generates a 2D code, returns the image itself as an encoded png
      */
-    override fun encode(data: String): String {
+    override fun encode(data: String): ByteArray {
         try {
             val encoded = when (writer) {
                 is QRCodeWriter -> {
@@ -50,18 +48,18 @@ class DefaultTwoDimCodeService(private val size: Int, private val format: Barcod
             val bufferedImage = MatrixToImageWriter.toBufferedImage(encoded)
             val bout = ByteArrayOutputStream()
             ImageIO.write(bufferedImage, "png", bout)
-            return bout.toByteArray().asBase64()
+            return bout.toByteArray()
         } catch (e: Exception) {
             throw IllegalArgumentException("Cannot create 2D code", e)
         }
     }
 
     /**
-     * Decodes the content of a Base64 encoded image of a 2D code
+     * Decodes the content of a png encoded image of a 2D code
      */
-    override fun decode(input: String): String {
+    override fun decode(input: ByteArray): String {
         try {
-            val bufferedImage = ImageIO.read(input.fromBase64().inputStream())
+            val bufferedImage = ImageIO.read(input.inputStream())
             val source = BufferedImageLuminanceSource(bufferedImage)
             val binarizer = HybridBinarizer(source)
             val bitmap = BinaryBitmap(binarizer)

@@ -19,7 +19,7 @@ class DefaultTwoDimCodeServiceTest {
 
         val encoded = service.encode(input.input)
         assertThat(encoded, notNullValue())
-        assertThat(encoded.length, greaterThan(input.size))
+        assertThat(encoded.asBase64().length, greaterThan(input.size))
 
         val decoded = service.decode(encoded)
         assertThat(decoded, equalTo(input.input))

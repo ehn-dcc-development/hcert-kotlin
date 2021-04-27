@@ -99,6 +99,11 @@ Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for dat
 
 To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`
 
+## Changelog
+
+Version 0.2.1:
+ - Interface of `TwoDimCodeService` now returns a `ByteArray` instead of a `String`, callers need to convert the result to Base64 manually
+
 ## Libraries
 
 This library uses the following dependencies:
