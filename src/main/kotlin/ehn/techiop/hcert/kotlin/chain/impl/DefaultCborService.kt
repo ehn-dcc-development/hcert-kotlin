@@ -6,7 +6,6 @@ import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.impl.CwtHeaderKeys
 import java.time.Instant
 import java.time.Period
 

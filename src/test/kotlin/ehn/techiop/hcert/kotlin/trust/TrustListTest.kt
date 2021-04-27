@@ -5,7 +5,6 @@ import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
-import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
@@ -23,8 +22,8 @@ class TrustListTest {
 
         // might never happen on the client, that the trust list is loaded in this way
         val clientTrustRoot = PrefilledCertificateRepository(certificate)
-        val clientTrustList = TrustListDecodeService(VerificationCoseService(clientTrustRoot)).decode(trustListEncoded)
-        // that's the way to go: Trust List used for verification of QR-codes
+        val clientTrustList = TrustListDecodeService(clientTrustRoot).decode(trustListEncoded)
+        // that's the way to go: Trust list used for verification of QR codes
         val clientTrustListAdapter = TrustListCertificateRepository(trustListEncoded, clientTrustRoot)
 
         assertThat(clientTrustList.validFrom.epochSecond, lessThanOrEqualTo(Instant.now().epochSecond))
