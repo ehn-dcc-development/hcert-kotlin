@@ -1,7 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -18,7 +19,7 @@ class DecisionServiceTest {
             cborDecoded = true
         }
 
-        assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -31,7 +32,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.TEST)
         }
 
-        assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -44,7 +45,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
 
-        assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -57,7 +58,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.RECOVERY)
         }
 
-        assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -70,7 +71,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf()
         }
 
-        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -83,7 +84,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.RECOVERY, ContentType.TEST)
         }
 
-        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -96,7 +97,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
 
-        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -108,7 +109,7 @@ class DecisionServiceTest {
             issuedAt = Instant.now().minus(5, ChronoUnit.SECONDS)
         }
 
-        assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -121,7 +122,7 @@ class DecisionServiceTest {
             expirationTime = Instant.now().plus(5, ChronoUnit.SECONDS)
         }
 
-        assertEquals(VerificationDecision.GOOD, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -132,7 +133,7 @@ class DecisionServiceTest {
             cborDecoded = true
         }
 
-        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -143,7 +144,7 @@ class DecisionServiceTest {
             cborDecoded = true
         }
 
-        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -154,7 +155,7 @@ class DecisionServiceTest {
             cborDecoded = false
         }
 
-        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -166,7 +167,7 @@ class DecisionServiceTest {
             issuedAt = Instant.now().plus(5, ChronoUnit.SECONDS)
         }
 
-        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
     }
 
     @Test
@@ -179,7 +180,7 @@ class DecisionServiceTest {
             expirationTime = Instant.now().minus(5, ChronoUnit.SECONDS)
         }
 
-        assertEquals(VerificationDecision.FAIL, decisionService.decide(verificationResult))
+        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
     }
 
 

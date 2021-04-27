@@ -11,7 +11,6 @@ import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.json.Json
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -26,7 +25,7 @@ class DataTest {
     fun decodeEncodeTest(input: String) {
         val dataOurs = Json { }.decodeFromString<GreenCertificate>(input)
         val dataTheirs = ObjectMapper().readValue(input, Eudgc::class.java)
-        assertEquals(dataOurs, GreenCertificate.fromEuSchema(dataTheirs))
+        assertThat(dataOurs, equalTo(GreenCertificate.fromEuSchema(dataTheirs)))
 
         // will never be exactly the same ... because Kotlin serializes lists
         // in CBOR as indefinite-length, but Jackson uses the actual length

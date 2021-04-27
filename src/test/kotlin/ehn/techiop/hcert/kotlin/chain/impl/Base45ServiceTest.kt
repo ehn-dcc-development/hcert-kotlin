@@ -2,7 +2,8 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
-import org.junit.jupiter.api.Assertions
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -16,8 +17,8 @@ class Base45ServiceTest {
     @MethodSource("stringProvider")
     fun testString(input: TestInput) {
         val enc = base45Service.encode(input.plain.toByteArray())
-        Assertions.assertEquals(input.encoded, enc)
-        Assertions.assertArrayEquals(input.plain.toByteArray(), base45Service.decode(enc))
+        assertThat(input.encoded, equalTo(enc))
+        assertThat(input.plain.toByteArray(), equalTo(base45Service.decode(enc)))
     }
 
     @ParameterizedTest
@@ -27,7 +28,7 @@ class Base45ServiceTest {
         val encoded = base45Service.encode(deflated)
         // transfer
         val decoded = base45Service.decode(encoded)
-        Assertions.assertArrayEquals(deflated, decoded)
+        assertThat(deflated, equalTo(decoded))
     }
 
     @Test
@@ -38,9 +39,9 @@ class Base45ServiceTest {
         val encoded = base45Service.encode(deflated)
         // transfer
         val decoded = base45Service.decode(encoded)
-        Assertions.assertArrayEquals(deflated, decoded)
+        assertThat(deflated, equalTo(decoded))
         val inflated = compressorService.decode(decoded, VerificationResult())
-        Assertions.assertEquals(input, String(inflated))
+        assertThat(input, equalTo(String(inflated)))
     }
 
     companion object {

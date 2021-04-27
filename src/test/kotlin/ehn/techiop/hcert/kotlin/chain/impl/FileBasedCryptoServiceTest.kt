@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
@@ -15,8 +15,8 @@ class FileBasedCryptoServiceTest {
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        assertArrayEquals(input.getCborSigningKey().EncodeToBytes(), parsed.getCborSigningKey().EncodeToBytes())
-        assertEquals(input.getCertificate(), parsed.getCertificate())
+        assertThat(input.getCborSigningKey().EncodeToBytes(), equalTo(parsed.getCborSigningKey().EncodeToBytes()))
+        assertThat(input.getCertificate(), equalTo(parsed.getCertificate()))
     }
 
     @ParameterizedTest
@@ -27,8 +27,8 @@ class FileBasedCryptoServiceTest {
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        assertArrayEquals(input.getCborSigningKey().EncodeToBytes(), parsed.getCborSigningKey().EncodeToBytes())
-        assertEquals(input.getCertificate(), parsed.getCertificate())
+        assertThat(input.getCborSigningKey().EncodeToBytes(), equalTo(parsed.getCborSigningKey().EncodeToBytes()))
+        assertThat(input.getCertificate(), equalTo(parsed.getCertificate()))
     }
 
 }

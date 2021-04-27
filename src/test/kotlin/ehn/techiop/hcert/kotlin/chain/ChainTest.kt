@@ -40,7 +40,6 @@ class ChainTest {
         val vaccinationData = decodingChain.decode(output.step5Prefixed, verificationResult)
         assertThat(vaccinationData, equalTo(input))
         assertThat(verificationResult.cborDecoded, equalTo(true))
-        println(verificationResult)
         assertThat(DecisionService().decide(verificationResult), equalTo(outcome))
     }
 
