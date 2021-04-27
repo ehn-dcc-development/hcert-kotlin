@@ -11,7 +11,7 @@ class TrustListDecodeService(private val coseService: CoseService) {
         val payload = coseService.decode(input, verificationResult)
         if (!verificationResult.coseVerified)
             throw IllegalArgumentException("signature")
-        val trustList = Cbor { }.decodeFromByteArray<TrustList>(payload)
+        val trustList = Cbor.decodeFromByteArray<TrustList>(payload)
         if (trustList.validFrom.isAfter(Instant.now())) throw IllegalArgumentException("ValidFrom after now")
         if (trustList.validUntil.isBefore(Instant.now())) throw IllegalArgumentException("ValidUntil before now")
         return trustList

@@ -86,6 +86,7 @@ configure<com.github.eirnym.js2p.JsonSchemaExtension> {
     useTitleAsClassname = true
     includeJsr303Annotations = true
     includeJsr305Annotations = true
+    initializeCollections = false
     targetVersion = "1.8"
 }
 

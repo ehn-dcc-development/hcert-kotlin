@@ -15,6 +15,12 @@ data class RecoveryStatement(
     @Serializable(with = LocalDateSerializer::class)
     val dateOfFirstPositiveTestResult: LocalDate,
 
+    @SerialName("co")
+    val country: String,
+
+    @SerialName("is")
+    val certificateIssuer: String,
+
     @SerialName("df")
     @Serializable(with = LocalDateSerializer::class)
     val certificateValidFrom: LocalDate,
@@ -22,12 +28,6 @@ data class RecoveryStatement(
     @SerialName("du")
     @Serializable(with = LocalDateSerializer::class)
     val certificateValidUntil: LocalDate,
-
-    @SerialName("co")
-    val country: String,
-
-    @SerialName("is")
-    val certificateIssuer: String,
 
     @SerialName("ci")
     val certificateIdentifier: String,
@@ -37,10 +37,10 @@ data class RecoveryStatement(
         fun fromEuSchema(it: RecoveryEntry) = RecoveryStatement(
             target = DiseaseTargetType.findByValue(it.tg.value()),
             dateOfFirstPositiveTestResult = LocalDate.parse(it.fr, DateTimeFormatter.ISO_DATE),
-            certificateValidFrom = LocalDate.parse(it.df, DateTimeFormatter.ISO_DATE),
-            certificateValidUntil = LocalDate.parse(it.du, DateTimeFormatter.ISO_DATE),
             country = it.co,
             certificateIssuer = it.`is`,
+            certificateValidFrom = LocalDate.parse(it.df, DateTimeFormatter.ISO_DATE),
+            certificateValidUntil = LocalDate.parse(it.du, DateTimeFormatter.ISO_DATE),
             certificateIdentifier = it.ci
         )
     }

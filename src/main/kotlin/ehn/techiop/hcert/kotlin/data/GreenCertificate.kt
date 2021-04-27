@@ -19,13 +19,13 @@ data class GreenCertificate(
     val dateOfBirth: LocalDate,
 
     @SerialName("v")
-    val vaccinations: List<Vaccination?>? = listOf(),
+    val vaccinations: List<Vaccination?>? = null,
 
     @SerialName("r")
-    val recoveryStatements: List<RecoveryStatement?>? = listOf(),
+    val recoveryStatements: List<RecoveryStatement?>? = null,
 
     @SerialName("t")
-    val tests: List<Test?>? = listOf(),
+    val tests: List<Test?>? = null,
 ) {
     companion object {
         @JvmStatic

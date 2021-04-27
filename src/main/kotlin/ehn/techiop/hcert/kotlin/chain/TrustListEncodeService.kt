@@ -19,7 +19,7 @@ class TrustListEncodeService(private val signingService: CryptoService) {
         )
 
         return Sign1Message().also {
-            it.SetContent(Cbor { }.encodeToByteArray(trustList))
+            it.SetContent(Cbor.encodeToByteArray(trustList))
             // TODO Version-Info in den Header, falls sich die Struktur doch noch ändert!
             signingService.getCborHeaders().forEach { header ->
                 it.addAttribute(header.first, header.second, Attribute.PROTECTED)
