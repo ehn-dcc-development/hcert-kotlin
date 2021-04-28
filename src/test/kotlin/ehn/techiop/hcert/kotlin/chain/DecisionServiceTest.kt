@@ -1,5 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import ehn.techiop.hcert.kotlin.chain.VerificationDecision.FAIL
+import ehn.techiop.hcert.kotlin.chain.VerificationDecision.GOOD
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -9,17 +11,13 @@ import java.time.temporal.ChronoUnit
 
 class DecisionServiceTest {
 
-    val decisionService = DecisionService()
+    private val decisionService = DecisionService()
 
     @Test
     fun good() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
-        }
+        val verificationResult = goodVerificationResult()
 
-        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(GOOD))
     }
 
     @Test
@@ -32,7 +30,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.TEST)
         }
 
-        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(GOOD))
     }
 
     @Test
@@ -45,7 +43,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
 
-        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(GOOD))
     }
 
     @Test
@@ -58,7 +56,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.RECOVERY)
         }
 
-        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(GOOD))
     }
 
     @Test
@@ -71,7 +69,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf()
         }
 
-        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
     }
 
     @Test
@@ -84,7 +82,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.RECOVERY, ContentType.TEST)
         }
 
-        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
     }
 
     @Test
@@ -97,32 +95,7 @@ class DecisionServiceTest {
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
 
-        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
-    }
-
-    @Test
-    fun goodTimes() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
-            issuedAt = Instant.now().minus(5, ChronoUnit.SECONDS)
-        }
-
-        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
-    }
-
-    @Test
-    fun goodTimesAhead() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
-            issuedAt = Instant.now().minus(5, ChronoUnit.SECONDS)
-            expirationTime = Instant.now().plus(5, ChronoUnit.SECONDS)
-        }
-
-        assertThat(VerificationDecision.GOOD, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
     }
 
     @Test
@@ -133,7 +106,7 @@ class DecisionServiceTest {
             cborDecoded = true
         }
 
-        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
     }
 
     @Test
@@ -144,7 +117,7 @@ class DecisionServiceTest {
             cborDecoded = true
         }
 
-        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
     }
 
     @Test
@@ -155,32 +128,99 @@ class DecisionServiceTest {
             cborDecoded = false
         }
 
-        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
     }
 
     @Test
-    fun failIssued() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
-            issuedAt = Instant.now().plus(5, ChronoUnit.SECONDS)
+    fun issuedAtPast() {
+        val verificationResult = goodVerificationResult().apply {
+            issuedAt = Instant.now().minusSeconds(5)
         }
 
-        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(GOOD))
     }
 
     @Test
-    fun failExpiration() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
-            issuedAt = Instant.now().minus(5, ChronoUnit.SECONDS)
-            expirationTime = Instant.now().minus(5, ChronoUnit.SECONDS)
+    fun issuedAtPastValidFromBeforeThat() {
+        val verificationResult = goodVerificationResult().apply {
+            issuedAt = Instant.now().minusSeconds(5)
+            certificateValidFrom = Instant.now().minusSeconds(10)
         }
 
-        assertThat(VerificationDecision.FAIL, equalTo(decisionService.decide(verificationResult)))
+        assertThat(decisionService.decide(verificationResult), equalTo(GOOD))
+    }
+
+    @Test
+    fun issuedAtPastValidFromAfterThat() {
+        val verificationResult = goodVerificationResult().apply {
+            issuedAt = Instant.now().minusSeconds(5)
+            certificateValidFrom = Instant.now().minusSeconds(1)
+        }
+
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
+    }
+
+    @Test
+    fun issuedAtPastExpirationFuture() {
+        val verificationResult = goodVerificationResult().apply {
+            issuedAt = Instant.now().minusSeconds(5)
+            expirationTime = Instant.now().plusSeconds(5)
+        }
+
+        assertThat(decisionService.decide(verificationResult), equalTo(GOOD))
+    }
+
+    @Test
+    fun issuedAtFuture() {
+        val verificationResult = goodVerificationResult().apply {
+            issuedAt = Instant.now().plusSeconds(5)
+        }
+
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
+    }
+
+    @Test
+    fun expirationPast() {
+        val verificationResult = goodVerificationResult().apply {
+            expirationTime = Instant.now().minusSeconds(5)
+        }
+
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
+    }
+
+    @Test
+    fun expirationFuture() {
+        val verificationResult = goodVerificationResult().apply {
+            expirationTime = Instant.now().plusSeconds(5)
+        }
+
+        assertThat(decisionService.decide(verificationResult), equalTo(GOOD))
+    }
+
+    @Test
+    fun expirationFutureValidUntilAfterThat() {
+        val verificationResult = goodVerificationResult().apply {
+            expirationTime = Instant.now().plusSeconds(5)
+            certificateValidUntil = Instant.now().plusSeconds(10)
+        }
+
+        assertThat(decisionService.decide(verificationResult), equalTo(GOOD))
+    }
+
+    @Test
+    fun expirationFutureValidUntilBeforeThat() {
+        val verificationResult = goodVerificationResult().apply {
+            expirationTime = Instant.now().plusSeconds(5)
+            certificateValidUntil = Instant.now().plusSeconds(2)
+        }
+
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
+    }
+
+    private fun goodVerificationResult() = VerificationResult().apply {
+        base45Decoded = true
+        coseVerified = true
+        cborDecoded = true
     }
 
 

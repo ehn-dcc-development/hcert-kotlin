@@ -11,7 +11,7 @@ import java.time.Period
 
 open class DefaultCborService(
     private val countryCode: String = "AT",
-    private val expirationPeriod: Period = Period.ofDays(365)
+    private val expirationPeriod: Period = Period.ofDays(2)
 ) : CborService {
 
     private val keyEuDgcV1 = CBORObject.FromObject(1)

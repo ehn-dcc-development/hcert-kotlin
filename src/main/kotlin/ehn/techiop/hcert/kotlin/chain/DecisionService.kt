@@ -30,7 +30,7 @@ class DecisionService {
 
         verificationResult.expirationTime?.let { expirationTime ->
             verificationResult.certificateValidUntil?.let { certValidUntil ->
-                if (certValidUntil.isAfter(expirationTime))
+                if (expirationTime.isAfter(certValidUntil))
                     return VerificationDecision.FAIL
             }
             if (expirationTime.isBefore(Instant.now()))
