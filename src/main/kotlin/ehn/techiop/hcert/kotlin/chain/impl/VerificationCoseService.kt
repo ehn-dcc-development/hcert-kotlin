@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
+import COSE.HeaderKeys
 import COSE.MessageTag
 import COSE.Sign1Message
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
@@ -15,15 +16,14 @@ class VerificationCoseService(private val repository: CertificateRepository) : C
         return try {
             (Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message).also {
                 try {
-                    DefaultCoseService.getKid(it)?.let { kid ->
-                        repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
-                            verificationResult.certificateValidFrom = trustedCert.validFrom
-                            verificationResult.certificateValidUntil = trustedCert.validUntil
-                            verificationResult.certificateValidContent = trustedCert.validContentTypes
-                            if (it.validate(trustedCert.buildOneKey())) {
-                                verificationResult.coseVerified = true
-                                return it.GetContent()
-                            }
+                    val kid = it.findAttribute(HeaderKeys.KID)?.GetByteString() ?: throw IllegalArgumentException("kid")
+                    repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
+                        verificationResult.certificateValidFrom = trustedCert.validFrom
+                        verificationResult.certificateValidUntil = trustedCert.validUntil
+                        verificationResult.certificateValidContent = trustedCert.validContentTypes
+                        if (it.validate(trustedCert.buildOneKey())) {
+                            verificationResult.coseVerified = true
+                            return it.GetContent()
                         }
                     }
                 } catch (e: Throwable) {
