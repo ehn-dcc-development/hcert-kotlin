@@ -1,14 +1,22 @@
 package ehn.techiop.hcert.kotlin.trust
 
+import COSE.OneKey
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.data.InstantSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.cbor.ByteString
+import org.bouncycastle.asn1.sec.SECNamedCurves
+import org.bouncycastle.asn1.sec.SECObjectIdentifiers
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import org.bouncycastle.jce.ECPointUtil
+import org.bouncycastle.jce.spec.ECNamedCurveSpec
+import java.security.KeyFactory
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPublicKey
+import java.security.spec.ECPublicKeySpec
+import java.security.spec.RSAPublicKeySpec
 import java.time.Instant
 
 
@@ -30,7 +38,9 @@ data class TrustedCertificate(
     val keyType: KeyType,
 
     /**
-     * PKCS#1 encoding, i.e. without algorithm identifiers around it
+     * Public key in PKCS#1 encoding, i.e. without algorithm identifiers around it.
+     * For EC: "04 || X || Y".
+     * For RSA: "ASN1-SEQ { MODULUS, EXPONENT }"
      */
     @SerialName("p")
     @ByteString
@@ -52,7 +62,29 @@ data class TrustedCertificate(
             publicKey = SubjectPublicKeyInfo.getInstance(certificate.publicKey.encoded).publicKeyData.bytes,
             validContentTypes = PkiUtils.getValidContentTypes(certificate)
         )
+    }
 
+    fun buildOneKey(): OneKey {
+        val publicKey = when (keyType) {
+            KeyType.RSA -> {
+                val rsaPublicKey = org.bouncycastle.asn1.pkcs.RSAPublicKey.getInstance(publicKey)
+                val spec = RSAPublicKeySpec(rsaPublicKey.modulus, rsaPublicKey.publicExponent)
+                KeyFactory.getInstance("RSA").generatePublic(spec)
+            }
+            KeyType.EC -> {
+                val ecCurveName = when (publicKey.size) {
+                    65 -> SECNamedCurves.getName(SECObjectIdentifiers.secp256r1)
+                    97 -> SECNamedCurves.getName(SECObjectIdentifiers.secp384r1)
+                    else -> throw IllegalArgumentException("key")
+                }
+                val param = SECNamedCurves.getByName(ecCurveName)
+                val paramSpec = ECNamedCurveSpec(ecCurveName, param.curve, param.g, param.n)
+                val publicPoint = ECPointUtil.decodePoint(paramSpec.curve, publicKey)
+                val spec = ECPublicKeySpec(publicPoint, paramSpec)
+                KeyFactory.getInstance("EC").generatePublic(spec)
+            }
+        }
+        return OneKey(publicKey, null)
     }
 
     override fun equals(other: Any?): Boolean {

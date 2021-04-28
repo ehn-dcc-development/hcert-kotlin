@@ -6,7 +6,6 @@ import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import java.time.Instant
@@ -38,7 +37,7 @@ class TrustListDecodeService(private val repository: CertificateRepository) {
 
     private fun validate(sign1Message: Sign1Message, kid: ByteArray): Boolean {
         repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
-            if (sign1Message.validate(DefaultCoseService.buildOneKey(it))) {
+            if (sign1Message.validate(it.buildOneKey())) {
                 return true
             }
         }
