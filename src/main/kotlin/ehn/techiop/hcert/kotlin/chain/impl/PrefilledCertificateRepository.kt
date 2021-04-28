@@ -1,9 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 
@@ -17,15 +17,17 @@ class PrefilledCertificateRepository : CertificateRepository {
 
     constructor(vararg pemEncodedCertificates: String) {
         val factory = CertificateFactory.getInstance("X.509")
-        for (input in pemEncodedCertificates) {
-            val cert = factory.generateCertificate(input.byteInputStream()) as X509Certificate
-            list += cert
+        pemEncodedCertificates.forEach {
+            list += factory.generateCertificate(it.byteInputStream()) as X509Certificate
         }
     }
 
-    override fun loadTrustedCertificates(kid: ByteArray, verificationResult: VerificationResult): List<TrustedCertificate> {
+    override fun loadTrustedCertificates(
+        kid: ByteArray,
+        verificationResult: VerificationResult
+    ): List<TrustedCertificate> {
         val certList = list.filter { PkiUtils.calcKid(it) contentEquals kid }
-        if (certList.isEmpty()) throw IllegalArgumentException("kid not known: $kid")
+        if (certList.isEmpty()) throw IllegalArgumentException("kid")
         return certList.map { TrustedCertificate.fromCert(it) }
     }
 

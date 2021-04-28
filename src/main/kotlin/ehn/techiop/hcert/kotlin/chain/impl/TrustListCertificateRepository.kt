@@ -15,9 +15,9 @@ class TrustListCertificateRepository(input: ByteArray, certificateRepository: Ce
         kid: ByteArray,
         verificationResult: VerificationResult
     ): List<TrustedCertificate> {
-        val trustedCert = list.filter { it.kid contentEquals kid }
-        if (trustedCert.isEmpty()) throw IllegalArgumentException("kid not known: $kid")
-        return trustedCert
+        val certList = list.filter { it.kid contentEquals kid }
+        if (certList.isEmpty()) throw IllegalArgumentException("kid")
+        return certList
     }
 
 }

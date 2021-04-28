@@ -32,20 +32,23 @@ Chain chain = Chain.buildCreationChain(cryptoService);
 // Load the input data from somewhere ...
 String json = "{ \"sub\": { \"gn\": \"Gabriele\", ...";
 String input = new ObjectMapper().readValue(jsonInput, Eudgc.class);
-ChainResult result = chain.process(input);
+
+// Apply all encoding steps from the Chain: CBOR, COSE, ZLIB, Base45, Context
+ChainResult result = chain.encode(input);
 
 // Optionally encode it as a QR-Code with 350 pixel in width and height
 TwoDimCodeService qrCodeService = new DefaultTwoDimCodeService(350);
-String encodedBase64QrCode = qrCodeService.encode(result.step5Prefixed);
+String encodedImage = qrCodeService.encode(result.step5Prefixed);
+String encodedBase64QrCode = Base64.getEncoder().encodeToString(encodedImage);
 
 // Then include in an HTML page or something ...
-String html = "<img src=\"data:image/png;base64,\" + encodedBase64QrCode + "\" />";
+String html = "<img src=\"data:image/png;base64," + encodedBase64QrCode + "\" />";
 ```
 
 Example for the verification side, i.e. in apps:
 
 ```Java
-CertificateRepository repository = PrefilledCertificateRepository(-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...");
+CertificateRepository repository = PrefilledCertificateRepository("-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...");
 Chain chain = Chain.buildVerificationChain();
 // Scan the QR code from somewhere ...
 String input = "HC1:NCFC:MVIMAP2SQ20MU...";
@@ -56,7 +59,7 @@ VerificationDecision decision = new DecisionService().decide(verificationResult)
 // is either VerificationDecision.GOOD or VerificationDecision.FAIL
 
 // To convert the contents to data classes with meaningful property names:
-GreenCertificate greenCertificate = Data.fromSchema(dgc);
+GreenCertificate greenCertificate = GreenCertificate.fromEuSchema(dgc);
 ```
 
 There is also an option to create (on the service) and read (in the app) a list of trusted certificates for verification of HCERTs.
@@ -89,11 +92,11 @@ Eudgc dgc = chain.decode(input, verificationResult);
 
 ## Data Classes
 
-The JSON schema is copied to `src/main/resources/json`. From there, the Gradle plugin `org.jsonschema2dataclass` will create Java classes into the package `ehn.techiop.hcert.data`. The Gradle task `compileKotlin` depends on `generateJsonSchema2DataClass`, so that fresh classes are used for each compilation. The data classes can be de-/serialized with the Jackson library.
+The JSON schema is copied to `src/main/resources/json`. From there, the Gradle plugin `org.jsonschema2dataclass` will create Java classes into the package `ehn.techiop.hcert.data`. The Gradle task `compileKotlin` depends on `generateJsonSchema2DataClass`, so that fresh classes are used for each compilation. The data classes can be de-/serialized with the Jackson library, e.g. using `CBORMapper` or `ObjectMapper`.
 
 Sample data objects are provided in `SampleData`, with special thanks to Christian Baumann.
 
-Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for data deserialized from an HCERT structure. It can be converted using `GreenCertificate.fromEuSchema(eudgcObject)`.
+Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for data deserialized from an HCERT structure. It can be converted using `GreenCertificate.fromEuSchema(eudgcObject)`. Those classes can also be de-/serialized with [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), i.e. `Cbor.encodeToByteArray()` or `Cbor.decodeFromByteArray<GreenCertificate>()`.
 
 ## Publishing
 
@@ -102,7 +105,8 @@ To publish this package to GitHub, create a personal access token (read <https:/
 ## Changelog
 
 Version 0.2.1:
- - Interface of `TwoDimCodeService` now returns a `ByteArray` instead of a `String`, callers need to convert the result to Base64 manually
+ - TrustList encodes public keys in PKCS#1 format (instead of PKCS#8/X.509)
+ - Interface of `TwoDimCodeService` now returns a `ByteArray` instead of a `String`, callers need to encode the result to manually.
 
 ## Libraries
 
