@@ -30,14 +30,14 @@ class DefaultTwoDimCodeServiceTest {
         @JvmStatic
         @Suppress("unused")
         fun inputProvider() = listOf(
-            TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.AZTEC, 300),
-            TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.AZTEC, 500),
-            TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.QR_CODE, 300),
-            TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.QR_CODE, 500),
+            TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.AZTEC, 300, 0),
+            TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.AZTEC, 500, 2),
+            TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.QR_CODE, 300, 4),
+            TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.QR_CODE, 500, 8),
         )
 
     }
 
-    data class TestInput(val input: String, val format: BarcodeFormat, val size: Int)
+    data class TestInput(val input: String, val format: BarcodeFormat, val size: Int, val marginSize: Int)
 
 }
