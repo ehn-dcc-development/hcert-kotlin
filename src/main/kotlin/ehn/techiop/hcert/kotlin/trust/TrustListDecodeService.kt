@@ -29,10 +29,10 @@ class TrustListDecodeService(
         val payload = sign1Message.GetContent()
         val trustList = Cbor.decodeFromByteArray<TrustList>(payload)
 
-        if (trustList.validFrom.isAfter(clock.instant()))
+        if (trustList.validFrom.isAfter(clock.instant().plusSeconds(300)))
             throw IllegalArgumentException("ValidFrom")
 
-        if (trustList.validUntil.isBefore(clock.instant()))
+        if (trustList.validUntil.isBefore(clock.instant().minusSeconds(300)))
             throw IllegalArgumentException("ValidUntil")
 
         return trustList

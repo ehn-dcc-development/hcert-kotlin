@@ -15,8 +15,7 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.File
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Instant
@@ -46,7 +45,7 @@ class ExtendedChainTest {
             val testcaseFiles = listOf(
                 "src/test/resources/testcase01.json"
             )
-            return testcaseFiles.map { Json.decodeFromString(Files.readString(Path.of(it))) }
+            return testcaseFiles.map { Json.decodeFromString(File(it).bufferedReader().readText()) }
         }
 
     }

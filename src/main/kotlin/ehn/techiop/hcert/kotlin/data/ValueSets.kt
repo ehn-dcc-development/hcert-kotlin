@@ -3,8 +3,6 @@ package ehn.techiop.hcert.kotlin.data
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.nio.file.Files
-import java.nio.file.Path
 import java.time.LocalDate
 
 /**
@@ -30,14 +28,14 @@ data class ValueSetHolder(
     companion object {
         val INSTANCE: ValueSetHolder by lazy {
             val inputPaths = listOf(
-                "src/main/resources/value-sets/disease-agent-targeted.json",
-                "src/main/resources/value-sets/test-manf.json",
-                "src/main/resources/value-sets/test-result.json",
-                "src/main/resources/value-sets/vaccine-mah-manf.json",
-                "src/main/resources/value-sets/vaccine-medicinal-product.json",
-                "src/main/resources/value-sets/vaccine-prophylaxis.json",
+                "/value-sets/disease-agent-targeted.json",
+                "/value-sets/test-manf.json",
+                "/value-sets/test-result.json",
+                "/value-sets/vaccine-mah-manf.json",
+                "/value-sets/vaccine-medicinal-product.json",
+                "/value-sets/vaccine-prophylaxis.json",
             )
-            ValueSetHolder(inputPaths.map { Json.decodeFromString(Files.readString(Path.of(it))) })
+            ValueSetHolder(inputPaths.map { Json.decodeFromString(this::class.java.getResource(it).readText()) })
         }
     }
 }
