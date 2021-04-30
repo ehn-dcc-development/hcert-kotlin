@@ -9,7 +9,7 @@ import java.time.ZoneOffset
 @Serializable
 data class Test(
     @SerialName("tg")
-    val target: DiseaseTargetType,
+    val target: ValueSetEntryAdapter,
 
     @SerialName("tt")
     val type: String,
@@ -18,7 +18,7 @@ data class Test(
     val nameNaa: String? = null,
 
     @SerialName("ma")
-    val nameRat: TestManufacturer? = null,
+    val nameRat: ValueSetEntryAdapter? = null,
 
     @SerialName("sc")
     @Serializable(with = IsoOffsetDateTimeSerializer::class)
@@ -29,8 +29,7 @@ data class Test(
     val dateTimeResult: OffsetDateTime? = null,
 
     @SerialName("tr")
-    @Serializable(with = TestResultSerializer::class)
-    val resultPositive: Boolean,
+    val resultPositive: ValueSetEntryAdapter,
 
     @SerialName("tc")
     val testFacility: String,
@@ -47,13 +46,13 @@ data class Test(
     companion object {
         @JvmStatic
         fun fromEuSchema(it: TestEntry) = Test(
-            target = DiseaseTargetType.findByValue(it.tg),
+            target = ValueSetHolder.INSTANCE.find("disease-agent-targeted", it.tg),
             type = it.tt,
             nameNaa = it.nm,
-            nameRat = it.ma?.let { TestManufacturer.findByValue(it) },
+            nameRat = it.ma?.let { ValueSetHolder.INSTANCE.find("covid-19-lab-test-manufacturer-and-name", it) },
             dateTimeSample = it.sc.toInstant().atOffset(ZoneOffset.UTC),
             dateTimeResult = it.dr?.toInstant()?.atOffset(ZoneOffset.UTC),
-            resultPositive = it.tr == "260373001",
+            resultPositive = ValueSetHolder.INSTANCE.find("covid-19-lab-result", it.tr),
             testFacility = it.tc,
             country = it.co,
             certificateIssuer = it.`is`,

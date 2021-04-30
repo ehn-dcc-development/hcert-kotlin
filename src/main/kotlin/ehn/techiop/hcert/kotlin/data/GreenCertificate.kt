@@ -3,6 +3,10 @@ package ehn.techiop.hcert.kotlin.data
 import ehn.techiop.hcert.data.Eudgc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -28,6 +32,7 @@ data class GreenCertificate(
     val tests: List<Test?>? = null,
 ) {
     companion object {
+
         @JvmStatic
         fun fromEuSchema(input: Eudgc): GreenCertificate? {
             if (input.nam == null || input.ver == null || input.dob == null) {

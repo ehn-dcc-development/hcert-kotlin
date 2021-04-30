@@ -72,20 +72,14 @@ object EudgcSerializer : KSerializer<Eudgc> {
     }
 }
 
-/**
- * Values from hcert-schema, according to SNOMED CT
- */
-@Serializer(forClass = Boolean::class)
-object TestResultSerializer : KSerializer<Boolean> {
-    override fun deserialize(decoder: Decoder): Boolean {
-        return when (decoder.decodeString()) {
-            "260373001" -> true
-            else -> false
-        }
+@Serializer(forClass = ValueSetEntryAdapter::class)
+object ValueSetEntryAdapterSerializer : KSerializer<ValueSetEntryAdapter> {
+    override fun deserialize(decoder: Decoder): ValueSetEntryAdapter {
+        return ValueSetHolder.INSTANCE.find(decoder.decodeString())
     }
 
-    override fun serialize(encoder: Encoder, value: Boolean) {
-        encoder.encodeString(if (value) "260373001" else "260415000")
+    override fun serialize(encoder: Encoder, value: ValueSetEntryAdapter) {
+        encoder.encodeString(value.key)
     }
 }
 

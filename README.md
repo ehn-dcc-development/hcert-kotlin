@@ -98,6 +98,8 @@ Sample data objects are provided in `SampleData`, with special thanks to Christi
 
 Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for data deserialized from an HCERT structure. It can be converted using `GreenCertificate.fromEuSchema(eudgcObject)`. Those classes can also be de-/serialized with [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), i.e. `Cbor.encodeToByteArray()` or `Cbor.decodeFromByteArray<GreenCertificate>()`.
 
+These classes also use `ValueSetEntry` objects, that are loaded from the valuesets of the dgc-schema. These provide additional information, e.g. for the key "EU/1/20/1528" to map to the vaccine "Comirnaty".
+
 ## Configuration
 
 Nearly every object in this library can be configured using constructor parameters. Most of these parameters have, opionated, default values, e.g. `Clock.systemDefaultZone()` for `clock`, used to get the current timestamp.

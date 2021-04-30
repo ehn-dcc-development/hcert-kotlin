@@ -9,16 +9,16 @@ import java.time.format.DateTimeFormatter
 @Serializable
 data class Vaccination(
     @SerialName("tg")
-    val target: DiseaseTargetType,
+    val target: ValueSetEntryAdapter,
 
     @SerialName("vp")
-    val vaccine: VaccineType,
+    val vaccine: ValueSetEntryAdapter,
 
     @SerialName("mp")
-    val medicinalProduct: VaccineMedicinalProductType,
+    val medicinalProduct: ValueSetEntryAdapter,
 
     @SerialName("ma")
-    val authorizationHolder: VaccineManufacturer,
+    val authorizationHolder: ValueSetEntryAdapter,
 
     @SerialName("dn")
     val doseNumber: Int,
@@ -42,10 +42,10 @@ data class Vaccination(
     companion object {
         @JvmStatic
         fun fromEuSchema(it: VaccinationEntry) = Vaccination(
-            target = DiseaseTargetType.findByValue(it.tg),
-            vaccine = VaccineType.findByValue(it.vp),
-            medicinalProduct = VaccineMedicinalProductType.findByValue(it.mp),
-            authorizationHolder = VaccineManufacturer.findByValue(it.ma),
+            target = ValueSetHolder.INSTANCE.find("disease-agent-targeted", it.tg),
+            vaccine = ValueSetHolder.INSTANCE.find("sct-vaccines-covid-19", it.vp),
+            medicinalProduct = ValueSetHolder.INSTANCE.find("vaccines-covid-19-names", it.mp),
+            authorizationHolder = ValueSetHolder.INSTANCE.find("vaccines-covid-19-auth-holders", it.ma),
             doseNumber = it.dn,
             doseTotalNumber = it.sd,
             date = LocalDate.parse(it.dt, DateTimeFormatter.ISO_DATE),

@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 @Serializable
 data class RecoveryStatement(
     @SerialName("tg")
-    val target: DiseaseTargetType,
+    val target: ValueSetEntryAdapter,
 
     @SerialName("fr")
     @Serializable(with = LocalDateSerializer::class)
@@ -35,7 +35,7 @@ data class RecoveryStatement(
     companion object {
         @JvmStatic
         fun fromEuSchema(it: RecoveryEntry) = RecoveryStatement(
-            target = DiseaseTargetType.findByValue(it.tg),
+            target = ValueSetHolder.INSTANCE.find("disease-agent-targeted", it.tg),
             dateOfFirstPositiveTestResult = LocalDate.parse(it.fr, DateTimeFormatter.ISO_DATE),
             country = it.co,
             certificateIssuer = it.`is`,
