@@ -1,9 +1,15 @@
 package ehn.techiop.hcert.kotlin.data
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.fromBase64
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -40,6 +46,29 @@ object InstantSerializer : KSerializer<Instant> {
 
     override fun serialize(encoder: Encoder, value: Instant) {
         encoder.encodeLong(value.epochSecond)
+    }
+}
+
+@Serializer(forClass = X509Certificate::class)
+object X509CertificateSerializer : KSerializer<X509Certificate> {
+    override fun deserialize(decoder: Decoder): X509Certificate {
+        return CertificateFactory.getInstance("X.509")
+            .generateCertificate(decoder.decodeString().fromBase64().inputStream()) as X509Certificate
+    }
+
+    override fun serialize(encoder: Encoder, value: X509Certificate) {
+        encoder.encodeString(value.encoded.asBase64())
+    }
+}
+
+@Serializer(forClass = Eudgc::class)
+object EudgcSerializer : KSerializer<Eudgc> {
+    override fun deserialize(decoder: Decoder): Eudgc {
+        return ObjectMapper().readValue(decoder.decodeString(), Eudgc::class.java)
+    }
+
+    override fun serialize(encoder: Encoder, value: Eudgc) {
+        encoder.encodeString(ObjectMapper().writeValueAsString(value))
     }
 }
 

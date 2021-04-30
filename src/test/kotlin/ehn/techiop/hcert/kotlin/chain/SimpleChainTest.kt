@@ -11,17 +11,17 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class ChainTest {
+class SimpleChainTest {
 
     @ParameterizedTest
-    @MethodSource("stringProvider")
+    @MethodSource("inputProvider")
     fun successRsa(input: TestInput) {
         verify(input.data, RandomRsaKeyCryptoService(2048, listOf(input.contentType)), input.outcome)
         verify(input.data, RandomRsaKeyCryptoService(3072, listOf(input.contentType)), input.outcome)
     }
 
     @ParameterizedTest
-    @MethodSource("stringProvider")
+    @MethodSource("inputProvider")
     fun successEc(input: TestInput) {
         verify(input.data, RandomEcKeyCryptoService(256, listOf(input.contentType)), input.outcome)
         verify(input.data, RandomEcKeyCryptoService(384, listOf(input.contentType)), input.outcome)
@@ -47,7 +47,7 @@ class ChainTest {
 
         @JvmStatic
         @Suppress("unused")
-        fun stringProvider() = listOf(
+        fun inputProvider() = listOf(
             TestInput(SampleData.testRat, ContentType.TEST, VerificationDecision.GOOD),
             TestInput(SampleData.testRat, ContentType.VACCINATION, VerificationDecision.FAIL),
             TestInput(SampleData.testNaa, ContentType.TEST, VerificationDecision.GOOD),
