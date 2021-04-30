@@ -23,7 +23,7 @@ class DataTest {
     @ParameterizedTest
     @MethodSource("stringProvider")
     fun decodeEncodeTest(input: String) {
-        val dataOurs = Json { }.decodeFromString<GreenCertificate>(input)
+        val dataOurs = Json.decodeFromString<GreenCertificate>(input)
         val dataTheirs = ObjectMapper().readValue(input, Eudgc::class.java)
         assertThat(dataOurs, equalTo(GreenCertificate.fromEuSchema(dataTheirs)))
 

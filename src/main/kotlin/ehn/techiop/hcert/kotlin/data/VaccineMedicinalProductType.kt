@@ -3,7 +3,8 @@ package ehn.techiop.hcert.kotlin.data
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// https://ec.europa.eu/health/sites/health/files/ehealth/docs/digital-green-certificates_dt-specifications_en.pdf
+// https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/vaccine-medicinal-product.json
+// 2021-04-27
 @Serializable
 enum class VaccineMedicinalProductType(val value: String) {
     @SerialName("EU/1/20/1528")
@@ -20,9 +21,6 @@ enum class VaccineMedicinalProductType(val value: String) {
 
     @SerialName("CVnCoV")
     CVNCOV("CVnCoV"),
-
-    @SerialName("NVX-CoV2373")
-    NVX_COV2373("NVX-CoV2373"),
 
     @SerialName("Sputnik-V")
     SPUTNIK_V("Sputnik-V"),
@@ -43,11 +41,14 @@ enum class VaccineMedicinalProductType(val value: String) {
     CORONA_VAC("CoronaVac"),
 
     @SerialName("Covaxin")
-    COVAXIN("Covaxin");
+    COVAXIN("Covaxin"),
+
+    @SerialName("Unknown")
+    UNKNOWN("Unknown");
 
     companion object {
         fun findByValue(value: String): VaccineMedicinalProductType {
-            return values().firstOrNull { it.value == value } ?: throw IllegalArgumentException("value")
+            return values().firstOrNull { it.value == value } ?: UNKNOWN
         }
     }
 }

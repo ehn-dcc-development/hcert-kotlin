@@ -35,7 +35,7 @@ data class RecoveryStatement(
     companion object {
         @JvmStatic
         fun fromEuSchema(it: RecoveryEntry) = RecoveryStatement(
-            target = DiseaseTargetType.findByValue(it.tg.value()),
+            target = DiseaseTargetType.findByValue(it.tg),
             dateOfFirstPositiveTestResult = LocalDate.parse(it.fr, DateTimeFormatter.ISO_DATE),
             country = it.co,
             certificateIssuer = it.`is`,

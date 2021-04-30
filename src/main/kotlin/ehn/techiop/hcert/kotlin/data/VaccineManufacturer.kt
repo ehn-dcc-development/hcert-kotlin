@@ -3,7 +3,8 @@ package ehn.techiop.hcert.kotlin.data
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// https://ec.europa.eu/health/sites/health/files/ehealth/docs/digital-green-certificates_dt-specifications_en.pdf
+// https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/vaccine-mah-manf.json
+// 2021-04-27
 @Serializable
 enum class VaccineManufacturer(val value: String) {
     @SerialName("ORG-100001699")
@@ -39,19 +40,21 @@ enum class VaccineManufacturer(val value: String) {
     @SerialName("Gamaleya-Research-Institute")
     GAMALEYA("Gamaleya-Research-Institute"),
 
-    @SerialName("Gamaleya-Research-Institute")
-    VECTOR_INSTITUTE("Gamaleya-Research-Institute"),
+    @SerialName("Vector-Institute")
+    VECTOR_INSTITUTE("Vector-Institute"),
 
     @SerialName("Sinovac-Biotech")
     SINOVAC("Sinovac-Biotech"),
 
     @SerialName("Bharat-Biotech")
-    BHARAT("Bharat-Biotech");
+    BHARAT("Bharat-Biotech"),
 
+    @SerialName("Unknown")
+    UNKNOWN("Unknown");
 
     companion object {
         fun findByValue(value: String): VaccineManufacturer {
-            return values().firstOrNull { it.value == value } ?: throw IllegalArgumentException("value")
+            return values().firstOrNull { it.value == value } ?: UNKNOWN
         }
     }
 }

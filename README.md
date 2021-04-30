@@ -9,7 +9,7 @@ Implements a very basic validation and creation chain of electronic health certi
 
 All services are implemented according to the [Specification 1.0.5](https://github.com/ehn-digital-green-development/hcert-spec), Version 1.0.5 from 2021-04-18.
 
-The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, from 2021-04-23.
+The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, Version 1.0.0, from 2021-04-30.
 
 ## Usage
 

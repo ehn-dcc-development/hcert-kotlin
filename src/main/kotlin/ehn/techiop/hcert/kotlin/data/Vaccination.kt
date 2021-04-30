@@ -42,10 +42,10 @@ data class Vaccination(
     companion object {
         @JvmStatic
         fun fromEuSchema(it: VaccinationEntry) = Vaccination(
-            target = DiseaseTargetType.findByValue(it.tg.value()),
-            vaccine = VaccineType.findByValue(it.vp.value()),
-            medicinalProduct = VaccineMedicinalProductType.findByValue(it.mp.value()),
-            authorizationHolder = VaccineManufacturer.findByValue(it.ma.value()),
+            target = DiseaseTargetType.findByValue(it.tg),
+            vaccine = VaccineType.findByValue(it.vp),
+            medicinalProduct = VaccineMedicinalProductType.findByValue(it.mp),
+            authorizationHolder = VaccineManufacturer.findByValue(it.ma),
             doseNumber = it.dn,
             doseTotalNumber = it.sd,
             date = LocalDate.parse(it.dt, DateTimeFormatter.ISO_DATE),

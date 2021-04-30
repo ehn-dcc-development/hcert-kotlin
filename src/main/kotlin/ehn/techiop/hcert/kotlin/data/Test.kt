@@ -18,7 +18,7 @@ data class Test(
     val nameNaa: String? = null,
 
     @SerialName("ma")
-    val nameRat: String? = null, // may be an enum
+    val nameRat: TestManufacturer? = null,
 
     @SerialName("sc")
     @Serializable(with = IsoOffsetDateTimeSerializer::class)
@@ -47,13 +47,13 @@ data class Test(
     companion object {
         @JvmStatic
         fun fromEuSchema(it: TestEntry) = Test(
-            target = DiseaseTargetType.findByValue(it.tg.value()),
+            target = DiseaseTargetType.findByValue(it.tg),
             type = it.tt,
             nameNaa = it.nm,
-            nameRat = it.ma?.value(),
+            nameRat = it.ma?.let { TestManufacturer.findByValue(it) },
             dateTimeSample = it.sc.toInstant().atOffset(ZoneOffset.UTC),
             dateTimeResult = it.dr?.toInstant()?.atOffset(ZoneOffset.UTC),
-            resultPositive = it.tr.value() == "260373001",
+            resultPositive = it.tr == "260373001",
             testFacility = it.tc,
             country = it.co,
             certificateIssuer = it.`is`,
