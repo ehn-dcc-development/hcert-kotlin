@@ -4,6 +4,9 @@ import ehn.techiop.hcert.kotlin.chain.Base45Service
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 
+/**
+ * Encodes/decodes input in/from Base45
+ */
 open class DefaultBase45Service : Base45Service {
 
     private val encoder = Base45Encoder()

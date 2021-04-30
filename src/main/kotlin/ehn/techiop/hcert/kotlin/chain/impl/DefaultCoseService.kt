@@ -9,6 +9,9 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
 
+/**
+ * Encodes/decodes input as a Sign1Message according to COSE specification (RFC8152)
+ */
 open class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
 
     override fun encode(input: ByteArray): ByteArray {

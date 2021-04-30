@@ -7,12 +7,15 @@ import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
-import java.time.Period
 
+/**
+ * Encodes/decodes input as a COSE structure, according to RFC8949
+ */
 open class DefaultCborService(
     private val countryCode: String = "AT",
-    private val expirationPeriod: Period = Period.ofDays(2),
+    private val validity: Duration = Duration.ofHours(48),
     private val clock: Clock = Clock.systemDefaultZone()
 ) : CborService {
 
@@ -20,8 +23,9 @@ open class DefaultCborService(
 
     override fun encode(input: Eudgc): ByteArray {
         val cbor = CBORMapper().writeValueAsBytes(input)
-        val issueTime = clock.instant()
-        val expirationTime = issueTime + expirationPeriod
+        val now = clock.instant()
+        val issueTime = now
+        val expirationTime = issueTime + validity
         return CBORObject.NewMap().also {
             it[CwtHeaderKeys.ISSUER.AsCBOR()] = CBORObject.FromObject(countryCode)
             it[CwtHeaderKeys.ISSUED_AT.AsCBOR()] = CBORObject.FromObject(issueTime.epochSecond)

@@ -48,7 +48,7 @@ String html = "<img src=\"data:image/png;base64," + encodedBase64QrCode + "\" />
 Example for the verification side, i.e. in apps:
 
 ```Java
-CertificateRepository repository = PrefilledCertificateRepository("-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...");
+CertificateRepository repository = new PrefilledCertificateRepository("-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...");
 Chain chain = Chain.buildVerificationChain();
 // Scan the QR code from somewhere ...
 String input = "HC1:NCFC:MVIMAP2SQ20MU...";
@@ -80,9 +80,9 @@ byte[] encodedTrustList = trustListService.encode(trustedCerts);
 The client can use it for verification:
 ```Java
 String trustListAnchor = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
-CertificateRepository trustAnchor = PrefilledCertificateRepository(trustListAnchor);
+CertificateRepository trustAnchor = new PrefilledCertificateRepository(trustListAnchor);
 byte[] encodedTrustList = // file download etc
-CertificateRepository repository = TrustListCertificateRepository(encodedTrustList, trustAnchor);
+CertificateRepository repository = new TrustListCertificateRepository(encodedTrustList, trustAnchor);
 Chain chain = Chain.buildVerificationChain(repository);
 
 // Continue as in the example above ...
@@ -98,11 +98,35 @@ Sample data objects are provided in `SampleData`, with special thanks to Christi
 
 Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for data deserialized from an HCERT structure. It can be converted using `GreenCertificate.fromEuSchema(eudgcObject)`. Those classes can also be de-/serialized with [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), i.e. `Cbor.encodeToByteArray()` or `Cbor.decodeFromByteArray<GreenCertificate>()`.
 
+## Configuration
+
+Nearly every object in this library can be configured using constructor parameters. Most of these parameters have, opionated, default values, e.g. `Clock.systemDefaultZone()` for `clock`, used to get the current timestamp.
+
+One example: The validity for the TrustList, as well as the validity of the HCERT in CBOR can be passed as a `validity` parameter (instance of a `Duration`) when constructing the objects:
+
+```Java
+CryptoService cryptoService = new RandomEcKeyCryptoService(256); // or some fixed key crypto service
+CborService cborService = new DefaultCborService("AT", Duration.ofHours(24)); // validity for HCERT content
+CoseService coseService = new DefaultCoseService(cryptoService);
+ContextIdentifierService contextIdentifierService = new DefaultContextIdentifierService("HC1:");
+CompressorService compressorService = new DefaultCompressorService(9); // level of compression
+Base45Service base45Service = new DefaultBase45Service();
+
+Chain chain = new Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service);
+ChainResult result = chain.encode(input);
+```
+
+Implementers may load values for constructor parameters from a configuration file, e.g. with [Spring Boot's configuration properties](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config).
+
 ## Publishing
 
 To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`
 
 ## Changelog
+
+Version 0.2.2:
+ - Changes to validity parameter for creating TrustList, HCERTs (`TrustListEncodeService` and `DefaultCborService`)
+ - More options for creating 2D codes (`DefaultTwoDimCodeService`)
 
 Version 0.2.1:
  - TrustList encodes public keys in PKCS#1 format (instead of PKCS#8/X.509)

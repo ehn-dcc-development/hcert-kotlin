@@ -8,11 +8,11 @@ import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
 import java.security.cert.X509Certificate
 import java.time.Clock
-import java.time.temporal.ChronoUnit
+import java.time.Duration
 
 class TrustListEncodeService(
     private val signingService: CryptoService,
-    private val validityHours: Long = 48,
+    private val validity: Duration = Duration.ofHours(48),
     private val clock: Clock = Clock.systemDefaultZone()
 ) {
 
@@ -20,7 +20,7 @@ class TrustListEncodeService(
         val now = clock.instant()
         val trustList = TrustList(
             validFrom = now,
-            validUntil = now.plus(validityHours, ChronoUnit.HOURS),
+            validUntil = now + validity,
             certificates = certificates.map { TrustedCertificate.fromCert(it) }
         )
 

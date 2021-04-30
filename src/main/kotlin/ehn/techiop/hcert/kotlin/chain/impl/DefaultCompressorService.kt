@@ -6,6 +6,9 @@ import java.util.zip.Deflater
 import java.util.zip.DeflaterInputStream
 import java.util.zip.InflaterInputStream
 
+/**
+ * Compresses/decompresses input with ZLIB, [level] specifies the compression level (0-9)
+ */
 open class DefaultCompressorService(private val level: Int = 9) : CompressorService {
 
     /**
