@@ -1,13 +1,13 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import java.time.Instant
+import java.time.Clock
 
 /**
  * Decides if the [VerificationResult] from [Chain.decode] was correct, i.e. it can be accepted.
  *
  * TODO Implement some national rules on the data?
  */
-class DecisionService {
+class DecisionService(private val clock: Clock = Clock.systemDefaultZone()) {
 
     fun decide(verificationResult: VerificationResult): VerificationDecision {
         if (!verificationResult.coseVerified)
@@ -24,7 +24,7 @@ class DecisionService {
                 if (issuedAt.isBefore(certValidFrom))
                     return VerificationDecision.FAIL
             }
-            if (issuedAt.isAfter(Instant.now()))
+            if (issuedAt.isAfter(clock.instant()))
                 return VerificationDecision.FAIL
         }
 
@@ -33,7 +33,7 @@ class DecisionService {
                 if (expirationTime.isAfter(certValidUntil))
                     return VerificationDecision.FAIL
             }
-            if (expirationTime.isBefore(Instant.now()))
+            if (expirationTime.isBefore(clock.instant()))
                 return VerificationDecision.FAIL
         }
 

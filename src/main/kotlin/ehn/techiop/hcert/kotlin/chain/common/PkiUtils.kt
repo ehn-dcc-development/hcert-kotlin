@@ -19,7 +19,7 @@ import java.security.PrivateKey
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPrivateKey
-import java.time.Instant
+import java.time.Clock
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Random
@@ -34,7 +34,8 @@ class PkiUtils {
         fun selfSignCertificate(
             subjectName: X500Name,
             keyPair: KeyPair,
-            contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY)
+            contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
+            clock: Clock = Clock.systemDefaultZone()
         ): X509Certificate {
             val subjectPublicKeyInfo =
                 SubjectPublicKeyInfo.getInstance(ASN1Sequence.getInstance(keyPair.public.encoded))
@@ -42,7 +43,7 @@ class PkiUtils {
             val keyUsageExt = Extension.create(Extension.keyUsage, true, keyUsage)
             val extendedKeyUsage = ExtendedKeyUsage(certTypeToKeyUsages(contentType))
             val testUsage = Extension.create(Extension.extendedKeyUsage, false, extendedKeyUsage)
-            val notBefore = Instant.now()
+            val notBefore = clock.instant()
             val notAfter = notBefore.plus(30, ChronoUnit.DAYS)
             val serialNumber = BigInteger(32, Random()).abs()
             val builder = X509v3CertificateBuilder(
@@ -79,7 +80,11 @@ class PkiUtils {
                 result += ContentType.VACCINATION
             if (hasOid(certificate, ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.3")))
                 result += ContentType.RECOVERY
-            return if (result.isEmpty()) listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY) else result
+            return if (result.isEmpty()) listOf(
+                ContentType.TEST,
+                ContentType.VACCINATION,
+                ContentType.RECOVERY
+            ) else result
 
         }
 

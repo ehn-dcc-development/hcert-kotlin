@@ -4,12 +4,17 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
+import java.time.Clock
 
 
-class TrustListCertificateRepository(input: ByteArray, certificateRepository: CertificateRepository) :
+class TrustListCertificateRepository(
+    input: ByteArray,
+    certificateRepository: CertificateRepository,
+    clock: Clock = Clock.systemDefaultZone()
+) :
     CertificateRepository {
 
-    private val list = TrustListDecodeService(certificateRepository).decode(input).certificates
+    private val list = TrustListDecodeService(certificateRepository, clock).decode(input).certificates
 
     override fun loadTrustedCertificates(
         kid: ByteArray,

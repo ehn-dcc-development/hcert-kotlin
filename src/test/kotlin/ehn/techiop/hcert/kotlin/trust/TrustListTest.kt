@@ -10,28 +10,32 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.jupiter.api.Test
+import java.security.cert.X509Certificate
+import java.time.Clock
 import java.time.Instant
+import java.time.ZoneId
 
 class TrustListTest {
 
     @Test
     fun serverClientExchange() {
-        val cryptoService = RandomEcKeyCryptoService()
+        val clock = Clock.fixed(Instant.EPOCH, ZoneId.systemDefault())
+        val cryptoService = RandomEcKeyCryptoService(clock = clock)
         val certificate = cryptoService.getCertificate()
-        val trustListEncoded = TrustListEncodeService(cryptoService).encode(randomCertificates())
+        val trustListEncoded = TrustListEncodeService(cryptoService, clock = clock).encode(randomCertificates(clock))
 
         // might never happen on the client, that the trust list is loaded in this way
         val clientTrustRoot = PrefilledCertificateRepository(certificate)
-        val clientTrustList = TrustListDecodeService(clientTrustRoot).decode(trustListEncoded)
+        val clientTrustList = TrustListDecodeService(clientTrustRoot, clock = clock).decode(trustListEncoded)
         // that's the way to go: Trust list used for verification of QR codes
-        val clientTrustListAdapter = TrustListCertificateRepository(trustListEncoded, clientTrustRoot)
+        val clientTrustListAdapter = TrustListCertificateRepository(trustListEncoded, clientTrustRoot, clock)
 
-        assertThat(clientTrustList.validFrom.epochSecond, lessThanOrEqualTo(Instant.now().epochSecond))
-        assertThat(clientTrustList.validUntil.epochSecond, greaterThanOrEqualTo(Instant.now().epochSecond))
+        assertThat(clientTrustList.validFrom.epochSecond, lessThanOrEqualTo(clock.instant().epochSecond))
+        assertThat(clientTrustList.validUntil.epochSecond, greaterThanOrEqualTo(clock.instant().epochSecond))
         assertThat(clientTrustList.certificates.size, equalTo(2))
         for (cert in clientTrustList.certificates) {
-            assertThat(cert.validFrom.epochSecond, lessThanOrEqualTo(Instant.now().epochSecond))
-            assertThat(cert.validUntil.epochSecond, greaterThanOrEqualTo(Instant.now().epochSecond))
+            assertThat(cert.validFrom.epochSecond, lessThanOrEqualTo(clock.instant().epochSecond))
+            assertThat(cert.validUntil.epochSecond, greaterThanOrEqualTo(clock.instant().epochSecond))
             assertThat(cert.kid.size, equalTo(8))
             assertThat(cert.publicKey.size, greaterThanOrEqualTo(32))
             assertThat(cert.validContentTypes.size, equalTo(3))
@@ -42,8 +46,8 @@ class TrustListTest {
         }
     }
 
-    private fun randomCertificates() =
-        listOf(RandomEcKeyCryptoService(), RandomRsaKeyCryptoService())
+    private fun randomCertificates(clock: Clock): Set<X509Certificate> =
+        listOf(RandomEcKeyCryptoService(clock = clock), RandomRsaKeyCryptoService(clock = clock))
             .map { it.getCertificate() }
             .toSet()
 

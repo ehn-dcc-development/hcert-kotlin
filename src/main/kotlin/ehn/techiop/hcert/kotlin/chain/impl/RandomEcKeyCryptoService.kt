@@ -14,15 +14,17 @@ import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator
 import org.bouncycastle.util.io.pem.PemWriter
 import java.io.StringWriter
 import java.security.KeyPairGenerator
+import java.time.Clock
 
 class RandomEcKeyCryptoService(
     private val keySize: Int = 256,
-    contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY)
+    contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
+    clock: Clock = Clock.systemDefaultZone()
 ) : CryptoService {
 
     private val keyPair = KeyPairGenerator.getInstance("EC")
         .apply { initialize(keySize) }.genKeyPair()
-    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=EC-Me"), keyPair, contentType)
+    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=EC-Me"), keyPair, contentType, clock)
     private val keyId = PkiUtils.calcKid(certificate)
     private val algorithmId = when (keySize) {
         384 -> AlgorithmID.ECDSA_384

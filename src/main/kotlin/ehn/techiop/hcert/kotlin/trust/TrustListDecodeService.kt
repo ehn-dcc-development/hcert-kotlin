@@ -8,9 +8,12 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
-import java.time.Instant
+import java.time.Clock
 
-class TrustListDecodeService(private val repository: CertificateRepository) {
+class TrustListDecodeService(
+    private val repository: CertificateRepository,
+    private val clock: Clock = Clock.systemDefaultZone()
+) {
 
     fun decode(input: ByteArray): TrustList {
         val sign1Message = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
@@ -26,10 +29,10 @@ class TrustListDecodeService(private val repository: CertificateRepository) {
         val payload = sign1Message.GetContent()
         val trustList = Cbor.decodeFromByteArray<TrustList>(payload)
 
-        if (trustList.validFrom.isAfter(Instant.now()))
+        if (trustList.validFrom.isAfter(clock.instant()))
             throw IllegalArgumentException("ValidFrom")
 
-        if (trustList.validUntil.isBefore(Instant.now()))
+        if (trustList.validUntil.isBefore(clock.instant()))
             throw IllegalArgumentException("ValidUntil")
 
         return trustList

@@ -4,21 +4,23 @@ import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.CborService
-import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.trust.ContentType
+import java.time.Clock
 import java.time.Instant
 import java.time.Period
 
 open class DefaultCborService(
     private val countryCode: String = "AT",
-    private val expirationPeriod: Period = Period.ofDays(2)
+    private val expirationPeriod: Period = Period.ofDays(2),
+    private val clock: Clock = Clock.systemDefaultZone()
 ) : CborService {
 
     private val keyEuDgcV1 = CBORObject.FromObject(1)
 
     override fun encode(input: Eudgc): ByteArray {
         val cbor = CBORMapper().writeValueAsBytes(input)
-        val issueTime = Instant.now()
+        val issueTime = clock.instant()
         val expirationTime = issueTime + expirationPeriod
         return CBORObject.NewMap().also {
             it[CwtHeaderKeys.ISSUER.AsCBOR()] = CBORObject.FromObject(countryCode)

@@ -7,13 +7,17 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
 import java.security.cert.X509Certificate
-import java.time.Instant
+import java.time.Clock
 import java.time.temporal.ChronoUnit
 
-class TrustListEncodeService(private val signingService: CryptoService, private val validityHours: Long = 48) {
+class TrustListEncodeService(
+    private val signingService: CryptoService,
+    private val validityHours: Long = 48,
+    private val clock: Clock = Clock.systemDefaultZone()
+) {
 
     fun encode(certificates: Set<X509Certificate>): ByteArray {
-        val now = Instant.now()
+        val now = clock.instant()
         val trustList = TrustList(
             validFrom = now,
             validUntil = now.plus(validityHours, ChronoUnit.HOURS),

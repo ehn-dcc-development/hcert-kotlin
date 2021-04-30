@@ -16,10 +16,12 @@ import org.bouncycastle.util.io.pem.PemWriter
 import java.io.StringWriter
 import java.security.KeyPairGenerator
 import java.security.Security
+import java.time.Clock
 
 class RandomRsaKeyCryptoService(
     private val keySize: Int = 2048,
-    contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY)
+    contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
+    clock: Clock = Clock.systemDefaultZone()
 ) : CryptoService {
 
     init {
@@ -28,7 +30,7 @@ class RandomRsaKeyCryptoService(
 
     private val keyPair = KeyPairGenerator.getInstance("RSA")
         .apply { initialize(keySize) }.genKeyPair()
-    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair, contentType)
+    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair, contentType, clock)
     private val keyId = PkiUtils.calcKid(certificate)
 
     override fun getCborHeaders() = listOf(
