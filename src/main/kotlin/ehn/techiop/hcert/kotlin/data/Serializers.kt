@@ -27,7 +27,7 @@ object LocalDateSerializer : KSerializer<LocalDate> {
     }
 }
 
-@Serializer(forClass = Instant::class)
+@Serializer(forClass = OffsetDateTime::class)
 object IsoOffsetDateTimeSerializer : KSerializer<OffsetDateTime> {
     override fun deserialize(decoder: Decoder): OffsetDateTime {
         return OffsetDateTime.parse(decoder.decodeString(), DateTimeFormatter.ISO_DATE_TIME)
@@ -60,6 +60,7 @@ object X509CertificateSerializer : KSerializer<X509Certificate> {
         encoder.encodeString(value.encoded.asBase64())
     }
 }
+
 
 @Serializer(forClass = Eudgc::class)
 object EudgcSerializer : KSerializer<Eudgc> {

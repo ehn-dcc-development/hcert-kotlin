@@ -21,7 +21,7 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 
-class TestSuiteTests {
+class FaultyImplementationsTest {
 
     private val cryptoService = RandomEcKeyCryptoService()
     private val cborService = DefaultCborService()
