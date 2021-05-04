@@ -14,6 +14,8 @@ data class TestCase(
     val cborHex: String? = null,
     @SerialName("COSE")
     val coseHex: String? = null,
+    @SerialName("COMPRESSED")
+    val compressedHex: String? = null, // TODO new property
     @SerialName("BASE45")
     val base45: String? = null,
     @SerialName("PREFIX")

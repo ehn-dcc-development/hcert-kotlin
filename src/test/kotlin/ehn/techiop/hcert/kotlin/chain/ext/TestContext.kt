@@ -15,10 +15,10 @@ data class TestContext(
     val schema: String,
     @SerialName("CERTIFICATE")
     @Serializable(with = X509CertificateSerializer::class)
-    val certificate: X509Certificate,
+    val certificate: X509Certificate?,
     @SerialName("VALIDATIONCLOCK")
     @Serializable(with = IsoOffsetDateTimeSerializer::class)
-    val validationClock: OffsetDateTime,
+    val validationClock: OffsetDateTime?,
     @SerialName("DESCRIPTION")
     val description: String,
 )
