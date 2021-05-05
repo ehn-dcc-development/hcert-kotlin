@@ -127,7 +127,6 @@ class ExtendedTestRunner {
         fun verificationProvider(): List<TestCase> {
             val testcaseFiles = listOf(
                 "src/test/resources/testcase01.json",
-                "src/test/resources/testcase02.json",
                 "src/test/resources/testcase03.json",
                 "src/test/resources/testcaseQ1.json",
                 "src/test/resources/testcaseH1.json",
@@ -135,6 +134,8 @@ class ExtendedTestRunner {
                 "src/test/resources/testcaseB1.json",
                 "src/test/resources/testcaseZ1.json",
                 "src/test/resources/testcaseZ2.json",
+                "src/test/resources/testcaseCO4.json",
+                "src/test/resources/testcaseCO5.json",
             )
             return testcaseFiles.map { Json.decodeFromString(File(it).bufferedReader().readText()) }
         }

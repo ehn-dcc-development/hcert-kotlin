@@ -12,8 +12,10 @@ import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.SampleData
 import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.faults.BrokenCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCompressorService
+import ehn.techiop.hcert.kotlin.chain.faults.NonVerifiableCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.NoopCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
@@ -126,30 +128,6 @@ class ExtendedTestGenerator {
     }
 
     @Test
-    fun write02SignatureFailed() {
-        val eudgc = ObjectMapper().readValue(SampleData.vaccination, Eudgc::class.java)
-        val chain = ChainBuilder.good(clock, cryptoService).with(RandomEcKeyCryptoService(clock = clock))
-        val result = chain.encode(eudgc)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
-
-        createVerificationTestCaseJson(
-            clock, eudgc, result, cryptoService.getCertificate(), qrCode,
-            "Signature cert not in trust list", "testcase02",
-            TestExpectedResults(
-                verifyQrDecode = true,
-                verifyPrefix = true,
-                verifyBase45Decode = true,
-                verifyCompression = true,
-                verifyCoseSignature = false,
-                verifyCborDecode = true,
-                verifyJson = true,
-                verifySchemaValidation = true,
-                expired = false
-            )
-        )
-    }
-
-    @Test
     fun write03Expired() {
         val eudgc = ObjectMapper().readValue(SampleData.vaccination, Eudgc::class.java)
         val clockInPast = Clock.fixed(Instant.parse("2018-05-03T18:00:00Z"), ZoneId.systemDefault())
@@ -190,15 +168,8 @@ class ExtendedTestGenerator {
         )
     }
 
-    @Test
-    fun writeQ2QrCodeWarning() {
-        // TODO How to generate a QR Code with a wrong encoding? Our library picks the best mode available
-    }
-
-    @Test
-    fun writeQ3QrCodeWarning() {
-        // TODO How to generate a QR Code over the maximum size? What content to put in there?
-    }
+    // TODO Q2 How to generate a QR Code with a wrong encoding? Our library picks the best mode available
+    // TODO Q3 How to generate a QR Code over the maximum size? What content to put in there?
 
     @Test
     fun writeH1ContextInvalid() {
@@ -286,6 +257,51 @@ class ExtendedTestGenerator {
         )
     }
 
+    // TODO CO1 is this case obsoleted by CO10, CO11, CO12, CO13?
+    // TODO CO2 is that really different from CO3?
+    // TODO CO3 Seems that the COSE Library does not support EdDSA keys fully ... at least not from Bouncycastle
+
+    @Test
+    fun writeCO4KidNotKnown() {
+        val chain = ChainBuilder.good(clock, cryptoService).with(NonVerifiableCoseService(cryptoService))
+        val result = chain.encode(eudgcVac)
+        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
+
+        createVerificationTestCaseJson(
+            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
+            "KID not found in trust list", "testcaseCO4",
+            TestExpectedResults(
+                verifyQrDecode = true,
+                verifyPrefix = true,
+                verifyBase45Decode = true,
+                verifyCompression = true,
+                verifyCoseSignature = false,
+            )
+        )
+    }
+
+    @Test
+    fun writeCO5SignatureBroken() {
+        val chain = ChainBuilder.good(clock, cryptoService).with(BrokenCoseService(cryptoService))
+        val result = chain.encode(eudgcVac)
+        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
+
+        createVerificationTestCaseJson(
+            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
+            "Signature broken", "testcaseCO5",
+            TestExpectedResults(
+                verifyQrDecode = true,
+                verifyPrefix = true,
+                verifyBase45Decode = true,
+                verifyCompression = true,
+                verifyCoseSignature = false,
+            )
+        )
+    }
+
+    // TODO CO6 OID combinations ...
+    // TODO CO7 split up into different cases?
+
     data class ChainBuilder(
         val cborService: CborService,
         val coseService: CoseService,
@@ -323,6 +339,9 @@ class ExtendedTestGenerator {
                 compressorService,
                 base45Service
             )
+
+        fun with(coseService: CoseService) =
+            Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
 
     }
 
