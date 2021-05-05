@@ -251,8 +251,7 @@ class ExtendedTestGenerator {
                 verifyQrDecode = true,
                 verifyPrefix = true,
                 verifyBase45Decode = true,
-                verifyCompression = false,
-                verifyCoseSignature = true
+                verifyCompression = false
             )
         )
     }

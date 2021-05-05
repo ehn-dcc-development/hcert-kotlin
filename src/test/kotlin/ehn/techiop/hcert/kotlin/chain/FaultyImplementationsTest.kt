@@ -90,12 +90,11 @@ class FaultyImplementationsTest {
             base45Service
         )
 
+    private val input = SampleData.vaccination
+    private val decodedFromInput = ObjectMapper().readValue(input, Eudgc::class.java)
 
     @Test
-    fun vaccination() {
-        val input = SampleData.vaccination
-        val decodedFromInput = ObjectMapper().readValue(input, Eudgc::class.java)
-
+    fun correct() {
         assertVerification(
             chainCorrect.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
@@ -104,28 +103,43 @@ class FaultyImplementationsTest {
                 contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; cborDecoded = true; coseVerified =
                 true
             })
+    }
+
+    @Test
+    fun faultyBase45() {
         assertVerification(
             chainFaultyBase45.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
             VerificationResult().apply { contextIdentifier = "HC1:" })
+    }
+
+    @Test
+    fun noopContext() {
         assertVerification(
             chainNoopContextIdentifier.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
             VerificationResult().apply {
-                contextIdentifier = null; base45Decoded = true; zlibDecoded = true; cborDecoded = true; coseVerified =
+                contextIdentifier = null; base45Decoded = true; zlibDecoded = true; coseVerified = true; cborDecoded =
                 true
             })
+    }
+
+    @Test
+    fun noopCompressor() {
         assertVerification(
             chainNoopCompressor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
             VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false; cborDecoded =
-                true; coseVerified =
-                true
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false; coseVerified =
+                true; cborDecoded = true
             })
+    }
+
+    @Test
+    fun faultyCompressor() {
         assertVerification(
             chainFaultyCompressor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
@@ -133,6 +147,10 @@ class FaultyImplementationsTest {
             VerificationResult().apply {
                 contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false
             })
+    }
+
+    @Test
+    fun unverifiableCose() {
         assertVerification(
             chainUnverifiableCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
@@ -140,6 +158,10 @@ class FaultyImplementationsTest {
             VerificationResult().apply {
                 contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; cborDecoded = true
             })
+    }
+
+    @Test
+    fun unprotectedCose() {
         assertVerification(
             chainUnprotectedCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
@@ -148,6 +170,10 @@ class FaultyImplementationsTest {
                 contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true; cborDecoded =
                 true
             })
+    }
+
+    @Test
+    fun faultyCose() {
         assertVerification(
             chainFaultyCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
@@ -155,6 +181,10 @@ class FaultyImplementationsTest {
             VerificationResult().apply {
                 contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true
             })
+    }
+
+    @Test
+    fun faultyCbor() {
         assertVerification(
             chainFaultyCbor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,

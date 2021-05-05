@@ -5,7 +5,7 @@ import java.util.zip.Deflater
 import java.util.zip.DeflaterInputStream
 
 /**
- * Does not compress the input at all -- should not impact validation.
+ * Does not compress the input at all -- SPEC says input SHALL be compressed = required
  *
  * **Should not be used in production.**
  */
