@@ -15,7 +15,7 @@ class BrokenCoseService(private val cryptoService: CryptoService) : DefaultCoseS
     override fun encode(input: ByteArray): ByteArray {
         val signed = Sign1Message.DecodeFromBytes(super.encode(input)) as Sign1Message
         val cbor = signed.EncodeToCBORObject()
-        cbor[3] = CBORObject.FromObject("foo")
+        cbor[3] = CBORObject.FromObject("foo".toByteArray())
         return cbor.EncodeToBytes()
     }
 

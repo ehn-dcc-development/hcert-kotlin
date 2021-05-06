@@ -22,10 +22,7 @@ class DecisionServiceTest {
 
     @Test
     fun goodContentTest() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
+        val verificationResult = goodVerificationResult().apply {
             content = mutableListOf(ContentType.TEST)
             certificateValidContent = mutableListOf(ContentType.TEST)
         }
@@ -35,10 +32,7 @@ class DecisionServiceTest {
 
     @Test
     fun goodContentVaccination() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
+        val verificationResult = goodVerificationResult().apply {
             content = mutableListOf(ContentType.VACCINATION)
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
@@ -48,10 +42,7 @@ class DecisionServiceTest {
 
     @Test
     fun goodContentRecovery() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
+        val verificationResult = goodVerificationResult().apply {
             content = mutableListOf(ContentType.RECOVERY)
             certificateValidContent = mutableListOf(ContentType.RECOVERY)
         }
@@ -61,10 +52,7 @@ class DecisionServiceTest {
 
     @Test
     fun failContentTest() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
+        val verificationResult = goodVerificationResult().apply {
             content = mutableListOf(ContentType.TEST)
             certificateValidContent = mutableListOf()
         }
@@ -74,10 +62,7 @@ class DecisionServiceTest {
 
     @Test
     fun failContentVaccination() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
+        val verificationResult = goodVerificationResult().apply {
             content = mutableListOf(ContentType.VACCINATION)
             certificateValidContent = mutableListOf(ContentType.RECOVERY, ContentType.TEST)
         }
@@ -87,10 +72,7 @@ class DecisionServiceTest {
 
     @Test
     fun failContentRecovery() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
-            cborDecoded = true
+        val verificationResult = goodVerificationResult().apply {
             content = mutableListOf(ContentType.RECOVERY)
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
@@ -100,10 +82,8 @@ class DecisionServiceTest {
 
     @Test
     fun failBase45() {
-        val verificationResult = VerificationResult().apply {
+        val verificationResult = goodVerificationResult().apply {
             base45Decoded = false
-            coseVerified = true
-            cborDecoded = true
         }
 
         assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
@@ -111,10 +91,8 @@ class DecisionServiceTest {
 
     @Test
     fun failCose() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
+        val verificationResult = goodVerificationResult().apply {
             coseVerified = false
-            cborDecoded = true
         }
 
         assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
@@ -122,10 +100,17 @@ class DecisionServiceTest {
 
     @Test
     fun failCbor() {
-        val verificationResult = VerificationResult().apply {
-            base45Decoded = true
-            coseVerified = true
+        val verificationResult = goodVerificationResult().apply {
             cborDecoded = false
+        }
+
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
+    }
+
+    @Test
+    fun failContextIdentifier() {
+        val verificationResult = goodVerificationResult().apply {
+            contextIdentifier = null
         }
 
         assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
@@ -221,6 +206,7 @@ class DecisionServiceTest {
         base45Decoded = true
         coseVerified = true
         cborDecoded = true
+        contextIdentifier = "HC1:"
     }
 
 

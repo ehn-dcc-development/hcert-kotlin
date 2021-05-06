@@ -19,6 +19,9 @@ class DecisionService(private val clock: Clock = Clock.systemDefaultZone()) {
         if (!verificationResult.cborDecoded)
             return VerificationDecision.FAIL
 
+        if (verificationResult.contextIdentifier == null)
+            return VerificationDecision.FAIL
+
         verificationResult.issuedAt?.let { issuedAt ->
             verificationResult.certificateValidFrom?.let { certValidFrom ->
                 if (issuedAt.isBefore(certValidFrom))

@@ -6,8 +6,14 @@ import COSE.Sign1Message
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.security.Security
 
 class VerificationCoseService(private val repository: CertificateRepository) : CoseService {
+
+    init {
+        Security.addProvider(BouncyCastleProvider()) // for SHA256withRSA/PSS
+    }
 
     override fun encode(input: ByteArray) = throw NotImplementedError()
 

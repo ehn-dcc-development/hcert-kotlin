@@ -26,5 +26,7 @@ data class TestExpectedResults(
     @SerialName("EXPECTEDPICTUREDECODE")
     val verifyQrDecode: Boolean? = null,
     @SerialName("EXPECTEDEXPIRATIONCHECK")
-    val expired: Boolean? = null // TODO when true, then expect an error, but other fields expect success when set
+    val verifyExpirationTime: Boolean? = null,
+    @SerialName("EXPECTEDKEYUSAGE")
+    val verifyContentType: Boolean? = null // TODO new property
 )

@@ -76,21 +76,21 @@ class ExtendedTestRunner {
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.verifyCborDecode?.let {
-            assertThat(chainResult.step1Cbor.toHexString(), equalTo(case.cborHex))
             assertThat(verificationResult.cborDecoded, equalTo(it))
+            if (it) assertThat(chainResult.step1Cbor.toHexString(), equalTo(case.cborHex))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.verifyJson?.let {
             assertThat(chainResult.eudgc, equalTo(case.eudgc))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
-        // TODO Implement schema validation
         case.expectedResult.verifySchemaValidation?.let {
-            assertThat(verificationResult.cborDecoded, equalTo(it))
-            if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
+            // TODO Implement schema validation
+            //assertThat(verificationResult.cborDecoded, equalTo(it))
+            //if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
-        case.expectedResult.expired?.let {
-            if (it) assertThat(decision, equalTo(VerificationDecision.FAIL))
+        case.expectedResult.verifyExpirationTime?.let {
+            if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
     }
 
@@ -126,16 +126,44 @@ class ExtendedTestRunner {
         @Suppress("unused")
         fun verificationProvider(): List<TestCase> {
             val testcaseFiles = listOf(
-                "src/test/resources/testcase01.json",
-                "src/test/resources/testcase03.json",
                 "src/test/resources/testcaseQ1.json",
                 "src/test/resources/testcaseH1.json",
                 "src/test/resources/testcaseH2.json",
+                "src/test/resources/testcaseH3.json",
                 "src/test/resources/testcaseB1.json",
                 "src/test/resources/testcaseZ1.json",
                 "src/test/resources/testcaseZ2.json",
-                "src/test/resources/testcaseCO4.json",
+                "src/test/resources/testcaseCO1.json",
+                "src/test/resources/testcaseCO2.json",
+                "src/test/resources/testcaseCO3.json",
+                //"src/test/resources/testcaseCO4.json",
                 "src/test/resources/testcaseCO5.json",
+                "src/test/resources/testcaseCO6.json",
+                "src/test/resources/testcaseCO7.json",
+                "src/test/resources/testcaseCO8.json",
+                "src/test/resources/testcaseCO9.json",
+                "src/test/resources/testcaseCO10.json",
+                "src/test/resources/testcaseCO11.json",
+                "src/test/resources/testcaseCO12.json",
+                "src/test/resources/testcaseCO13.json",
+                "src/test/resources/testcaseCO14.json",
+                "src/test/resources/testcaseCO15.json",
+                "src/test/resources/testcaseCO16.json",
+                "src/test/resources/testcaseCO17.json",
+                "src/test/resources/testcaseCO18.json",
+                "src/test/resources/testcaseCO19.json",
+                "src/test/resources/testcaseCO20.json",
+                "src/test/resources/testcaseCO21.json",
+                "src/test/resources/testcaseCO22.json",
+                "src/test/resources/testcaseCO23.json",
+                "src/test/resources/testcaseCBO1.json",
+                "src/test/resources/testcaseCBO2.json",
+                "src/test/resources/testcaseDGC1.json",
+                "src/test/resources/testcaseDGC2.json",
+                "src/test/resources/testcaseDGC3.json",
+                "src/test/resources/testcaseDGC4.json",
+                "src/test/resources/testcaseDGC5.json",
+                "src/test/resources/testcaseDGC6.json",
             )
             return testcaseFiles.map { Json.decodeFromString(File(it).bufferedReader().readText()) }
         }
