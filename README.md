@@ -234,6 +234,9 @@ To publish this package to GitHub, create a personal access token (read <https:/
 
 ## Changelog
 
+Version 0.3.0:
+ - Bugfix: Compression with ZLIB is in fact not optional when decoding QR codes
+
 Version 0.2.2:
  - Changes to validity parameter for creating TrustList, HCERTs (`TrustListEncodeService` and `DefaultCborService`)
  - More options for creating 2D codes (`DefaultTwoDimCodeService`)

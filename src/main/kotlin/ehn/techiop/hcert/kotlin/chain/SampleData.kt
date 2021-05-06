@@ -18,10 +18,10 @@ class SampleData {
                     "tg": "840539006",
                     "fr": "2021-02-20",
                     "co": "AT",
-                    "is": "BMGSPK Austria",
+                    "is": "BMSGPK Austria",
                     "df": "2021-04-04",
                     "du": "2021-10-04",
-                    "ci": "ATOJSWGY3IOJUXGYTBOVWWC3TO"
+                    "ci": "urn:uvci:01:AT:OJSWGY3IOJUXGYTBOVWWC3TOW"
                 }
             ]
         }
@@ -46,8 +46,8 @@ class SampleData {
                     "sd": 2,
                     "dt": "2021-02-18",
                     "co": "AT",
-                    "is": "BMGSPK Austria",
-                    "ci": "ATOZQWGY3IOJUXGYTBOVWWC3TO"
+                    "is": "BMSGPK Austria",
+                    "ci": "urn:uvci:01:AT:OZQWGY3IOJUXGYTBOVWWC3TO4"
                 }
             ]
         }
@@ -66,14 +66,14 @@ class SampleData {
                 {
                     "tg": "840539006",
                     "tt": "LP6464-4",
-                    "tr": "260415000",
                     "ma": "1232",
                     "sc": "2021-02-20T12:34:56+00:00",
                     "dr": "2021-02-20T12:45:01+00:00",
+                    "tr": "260415000",
                     "tc": "Testing center Vienna 1",
                     "co": "AT",
-                    "is": "BMGSPK Austria",
-                    "ci": "ATOJQXIY3IOJUXGYTBOVWWC3TO"
+                    "is": "BMSGPK Austria",
+                    "ci": "urn:uvci:01:AT:OJQXIY3IOJUXGYTBOVWWC3TOU"
                 }
             ]
         }
@@ -92,14 +92,14 @@ class SampleData {
                 {
                     "tg": "840539006",
                     "tt": "LP6464-4",
-                    "tr": "260415000",
                     "nm": "Roche LightCycler qPCR",
                     "sc": "2021-02-20T12:34:56+00:00",
                     "dr": "2021-02-20T14:56:01+00:00",
+                    "tr": "260415000",
                     "tc": "Testing center Vienna 1",
                     "co": "AT",
-                    "is": "BMGSPK Austria",
-                    "ci": "ATNZQWCY3IOJUXGYTBOVWWC3TO"
+                    "is": "BMSGPK Austria",
+                    "ci": "urn:uvci:01:AT:NZQWCY3IOJUXGYTBOVWWC3TO9"
                 }
             ]
         }
