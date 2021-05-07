@@ -27,6 +27,11 @@ import java.util.Random
 class PkiUtils {
 
     companion object {
+
+        private const val oidTest = "1.3.6.1.4.1.0.1847.2021.1.1"
+        private const val oidVaccination = "1.3.6.1.4.1.0.1847.2021.1.2"
+        private const val oidRecovery = "1.3.6.1.4.1.0.1847.2021.1.3"
+
         fun calcKid(certificate: X509Certificate) = MessageDigest.getInstance("SHA-256")
             .digest(certificate.encoded)
             .copyOf(8)
@@ -64,21 +69,21 @@ class PkiUtils {
         private fun certTypeToKeyUsages(contentType: List<ContentType>): Array<KeyPurposeId> {
             var result = arrayOf<KeyPurposeId>()
             if (contentType.contains(ContentType.TEST))
-                result += KeyPurposeId.getInstance(ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.1"))
+                result += KeyPurposeId.getInstance(ASN1ObjectIdentifier(oidTest))
             if (contentType.contains(ContentType.VACCINATION))
-                result += KeyPurposeId.getInstance(ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.2"))
+                result += KeyPurposeId.getInstance(ASN1ObjectIdentifier(oidVaccination))
             if (contentType.contains(ContentType.RECOVERY))
-                result += KeyPurposeId.getInstance(ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.3"))
+                result += KeyPurposeId.getInstance(ASN1ObjectIdentifier(oidRecovery))
             return result
         }
 
         fun getValidContentTypes(certificate: X509Certificate): List<ContentType> {
             val result = mutableListOf<ContentType>()
-            if (hasOid(certificate, ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.1")))
+            if (hasOid(certificate, ASN1ObjectIdentifier(oidTest)))
                 result += ContentType.TEST
-            if (hasOid(certificate, ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.2")))
+            if (hasOid(certificate, ASN1ObjectIdentifier(oidVaccination)))
                 result += ContentType.VACCINATION
-            if (hasOid(certificate, ASN1ObjectIdentifier("1.3.6.1.4.1.0.1847.2021.1.3")))
+            if (hasOid(certificate, ASN1ObjectIdentifier(oidRecovery)))
                 result += ContentType.RECOVERY
             return if (result.isEmpty()) listOf(
                 ContentType.TEST,
