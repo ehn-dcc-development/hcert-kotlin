@@ -1,15 +1,13 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.data.Eudgc
-import ehn.techiop.hcert.kotlin.data.EudgcSerializer
+import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class TestCase(
     @SerialName("JSON")
-    @Serializable(with = EudgcSerializer::class)
-    val eudgc: Eudgc? = null,
+    val eudgc: GreenCertificate? = null,
     @SerialName("CBOR")
     val cborHex: String? = null,
     @SerialName("COSE")

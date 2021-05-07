@@ -81,7 +81,7 @@ class ExtendedTestRunner {
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.verifyJson?.let {
-            assertThat(chainResult.eudgc, equalTo(case.eudgc))
+            assertThat(chainResult.eudgc, equalTo(case.eudgc?.toEuSchema()))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.verifySchemaValidation?.let {
@@ -110,7 +110,7 @@ class ExtendedTestRunner {
             DefaultBase45Service()
         )
 
-        val chainResult = creationChain.encode(case.eudgc)
+        val chainResult = creationChain.encode(case.eudgc.toEuSchema())
 
         case.expectedResult.verifySchemaGeneration?.let {
             // TODO Implement schema verification

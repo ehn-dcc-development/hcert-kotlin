@@ -1,7 +1,5 @@
 package ehn.techiop.hcert.kotlin.data
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import kotlinx.serialization.KSerializer
@@ -58,18 +56,6 @@ object X509CertificateSerializer : KSerializer<X509Certificate> {
 
     override fun serialize(encoder: Encoder, value: X509Certificate) {
         encoder.encodeString(value.encoded.asBase64())
-    }
-}
-
-
-@Serializer(forClass = Eudgc::class)
-object EudgcSerializer : KSerializer<Eudgc> {
-    override fun deserialize(decoder: Decoder): Eudgc {
-        return ObjectMapper().readValue(decoder.decodeString(), Eudgc::class.java)
-    }
-
-    override fun serialize(encoder: Encoder, value: Eudgc) {
-        encoder.encodeString(ObjectMapper().writeValueAsString(value))
     }
 }
 

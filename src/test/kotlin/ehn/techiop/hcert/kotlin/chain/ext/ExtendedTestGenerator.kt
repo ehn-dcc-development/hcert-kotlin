@@ -33,6 +33,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.toHexString
+import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -789,7 +790,7 @@ class ExtendedTestGenerator {
             description = description
         )
         val testcase = TestCase(
-            eudgc = eudgc,
+            eudgc = GreenCertificate.fromEuSchema(eudgc),
             cborHex = result.step1Cbor.toHexString(),
             coseHex = result.step2Cose.toHexString(),
             compressedHex = result.step3Compressed.toHexString(),
@@ -820,7 +821,7 @@ class ExtendedTestGenerator {
             description = description
         )
         val testcase = TestCase(
-            eudgc = eudgc,
+            eudgc = GreenCertificate.fromEuSchema(eudgc),
             cborHex = result.step1Cbor.toHexString(),
             coseHex = null,
             compressedHex = null,
