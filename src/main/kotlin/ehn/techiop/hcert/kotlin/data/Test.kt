@@ -5,6 +5,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @Serializable
 data class Test(
@@ -43,6 +45,20 @@ data class Test(
     @SerialName("ci")
     val certificateIdentifier: String,
 ) {
+    fun toEuSchema() = TestEntry().apply {
+        tg = target.key
+        tt = type
+        nm = nameNaa
+        ma = nameRat?.key
+        sc = Date(dateTimeSample.toInstant().toEpochMilli())
+        dr = dateTimeResult?.let { Date(it.toInstant().toEpochMilli()) }
+        tr = resultPositive.key
+        tc = testFacility
+        co = country
+        `is` = certificateIssuer
+        ci = certificateIdentifier
+    }
+
     companion object {
         @JvmStatic
         fun fromEuSchema(it: TestEntry) = Test(

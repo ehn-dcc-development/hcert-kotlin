@@ -26,6 +26,7 @@ class DataTest {
         val dataOurs = Json.decodeFromString<GreenCertificate>(input)
         val dataTheirs = ObjectMapper().readValue(input, Eudgc::class.java)
         assertThat(dataOurs, equalTo(GreenCertificate.fromEuSchema(dataTheirs)))
+        assertThat(dataOurs.toEuSchema(), equalTo(dataTheirs))
 
         // will never be exactly the same ... because Kotlin serializes lists
         // in CBOR as indefinite-length, but Jackson uses the actual length
@@ -36,6 +37,7 @@ class DataTest {
         val decodedFromCbor = Cbor.decodeFromByteArray<GreenCertificate>(cborOur)
         assertThat(decodedFromCbor, equalTo(dataOurs))
         assertThat(decodedFromCbor, equalTo(GreenCertificate.fromEuSchema(dataTheirs)))
+        assertThat(decodedFromCbor.toEuSchema(), equalTo(dataTheirs))
     }
 
 

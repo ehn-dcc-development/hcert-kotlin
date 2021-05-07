@@ -39,6 +39,19 @@ data class Vaccination(
     @SerialName("ci")
     val certificateIdentifier: String,
 ) {
+    fun toEuSchema() = VaccinationEntry().apply {
+        tg = target.key
+        vp = vaccine.key
+        mp = medicinalProduct.key
+        ma = authorizationHolder.key
+        dn = doseNumber
+        sd = doseTotalNumber
+        dt = date.format(DateTimeFormatter.ISO_DATE)
+        co = country
+        `is` = certificateIssuer
+        ci = certificateIdentifier
+    }
+
     companion object {
         @JvmStatic
         fun fromEuSchema(it: VaccinationEntry) = Vaccination(

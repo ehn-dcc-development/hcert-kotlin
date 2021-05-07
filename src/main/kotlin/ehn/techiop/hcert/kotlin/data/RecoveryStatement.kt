@@ -32,6 +32,17 @@ data class RecoveryStatement(
     @SerialName("ci")
     val certificateIdentifier: String,
 ) {
+
+    fun toEuSchema() = RecoveryEntry().apply {
+        tg = target.key
+        fr = dateOfFirstPositiveTestResult.format(DateTimeFormatter.ISO_DATE)
+        co = country
+        `is` = certificateIssuer
+        df = certificateValidFrom.format(DateTimeFormatter.ISO_DATE)
+        du = certificateValidUntil.format(DateTimeFormatter.ISO_DATE)
+        ci = certificateIdentifier
+    }
+
     companion object {
         @JvmStatic
         fun fromEuSchema(it: RecoveryEntry) = RecoveryStatement(

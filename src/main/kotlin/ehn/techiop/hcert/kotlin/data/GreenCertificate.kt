@@ -3,10 +3,6 @@ package ehn.techiop.hcert.kotlin.data
 import ehn.techiop.hcert.data.Eudgc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import java.nio.file.Files
-import java.nio.file.Path
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -31,6 +27,16 @@ data class GreenCertificate(
     @SerialName("t")
     val tests: List<Test?>? = null,
 ) {
+
+    fun toEuSchema() = Eudgc().apply {
+        ver = schemaVersion
+        nam = subject.toEuSchema()
+        dob = dateOfBirth.format(DateTimeFormatter.ISO_DATE)
+        v = vaccinations?.filterNotNull()?.map { it.toEuSchema() }?.toList()
+        r = recoveryStatements?.filterNotNull()?.map { it.toEuSchema() }?.toList()
+        t = tests?.filterNotNull()?.map { it.toEuSchema() }?.toList()
+    }
+
     companion object {
 
         @JvmStatic
@@ -40,12 +46,12 @@ data class GreenCertificate(
             }
             return try {
                 GreenCertificate(
-                    subject = Person.fromEuSchema(input.nam),
-                    vaccinations = input.v?.let { it.map { Vaccination.fromEuSchema(it) } },
-                    tests = input.t?.let { it.map { Test.fromEuSchema(it) } },
-                    recoveryStatements = input.r?.let { it.map { RecoveryStatement.fromEuSchema(it) } },
-                    dateOfBirth = LocalDate.parse(input.dob, DateTimeFormatter.ISO_DATE),
                     schemaVersion = input.ver,
+                    subject = Person.fromEuSchema(input.nam),
+                    dateOfBirth = LocalDate.parse(input.dob, DateTimeFormatter.ISO_DATE),
+                    vaccinations = input.v?.let { it.map { Vaccination.fromEuSchema(it) } },
+                    recoveryStatements = input.r?.let { it.map { RecoveryStatement.fromEuSchema(it) } },
+                    tests = input.t?.let { it.map { Test.fromEuSchema(it) } },
                 )
             } catch (e: Throwable) {
                 null

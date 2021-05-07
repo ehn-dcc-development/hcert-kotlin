@@ -18,6 +18,14 @@ data class Person(
     @SerialName("gnt")
     val givenNameTransliterated: String? = null,
 ) {
+
+    fun toEuSchema() = PersonName().apply {
+        fn = familyName
+        fnt = familyNameTransliterated
+        gn = givenName
+        gnt = givenNameTransliterated
+    }
+
     companion object {
         @JvmStatic
         fun fromEuSchema(it: PersonName) = Person(
