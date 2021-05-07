@@ -6,27 +6,27 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TestExpectedResults(
     @SerialName("EXPECTEDVALIDOBJECT")
-    val verifySchemaGeneration: Boolean? = null,
+    val schemaGeneration: Boolean? = null,
     @SerialName("EXPECTEDSCHEMAVALIDATION")
-    val verifySchemaValidation: Boolean? = null,
+    val schemaValidation: Boolean? = null,
     @SerialName("EXPECTEDENCODE")
-    val verifyEncodeGeneration: Boolean? = null,
+    val encodeGeneration: Boolean? = null,
     @SerialName("EXPECTEDDECODE")
-    val verifyCborDecode: Boolean? = null,
+    val cborDecode: Boolean? = null,
     @SerialName("EXPECTEDVERIFY")
-    val verifyCoseSignature: Boolean? = null,
+    val coseSignature: Boolean? = null,
     @SerialName("EXPECTEDUNPREFIX")
-    val verifyPrefix: Boolean? = null,
+    val prefix: Boolean? = null,
     @SerialName("EXPECTEDVALIDJSON")
-    val verifyJson: Boolean? = null,
+    val json: Boolean? = null,
     @SerialName("EXPECTEDCOMPRESSION")
-    val verifyCompression: Boolean? = null, // TODO new property
+    val compression: Boolean? = null,
     @SerialName("EXPECTEDB45DECODE")
-    val verifyBase45Decode: Boolean? = null,
+    val base45Decode: Boolean? = null,
     @SerialName("EXPECTEDPICTUREDECODE")
-    val verifyQrDecode: Boolean? = null,
+    val qrDecode: Boolean? = null,
     @SerialName("EXPECTEDEXPIRATIONCHECK")
-    val verifyExpirationTime: Boolean? = null,
+    val expirationCheck: Boolean? = null,
     @SerialName("EXPECTEDKEYUSAGE")
-    val verifyContentType: Boolean? = null // TODO new property
+    val keyUsage: Boolean? = null,
 )

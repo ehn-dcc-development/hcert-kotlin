@@ -42,7 +42,7 @@ class ExtendedTestRunner {
             try {
                 DefaultTwoDimCodeService(350).decode(case.qrCodePng.fromBase64())
             } catch (e: Exception) {
-                case.expectedResult.verifyQrDecode?.let {
+                case.expectedResult.qrDecode?.let {
                     if (it) throw e
                 }
                 case.qrCodePng
@@ -54,42 +54,42 @@ class ExtendedTestRunner {
         val chainResult = decodingChain.decodeExtended(qrCodeContent, verificationResult)
         val decision = decisionService.decide(verificationResult)
 
-        case.expectedResult.verifyQrDecode?.let {
+        case.expectedResult.qrDecode?.let {
             if (it) assertThat(qrCodeContent, equalTo(case.base45WithPrefix))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
-        case.expectedResult.verifyPrefix?.let {
+        case.expectedResult.prefix?.let {
             if (it) assertThat(chainResult.step4Encoded, equalTo(case.base45))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
-        case.expectedResult.verifyBase45Decode?.let {
+        case.expectedResult.base45Decode?.let {
             assertThat(verificationResult.base45Decoded, equalTo(it))
             if (it) assertThat(chainResult.step3Compressed.toHexString(), equalTo(case.compressedHex))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
-        case.expectedResult.verifyCompression?.let {
+        case.expectedResult.compression?.let {
             assertThat(verificationResult.zlibDecoded, equalTo(it))
             if (it) assertThat(chainResult.step2Cose.toHexString(), equalTo(case.coseHex))
         }
-        case.expectedResult.verifyCoseSignature?.let {
+        case.expectedResult.coseSignature?.let {
             assertThat(verificationResult.coseVerified, equalTo(it))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
-        case.expectedResult.verifyCborDecode?.let {
+        case.expectedResult.cborDecode?.let {
             assertThat(verificationResult.cborDecoded, equalTo(it))
             if (it) assertThat(chainResult.step1Cbor.toHexString(), equalTo(case.cborHex))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
-        case.expectedResult.verifyJson?.let {
+        case.expectedResult.json?.let {
             assertThat(chainResult.eudgc, equalTo(case.eudgc?.toEuSchema()))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
-        case.expectedResult.verifySchemaValidation?.let {
+        case.expectedResult.schemaValidation?.let {
             // TODO Implement schema validation
             //assertThat(verificationResult.cborDecoded, equalTo(it))
             //if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
-        case.expectedResult.verifyExpirationTime?.let {
+        case.expectedResult.expirationCheck?.let {
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
     }
@@ -112,10 +112,10 @@ class ExtendedTestRunner {
 
         val chainResult = creationChain.encode(case.eudgc.toEuSchema())
 
-        case.expectedResult.verifySchemaGeneration?.let {
+        case.expectedResult.schemaGeneration?.let {
             // TODO Implement schema verification
         }
-        case.expectedResult.verifyEncodeGeneration?.let {
+        case.expectedResult.encodeGeneration?.let {
             assertThat(chainResult.step1Cbor.toHexString(), equalTo(case.cborHex))
         }
     }

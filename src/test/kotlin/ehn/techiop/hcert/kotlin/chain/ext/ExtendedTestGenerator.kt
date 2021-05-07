@@ -65,8 +65,8 @@ class ExtendedTestGenerator {
         createGenerationTestCaseJson(
             clock, eudgcVac, result, "Success, vaccination", "gentestcase01",
             TestExpectedResults(
-                verifySchemaGeneration = true,
-                verifyEncodeGeneration = true,
+                schemaGeneration = true,
+                encodeGeneration = true,
             )
         )
     }
@@ -80,8 +80,8 @@ class ExtendedTestGenerator {
         createGenerationTestCaseJson(
             clock, eudgc, result, "Success, recovery", "gentestcase02",
             TestExpectedResults(
-                verifySchemaGeneration = true,
-                verifyEncodeGeneration = true,
+                schemaGeneration = true,
+                encodeGeneration = true,
             )
         )
     }
@@ -95,8 +95,8 @@ class ExtendedTestGenerator {
         createGenerationTestCaseJson(
             clock, eudgc, result, "Success, test NAA", "gentestcase03",
             TestExpectedResults(
-                verifySchemaGeneration = true,
-                verifyEncodeGeneration = true,
+                schemaGeneration = true,
+                encodeGeneration = true,
             )
         )
     }
@@ -110,8 +110,8 @@ class ExtendedTestGenerator {
         createGenerationTestCaseJson(
             clock, eudgc, result, "Success, test RAT", "gentestcase04",
             TestExpectedResults(
-                verifySchemaGeneration = true,
-                verifyEncodeGeneration = true,
+                schemaGeneration = true,
+                encodeGeneration = true,
             )
         )
     }
@@ -123,10 +123,11 @@ class ExtendedTestGenerator {
         val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).also { it.shuffle() }.asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "QR code cannot be read", "testcaseQ1",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(base45WithPrefix = result.step5Prefixed, qrCode = qrCode),
+            "INVALID: QR code cannot be read", "testcaseQ1",
             TestExpectedResults(
-                verifyQrDecode = false,
+                qrDecode = false,
             )
         )
     }
@@ -137,14 +138,13 @@ class ExtendedTestGenerator {
     fun writeH1ContextInvalid() {
         val chain = ChainBuilder.good(clock, cryptoService).with(DefaultContextIdentifierService("HL0:"))
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "Context identifier does not match schema (HL0:)", "testcaseH1",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(base45 = result.step4Encoded, base45WithPrefix = result.step5Prefixed),
+            "INVALID: Context does not match schema (HL0:)", "testcaseH1",
             TestExpectedResults(
-                verifyQrDecode = true,
-                verifyPrefix = false,
+                prefix = false,
             )
         )
     }
@@ -153,14 +153,13 @@ class ExtendedTestGenerator {
     fun writeH2ContextInvalid() {
         val chain = ChainBuilder.good(clock, cryptoService).with(DefaultContextIdentifierService("HC2:"))
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "Context identifier not supported (HC2:)", "testcaseH2",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(base45 = result.step4Encoded, base45WithPrefix = result.step5Prefixed),
+            "INVALID: Context value not supported (HC2:)", "testcaseH2",
             TestExpectedResults(
-                verifyQrDecode = true,
-                verifyPrefix = false,
+                prefix = false,
             )
         )
     }
@@ -169,14 +168,13 @@ class ExtendedTestGenerator {
     fun writeH3ContextMissing() {
         val chain = ChainBuilder.good(clock, cryptoService).with(NoopContextIdentifierService())
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "Context identifier missing", "testcaseH3",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(base45 = result.step4Encoded, base45WithPrefix = result.step5Prefixed),
+            "INVALID: Context value missing (only BASE45 encoding)", "testcaseH3",
             TestExpectedResults(
-                verifyQrDecode = true,
-                verifyPrefix = false,
+                prefix = false,
             )
         )
     }
@@ -185,15 +183,19 @@ class ExtendedTestGenerator {
     fun writeB1Base45Invalid() {
         val chain = ChainBuilder.good(clock, cryptoService).with(FaultyBase45Service())
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "Bae45 encoding broken", "testcaseB1",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                compressedHex = result.step3Compressed.toHexString(),
+                base45 = result.step4Encoded,
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: BASE45 invalid (wrong encoding characters)", "testcaseB1",
             TestExpectedResults(
-                verifyQrDecode = true,
-                verifyPrefix = true,
-                verifyBase45Decode = false
+                qrDecode = true,
+                prefix = true,
+                base45Decode = false
             )
         )
     }
@@ -202,13 +204,18 @@ class ExtendedTestGenerator {
     fun writeZ1CompressionInvalid() {
         val chain = ChainBuilder.good(clock, cryptoService).with(FaultyCompressorService())
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "Compression broken", "testcaseZ1",
+            clock, cryptoService.getCertificate(),
+            // todo base45withprefix for input!
+            ChainResultAdapter(
+                coseHex = result.step2Cose.toHexString(),
+                compressedHex = result.step3Compressed.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: Compression broken", "testcaseZ1",
             TestExpectedResults(
-                verifyCompression = false
+                compression = false
             )
         )
     }
@@ -217,13 +224,17 @@ class ExtendedTestGenerator {
     fun writeZ2CompressionNone() {
         val chain = ChainBuilder.good(clock, cryptoService).with(NoopCompressorService())
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "Compression omitted", "testcaseZ2",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                coseHex = result.step2Cose.toHexString(),
+                compressedHex = result.step3Compressed.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: Not compressed", "testcaseZ2",
             TestExpectedResults(
-                verifyCompression = false
+                compression = false
             )
         )
     }
@@ -233,19 +244,18 @@ class ExtendedTestGenerator {
         val cryptoService = RandomRsaKeyCryptoService(2048, clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "All good: RSA 2048 key", "testcaseCO1",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter.from(eudgcVac, result),
+            "VALID: RSA 2048 key", "testcaseCO1",
             TestExpectedResults(
-                verifyQrDecode = true,
-                verifyPrefix = true,
-                verifyBase45Decode = true,
-                verifyCompression = true,
-                verifyCoseSignature = true,
-                verifyCborDecode = true,
-                verifyJson = true,
+                prefix = true,
+                base45Decode = true,
+                compression = true,
+                coseSignature = true,
+                cborDecode = true,
+                json = true,
             )
         )
     }
@@ -255,19 +265,18 @@ class ExtendedTestGenerator {
         val cryptoService = RandomRsaKeyCryptoService(3072, clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "All good: RSA 3072 key", "testcaseCO2",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter.from(eudgcVac, result),
+            "VALID: RSA 3072 key", "testcaseCO2",
             TestExpectedResults(
-                verifyQrDecode = true,
-                verifyPrefix = true,
-                verifyBase45Decode = true,
-                verifyCompression = true,
-                verifyCoseSignature = true,
-                verifyCborDecode = true,
-                verifyJson = true,
+                prefix = true,
+                base45Decode = true,
+                compression = true,
+                coseSignature = true,
+                cborDecode = true,
+                json = true,
             )
         )
     }
@@ -277,19 +286,18 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "All good: EC 256 key", "testcaseCO3",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter.from(eudgcVac, result),
+            "VALID: EC 256 key", "testcaseCO3",
             TestExpectedResults(
-                verifyQrDecode = true,
-                verifyPrefix = true,
-                verifyBase45Decode = true,
-                verifyCompression = true,
-                verifyCoseSignature = true,
-                verifyCborDecode = true,
-                verifyJson = true,
+                prefix = true,
+                base45Decode = true,
+                compression = true,
+                coseSignature = true,
+                cborDecode = true,
+                json = true,
             )
         )
     }
@@ -300,13 +308,17 @@ class ExtendedTestGenerator {
     fun writeCO5SignatureBroken() {
         val chain = ChainBuilder.good(clock, cryptoService).with(BrokenCoseService(cryptoService))
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "COSE Signature broken", "testcaseCO5",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: Signature cryptographically invalid", "testcaseCO5",
             TestExpectedResults(
-                verifyCoseSignature = false,
+                coseSignature = false,
             )
         )
     }
@@ -316,13 +328,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(ContentType.TEST), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "OID for Test present, but DGC for vacc", "testcaseCO6",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: OID for Test present, but DGC for vacc", "testcaseCO6",
             TestExpectedResults(
-                verifyContentType = false
+                keyUsage = false
             )
         )
     }
@@ -332,13 +348,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(ContentType.TEST), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcRec)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcRec, result, cryptoService.getCertificate(), qrCode,
-            "OID for Test present, but DGC for recovery", "testcaseCO7",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: OID for Test present, but DGC for recovery", "testcaseCO7",
             TestExpectedResults(
-                verifyContentType = false
+                keyUsage = false
             )
         )
     }
@@ -348,13 +368,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(ContentType.VACCINATION), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "OID for Vacc present, but DGC for test", "testcaseCO8",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: OID for Vacc present, but DGC for test", "testcaseCO8",
             TestExpectedResults(
-                verifyContentType = false
+                keyUsage = false
             )
         )
     }
@@ -364,13 +388,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(ContentType.VACCINATION), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcRec)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcRec, result, cryptoService.getCertificate(), qrCode,
-            "OID for Vacc present, but DGC for recovery", "testcaseCO9",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: OID for Vacc present, but DGC for recovery", "testcaseCO9",
             TestExpectedResults(
-                verifyContentType = false
+                keyUsage = false
             )
         )
     }
@@ -380,13 +408,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(ContentType.RECOVERY), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "OID for Recovery present, but DGC for vacc", "testcaseCO10",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: OID for Recovery present, but DGC for vacc", "testcaseCO10",
             TestExpectedResults(
-                verifyContentType = false
+                keyUsage = false
             )
         )
     }
@@ -396,13 +428,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(ContentType.RECOVERY), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "OID for Recovery present, but DGC for test", "testcaseCO11",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "VALID: OID for Recovery present, but DGC for test", "testcaseCO11",
             TestExpectedResults(
-                verifyContentType = false
+                keyUsage = false
             )
         )
     }
@@ -412,13 +448,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(ContentType.TEST), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "OID for Test present, DGC is test", "testcaseCO12",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "VALID: OID for Test present, DGC is test", "testcaseCO12",
             TestExpectedResults(
-                verifyContentType = true
+                keyUsage = true
             )
         )
     }
@@ -428,13 +468,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(ContentType.VACCINATION), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "OID for Vacc present, DGC is vacc", "testcaseCO13",
-            TestExpectedResults(
-                verifyContentType = true
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "VALID: OID for Vacc present, DGC is vacc",
+            "testcaseCO13", TestExpectedResults(
+                keyUsage = true
             )
         )
     }
@@ -444,13 +488,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(ContentType.RECOVERY), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcRec)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcRec, result, cryptoService.getCertificate(), qrCode,
-            "OID for Recovery present, DGC is recovery", "testcaseCO14",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "VALID: OID for Recovery present, DGC is recovery", "testcaseCO14",
             TestExpectedResults(
-                verifyContentType = true
+                keyUsage = true
             )
         )
     }
@@ -460,13 +508,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(256, contentType = listOf(), clock = clock)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcRec)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcRec, result, cryptoService.getCertificate(), qrCode,
-            "no OID present, DGC is recovery", "testcaseCO15",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "VALID: no OID present, DGC is recovery", "testcaseCO15",
             TestExpectedResults(
-                verifyContentType = true
+                keyUsage = true
             )
         )
     }
@@ -477,13 +529,16 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(clock = clockInFuture)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "validation clock before \"ISSUED AT\"", "testcaseCO16",
-            TestExpectedResults(
-                verifyExpirationTime = false
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: validation clock before \"ISSUED AT\"", "testcaseCO16", TestExpectedResults(
+                expirationCheck = false
             )
         )
     }
@@ -494,13 +549,17 @@ class ExtendedTestGenerator {
         val cryptoService = RandomEcKeyCryptoService(clock = clockInPast)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "validation clock after \"expired\"", "testcaseCO17",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: validation clock after \"expired\"", "testcaseCO17",
             TestExpectedResults(
-                verifyExpirationTime = false
+                expirationCheck = false
             )
         )
     }
@@ -509,13 +568,17 @@ class ExtendedTestGenerator {
     fun writeCO18KidValid() {
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "KID in protected header correct, KID in unprotected header not present", "testcaseCO18",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "VALID: KID in protected header correct, KID in unprotected header not present", "testcaseCO18",
             TestExpectedResults(
-                verifyCoseSignature = true
+                coseSignature = true
             )
         )
     }
@@ -524,13 +587,17 @@ class ExtendedTestGenerator {
     fun writeCO19KidUnprotected() {
         val chain = ChainBuilder.good(clock, cryptoService).with(UnprotectedCoseService(cryptoService))
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "KID in protected header not present, KID in unprotected header correct", "testcaseCO19",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "VALID: KID in protected header not present, KID in unprotected header correct", "testcaseCO19",
             TestExpectedResults(
-                verifyCoseSignature = true
+                coseSignature = true
             )
         )
     }
@@ -539,13 +606,17 @@ class ExtendedTestGenerator {
     fun writeCO20KidInBothHeaders() {
         val chain = ChainBuilder.good(clock, cryptoService).with(DuplicateHeaderCoseService(cryptoService))
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "KID in protected header correct, KID in unprotected header correct", "testcaseCO20",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "VALID: KID in protected header correct, KID in unprotected header correct", "testcaseCO20",
             TestExpectedResults(
-                verifyCoseSignature = true
+                coseSignature = true
             )
         )
     }
@@ -554,13 +625,17 @@ class ExtendedTestGenerator {
     fun writeCO21KidInBothHeadersUnprotectedWrong() {
         val chain = ChainBuilder.good(clock, cryptoService).with(BothUnprotectedWrongCoseService(cryptoService))
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "KID in protected header correct, KID in unprotected header not correct", "testcaseCO21",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "VALID: KID in protected header correct, KID in unprotected header not correct", "testcaseCO21",
             TestExpectedResults(
-                verifyCoseSignature = true
+                coseSignature = true
             )
         )
     }
@@ -569,13 +644,17 @@ class ExtendedTestGenerator {
     fun writeCO22KidProtectedWrongUnprotectedCorrect() {
         val chain = ChainBuilder.good(clock, cryptoService).with(BothProtectedWrongCoseService(cryptoService))
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "KID in protected header not correct, KID in unprotected header correct", "testcaseCO22",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: KID in protected header not correct, KID in unprotected header correct", "testcaseCO22",
             TestExpectedResults(
-                verifyCoseSignature = false
+                coseSignature = false
             )
         )
     }
@@ -584,13 +663,17 @@ class ExtendedTestGenerator {
     fun writeCO23KidProtectedNotPresentUnprotectedWrong() {
         val chain = ChainBuilder.good(clock, cryptoService).with(WrongUnprotectedCoseService(cryptoService))
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "KID in protected header not present, KID in unprotected header not correct", "testcaseCO23",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: KID in protected header not present, KID in unprotected header not correct", "testcaseCO23",
             TestExpectedResults(
-                verifyCoseSignature = false
+                coseSignature = false
             )
         )
     }
@@ -599,13 +682,17 @@ class ExtendedTestGenerator {
     fun writeCBO1WrongCborStructure() {
         val chain = ChainBuilder.good(clock, cryptoService).with(FaultyCborService())
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "wrong CBOR structure", "testcaseCBO1",
-            TestExpectedResults(
-                verifyCborDecode = false
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                eudgc = eudgcTest,
+                cborHex = result.step1Cbor.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: wrong CBOR structure",
+            "testcaseCBO1", TestExpectedResults(
+                cborDecode = false
             )
         )
     }
@@ -614,13 +701,17 @@ class ExtendedTestGenerator {
     fun writeCBO2WrongCwtStructure() {
         val chain = ChainBuilder.good(clock, cryptoService).with(FaultyCoseService(cryptoService))
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "wrong CWT structure", "testcaseCBO2",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                eudgc = eudgcTest,
+                cborHex = result.step1Cbor.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: wrong CWT structure", "testcaseCBO2",
             TestExpectedResults(
-                verifyCoseSignature = false
+                coseSignature = false
             )
         )
     }
@@ -637,13 +728,17 @@ class ExtendedTestGenerator {
         val eudgcWrong = ObjectMapper().readValue(wrong, Eudgc::class.java)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcWrong)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcWrong, result, cryptoService.getCertificate(), qrCode,
-            "DGC does not adhere to schema", "testcaseDGC1",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                eudgc = eudgcWrong,
+                cborHex = result.step1Cbor.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: DGC does not adhere to schema", "testcaseDGC1",
             TestExpectedResults(
-                verifySchemaValidation = false
+                schemaValidation = false
             )
         )
     }
@@ -656,13 +751,17 @@ class ExtendedTestGenerator {
         eudgcWrong.r = eudgcRec.r
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcWrong)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcWrong, result, cryptoService.getCertificate(), qrCode,
-            "DGC adheres to schema but contains multiple certificates", "testcaseDGC2",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                eudgc = eudgcWrong,
+                cborHex = result.step1Cbor.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: DGC adheres to schema but contains multiple certificates", "testcaseDGC2",
             TestExpectedResults(
-                verifySchemaValidation = false
+                schemaValidation = false
             )
         )
     }
@@ -671,13 +770,17 @@ class ExtendedTestGenerator {
     fun writeDGC3Test1() {
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTest, result, cryptoService.getCertificate(), qrCode,
-            "correct test1 DGC", "testcaseDGC3",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                eudgc = eudgcTest,
+                cborHex = result.step1Cbor.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: correct test1 DGC", "testcaseDGC3",
             TestExpectedResults(
-                verifySchemaValidation = true
+                schemaValidation = true
             )
         )
     }
@@ -686,13 +789,17 @@ class ExtendedTestGenerator {
     fun writeDGC4Test2() {
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTestRat)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcTestRat, result, cryptoService.getCertificate(), qrCode,
-            "correct test2 DGC", "testcaseDGC4",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                eudgc = eudgcTestRat,
+                cborHex = result.step1Cbor.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: correct test2 DGC", "testcaseDGC4",
             TestExpectedResults(
-                verifySchemaValidation = true
+                schemaValidation = true
             )
         )
     }
@@ -701,13 +808,17 @@ class ExtendedTestGenerator {
     fun writeDGC5Recovery() {
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcRec)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcRec, result, cryptoService.getCertificate(), qrCode,
-            "correct recovery DGC", "testcaseDGC5",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                eudgc = eudgcRec,
+                cborHex = result.step1Cbor.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: correct recovery DGC", "testcaseDGC5",
             TestExpectedResults(
-                verifySchemaValidation = true
+                schemaValidation = true
             )
         )
     }
@@ -716,13 +827,17 @@ class ExtendedTestGenerator {
     fun writeDGC6Recovery() {
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcVac)
-        val qrCode = DefaultTwoDimCodeService(350).encode(result.step5Prefixed).asBase64()
 
         createVerificationTestCaseJson(
-            clock, eudgcVac, result, cryptoService.getCertificate(), qrCode,
-            "correct vacc DGC", "testcaseDGC6",
+            clock, cryptoService.getCertificate(),
+            ChainResultAdapter(
+                eudgc = eudgcVac,
+                cborHex = result.step1Cbor.toHexString(),
+                base45WithPrefix = result.step5Prefixed
+            ),
+            "INVALID: correct vacc DGC", "testcaseDGC6",
             TestExpectedResults(
-                verifySchemaValidation = true
+                schemaValidation = true
             )
         )
     }
@@ -772,12 +887,31 @@ class ExtendedTestGenerator {
 
     }
 
+    data class ChainResultAdapter(
+        val eudgc: Eudgc? = null,
+        val cborHex: String? = null,
+        val coseHex: String? = null,
+        val compressedHex: String? = null,
+        val base45: String? = null,
+        val base45WithPrefix: String? = null,
+        val qrCode: String? = null,
+    ) {
+        companion object {
+            fun from(eudgc: Eudgc, result: ChainResult) = ChainResultAdapter(
+                eudgc = eudgc,
+                cborHex = result.step1Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
+                compressedHex = result.step3Compressed.toHexString(),
+                base45 = result.step4Encoded,
+                base45WithPrefix = result.step5Prefixed,
+            )
+        }
+    }
+
     private fun createVerificationTestCaseJson(
         clock: Clock,
-        eudgc: Eudgc,
-        result: ChainResult,
         certificate: X509Certificate,
-        qrCode: String,
+        result: ChainResultAdapter,
         description: String,
         filename: String,
         expectedResult: TestExpectedResults
@@ -790,13 +924,13 @@ class ExtendedTestGenerator {
             description = description
         )
         val testcase = TestCase(
-            eudgc = GreenCertificate.fromEuSchema(eudgc),
-            cborHex = result.step1Cbor.toHexString(),
-            coseHex = result.step2Cose.toHexString(),
-            compressedHex = result.step3Compressed.toHexString(),
-            base45 = result.step4Encoded,
-            base45WithPrefix = result.step5Prefixed,
-            qrCodePng = qrCode,
+            eudgc = result.eudgc?.let { GreenCertificate.fromEuSchema(it) },
+            cborHex = result.cborHex,
+            coseHex = result.coseHex,
+            compressedHex = result.compressedHex,
+            base45 = result.base45,
+            base45WithPrefix = result.base45WithPrefix,
+            qrCodePng = result.qrCode,
             context = context,
             expectedResult = expectedResult
         )

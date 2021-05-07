@@ -13,7 +13,7 @@ data class TestCase(
     @SerialName("COSE")
     val coseHex: String? = null,
     @SerialName("COMPRESSED")
-    val compressedHex: String? = null, // TODO new property
+    val compressedHex: String? = null,
     @SerialName("BASE45")
     val base45: String? = null,
     @SerialName("PREFIX")
