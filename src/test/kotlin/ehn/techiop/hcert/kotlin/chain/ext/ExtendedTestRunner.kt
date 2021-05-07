@@ -64,7 +64,9 @@ class ExtendedTestRunner {
         }
         case.expectedResult.base45Decode?.let {
             assertThat(verificationResult.base45Decoded, equalTo(it))
-            if (it) assertThat(chainResult.step3Compressed.toHexString(), equalTo(case.compressedHex))
+            if (it && case.compressedHex != null) {
+                assertThat(chainResult.step3Compressed.toHexString(), equalTo(case.compressedHex))
+            }
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.compression?.let {
@@ -77,7 +79,11 @@ class ExtendedTestRunner {
         }
         case.expectedResult.cborDecode?.let {
             assertThat(verificationResult.cborDecoded, equalTo(it))
-            if (it) assertThat(chainResult.step1Cbor.toHexString(), equalTo(case.cborHex))
+            if (it) {
+                assertThat(chainResult.eudgc, equalTo(case.eudgc?.toEuSchema()))
+                // doesn't make sense to compare exact CBOR hex encoding
+                //assertThat(chainResult.step1Cbor.toHexString(), equalTo(case.cborHex))
+            }
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.json?.let {
@@ -126,7 +132,16 @@ class ExtendedTestRunner {
         @Suppress("unused")
         fun verificationProvider(): List<TestCase> {
             val testcaseFiles = listOf(
+                "src/test/resources/AT01.json",
+                "src/test/resources/AT02.json",
+                "src/test/resources/AT03.json",
+                "src/test/resources/AT04.json",
+                "src/test/resources/SE01.json",
+                "src/test/resources/BG01.json",
+                "src/test/resources/RO01.json",
+                "src/test/resources/RO02.json",
                 "src/test/resources/testcaseQ1.json",
+                //"src/test/resources/testcaseQ2.json",
                 "src/test/resources/testcaseH1.json",
                 "src/test/resources/testcaseH2.json",
                 "src/test/resources/testcaseH3.json",
