@@ -21,7 +21,7 @@ class SampleData {
                     "is": "BMSGPK Austria",
                     "df": "2021-04-04",
                     "du": "2021-10-04",
-                    "ci": "urn:uvci:01:AT:OJSWGY3IOJUXGYTBOVWWC3TOW"
+                    "ci": "urn:uvci:01:AT:858CC18CFCF5965EF82F60E493349AA5Y"
                 }
             ]
         }
@@ -47,7 +47,7 @@ class SampleData {
                     "dt": "2021-02-18",
                     "co": "AT",
                     "is": "BMSGPK Austria",
-                    "ci": "urn:uvci:01:AT:OZQWGY3IOJUXGYTBOVWWC3TO4"
+                    "ci": "urn:uvci:01:AT:10807843F94AEE0EE5093FBC254BD813P"
                 }
             ]
         }
@@ -73,7 +73,7 @@ class SampleData {
                     "tc": "Testing center Vienna 1",
                     "co": "AT",
                     "is": "BMSGPK Austria",
-                    "ci": "urn:uvci:01:AT:OJQXIY3IOJUXGYTBOVWWC3TOU"
+                    "ci": "urn:uvci:01:AT:71EE2559DE38C6BF7304FB65A1A451ECE"
                 }
             ]
         }
@@ -99,7 +99,7 @@ class SampleData {
                     "tc": "Testing center Vienna 1",
                     "co": "AT",
                     "is": "BMSGPK Austria",
-                    "ci": "urn:uvci:01:AT:NZQWCY3IOJUXGYTBOVWWC3TO9"
+                    "ci": "urn:uvci:01:AT:B5921A35D6A0D696421B3E24621782971"
                 }
             ]
         }
