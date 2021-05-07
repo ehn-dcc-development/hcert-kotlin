@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
+import com.google.zxing.DecodeHintType
 import com.google.zxing.EncodeHintType
 import com.google.zxing.aztec.AztecReader
 import com.google.zxing.aztec.AztecWriter
@@ -72,7 +73,11 @@ class DefaultTwoDimCodeService(
         val source = BufferedImageLuminanceSource(bufferedImage)
         val binarizer = HybridBinarizer(source)
         val bitmap = BinaryBitmap(binarizer)
-        return reader.decode(bitmap).text
+        val hints = mapOf(
+            DecodeHintType.PURE_BARCODE to true,
+            DecodeHintType.POSSIBLE_FORMATS to listOf(format)
+        )
+        return reader.decode(bitmap, hints).text
     }
 
 }
