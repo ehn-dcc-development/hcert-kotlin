@@ -7,7 +7,6 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 class DecisionServiceTest {
 
@@ -102,6 +101,15 @@ class DecisionServiceTest {
     fun failCbor() {
         val verificationResult = goodVerificationResult().apply {
             cborDecoded = false
+        }
+
+        assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
+    }
+
+    @Test
+    fun failCwt() {
+        val verificationResult = goodVerificationResult().apply {
+            cwtDecoded = false
         }
 
         assertThat(decisionService.decide(verificationResult), equalTo(FAIL))
@@ -205,6 +213,7 @@ class DecisionServiceTest {
     private fun goodVerificationResult() = VerificationResult().apply {
         base45Decoded = true
         coseVerified = true
+        cwtDecoded = true
         cborDecoded = true
         contextIdentifier = "HC1:"
     }

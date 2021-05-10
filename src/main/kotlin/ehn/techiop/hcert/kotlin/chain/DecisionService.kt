@@ -16,6 +16,9 @@ class DecisionService(private val clock: Clock = Clock.systemDefaultZone()) {
         if (!verificationResult.base45Decoded)
             return VerificationDecision.FAIL
 
+        if (!verificationResult.cwtDecoded)
+            return VerificationDecision.FAIL
+
         if (!verificationResult.cborDecoded)
             return VerificationDecision.FAIL
 

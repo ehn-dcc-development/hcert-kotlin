@@ -216,13 +216,14 @@ One example: The validity for the TrustList, as well as the validity of the HCER
 
 ```Java
 CryptoService cryptoService = new RandomEcKeyCryptoService(256); // or some fixed key crypto service
-CborService cborService = new DefaultCborService("AT", Duration.ofHours(24)); // validity for HCERT content
+CborService cborService = new DefaultCborService();
+CwtService cwtService = new DefaultCwtService("AT", Duration.ofHours(24)); // validity for HCERT content
 CoseService coseService = new DefaultCoseService(cryptoService);
 ContextIdentifierService contextIdentifierService = new DefaultContextIdentifierService("HC1:");
 CompressorService compressorService = new DefaultCompressorService(9); // level of compression
 Base45Service base45Service = new DefaultBase45Service();
 
-Chain chain = new Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service);
+Chain chain = new Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service);
 ChainResult result = chain.encode(input);
 ```
 
@@ -236,6 +237,7 @@ To publish this package to GitHub, create a personal access token (read <https:/
 
 Version 0.3.0:
  - Rename the previous `CborService` to `CwtService`, as the new name matches the implementation more closely
+ - Introduce new `CborService` that just encodes HCERT as CBOR
  - Bugfix: Compression with ZLIB is in fact not optional when decoding QR codes
 
 Version 0.2.2:

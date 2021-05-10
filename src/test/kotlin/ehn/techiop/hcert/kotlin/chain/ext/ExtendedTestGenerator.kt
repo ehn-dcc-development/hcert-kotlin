@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.ext
 import com.fasterxml.jackson.databind.ObjectMapper
 import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.Base45Service
+import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.chain.CwtService
 import ehn.techiop.hcert.kotlin.chain.Chain
 import ehn.techiop.hcert.kotlin.chain.ChainResult
@@ -25,6 +26,7 @@ import ehn.techiop.hcert.kotlin.chain.faults.NoopContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.faults.UnprotectedCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.WrongUnprotectedCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
@@ -843,6 +845,7 @@ class ExtendedTestGenerator {
     }
 
     data class ChainBuilder(
+        val cborService: CborService,
         val cwtService: CwtService,
         val coseService: CoseService,
         val contextIdentifierService: ContextIdentifierService,
@@ -851,6 +854,7 @@ class ExtendedTestGenerator {
     ) {
         companion object {
             fun good(clock: Clock, cryptoService: CryptoService) = ChainBuilder(
+                DefaultCborService(),
                 DefaultCwtService(clock = clock),
                 DefaultCoseService(cryptoService),
                 DefaultContextIdentifierService(),
@@ -860,18 +864,19 @@ class ExtendedTestGenerator {
         }
 
         fun with(compressorService: CompressorService) =
-            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
         fun with(base45Service: Base45Service) =
-            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
         fun with(contextIdentifierService: ContextIdentifierService) =
-            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
         fun build() =
-            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
         fun with(cryptoService: CryptoService) = Chain(
+            cborService,
             cwtService,
             DefaultCoseService(cryptoService),
             contextIdentifierService,
@@ -880,10 +885,10 @@ class ExtendedTestGenerator {
         )
 
         fun with(coseService: CoseService) =
-            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
         fun with(cwtService: CwtService) =
-            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
     }
 

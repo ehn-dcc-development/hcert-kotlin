@@ -1,11 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import com.upokecenter.cbor.CBORObject
-import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.CwtService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.trust.ContentType
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -21,8 +18,7 @@ open class DefaultCwtService(
 
     private val keyEuDgcV1 = CBORObject.FromObject(1)
 
-    override fun encode(input: Eudgc): ByteArray {
-        val cbor = CBORMapper().writeValueAsBytes(input)
+    override fun encode(input: ByteArray): ByteArray {
         val issueTime = clock.instant()
         val expirationTime = issueTime + validity
         return CBORObject.NewMap().also {
@@ -30,13 +26,17 @@ open class DefaultCwtService(
             it[CwtHeaderKeys.ISSUED_AT.AsCBOR()] = CBORObject.FromObject(issueTime.epochSecond)
             it[CwtHeaderKeys.EXPIRATION.AsCBOR()] = CBORObject.FromObject(expirationTime.epochSecond)
             it[CwtHeaderKeys.HCERT.AsCBOR()] = CBORObject.NewMap().also { hcert ->
-                hcert[keyEuDgcV1] = CBORObject.DecodeFromBytes(cbor)
+                try {
+                    hcert[keyEuDgcV1] = CBORObject.DecodeFromBytes(input)
+                } catch (e: Throwable) {
+                    hcert[keyEuDgcV1] = CBORObject.FromObject(input)
+                }
             }
         }.EncodeToBytes()
     }
 
-    override fun decode(input: ByteArray, verificationResult: VerificationResult): Eudgc {
-        verificationResult.cborDecoded = false
+    override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
+        verificationResult.cwtDecoded = false
         try {
             val map = CBORObject.DecodeFromBytes(input)
 
@@ -52,22 +52,14 @@ open class DefaultCwtService(
 
             map[CwtHeaderKeys.HCERT.AsCBOR()]?.let { hcert -> // SPEC
                 hcert[keyEuDgcV1]?.let { eudgcV1 ->
-                    return CBORMapper()
-                        .readValue(getContents(eudgcV1), Eudgc::class.java)
-                        .also { result ->
-                            verificationResult.cborDecoded = true
-                            if (result.t?.filterNotNull()?.isNotEmpty() == true)
-                                verificationResult.content.add(ContentType.TEST)
-                            if (result.v?.filterNotNull()?.isNotEmpty() == true)
-                                verificationResult.content.add(ContentType.VACCINATION)
-                            if (result.r?.filterNotNull()?.isNotEmpty() == true)
-                                verificationResult.content.add(ContentType.RECOVERY)
-                        }
+                    return getContents(eudgcV1).also {
+                        verificationResult.cwtDecoded = true
+                    }
                 }
             }
-            return Eudgc()
+            return input
         } catch (e: Throwable) {
-            return Eudgc()
+            return input
         }
     }
 
