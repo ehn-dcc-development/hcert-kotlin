@@ -126,7 +126,7 @@ class ExtendedTestRunner {
             // TODO Implement schema verification
         }
         case.expectedResult.encodeGeneration?.let {
-            assertThat(chainResult.step1Cwt.toHexString(), equalToIgnoringCase(case.cborHex))
+            assertThat(chainResult.step0Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
         }
     }
 
