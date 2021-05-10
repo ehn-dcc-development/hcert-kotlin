@@ -239,6 +239,7 @@ Version 0.3.0:
  - Rename the previous `CborService` to `CwtService`, as the new name matches the implementation more closely
  - Introduce new `CborService` that just encodes HCERT as CBOR
  - Bugfix: Compression with ZLIB is in fact not optional when decoding QR codes
+ - Bugfix: In CBOR, Dates need to be serialized as ISO 8601 compatible Strings, e.g. `2021-02-20T12:34:56Z`, not `1613824496000`
 
 Version 0.2.2:
  - Changes to validity parameter for creating TrustList, HCERTs (`TrustListEncodeService` and `DefaultCborService`)

@@ -87,6 +87,10 @@ configure<com.github.eirnym.js2p.JsonSchemaExtension> {
     includeJsr303Annotations = true
     includeJsr305Annotations = true
     initializeCollections = false
+    formatDateTimes = true
+    customDateTimePattern = "yyyy-MM-dd'T'HH:mm:ssXXX"
+    formatDates = true
+    customDatePattern = "yyyy-MM-dd"
     targetVersion = "1.8"
 }
 
