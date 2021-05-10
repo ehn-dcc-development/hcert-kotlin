@@ -18,7 +18,9 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.equalToIgnoringCase
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.time.Clock
@@ -28,8 +30,8 @@ class ExtendedTestRunner {
 
     @ParameterizedTest
     @MethodSource("verificationProvider")
-    fun verification(case: TestCase) {
-        println("Executing verification test case \"${case.context.description}\"")
+    fun verification(filename: String, case: TestCase) {
+        println("Executing verification test case \"${filename}\": \"${case.context.description}\"")
         val clock = case.context.validationClock?.let {
             Clock.fixed(it.toInstant(), ZoneId.systemDefault())
         } ?: Clock.systemDefaultZone()
@@ -65,13 +67,13 @@ class ExtendedTestRunner {
         case.expectedResult.base45Decode?.let {
             assertThat(verificationResult.base45Decoded, equalTo(it))
             if (it && case.compressedHex != null) {
-                assertThat(chainResult.step3Compressed.toHexString(), equalTo(case.compressedHex))
+                assertThat(chainResult.step3Compressed.toHexString(), equalToIgnoringCase(case.compressedHex))
             }
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.compression?.let {
             assertThat(verificationResult.zlibDecoded, equalTo(it))
-            if (it) assertThat(chainResult.step2Cose.toHexString(), equalTo(case.coseHex))
+            if (it) assertThat(chainResult.step2Cose.toHexString(), equalToIgnoringCase(case.coseHex))
         }
         case.expectedResult.coseSignature?.let {
             assertThat(verificationResult.coseVerified, equalTo(it))
@@ -82,7 +84,7 @@ class ExtendedTestRunner {
             if (it) {
                 assertThat(chainResult.eudgc, equalTo(case.eudgc?.toEuSchema()))
                 // doesn't make sense to compare exact CBOR hex encoding
-                //assertThat(chainResult.step1Cbor.toHexString(), equalTo(case.cborHex))
+                //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
             }
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
@@ -102,8 +104,8 @@ class ExtendedTestRunner {
 
     @ParameterizedTest
     @MethodSource("generationProvider")
-    fun generation(case: TestCase) {
-        println("Executing generation test case \"${case.context.description}\"")
+    fun generation(filename: String, case: TestCase) {
+        println("Executing generation test case \"${filename}\": \"${case.context.description}\"")
         if (case.eudgc == null) throw IllegalArgumentException("eudgc")
         val clock = case.context.validationClock?.let {
             Clock.fixed(it.toInstant(), ZoneId.systemDefault())
@@ -122,7 +124,7 @@ class ExtendedTestRunner {
             // TODO Implement schema verification
         }
         case.expectedResult.encodeGeneration?.let {
-            assertThat(chainResult.step1Cbor.toHexString(), equalTo(case.cborHex))
+            assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
         }
     }
 
@@ -130,13 +132,21 @@ class ExtendedTestRunner {
 
         @JvmStatic
         @Suppress("unused")
-        fun verificationProvider(): List<TestCase> {
+        fun verificationProvider(): List<Arguments> {
             val testcaseFiles = listOf(
                 "src/test/resources/AT01.json",
                 "src/test/resources/AT02.json",
                 "src/test/resources/AT03.json",
                 "src/test/resources/AT04.json",
+                "src/test/resources/HR01.json",
+                "src/test/resources/HR02.json",
+                "src/test/resources/HR03.json",
                 "src/test/resources/SE01.json",
+                "src/test/resources/SE02.json",
+                "src/test/resources/SE03.json",
+                "src/test/resources/SE04.json",
+                // TODO CBOR Tag? "src/test/resources/SE05.json",
+                "src/test/resources/SE06.json",
                 "src/test/resources/BG01.json",
                 "src/test/resources/RO01.json",
                 "src/test/resources/RO02.json",
@@ -180,19 +190,19 @@ class ExtendedTestRunner {
                 "src/test/resources/testcaseDGC5.json",
                 "src/test/resources/testcaseDGC6.json",
             )
-            return testcaseFiles.map { Json.decodeFromString(File(it).bufferedReader().readText()) }
+            return testcaseFiles.map { Arguments.of(it, Json.decodeFromString<TestCase>(File(it).bufferedReader().readText())) }
         }
 
         @JvmStatic
         @Suppress("unused")
-        fun generationProvider(): List<TestCase> {
+        fun generationProvider(): List<Arguments> {
             val testcaseFiles = listOf(
                 "src/test/resources/gentestcase01.json",
                 "src/test/resources/gentestcase02.json",
                 "src/test/resources/gentestcase03.json",
                 "src/test/resources/gentestcase04.json",
             )
-            return testcaseFiles.map { Json.decodeFromString(File(it).bufferedReader().readText()) }
+            return testcaseFiles.map { Arguments.of(it, Json.decodeFromString<TestCase>(File(it).bufferedReader().readText())) }
         }
 
     }
