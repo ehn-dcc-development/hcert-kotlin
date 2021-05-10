@@ -3,7 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.faults
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.data.Eudgc
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 
 
 /**
@@ -11,7 +11,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
  *
  * **Should not be used in production.**
  */
-class FaultyCborService : DefaultCborService() {
+class FaultyCwtService : DefaultCwtService() {
 
     override fun encode(input: Eudgc): ByteArray {
         val cbor = CBORMapper().writeValueAsBytes(input)

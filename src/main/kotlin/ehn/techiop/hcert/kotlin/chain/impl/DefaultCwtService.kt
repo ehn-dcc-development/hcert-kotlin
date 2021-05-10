@@ -3,7 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.data.Eudgc
-import ehn.techiop.hcert.kotlin.chain.CborService
+import ehn.techiop.hcert.kotlin.chain.CwtService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import java.time.Clock
@@ -11,27 +11,26 @@ import java.time.Duration
 import java.time.Instant
 
 /**
- * Encodes/decodes input as a COSE structure, according to RFC8949
+ * Encodes/decodes input as a CWT structure, ready to sign with COSE
  */
-open class DefaultCborService(
+open class DefaultCwtService(
     private val countryCode: String = "AT",
     private val validity: Duration = Duration.ofHours(48),
     private val clock: Clock = Clock.systemDefaultZone()
-) : CborService {
+) : CwtService {
 
     private val keyEuDgcV1 = CBORObject.FromObject(1)
 
     override fun encode(input: Eudgc): ByteArray {
         val cbor = CBORMapper().writeValueAsBytes(input)
-        val now = clock.instant()
-        val issueTime = now
+        val issueTime = clock.instant()
         val expirationTime = issueTime + validity
         return CBORObject.NewMap().also {
             it[CwtHeaderKeys.ISSUER.AsCBOR()] = CBORObject.FromObject(countryCode)
             it[CwtHeaderKeys.ISSUED_AT.AsCBOR()] = CBORObject.FromObject(issueTime.epochSecond)
             it[CwtHeaderKeys.EXPIRATION.AsCBOR()] = CBORObject.FromObject(expirationTime.epochSecond)
-            it[CwtHeaderKeys.HCERT.AsCBOR()] = CBORObject.NewMap().also {
-                it[keyEuDgcV1] = CBORObject.DecodeFromBytes(cbor)
+            it[CwtHeaderKeys.HCERT.AsCBOR()] = CBORObject.NewMap().also { hcert ->
+                hcert[keyEuDgcV1] = CBORObject.DecodeFromBytes(cbor)
             }
         }.EncodeToBytes()
     }
@@ -52,17 +51,18 @@ open class DefaultCborService(
             }
 
             map[CwtHeaderKeys.HCERT.AsCBOR()]?.let { hcert -> // SPEC
-                hcert[keyEuDgcV1]?.let {
-                    val eudgc = CBORMapper()
-                        .readValue(getContents(it), Eudgc::class.java)
-                        .also { verificationResult.cborDecoded = true }
-                    if (eudgc.t?.filterNotNull()?.isNotEmpty() == true)
-                        verificationResult.content.add(ContentType.TEST)
-                    if (eudgc.v?.filterNotNull()?.isNotEmpty() == true)
-                        verificationResult.content.add(ContentType.VACCINATION)
-                    if (eudgc.r?.filterNotNull()?.isNotEmpty() == true)
-                        verificationResult.content.add(ContentType.RECOVERY)
-                    return eudgc
+                hcert[keyEuDgcV1]?.let { eudgcV1 ->
+                    return CBORMapper()
+                        .readValue(getContents(eudgcV1), Eudgc::class.java)
+                        .also { result ->
+                            verificationResult.cborDecoded = true
+                            if (result.t?.filterNotNull()?.isNotEmpty() == true)
+                                verificationResult.content.add(ContentType.TEST)
+                            if (result.v?.filterNotNull()?.isNotEmpty() == true)
+                                verificationResult.content.add(ContentType.VACCINATION)
+                            if (result.r?.filterNotNull()?.isNotEmpty() == true)
+                                verificationResult.content.add(ContentType.RECOVERY)
+                        }
                 }
             }
             return Eudgc()

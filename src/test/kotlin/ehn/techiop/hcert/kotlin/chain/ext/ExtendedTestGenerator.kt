@@ -3,7 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.ext
 import com.fasterxml.jackson.databind.ObjectMapper
 import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.Base45Service
-import ehn.techiop.hcert.kotlin.chain.CborService
+import ehn.techiop.hcert.kotlin.chain.CwtService
 import ehn.techiop.hcert.kotlin.chain.Chain
 import ehn.techiop.hcert.kotlin.chain.ChainResult
 import ehn.techiop.hcert.kotlin.chain.CompressorService
@@ -17,7 +17,7 @@ import ehn.techiop.hcert.kotlin.chain.faults.BothUnprotectedWrongCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.BrokenCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.DuplicateHeaderCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyCborService
+import ehn.techiop.hcert.kotlin.chain.faults.FaultyCwtService
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCompressorService
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.NoopCompressorService
@@ -25,7 +25,7 @@ import ehn.techiop.hcert.kotlin.chain.faults.NoopContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.faults.UnprotectedCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.WrongUnprotectedCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
@@ -312,7 +312,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -332,7 +332,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -352,7 +352,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -372,7 +372,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -392,7 +392,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -412,7 +412,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -432,7 +432,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -452,7 +452,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -472,7 +472,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -492,7 +492,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -512,7 +512,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -533,7 +533,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -553,7 +553,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -572,7 +572,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -591,7 +591,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -610,7 +610,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -629,7 +629,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -648,7 +648,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -667,7 +667,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -680,14 +680,14 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeCBO1WrongCborStructure() {
-        val chain = ChainBuilder.good(clock, cryptoService).with(FaultyCborService())
+        val chain = ChainBuilder.good(clock, cryptoService).with(FaultyCwtService())
         val result = chain.encode(eudgcTest)
 
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
                 eudgc = eudgcTest,
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
             "INVALID: wrong CBOR structure",
@@ -706,7 +706,7 @@ class ExtendedTestGenerator {
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
                 eudgc = eudgcTest,
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
             "INVALID: wrong CWT structure", "testcaseCBO2",
@@ -733,7 +733,7 @@ class ExtendedTestGenerator {
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
                 eudgc = eudgcWrong,
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
             "INVALID: DGC does not adhere to schema", "testcaseDGC1",
@@ -756,7 +756,7 @@ class ExtendedTestGenerator {
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
                 eudgc = eudgcWrong,
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
             "INVALID: DGC adheres to schema but contains multiple certificates", "testcaseDGC2",
@@ -775,7 +775,7 @@ class ExtendedTestGenerator {
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
                 eudgc = eudgcTest,
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
             "INVALID: correct test1 DGC", "testcaseDGC3",
@@ -794,7 +794,7 @@ class ExtendedTestGenerator {
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
                 eudgc = eudgcTestRat,
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
             "INVALID: correct test2 DGC", "testcaseDGC4",
@@ -813,7 +813,7 @@ class ExtendedTestGenerator {
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
                 eudgc = eudgcRec,
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
             "INVALID: correct recovery DGC", "testcaseDGC5",
@@ -832,7 +832,7 @@ class ExtendedTestGenerator {
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
                 eudgc = eudgcVac,
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
             "INVALID: correct vacc DGC", "testcaseDGC6",
@@ -843,7 +843,7 @@ class ExtendedTestGenerator {
     }
 
     data class ChainBuilder(
-        val cborService: CborService,
+        val cwtService: CwtService,
         val coseService: CoseService,
         val contextIdentifierService: ContextIdentifierService,
         val compressorService: CompressorService,
@@ -851,7 +851,7 @@ class ExtendedTestGenerator {
     ) {
         companion object {
             fun good(clock: Clock, cryptoService: CryptoService) = ChainBuilder(
-                DefaultCborService(clock = clock),
+                DefaultCwtService(clock = clock),
                 DefaultCoseService(cryptoService),
                 DefaultContextIdentifierService(),
                 DefaultCompressorService(),
@@ -860,19 +860,19 @@ class ExtendedTestGenerator {
         }
 
         fun with(compressorService: CompressorService) =
-            Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
         fun with(base45Service: Base45Service) =
-            Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
         fun with(contextIdentifierService: ContextIdentifierService) =
-            Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
         fun build() =
-            Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
         fun with(cryptoService: CryptoService) = Chain(
-            cborService,
+            cwtService,
             DefaultCoseService(cryptoService),
             contextIdentifierService,
             compressorService,
@@ -880,10 +880,10 @@ class ExtendedTestGenerator {
         )
 
         fun with(coseService: CoseService) =
-            Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
-        fun with(cborService: CborService) =
-            Chain(cborService, coseService, contextIdentifierService, compressorService, base45Service)
+        fun with(cwtService: CwtService) =
+            Chain(cwtService, coseService, contextIdentifierService, compressorService, base45Service)
 
     }
 
@@ -899,7 +899,7 @@ class ExtendedTestGenerator {
         companion object {
             fun from(eudgc: Eudgc, result: ChainResult) = ChainResultAdapter(
                 eudgc = eudgc,
-                cborHex = result.step1Cbor.toHexString(),
+                cborHex = result.step1Cwt.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 compressedHex = result.step3Compressed.toHexString(),
                 base45 = result.step4Encoded,
@@ -956,7 +956,7 @@ class ExtendedTestGenerator {
         )
         val testcase = TestCase(
             eudgc = GreenCertificate.fromEuSchema(eudgc),
-            cborHex = result.step1Cbor.toHexString(),
+            cborHex = result.step1Cwt.toHexString(),
             coseHex = null,
             compressedHex = null,
             base45 = null,

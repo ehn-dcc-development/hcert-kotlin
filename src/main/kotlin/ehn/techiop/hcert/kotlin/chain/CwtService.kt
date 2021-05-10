@@ -3,9 +3,9 @@ package ehn.techiop.hcert.kotlin.chain
 import ehn.techiop.hcert.data.Eudgc
 
 /**
- * Encodes input as a COSE structure
+ * Encodes/decodes input as a CWT structure, ready to sign with COSE
  */
-interface CborService {
+interface CwtService {
 
     fun encode(input: Eudgc): ByteArray
 

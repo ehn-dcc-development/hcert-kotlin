@@ -6,7 +6,7 @@ import ehn.techiop.hcert.kotlin.chain.VerificationDecision
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
@@ -111,7 +111,7 @@ class ExtendedTestRunner {
             Clock.fixed(it.toInstant(), ZoneId.systemDefault())
         } ?: Clock.systemDefaultZone()
         val creationChain = Chain(
-            DefaultCborService(clock = clock),
+            DefaultCwtService(clock = clock),
             DefaultCoseService(RandomEcKeyCryptoService(clock = clock)),
             DefaultContextIdentifierService(),
             DefaultCompressorService(),
@@ -124,7 +124,7 @@ class ExtendedTestRunner {
             // TODO Implement schema verification
         }
         case.expectedResult.encodeGeneration?.let {
-            assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
+            assertThat(chainResult.step1Cwt.toHexString(), equalToIgnoringCase(case.cborHex))
         }
     }
 

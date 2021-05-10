@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
 /**
- * Wraps input in a COSE structure
+ * Encodes/decodes input as a Sign1Message according to COSE specification (RFC8152)
  */
 interface CoseService {
 

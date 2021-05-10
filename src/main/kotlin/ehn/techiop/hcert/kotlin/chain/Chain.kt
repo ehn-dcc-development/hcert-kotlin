@@ -2,7 +2,7 @@ package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
@@ -14,7 +14,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
  * @see [Eudgc]
  */
 class Chain(
-    private val cborService: CborService,
+    private val cwtService: CwtService,
     private val coseService: CoseService,
     private val contextIdentifierService: ContextIdentifierService,
     private val compressorService: CompressorService,
@@ -22,19 +22,19 @@ class Chain(
 ) {
 
     /**
-     * Process the [input], apply encoding from [CborService], [CoseService], [CompressorService], [Base45Service] and [ContextIdentifierService] (in that order). The [ChainResult] will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
+     * Process the [input], apply encoding from [CwtService], [CoseService], [CompressorService], [Base45Service] and [ContextIdentifierService] (in that order). The [ChainResult] will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
      */
     fun encode(input: Eudgc): ChainResult {
-        val cbor = cborService.encode(input)
-        val cose = coseService.encode(cbor)
+        val cwt = cwtService.encode(input)
+        val cose = coseService.encode(cwt)
         val compressed = compressorService.encode(cose)
         val encoded = base45Service.encode(compressed)
         val prefixedEncoded = contextIdentifierService.encode(encoded)
-        return ChainResult(cbor, cose, compressed, encoded, prefixedEncoded)
+        return ChainResult(cwt, cose, compressed, encoded, prefixedEncoded)
     }
 
     /**
-     * Process the [input], apply decoding from [ContextIdentifierService], [Base45Service], [CompressorService], [CoseService], [CborService] (in that order). The result will contain the parsed data.
+     * Process the [input], apply decoding from [ContextIdentifierService], [Base45Service], [CompressorService], [CoseService], [CwtService] (in that order). The result will contain the parsed data.
      *
      * Beware that [verificationResult] will be filled with detailed information about the decoding, which shall be passed to [DecisionService] to decide on a final verdict.
      */
@@ -43,7 +43,7 @@ class Chain(
     }
 
     /**
-     * Process the [input], apply decoding from [ContextIdentifierService], [Base45Service], [CompressorService], [CoseService], [CborService] (in that order).
+     * Process the [input], apply decoding from [ContextIdentifierService], [Base45Service], [CompressorService], [CoseService], [CwtService] (in that order).
      * The result will contain the parsed data, as well as intermediate results.
      *
      * Beware that [verificationResult] will be filled with detailed information about the decoding, which shall be passed to [DecisionService] to decide on a final verdict.
@@ -53,14 +53,14 @@ class Chain(
         val compressed = base45Service.decode(encoded, verificationResult)
         val cose = compressorService.decode(compressed, verificationResult)
         val cbor = coseService.decode(cose, verificationResult)
-        val eudgc = cborService.decode(cbor, verificationResult)
+        val eudgc = cwtService.decode(cbor, verificationResult)
         return ChainDecodeResult(eudgc, cbor, cose, compressed, encoded)
     }
 
     companion object {
         @JvmStatic
         fun buildCreationChain(cryptoService: CryptoService) = Chain(
-            DefaultCborService(),
+            DefaultCwtService(),
             DefaultCoseService(cryptoService),
             DefaultContextIdentifierService(),
             DefaultCompressorService(),
@@ -69,7 +69,7 @@ class Chain(
 
         @JvmStatic
         fun buildVerificationChain(repository: CertificateRepository) = Chain(
-            DefaultCborService(),
+            DefaultCwtService(),
             VerificationCoseService(repository),
             DefaultContextIdentifierService(),
             DefaultCompressorService(),

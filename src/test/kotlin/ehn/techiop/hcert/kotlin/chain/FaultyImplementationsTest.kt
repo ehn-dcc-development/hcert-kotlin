@@ -3,7 +3,7 @@ package ehn.techiop.hcert.kotlin.chain
 import com.fasterxml.jackson.databind.ObjectMapper
 import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyCborService
+import ehn.techiop.hcert.kotlin.chain.faults.FaultyCwtService
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCompressorService
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.NonVerifiableCoseService
@@ -11,7 +11,7 @@ import ehn.techiop.hcert.kotlin.chain.faults.NoopCompressorService
 import ehn.techiop.hcert.kotlin.chain.faults.NoopContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.faults.UnprotectedCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
 class FaultyImplementationsTest {
 
     private val cryptoService = RandomEcKeyCryptoService()
-    private val cborService = DefaultCborService()
+    private val cborService = DefaultCwtService()
     private val coseService = DefaultCoseService(cryptoService)
     private val contextIdentifierService = DefaultContextIdentifierService()
     private val compressorService = DefaultCompressorService()
@@ -83,7 +83,7 @@ class FaultyImplementationsTest {
         )
     private val chainFaultyCbor =
         Chain(
-            FaultyCborService(),
+            FaultyCwtService(),
             coseService,
             contextIdentifierService,
             compressorService,
