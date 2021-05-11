@@ -10,16 +10,15 @@ class TrustListCertificateRepository(
     input: ByteArray,
     certificateRepository: CertificateRepository,
     clock: Clock = Clock.systemUTC(),
-) :
-    CertificateRepository {
+) : CertificateRepository {
 
-    private val list = TrustListDecodeService(certificateRepository, clock).decode(input).certificates
+    private val list = TrustListDecodeService(certificateRepository, clock).decode(input)
 
     override fun loadTrustedCertificates(
         kid: ByteArray,
         verificationResult: VerificationResult
     ): List<TrustedCertificate> {
-        val certList = list.filter { it.kid contentEquals kid }
+        val certList = list.filter { it.getKid() contentEquals kid }
         if (certList.isEmpty()) throw IllegalArgumentException("kid")
         return certList
     }

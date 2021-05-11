@@ -13,36 +13,50 @@ import org.junit.jupiter.api.Test
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Instant
-import java.time.ZoneId
 import java.time.ZoneOffset
 
 class TrustListTest {
 
     @Test
-    fun serverClientExchange() {
+    fun v1serverClientExchange() {
         val clock = Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clock)
         val certificate = cryptoService.getCertificate()
-        val trustListEncoded = TrustListEncodeService(cryptoService, clock = clock).encode(randomCertificates(clock))
+        val trustListEncoded = TrustListV1EncodeService(cryptoService, clock = clock).encode(randomCertificates(clock))
 
+        verifyClientOperations(certificate, clock, trustListEncoded)
+    }
+
+    @Test
+    fun v2serverClientExchange() {
+        val clock = Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)
+        val cryptoService = RandomEcKeyCryptoService(clock = clock)
+        val certificate = cryptoService.getCertificate()
+        val trustListEncoded = TrustListV2EncodeService(cryptoService, clock = clock).encode(randomCertificates(clock))
+
+        verifyClientOperations(certificate, clock, trustListEncoded)
+    }
+
+    private fun verifyClientOperations(
+        certificate: X509Certificate,
+        clock: Clock,
+        trustListEncoded: ByteArray
+    ) {
         // might never happen on the client, that the trust list is loaded in this way
         val clientTrustRoot = PrefilledCertificateRepository(certificate)
         val clientTrustList = TrustListDecodeService(clientTrustRoot, clock = clock).decode(trustListEncoded)
         // that's the way to go: Trust list used for verification of QR codes
         val clientTrustListAdapter = TrustListCertificateRepository(trustListEncoded, clientTrustRoot, clock)
 
-        assertThat(clientTrustList.validFrom.epochSecond, lessThanOrEqualTo(clock.instant().epochSecond))
-        assertThat(clientTrustList.validUntil.epochSecond, greaterThanOrEqualTo(clock.instant().epochSecond))
-        assertThat(clientTrustList.certificates.size, equalTo(2))
-        for (cert in clientTrustList.certificates) {
-            assertThat(cert.validFrom.epochSecond, lessThanOrEqualTo(clock.instant().epochSecond))
-            assertThat(cert.validUntil.epochSecond, greaterThanOrEqualTo(clock.instant().epochSecond))
-            assertThat(cert.kid.size, equalTo(8))
-            assertThat(cert.publicKey.size, greaterThanOrEqualTo(32))
-            assertThat(cert.validContentTypes.size, equalTo(3))
+        assertThat(clientTrustList.size, equalTo(2))
+        for (cert in clientTrustList) {
+            assertThat(cert.getValidFrom().epochSecond, lessThanOrEqualTo(clock.instant().epochSecond))
+            assertThat(cert.getValidUntil().epochSecond, greaterThanOrEqualTo(clock.instant().epochSecond))
+            assertThat(cert.getKid().size, equalTo(8))
+            assertThat(cert.getValidContentTypes().size, equalTo(3))
 
-            clientTrustListAdapter.loadTrustedCertificates(cert.kid, VerificationResult()).forEach {
-                assertThat(it.publicKey, equalTo(cert.publicKey))
+            clientTrustListAdapter.loadTrustedCertificates(cert.getKid(), VerificationResult()).forEach {
+                assertThat(it.buildOneKey().AsPublicKey(), equalTo(cert.buildOneKey().AsPublicKey()))
             }
         }
     }

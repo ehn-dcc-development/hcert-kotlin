@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import java.time.Instant
 
 @Serializable
-data class TrustList(
+data class TrustListV1(
     @SerialName("f")
     @Serializable(with = InstantLongSerializer::class)
     val validFrom: Instant,
@@ -16,5 +16,5 @@ data class TrustList(
     val validUntil: Instant,
 
     @SerialName("c")
-    val certificates: List<TrustedCertificate>
+    val certificates: List<TrustedCertificateV1>
 )
