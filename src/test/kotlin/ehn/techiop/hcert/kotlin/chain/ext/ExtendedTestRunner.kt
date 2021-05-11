@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
+import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.Chain
 import ehn.techiop.hcert.kotlin.chain.DecisionService
 import ehn.techiop.hcert.kotlin.chain.VerificationDecision
@@ -25,7 +26,6 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.time.Clock
-import java.time.ZoneId
 import java.time.ZoneOffset
 
 class ExtendedTestRunner {
@@ -82,14 +82,14 @@ class ExtendedTestRunner {
         case.expectedResult.cborDecode?.let {
             assertThat(verificationResult.cborDecoded, equalTo(it))
             if (it) {
-                assertThat(chainResult.eudgc, equalTo(case.eudgc?.toEuSchema()))
+                assertThat(chainResult.eudgc.removeEmptyArrays(), equalTo(case.eudgc?.toEuSchema()))
                 // doesn't make sense to compare exact CBOR hex encoding
                 //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
             }
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.json?.let {
-            assertThat(chainResult.eudgc, equalTo(case.eudgc?.toEuSchema()))
+            assertThat(chainResult.eudgc.removeEmptyArrays(), equalTo(case.eudgc?.toEuSchema()))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.schemaValidation?.let {
@@ -98,6 +98,11 @@ class ExtendedTestRunner {
             //if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.expirationCheck?.let {
+            if (it) assertThat(decision, equalTo(VerificationDecision.GOOD))
+            if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
+        }
+        case.expectedResult.keyUsage?.let {
+            if (it) assertThat(decision, equalTo(VerificationDecision.GOOD))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
     }
@@ -145,10 +150,19 @@ class ExtendedTestRunner {
                 "src/test/resources/SE03.json",
                 "src/test/resources/SE04.json",
                 // TODO CBOR Tag? "src/test/resources/SE05.json",
-                "src/test/resources/SE06.json",
+                // TODO Validity? "src/test/resources/SE06.json",
                 "src/test/resources/BG01.json",
                 "src/test/resources/RO01.json",
                 "src/test/resources/RO02.json",
+                // TODO Datetime "src/test/resources/IS01.json",
+                // TODO Datetime "src/test/resources/IS02.json",
+                "src/test/resources/DK05.json",
+                "src/test/resources/DK06.json",
+                "src/test/resources/DK07.json",
+                "src/test/resources/DK08.json",
+                "src/test/resources/DK09.json",
+                // TODO kid "src/test/resources/GR01.json",
+                // TODO kid "src/test/resources/GR02.json",
                 "src/test/resources/testcaseQ1.json",
                 //"src/test/resources/testcaseQ2.json",
                 "src/test/resources/testcaseH1.json",
@@ -190,10 +204,9 @@ class ExtendedTestRunner {
                 "src/test/resources/testcaseDGC6.json",
             )
             return testcaseFiles.map {
-                Arguments.of(
-                    it,
-                    Json.decodeFromString<TestCase>(File(it).bufferedReader().readText())
-                )
+                println("Loading $it...")
+                val text = File(it).bufferedReader().readText()
+                Arguments.of(it, Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(text))
             }
         }
 
@@ -207,13 +220,20 @@ class ExtendedTestRunner {
                 "src/test/resources/gentestcase04.json",
             )
             return testcaseFiles.map {
-                Arguments.of(
-                    it,
-                    Json.decodeFromString<TestCase>(File(it).bufferedReader().readText())
-                )
+                val text = File(it).bufferedReader().readText()
+                Arguments.of(it, Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(text))
             }
         }
 
     }
 
+}
+
+private fun Eudgc.removeEmptyArrays() = Eudgc().also {
+    it.ver = this.ver
+    it.dob = this.dob
+    it.nam = this.nam
+    it.v = this.v?.filterNotNull()?.ifEmpty { null }
+    it.r = this.r?.filterNotNull()?.ifEmpty { null }
+    it.t = this.t?.filterNotNull()?.ifEmpty { null }
 }

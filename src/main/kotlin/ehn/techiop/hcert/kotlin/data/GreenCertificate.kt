@@ -32,9 +32,9 @@ data class GreenCertificate(
         ver = schemaVersion
         nam = subject.toEuSchema()
         dob = dateOfBirth.format(DateTimeFormatter.ISO_LOCAL_DATE)
-        v = vaccinations?.filterNotNull()?.map { it.toEuSchema() }?.toList()
-        r = recoveryStatements?.filterNotNull()?.map { it.toEuSchema() }?.toList()
-        t = tests?.filterNotNull()?.map { it.toEuSchema() }?.toList()
+        v = vaccinations?.filterNotNull()?.map { it.toEuSchema() }?.toList()?.ifEmpty { null }
+        r = recoveryStatements?.filterNotNull()?.map { it.toEuSchema() }?.toList()?.ifEmpty { null }
+        t = tests?.filterNotNull()?.map { it.toEuSchema() }?.toList()?.ifEmpty { null }
     }
 
     companion object {
