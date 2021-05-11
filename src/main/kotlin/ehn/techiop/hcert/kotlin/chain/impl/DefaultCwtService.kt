@@ -13,7 +13,7 @@ import java.time.Instant
 open class DefaultCwtService(
     private val countryCode: String = "AT",
     private val validity: Duration = Duration.ofHours(48),
-    private val clock: Clock = Clock.systemDefaultZone()
+    private val clock: Clock = Clock.systemUTC(),
 ) : CwtService {
 
     private val keyEuDgcV1 = CBORObject.FromObject(1)

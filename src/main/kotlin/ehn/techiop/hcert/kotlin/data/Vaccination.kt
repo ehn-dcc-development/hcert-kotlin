@@ -46,7 +46,7 @@ data class Vaccination(
         ma = authorizationHolder.key
         dn = doseNumber
         sd = doseTotalNumber
-        dt = date.format(DateTimeFormatter.ISO_DATE)
+        dt = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
         co = country
         `is` = certificateIssuer
         ci = certificateIdentifier
@@ -61,7 +61,7 @@ data class Vaccination(
             authorizationHolder = ValueSetHolder.INSTANCE.find("vaccines-covid-19-auth-holders", it.ma),
             doseNumber = it.dn,
             doseTotalNumber = it.sd,
-            date = LocalDate.parse(it.dt, DateTimeFormatter.ISO_DATE),
+            date = LocalDate.parse(it.dt, DateTimeFormatter.ISO_LOCAL_DATE),
             country = it.co,
             certificateIssuer = it.`is`,
             certificateIdentifier = it.ci

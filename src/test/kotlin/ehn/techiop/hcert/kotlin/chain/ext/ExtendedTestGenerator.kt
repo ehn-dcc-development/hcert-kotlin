@@ -45,8 +45,8 @@ import java.io.File
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Instant
-import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 @Disabled("Don't want to generate test case files every time")
 class ExtendedTestGenerator {
@@ -55,7 +55,7 @@ class ExtendedTestGenerator {
     private val eudgcRec = ObjectMapper().readValue(SampleData.recovery, Eudgc::class.java)
     private val eudgcTest = ObjectMapper().readValue(SampleData.testNaa, Eudgc::class.java)
     private val eudgcTestRat = ObjectMapper().readValue(SampleData.testRat, Eudgc::class.java)
-    private val clock = Clock.fixed(Instant.parse("2021-05-03T18:00:00Z"), ZoneId.systemDefault())
+    private val clock = Clock.fixed(Instant.parse("2021-05-03T18:00:00Z"), ZoneOffset.UTC)
     private val cryptoService = RandomEcKeyCryptoService(clock = clock)
 
     @Test
@@ -527,7 +527,7 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeCO16ValidationClockBeforeIssuedAt() {
-        val clockInFuture = Clock.fixed(Instant.parse("2023-05-03T18:00:00Z"), ZoneId.systemDefault())
+        val clockInFuture = Clock.fixed(Instant.parse("2023-05-03T18:00:00Z"), ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clockInFuture)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
@@ -547,7 +547,7 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeCO17ValidationClockAfterExpired() {
-        val clockInPast = Clock.fixed(Instant.parse("2018-05-03T18:00:00Z"), ZoneId.systemDefault())
+        val clockInPast = Clock.fixed(Instant.parse("2018-05-03T18:00:00Z"), ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clockInPast)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
@@ -930,7 +930,7 @@ class ExtendedTestGenerator {
             version = 1,
             schema = "1.0.0",
             certificate = certificate,
-            validationClock = OffsetDateTime.ofInstant(clock.instant(), clock.zone),
+            validationClock = clock.instant(),
             description = description
         )
         val testcase = TestCase(
@@ -961,7 +961,7 @@ class ExtendedTestGenerator {
             version = 1,
             schema = "1.0.0",
             certificate = null,
-            validationClock = OffsetDateTime.ofInstant(clock.instant(), clock.zone),
+            validationClock = clock.instant(),
             description = description
         )
         val testcase = TestCase(

@@ -14,12 +14,13 @@ import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 class TrustListTest {
 
     @Test
     fun serverClientExchange() {
-        val clock = Clock.fixed(Instant.EPOCH, ZoneId.systemDefault())
+        val clock = Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clock)
         val certificate = cryptoService.getCertificate()
         val trustListEncoded = TrustListEncodeService(cryptoService, clock = clock).encode(randomCertificates(clock))

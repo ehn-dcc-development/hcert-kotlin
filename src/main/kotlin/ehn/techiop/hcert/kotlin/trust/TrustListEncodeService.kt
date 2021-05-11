@@ -13,7 +13,7 @@ import java.time.Duration
 class TrustListEncodeService(
     private val signingService: CryptoService,
     private val validity: Duration = Duration.ofHours(48),
-    private val clock: Clock = Clock.systemDefaultZone()
+    private val clock: Clock = Clock.systemUTC(),
 ) {
 
     fun encode(certificates: Set<X509Certificate>): ByteArray {

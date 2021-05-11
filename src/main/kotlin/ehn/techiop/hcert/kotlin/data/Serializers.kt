@@ -10,34 +10,22 @@ import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.time.Instant
 import java.time.LocalDate
-import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 
 @Serializer(forClass = LocalDate::class)
 object LocalDateSerializer : KSerializer<LocalDate> {
     override fun deserialize(decoder: Decoder): LocalDate {
-        return LocalDate.parse(decoder.decodeString(), DateTimeFormatter.ISO_DATE)
+        return LocalDate.parse(decoder.decodeString(), DateTimeFormatter.ISO_LOCAL_DATE)
     }
 
     override fun serialize(encoder: Encoder, value: LocalDate) {
-        encoder.encodeString(value.format(DateTimeFormatter.ISO_DATE))
-    }
-}
-
-@Serializer(forClass = OffsetDateTime::class)
-object IsoOffsetDateTimeSerializer : KSerializer<OffsetDateTime> {
-    override fun deserialize(decoder: Decoder): OffsetDateTime {
-        return OffsetDateTime.parse(decoder.decodeString(), DateTimeFormatter.ISO_DATE_TIME)
-    }
-
-    override fun serialize(encoder: Encoder, value: OffsetDateTime) {
-        encoder.encodeString(value.format(DateTimeFormatter.ISO_DATE_TIME))
+        encoder.encodeString(value.format(DateTimeFormatter.ISO_LOCAL_DATE))
     }
 }
 
 @Serializer(forClass = Instant::class)
-object InstantSerializer : KSerializer<Instant> {
+object InstantLongSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {
         return Instant.ofEpochSecond(decoder.decodeLong())
     }
@@ -47,11 +35,25 @@ object InstantSerializer : KSerializer<Instant> {
     }
 }
 
+@Serializer(forClass = Instant::class)
+object InstantStringSerializer : KSerializer<Instant> {
+    override fun deserialize(decoder: Decoder): Instant {
+        return DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(decoder.decodeString(), Instant::from)
+    }
+
+    override fun serialize(encoder: Encoder, value: Instant) {
+        encoder.encodeString(value.toString())
+    }
+}
+
 @Serializer(forClass = X509Certificate::class)
 object X509CertificateSerializer : KSerializer<X509Certificate> {
+
+    private val certificateFactory = CertificateFactory.getInstance("X.509")
+
     override fun deserialize(decoder: Decoder): X509Certificate {
-        return CertificateFactory.getInstance("X.509")
-            .generateCertificate(decoder.decodeString().fromBase64().inputStream()) as X509Certificate
+        val inputStream = decoder.decodeString().fromBase64().inputStream()
+        return certificateFactory.generateCertificate(inputStream) as X509Certificate
     }
 
     override fun serialize(encoder: Encoder, value: X509Certificate) {

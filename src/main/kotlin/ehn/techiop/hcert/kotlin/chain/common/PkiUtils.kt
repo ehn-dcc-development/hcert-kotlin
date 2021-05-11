@@ -40,7 +40,7 @@ class PkiUtils {
             subjectName: X500Name,
             keyPair: KeyPair,
             contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
-            clock: Clock = Clock.systemDefaultZone()
+            clock: Clock = Clock.systemUTC(),
         ): X509Certificate {
             val subjectPublicKeyInfo =
                 SubjectPublicKeyInfo.getInstance(ASN1Sequence.getInstance(keyPair.public.encoded))

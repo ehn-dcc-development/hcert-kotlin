@@ -19,7 +19,7 @@ import java.time.Clock
 class RandomEcKeyCryptoService(
     private val keySize: Int = 256,
     contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
-    clock: Clock = Clock.systemDefaultZone()
+    clock: Clock = Clock.systemUTC(),
 ) : CryptoService {
 
     private val keyPair = KeyPairGenerator.getInstance("EC")

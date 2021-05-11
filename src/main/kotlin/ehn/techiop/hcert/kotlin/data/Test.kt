@@ -3,9 +3,7 @@ package ehn.techiop.hcert.kotlin.data
 import ehn.techiop.hcert.data.TestEntry
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
+import java.time.Instant
 import java.util.Date
 
 @Serializable
@@ -23,12 +21,12 @@ data class Test(
     val nameRat: ValueSetEntryAdapter? = null,
 
     @SerialName("sc")
-    @Serializable(with = IsoOffsetDateTimeSerializer::class)
-    val dateTimeSample: OffsetDateTime,
+    @Serializable(with = InstantStringSerializer::class)
+    val dateTimeSample: Instant,
 
     @SerialName("dr")
-    @Serializable(with = IsoOffsetDateTimeSerializer::class)
-    val dateTimeResult: OffsetDateTime? = null,
+    @Serializable(with = InstantStringSerializer::class)
+    val dateTimeResult: Instant? = null,
 
     @SerialName("tr")
     val resultPositive: ValueSetEntryAdapter,
@@ -50,8 +48,8 @@ data class Test(
         tt = type
         nm = nameNaa
         ma = nameRat?.key
-        sc = Date(dateTimeSample.toInstant().toEpochMilli())
-        dr = dateTimeResult?.let { Date(it.toInstant().toEpochMilli()) }
+        sc = Date(dateTimeSample.toEpochMilli())
+        dr = dateTimeResult?.let { Date(it.toEpochMilli()) }
         tr = resultPositive.key
         tc = testFacility
         co = country
@@ -66,8 +64,8 @@ data class Test(
             type = it.tt,
             nameNaa = it.nm,
             nameRat = it.ma?.let { ValueSetHolder.INSTANCE.find("covid-19-lab-test-manufacturer-and-name", it) },
-            dateTimeSample = it.sc.toInstant().atOffset(ZoneOffset.UTC),
-            dateTimeResult = it.dr?.toInstant()?.atOffset(ZoneOffset.UTC),
+            dateTimeSample = it.sc.toInstant(),
+            dateTimeResult = it.dr?.toInstant(),
             resultPositive = ValueSetHolder.INSTANCE.find("covid-19-lab-result", it.tr),
             testFacility = it.tc,
             country = it.co,

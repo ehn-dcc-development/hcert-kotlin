@@ -35,11 +35,11 @@ data class RecoveryStatement(
 
     fun toEuSchema() = RecoveryEntry().apply {
         tg = target.key
-        fr = dateOfFirstPositiveTestResult.format(DateTimeFormatter.ISO_DATE)
+        fr = dateOfFirstPositiveTestResult.format(DateTimeFormatter.ISO_LOCAL_DATE)
         co = country
         `is` = certificateIssuer
-        df = certificateValidFrom.format(DateTimeFormatter.ISO_DATE)
-        du = certificateValidUntil.format(DateTimeFormatter.ISO_DATE)
+        df = certificateValidFrom.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        du = certificateValidUntil.format(DateTimeFormatter.ISO_LOCAL_DATE)
         ci = certificateIdentifier
     }
 
@@ -47,11 +47,11 @@ data class RecoveryStatement(
         @JvmStatic
         fun fromEuSchema(it: RecoveryEntry) = RecoveryStatement(
             target = ValueSetHolder.INSTANCE.find("disease-agent-targeted", it.tg),
-            dateOfFirstPositiveTestResult = LocalDate.parse(it.fr, DateTimeFormatter.ISO_DATE),
+            dateOfFirstPositiveTestResult = LocalDate.parse(it.fr, DateTimeFormatter.ISO_LOCAL_DATE),
             country = it.co,
             certificateIssuer = it.`is`,
-            certificateValidFrom = LocalDate.parse(it.df, DateTimeFormatter.ISO_DATE),
-            certificateValidUntil = LocalDate.parse(it.du, DateTimeFormatter.ISO_DATE),
+            certificateValidFrom = LocalDate.parse(it.df, DateTimeFormatter.ISO_LOCAL_DATE),
+            certificateValidUntil = LocalDate.parse(it.du, DateTimeFormatter.ISO_LOCAL_DATE),
             certificateIdentifier = it.ci
         )
     }

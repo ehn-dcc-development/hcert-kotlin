@@ -6,11 +6,10 @@ import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import java.time.Clock
 
-
 class TrustListCertificateRepository(
     input: ByteArray,
     certificateRepository: CertificateRepository,
-    clock: Clock = Clock.systemDefaultZone()
+    clock: Clock = Clock.systemUTC(),
 ) :
     CertificateRepository {
 

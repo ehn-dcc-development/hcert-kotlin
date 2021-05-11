@@ -21,7 +21,7 @@ import java.time.Clock
 class RandomRsaKeyCryptoService(
     private val keySize: Int = 2048,
     contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
-    clock: Clock = Clock.systemDefaultZone()
+    clock: Clock = Clock.systemUTC(),
 ) : CryptoService {
 
     init {

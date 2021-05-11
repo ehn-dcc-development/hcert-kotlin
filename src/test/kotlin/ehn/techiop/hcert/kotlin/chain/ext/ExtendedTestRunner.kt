@@ -7,10 +7,10 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.time.Clock
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 class ExtendedTestRunner {
 
@@ -33,9 +34,7 @@ class ExtendedTestRunner {
     @MethodSource("verificationProvider")
     fun verification(filename: String, case: TestCase) {
         println("Executing verification test case \"${filename}\": \"${case.context.description}\"")
-        val clock = case.context.validationClock?.let {
-            Clock.fixed(it.toInstant(), ZoneId.systemDefault())
-        } ?: Clock.systemDefaultZone()
+        val clock = case.context.validationClock?.let { Clock.fixed(it, ZoneOffset.UTC) } ?: Clock.systemUTC()
         val decisionService = DecisionService(clock)
         if (case.context.certificate == null) throw IllegalArgumentException("certificate")
         val certificateRepository = PrefilledCertificateRepository(case.context.certificate)
@@ -108,9 +107,7 @@ class ExtendedTestRunner {
     fun generation(filename: String, case: TestCase) {
         println("Executing generation test case \"${filename}\": \"${case.context.description}\"")
         if (case.eudgc == null) throw IllegalArgumentException("eudgc")
-        val clock = case.context.validationClock?.let {
-            Clock.fixed(it.toInstant(), ZoneId.systemDefault())
-        } ?: Clock.systemDefaultZone()
+        val clock = case.context.validationClock?.let { Clock.fixed(it, ZoneOffset.UTC) } ?: Clock.systemUTC()
         val creationChain = Chain(
             DefaultCborService(),
             DefaultCwtService(clock = clock),
@@ -192,7 +189,12 @@ class ExtendedTestRunner {
                 "src/test/resources/testcaseDGC5.json",
                 "src/test/resources/testcaseDGC6.json",
             )
-            return testcaseFiles.map { Arguments.of(it, Json.decodeFromString<TestCase>(File(it).bufferedReader().readText())) }
+            return testcaseFiles.map {
+                Arguments.of(
+                    it,
+                    Json.decodeFromString<TestCase>(File(it).bufferedReader().readText())
+                )
+            }
         }
 
         @JvmStatic
@@ -204,7 +206,12 @@ class ExtendedTestRunner {
                 "src/test/resources/gentestcase03.json",
                 "src/test/resources/gentestcase04.json",
             )
-            return testcaseFiles.map { Arguments.of(it, Json.decodeFromString<TestCase>(File(it).bufferedReader().readText())) }
+            return testcaseFiles.map {
+                Arguments.of(
+                    it,
+                    Json.decodeFromString<TestCase>(File(it).bufferedReader().readText())
+                )
+            }
         }
 
     }

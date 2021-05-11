@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.trust
 
-import ehn.techiop.hcert.kotlin.data.InstantSerializer
+import ehn.techiop.hcert.kotlin.data.InstantLongSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.Instant
@@ -8,11 +8,11 @@ import java.time.Instant
 @Serializable
 data class TrustList(
     @SerialName("f")
-    @Serializable(with = InstantSerializer::class)
+    @Serializable(with = InstantLongSerializer::class)
     val validFrom: Instant,
 
     @SerialName("u")
-    @Serializable(with = InstantSerializer::class)
+    @Serializable(with = InstantLongSerializer::class)
     val validUntil: Instant,
 
     @SerialName("c")

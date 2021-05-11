@@ -31,7 +31,7 @@ data class GreenCertificate(
     fun toEuSchema() = Eudgc().apply {
         ver = schemaVersion
         nam = subject.toEuSchema()
-        dob = dateOfBirth.format(DateTimeFormatter.ISO_DATE)
+        dob = dateOfBirth.format(DateTimeFormatter.ISO_LOCAL_DATE)
         v = vaccinations?.filterNotNull()?.map { it.toEuSchema() }?.toList()
         r = recoveryStatements?.filterNotNull()?.map { it.toEuSchema() }?.toList()
         t = tests?.filterNotNull()?.map { it.toEuSchema() }?.toList()
@@ -48,10 +48,10 @@ data class GreenCertificate(
                 GreenCertificate(
                     schemaVersion = input.ver,
                     subject = Person.fromEuSchema(input.nam),
-                    dateOfBirth = LocalDate.parse(input.dob, DateTimeFormatter.ISO_DATE),
-                    vaccinations = input.v?.let { it.map { Vaccination.fromEuSchema(it) } },
-                    recoveryStatements = input.r?.let { it.map { RecoveryStatement.fromEuSchema(it) } },
-                    tests = input.t?.let { it.map { Test.fromEuSchema(it) } },
+                    dateOfBirth = LocalDate.parse(input.dob, DateTimeFormatter.ISO_LOCAL_DATE),
+                    vaccinations = input.v?.let { it.map { v -> Vaccination.fromEuSchema(v) } },
+                    recoveryStatements = input.r?.let { it.map { r -> RecoveryStatement.fromEuSchema(r) } },
+                    tests = input.t?.let { it.map { t -> Test.fromEuSchema(t) } },
                 )
             } catch (e: Throwable) {
                 null

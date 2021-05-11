@@ -12,7 +12,7 @@ import java.time.Clock
 
 class TrustListDecodeService(
     private val repository: CertificateRepository,
-    private val clock: Clock = Clock.systemDefaultZone()
+    private val clock: Clock = Clock.systemUTC(),
 ) {
 
     fun decode(input: ByteArray): TrustList {

@@ -2,7 +2,7 @@ package ehn.techiop.hcert.kotlin.trust
 
 import COSE.OneKey
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
-import ehn.techiop.hcert.kotlin.data.InstantSerializer
+import ehn.techiop.hcert.kotlin.data.InstantLongSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.cbor.ByteString
@@ -23,11 +23,11 @@ import java.time.Instant
 @Serializable
 data class TrustedCertificate(
     @SerialName("f")
-    @Serializable(with = InstantSerializer::class)
+    @Serializable(with = InstantLongSerializer::class)
     val validFrom: Instant,
 
     @SerialName("u")
-    @Serializable(with = InstantSerializer::class)
+    @Serializable(with = InstantLongSerializer::class)
     val validUntil: Instant,
 
     @SerialName("i")

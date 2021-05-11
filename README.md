@@ -210,7 +210,7 @@ These classes also use `ValueSetEntry` objects, that are loaded from the valuese
 
 ## Configuration
 
-Nearly every object in this library can be configured using constructor parameters. Most of these parameters have, opionated, default values, e.g. `Clock.systemDefaultZone()` for `clock`, used to get the current timestamp.
+Nearly every object in this library can be configured using constructor parameters. Most of these parameters have, opinionated, default values, e.g. `Clock.systemUTC()` for `clock`, used to get the current timestamp.
 
 One example: The validity for the TrustList, as well as the validity of the HCERT in CBOR can be passed as a `validity` parameter (instance of a `Duration`) when constructing the objects:
 

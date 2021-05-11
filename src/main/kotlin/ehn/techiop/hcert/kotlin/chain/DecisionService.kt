@@ -7,7 +7,7 @@ import java.time.Clock
  *
  * TODO Implement some national rules on the data?
  */
-class DecisionService(private val clock: Clock = Clock.systemDefaultZone()) {
+class DecisionService(private val clock: Clock = Clock.systemUTC()) {
 
     fun decide(verificationResult: VerificationResult): VerificationDecision {
         if (!verificationResult.coseVerified)
