@@ -82,7 +82,11 @@ kotlin {
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
             }
         }
-        val jsMain by getting
+        val jsMain by getting {
+            dependencies {
+                implementation(npm("pako", "2.0.3"))
+            }
+        }
         val jsTest by getting
     }
 }
