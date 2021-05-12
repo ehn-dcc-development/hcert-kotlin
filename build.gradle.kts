@@ -1,6 +1,6 @@
 plugins {
-    kotlin("multiplatform") version "1.4.10"
-    kotlin("plugin.serialization") version "1.4.31"
+    kotlin("multiplatform") version "1.5.0"
+    kotlin("plugin.serialization") version "1.5.0"
     id("idea")
 }
 
@@ -25,6 +25,7 @@ kotlin {
         compilations.all {
             kotlinOptions {
                 freeCompilerArgs = listOf(
+                    "-Xopt-in=kotlin.RequiresOptIn",
                     "-Xopt-in=kotlin.ExperimentalUnsignedTypes",
                     "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
                 )
@@ -46,7 +47,7 @@ kotlin {
             testTask {
                 useKarma {
                     useChromeHeadless()
-                    webpackConfig.cssSupport.enabled = true
+                    webpackConfig.cssSupport.enabled = false
                 }
             }
         }
@@ -57,6 +58,7 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.1.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
             }
         }
         val commonTest by getting

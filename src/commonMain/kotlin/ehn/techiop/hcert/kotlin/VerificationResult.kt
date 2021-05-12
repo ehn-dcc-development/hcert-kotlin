@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 class VerificationResult {
 
