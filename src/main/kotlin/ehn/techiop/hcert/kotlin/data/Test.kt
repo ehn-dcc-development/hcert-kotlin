@@ -43,7 +43,7 @@ data class Test(
     @SerialName("ci")
     val certificateIdentifier: String,
 ) {
-    fun toEuSchema() = TestEntry().apply {
+    /*fun toEuSchema() = TestEntry().apply {
         tg = target.key
         tt = type
         nm = nameNaa
@@ -72,5 +72,5 @@ data class Test(
             certificateIssuer = it.`is`,
             certificateIdentifier = it.ci
         )
-    }
+    }*/
 }

@@ -3,7 +3,7 @@ package ehn.techiop.hcert.kotlin.chain
 import ehn.techiop.hcert.data.Eudgc
 
 data class ChainDecodeResult(
-    val eudgc: Eudgc,
+    val eudgc: GreenCertificate,
     val step0Cbor: ByteArray,
     val step1Cwt: ByteArray,
     val step2Cose: ByteArray,

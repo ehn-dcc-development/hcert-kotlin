@@ -1,6 +1,5 @@
 package ehn.techiop.hcert.kotlin.data
 
-import ehn.techiop.hcert.data.RecoveryEntry
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
@@ -33,6 +32,7 @@ data class RecoveryStatement(
     val certificateIdentifier: String,
 ) {
 
+    /*
     fun toEuSchema() = RecoveryEntry().apply {
         tg = target.key
         fr = dateOfFirstPositiveTestResult.format(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -54,5 +54,5 @@ data class RecoveryStatement(
             certificateValidUntil = LocalDate.parse(it.du, DateTimeFormatter.ISO_LOCAL_DATE),
             certificateIdentifier = it.ci
         )
-    }
+    }*/
 }

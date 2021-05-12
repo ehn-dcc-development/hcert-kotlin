@@ -1,6 +1,5 @@
 package ehn.techiop.hcert.kotlin.data
 
-import ehn.techiop.hcert.data.PersonName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,7 +18,7 @@ data class Person(
     val givenNameTransliterated: String? = null,
 ) {
 
-    fun toEuSchema() = PersonName().apply {
+/*    fun toEuSchema() = PersonName().apply {
         fn = familyName
         fnt = familyNameTransliterated
         gn = givenName
@@ -34,5 +33,5 @@ data class Person(
             givenName = it.gn,
             givenNameTransliterated = it.gnt,
         )
-    }
+    }*/
 }

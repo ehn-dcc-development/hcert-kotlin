@@ -1,6 +1,5 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService

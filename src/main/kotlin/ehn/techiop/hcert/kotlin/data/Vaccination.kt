@@ -39,7 +39,7 @@ data class Vaccination(
     @SerialName("ci")
     val certificateIdentifier: String,
 ) {
-    fun toEuSchema() = VaccinationEntry().apply {
+    /*fun toEuSchema() = VaccinationEntry().apply {
         tg = target.key
         vp = vaccine.key
         mp = medicinalProduct.key
@@ -66,5 +66,5 @@ data class Vaccination(
             certificateIssuer = it.`is`,
             certificateIdentifier = it.ci
         )
-    }
+    }*/
 }

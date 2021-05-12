@@ -1,13 +1,12 @@
 package ehn.techiop.hcert.kotlin.chain.common
 
-import java.math.BigInteger
+import kotlin.math.pow
+import kotlin.math.roundToLong
 
 class Base45Encoder {
 
     // https://datatracker.ietf.org/doc/draft-faltstrom-base45/?include_text=1
     private val alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:"
-    private val int45 = BigInteger.valueOf(45)
-    private val int256 = BigInteger.valueOf(256)
 
     fun encode(input: ByteArray) =
         input.asSequence().map { it.toUByte() }
@@ -29,7 +28,7 @@ class Base45Encoder {
 
     private fun toTwoCharValue(list: List<UByte>) =
         list.reversed().foldIndexed(0L) { index, acc, element ->
-            pow(int256, index) * element.toShort() + acc
+            pow(256, index) * element.toShort() + acc
         }
 
     fun decode(input: String) =
@@ -51,7 +50,7 @@ class Base45Encoder {
     private fun fromThreeCharValue(list: String): Long {
         return list.foldIndexed(0L, { index, acc: Long, element ->
             if (!alphabet.contains(element)) throw IllegalArgumentException()
-            pow(int45, index) * alphabet.indexOf(element) + acc
+            pow(45, index) * alphabet.indexOf(element) + acc
         })
     }
 
@@ -59,6 +58,6 @@ class Base45Encoder {
         generateSequence(seed) { if (it >= divisor) it.div(divisor) else null }
             .map { it.rem(divisor).toInt() }
 
-    private fun pow(base: BigInteger, exp: Int) = base.pow(exp).toLong()
+    private fun pow(base: Int, exp: Int) = base.toDouble().pow(exp.toDouble()).roundToLong()
 
 }
