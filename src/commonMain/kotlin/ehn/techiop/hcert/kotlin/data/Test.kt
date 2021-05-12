@@ -1,11 +1,14 @@
 package ehn.techiop.hcert.kotlin.data
 
 import kotlinx.datetime.Instant
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 
 @Serializable
-data class Test(
+@ExperimentalSerializationApi
+data class Test constructor(
     @SerialName("tg")
     val target: ValueSetEntryAdapter,
 
@@ -19,9 +22,11 @@ data class Test(
     val nameRat: ValueSetEntryAdapter? = null,
 
     @SerialName("sc")
+    @Serializable(with = InstantStringSerializer::class)
     val dateTimeSample: Instant,
 
     @SerialName("dr")
+    @Serializable(with = InstantStringSerializer::class)
     val dateTimeResult: Instant? = null,
 
     @SerialName("tr")

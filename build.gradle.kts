@@ -56,21 +56,24 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.1.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.2.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
             }
         }
         val commonTest by getting
         val jvmMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31")
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.0")
                 implementation("com.augustcellars.cose:cose-java:1.1.0")
                 implementation("com.google.zxing:core:3.4.1")
                 implementation("com.google.zxing:javase:3.4.1")
                 implementation("org.bouncycastle:bcpkix-jdk15to18:1.68")
                 implementation("javax.validation:validation-api:2.0.1.Final")
                 implementation("com.google.code.findbugs:jsr305:3.0.2")
+                implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
+                implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.3")
+                implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
             }
         }
         val jvmTest by getting {

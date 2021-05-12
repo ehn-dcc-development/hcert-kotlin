@@ -1,5 +1,7 @@
 package ehn.techiop.hcert.kotlin.data
 
+import kotlinx.datetime.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.encoding.Decoder
@@ -16,28 +18,30 @@ object LocalDateSerializer : KSerializer<LocalDate> {
         encoder.encodeString(value.format(DateTimeFormatter.ISO_LOCAL_DATE))
     }
 }*/
-/*
+
+@ExperimentalSerializationApi
 @Serializer(forClass = Instant::class)
 object InstantLongSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {
-        return Instant.ofEpochSecond(decoder.decodeLong())
+        return LocalDateTime.parse(decoder.decodeString()).toInstant(TimeZone.UTC)
     }
 
     override fun serialize(encoder: Encoder, value: Instant) {
-        encoder.encodeLong(value.epochSecond)
+        encoder.encodeString(value.toLocalDateTime(TimeZone.UTC).toString())
     }
 }
 
+@ExperimentalSerializationApi
 @Serializer(forClass = Instant::class)
 object InstantStringSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {
-        return DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(decoder.decodeString(), Instant::from)
+        return Instant.fromEpochSeconds(decoder.decodeLong())
     }
 
     override fun serialize(encoder: Encoder, value: Instant) {
-        encoder.encodeString(value.toString())
+        encoder.encodeLong(value.epochSeconds)
     }
-}*/
+}
 
 /*
 @Serializer(forClass = X509Certificate::class)
@@ -56,6 +60,8 @@ object X509CertificateSerializer : KSerializer<X509Certificate> {
 }
 
 */
+
+@ExperimentalSerializationApi
 @Serializer(forClass = ValueSetEntryAdapter::class)
 object ValueSetEntryAdapterSerializer : KSerializer<ValueSetEntryAdapter> {
     override fun deserialize(decoder: Decoder): ValueSetEntryAdapter {
