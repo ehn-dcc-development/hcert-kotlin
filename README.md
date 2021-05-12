@@ -62,7 +62,7 @@ VerificationDecision decision = new DecisionService().decide(verificationResult)
 GreenCertificate greenCertificate = GreenCertificate.fromEuSchema(dgc);
 ```
 
-## TrustList
+## TrustList V1
 
 There is also an option to create (on the service) and read (in the app) a list of trusted certificates for verification of HCERTs.
 
@@ -72,7 +72,7 @@ The server can create it:
 String privateKeyPem = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADAN...";
 String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 CryptoService cryptoService = new FileBasedCryptoService(privateKeyPem, certificatePem);
-TrustListEncodeService trustListService = new TrustListEncodeService(cryptoService);
+TrustListV1EncodeService trustListService = new TrustListV1EncodeService(cryptoService);
 
 // Load the list of trusted certificates from somewhere ...
 Set<X509Certificate> trustedCerts = new HashSet<>(cert1, cert2, ...);
@@ -234,6 +234,9 @@ Implementers may load values for constructor parameters from a configuration fil
 To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`
 
 ## Changelog
+
+Version 0.3.1:
+ - Implement a TrustList V2, with details is `hcert-service-kotlin`
 
 Version 0.3.0:
  - Rename the previous `CborService` to `CwtService`, as the new name matches the implementation more closely

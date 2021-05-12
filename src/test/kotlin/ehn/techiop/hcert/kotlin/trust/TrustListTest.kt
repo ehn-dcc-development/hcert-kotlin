@@ -5,6 +5,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
@@ -32,21 +33,28 @@ class TrustListTest {
         val clock = Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clock)
         val certificate = cryptoService.getCertificate()
-        val trustListEncoded = TrustListV2EncodeService(cryptoService, clock = clock).encode(randomCertificates(clock))
+        val encodeService = TrustListV2EncodeService(cryptoService, clock = clock)
+        val trustListEncoded = encodeService.encodeContent(randomCertificates(clock))
+        val trustListSignature = encodeService.encodeSignature(trustListEncoded)
 
-        verifyClientOperations(certificate, clock, trustListEncoded)
+        println(trustListEncoded.toHexString())
+        println(trustListSignature.toHexString())
+
+        verifyClientOperations(certificate, clock, trustListSignature, trustListEncoded)
     }
 
     private fun verifyClientOperations(
         certificate: X509Certificate,
         clock: Clock,
-        trustListEncoded: ByteArray
+        trustListSignature: ByteArray,
+        trustListEncoded: ByteArray? = null
     ) {
         // might never happen on the client, that the trust list is loaded in this way
         val clientTrustRoot = PrefilledCertificateRepository(certificate)
-        val clientTrustList = TrustListDecodeService(clientTrustRoot, clock = clock).decode(trustListEncoded)
+        val decodeService = TrustListDecodeService(clientTrustRoot, clock = clock)
+        val clientTrustList = decodeService.decode(trustListSignature, trustListEncoded)
         // that's the way to go: Trust list used for verification of QR codes
-        val clientTrustListAdapter = TrustListCertificateRepository(trustListEncoded, clientTrustRoot, clock)
+        val clientTrustListAdapter = TrustListCertificateRepository(trustListSignature, trustListEncoded, clientTrustRoot, clock)
 
         assertThat(clientTrustList.size, equalTo(2))
         for (cert in clientTrustList) {
