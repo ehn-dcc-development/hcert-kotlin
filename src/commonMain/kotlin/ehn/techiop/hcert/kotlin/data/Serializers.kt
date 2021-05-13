@@ -19,7 +19,7 @@ object LocalDateSerializer : KSerializer<LocalDate> {
     }
 }*/
 
-@ExperimentalSerializationApi
+/*@ExperimentalSerializationApi
 @Serializer(forClass = Instant::class)
 object InstantLongSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {
@@ -41,7 +41,9 @@ object InstantStringSerializer : KSerializer<Instant> {
     override fun serialize(encoder: Encoder, value: Instant) {
         encoder.encodeLong(value.epochSeconds)
     }
-}
+}*/
+
+
 
 /*
 @Serializer(forClass = X509Certificate::class)

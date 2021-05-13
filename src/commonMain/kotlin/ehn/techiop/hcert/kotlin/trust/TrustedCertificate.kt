@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.trust
 
-import ehn.techiop.hcert.kotlin.data.InstantLongSerializer
 import kotlinx.datetime.Instant
+import kotlinx.datetime.serializers.InstantIso8601Serializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -12,11 +12,11 @@ import kotlinx.serialization.cbor.ByteString
 @Serializable
 data class TrustedCertificate constructor(
     @SerialName("f")
-    @Serializable(with = InstantLongSerializer::class)
+    @Serializable(with = InstantIso8601Serializer::class)
     val validFrom: Instant,
 
     @SerialName("u")
-    @Serializable(with = InstantLongSerializer::class)
+    @Serializable(with = InstantIso8601Serializer::class)
     val validUntil: Instant,
 
     @SerialName("i")
@@ -106,4 +106,4 @@ data class TrustedCertificate constructor(
     }
 }
 
-expect fun TrustedCertificate.buildOneKey():ByteArray
+expect fun TrustedCertificate.buildOneKey(): ByteArray
