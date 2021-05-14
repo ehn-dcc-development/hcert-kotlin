@@ -2,7 +2,9 @@
 
 ## Cose
 
-Since the only available JS implementation of COSE was designed as a Node.js (CommonJS) module, a few additional steps were needed to integrate it with our kotlin code base. We utilise a custom build step based on browserify for turning the NodeJS module into a self-contained browser library for consumption from the kotlin side.
+The only available JS implementation of COSE was designed as a Node.js (CommonJS) module. Since it makes use of some Node-specific APIs, we couldn't simply integrate it using kotlin's npm dependency mechanism. Instead, a few additional steps were needed to integrate it with our kotlin code base. 
+
+We utilise a custom build step based on browserify for turning the NodeJS module into a self-contained browser library for consumption from the kotlin side.
 
 The current first draft of the general process follows these steps:
 
