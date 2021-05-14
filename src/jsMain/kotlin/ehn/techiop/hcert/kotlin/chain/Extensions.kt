@@ -20,6 +20,11 @@ actual fun String.fromBase64Url(): ByteArray {
     TODO("Not yet implemented")
 }
 
+//See https://stackoverflow.com/a/66614516
 actual fun String.fromHexString(): ByteArray {
-    TODO("Not yet implemented")
+    require(length % 2 == 0) { "Must have an even length" }
+
+    return chunked(2)
+        .map { it.toInt(16).toByte() }
+        .toByteArray()
 }

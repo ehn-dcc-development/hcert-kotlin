@@ -2,10 +2,13 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
+import ehn.techiop.hcert.kotlin.crypto.Cose
 import ehn.techiop.hcert.kotlin.data.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import Buffer
+import ehn.techiop.hcert.kotlin.chain.fromHexString
 
 fun main(){
     println(Base45Encoder.encode(ByteArray(5){ i->i.toByte()}))
@@ -32,9 +35,6 @@ fun main(){
     println(Json.encodeToString(ceert))
     println(bar)
 
-    val buffer = js("extrequire('buffer')")
-    js("debugger;")
-    println(buffer)
-    val cose = js("extrequire('cose-js')")
-    println(cose)
+
+    Cose.verify("d28443a10126a10442313172496d706f7274616e74206d6573736167652158404c2b6b66dfedc4cfef0f221cf7ac7f95087a4c4245fef0063a0fd4014b670f642d31e26d38345bb4efcdc7ded3083ab4fe71b62a23f766d83785f044b20534f9".fromHexString(), Cose.initVerifier("143329cce7868e416927599cf65a34f3ce2ffda55a7eca69ed8919a394d42f0f".fromHexString(), "60f7f1a780d8a783bfb7a2dd6b2796e8128dbbcef9d3d168db9529971a36e7b9".fromHexString()))
 }
