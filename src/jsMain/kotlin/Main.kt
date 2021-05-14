@@ -32,6 +32,9 @@ fun main(){
     println(Json.encodeToString(ceert))
     println(bar)
 
+    val buffer = js("extrequire('buffer')")
+    js("debugger;")
+    println(buffer)
     val cose = js("extrequire('cose-js')")
     println(cose)
 }
