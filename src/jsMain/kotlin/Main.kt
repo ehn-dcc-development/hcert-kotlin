@@ -1,6 +1,7 @@
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.data.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.encodeToString
@@ -18,6 +19,8 @@ fun main(){
     val input = DefaultCborService().encode(cert)
     val encode = Base45Encoder.encode(input)
     println(encode)
+    val enc=DefaultCompressorService().encode(input)
+    println(Base45Encoder.encode(enc))
     val ceert = DefaultCborService().decode(input, VerificationResult())
     println(Json.encodeToString(ceert))
     println(bar)
