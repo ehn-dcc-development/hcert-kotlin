@@ -12,7 +12,7 @@ fun main(){
     val foo="Foo"
     val bar = js("externalTest(foo)")
     val cert = GreenCertificate("1.2", Person("Mustermann",null,"Max")
-    , LocalDate(1980,6,8), listOf(Vaccination(ValueSetEntryAdapter("foo", ValueSetEntry("Voo","DE",true,"Soylent","ø")),ValueSetEntryAdapter("foo", ValueSetEntry("Voo","DE",true,"Soylent","ø")),ValueSetEntryAdapter("foo", ValueSetEntry("Voo","DE",true,"Soylent","ø")),ValueSetEntryAdapter("foo", ValueSetEntry("Voo","DE",true,"Soylent","ø")),9,100,
+        , LocalDate(1980,6,8), listOf(Vaccination(ValueSetEntryAdapter("foo", ValueSetEntry("Voo","DE",true,"Soylent","ø")),ValueSetEntryAdapter("foo", ValueSetEntry("Voo","DE",true,"Soylent","ø")),ValueSetEntryAdapter("foo", ValueSetEntry("Voo","DE",true,"Soylent","ø")),ValueSetEntryAdapter("foo", ValueSetEntry("Voo","DE",true,"Soylent","ø")),9,100,
             LocalDate(2021,8,15),"AU","Royal Navy","HMCS"
         )),null,null)
     println(Json.encodeToString(cert))

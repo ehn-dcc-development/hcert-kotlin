@@ -88,6 +88,7 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation(npm("pako", "2.0.3"))
+                implementation(npm("@types/pako", "1.0.1", generateExternals = true))
             }
         }
         val jsTest by getting
