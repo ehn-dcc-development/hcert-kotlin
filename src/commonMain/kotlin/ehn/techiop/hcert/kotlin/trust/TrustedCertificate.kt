@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.trust
 
+import ehn.techiop.hcert.kotlin.crypto.PublicKey
 import kotlinx.datetime.Instant
 import kotlinx.datetime.serializers.InstantIso8601Serializer
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -106,4 +107,4 @@ data class TrustedCertificate constructor(
     }
 }
 
-expect fun TrustedCertificate.buildOneKey(): ByteArray
+expect fun TrustedCertificate.buildCosePublicKey():PublicKey<*>

@@ -7,7 +7,6 @@ import ehn.techiop.hcert.kotlin.crypto.Cose
 import ehn.techiop.hcert.kotlin.crypto.CoseJsEcPubKey
 import ehn.techiop.hcert.kotlin.crypto.CurveIdentifier
 import ehn.techiop.hcert.kotlin.data.*
-import kotlinx.browser.window
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

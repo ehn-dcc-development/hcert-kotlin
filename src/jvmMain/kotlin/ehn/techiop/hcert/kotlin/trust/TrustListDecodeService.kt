@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.trust
 
 import COSE.HeaderKeys
 import COSE.MessageTag
+import COSE.OneKey
 import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
@@ -14,13 +15,13 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.toDuration
 
 
-class TrustListDecodeService(
+actual class TrustListDecodeService actual constructor(
     private val repository: CertificateRepository,
-    private val clock: Clock = Clock.System,
+    private val clock: Clock
 ) {
 
     @OptIn(ExperimentalTime::class)
-    fun decode(input: ByteArray): TrustList {
+    actual fun decode(input: ByteArray): TrustList {
         val sign1Message = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
         val kid = sign1Message.protectedAttributes[HeaderKeys.KID.AsCBOR()].GetByteString()
             ?: throw IllegalArgumentException("kid")
@@ -45,7 +46,7 @@ class TrustListDecodeService(
 
     private fun validate(sign1Message: Sign1Message, kid: ByteArray): Boolean {
         repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
-            if (sign1Message.validate(it.oneKey)) {
+            if (sign1Message.validate(it.buildCosePublicKey().toCoseRepresenation() as OneKey)) {
                 return true
             }
         }

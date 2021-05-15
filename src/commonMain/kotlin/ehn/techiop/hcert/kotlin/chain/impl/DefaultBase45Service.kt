@@ -21,7 +21,7 @@ open class DefaultBase45Service : Base45Service {
                 verificationResult.base45Decoded = true
             }
         } catch (e: Throwable) {
-            input.toByteArray()
+            input.encodeToByteArray()
         }
     }
 
