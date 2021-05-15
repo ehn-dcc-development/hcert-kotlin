@@ -1,17 +1,48 @@
 package ehn.techiop.hcert.kotlin.crypto
 
+import org.khronos.webgl.Uint8Array
 import kotlin.js.Promise
 
-object Cose {
+internal object Buffer {
+    private val buffer = js("extrequire('buffer').Buffer")
+    internal fun from(arr: ByteArray): dynamic {
+        //yes, we ned those assignments! DO NOT REMOVE!
+        val b = buffer
+        val d = Uint8Array(arr.toTypedArray())
+        return js("b.from(d)")
+    }
+}
 
-    private fun vrfy(data: dynamic, verifier: dynamic, onSuccess: () -> Unit) {
-        (js("var cose= extrequire('cose-js'); cose.sign.verify(data, verifier)") as Promise<Any>).then { onSuccess.invoke() }
-            .catch { throw it }
+internal object Cose {
+    private val cose = js("extrequire('cose-js')")
+
+
+    private fun internalVerify(
+        data: dynamic,
+        verifier: dynamic
+    ): Promise<Any> {
+        //YES WE NEED THIS ASSIGNMENT
+        val c = cose
+        return (js("c.sign.verify(data, verifier)") as Promise<Any>)
+
     }
 
-    fun verify(signedBitString: ByteArray, pubKey: CoseJsEcPubKey, onSuccess: () -> Unit) {
-        val d = signedBitString.toTypedArray()
-        val data = js("var Buffer= extrequire('buffer'); Buffer.Buffer.from(new Uint8Array(d))")
-        vrfy(data, pubKey.toCoseRepresenation(), onSuccess)
-    }
+    fun verify(
+        signedBitString: ByteArray,
+        pubKey: CoseJsEcPubKey
+    ) =
+        internalVerify(Buffer.from(signedBitString), pubKey.toCoseRepresenation())
+
+}
+
+
+class CoseEcKey(x: ByteArray, y: ByteArray) {
+    val key = Holder(Buffer.from(x), Buffer.from(y))
+
+    class Holder(val x: dynamic, val y: dynamic)
+}
+
+class CoseJsEcPubKey(val xCoord: ByteArray, val yCoord: ByteArray, override val curve: CurveIdentifier) :
+    EcPubKey<dynamic> {
+    override fun toCoseRepresenation() = CoseEcKey(xCoord, yCoord)
 }
