@@ -2,33 +2,25 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CompressorService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 
 actual open class DefaultCompressorService(private val compressionLevel: Int = 9) : CompressorService {
-    private fun byteArrayToUint8Array(input: ByteArray): Uint8Array {
-        return Uint8Array(input.toTypedArray())
-    }
-
-    private fun uint8ArrayToByteArray(input: Uint8Array): ByteArray {
-        return ByteArray(input.length){ input[it] }
-    }
-
     override fun encode(input: ByteArray): ByteArray {
-        return uint8ArrayToByteArray(
-            Pako.deflate(byteArrayToUint8Array(input),
+        return (Pako.deflate(input.toUint8Array(),
                 object: Pako.DeflateFunctionOptions {
                     override var level: dynamic
                         get() = compressionLevel
                         set(value) {}
-                }) as Uint8Array
-        )
+                }) as Uint8Array).toByteArray()
     }
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.zlibDecoded = false
         return try {
-            return uint8ArrayToByteArray(Pako.inflate(byteArrayToUint8Array(input))).also {
+            return Pako.inflate(input.toUint8Array()).toByteArray().also {
                 verificationResult.zlibDecoded = true
             }
         } catch (e: Throwable) {
