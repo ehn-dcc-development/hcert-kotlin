@@ -14,8 +14,7 @@ import kotlin.js.Json
 import kotlin.js.Promise
 
 internal object Buffer {
-    private val buffer = js("extrequire('buffer').Buffer")
-
+    private val buffer = js("require('buffer').Buffer")
     @Suppress("UNUSED_VARIABLE")
     internal fun from(arr: ByteArray): dynamic {
         val b = buffer // needed for JS-magic
@@ -29,13 +28,11 @@ internal object Buffer {
     }
 }
 
-internal object Cbor {
-    private val cbor = js("extrequire('cbor')")
-
-    @Suppress("UNUSED_VARIABLE")
-    fun decode(data: ByteArray): dynamic {
-        val c = cbor // needed for JS-magic
-        val d = Buffer.from(data) // needed for JS-magic
+internal object Cbor{
+    private val cbor =js("require('cbor')")
+    fun decode(data:ByteArray):dynamic{
+        val c= cbor
+        val d = Buffer.from(data)
         return js("c.decodeFirstSync(d)")
     }
 
@@ -47,7 +44,7 @@ internal object Cbor {
 }
 
 internal object Cose {
-    private val cose = js("extrequire('cose-js')")
+    private val cose = js("require('cose-js')")
 
     @Suppress("UNUSED_VARIABLE")
     private fun internalVerify(
