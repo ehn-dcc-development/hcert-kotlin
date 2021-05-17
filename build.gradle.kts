@@ -90,15 +90,15 @@ kotlin {
             dependencies {
                 implementation(npm("pako", "2.0.3"))
                 implementation(npm("@types/pako", "1.0.1", generateExternals = true))
-                //implementation(npm("@peculiar/x509", "1.3.0", generateExternals = true))
                 implementation(npm("pkijs", "2.1.95"))
-                //implementation(npm("@types/pkijs", "0.0.6", generateExternals = true))
                 implementation(npm("cose-js", File("${projectDir.absolutePath}/cose-js"), generateExternals = false))
                 implementation(npm("crypto-browserify", "3.12.0"))
                 implementation(npm("stream-browserify", "3.0.0"))
                 implementation(npm("util", "0.12.3"))
                 implementation(npm("buffer", "6.0.3"))
                 implementation(npm("process", "0.11.10"))
+                implementation(npm("cbor", "7.0.5"))
+                implementation(npm("node-inspect-extracted", "1.0.7"))
             }
         }
         val jsTest by getting
