@@ -10,17 +10,17 @@ import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
-
-/**
- * Encodes/decodes input as a Sign1Message according to COSE specification (RFC8152)
- */
-open class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
+actual open class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
 
     override fun encode(input: ByteArray): ByteArray {
         return Sign1Message().also {
             it.SetContent(input)
             cryptoService.getCborHeaders().forEach { header ->
-                it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.PROTECTED)
+                it.addAttribute(
+                    CBORObject.FromObject(header.first),
+                    CBORObject.FromObject(header.second),
+                    Attribute.PROTECTED
+                )
             }
             it.sign(cryptoService.getCborSigningKey().toCoseRepresentation() as OneKey)
         }.EncodeToBytes()
@@ -40,6 +40,12 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
             }.GetContent()
         } catch (e: Throwable) {
             input
+        }
+    }
+
+    actual companion object {
+        actual fun getInstance(cryptoService: CryptoService): DefaultCoseService {
+            return DefaultCoseService(cryptoService)
         }
     }
 

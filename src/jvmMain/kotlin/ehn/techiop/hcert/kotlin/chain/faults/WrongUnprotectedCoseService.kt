@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.faults
 
 import COSE.Attribute
-import COSE.HeaderKeys
 import COSE.OneKey
 import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
