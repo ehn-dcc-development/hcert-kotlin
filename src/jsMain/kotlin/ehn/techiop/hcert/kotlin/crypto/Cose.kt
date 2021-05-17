@@ -1,5 +1,7 @@
 package ehn.techiop.hcert.kotlin.crypto
 
+import ehn.techiop.hcert.kotlin.trust.ContentType
+import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import kotlin.js.Json
@@ -69,5 +71,19 @@ class CoseJsPrivateKey(val d: ByteArray, val curve: CurveIdentifier): PrivateKey
 }
 
 class JsCertificate(): Certificate<dynamic> {
-    // TODO implement JS Certificate
+    override fun getValidContentTypes(): List<ContentType> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getValidFrom(): Instant {
+        TODO("Not yet implemented")
+    }
+
+    override fun getValidUntil(): Instant {
+        TODO("Not yet implemented")
+    }
+
+    override fun getPublicKey(): PublicKey<*> {
+        TODO("Not yet implemented")
+    }
 }

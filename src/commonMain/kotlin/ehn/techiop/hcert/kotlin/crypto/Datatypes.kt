@@ -1,6 +1,14 @@
 package ehn.techiop.hcert.kotlin.crypto
 
+import ehn.techiop.hcert.kotlin.trust.ContentType
+import kotlinx.datetime.Instant
+
 interface Certificate<T> {
+
+    fun getValidContentTypes(): List<ContentType>
+    fun getValidFrom(): Instant
+    fun getValidUntil(): Instant
+    fun getPublicKey(): PublicKey<*>
 
 }
 
