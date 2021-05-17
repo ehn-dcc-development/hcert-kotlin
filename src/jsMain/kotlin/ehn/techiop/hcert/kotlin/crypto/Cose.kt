@@ -1,8 +1,11 @@
 package ehn.techiop.hcert.kotlin.crypto
 
+import Asn1js.fromBER
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Instant
+import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
+import kotlin.js.Date
 import kotlin.js.Json
 import kotlin.js.Promise
 
@@ -55,8 +58,9 @@ internal object Cose {
 }
 
 
-class CoseEcKey(x: ByteArray, y: ByteArray) {
-    val key = Holder(Buffer.from(x), Buffer.from(y))
+class CoseEcKey(xC: dynamic, yC:dynamic) {
+    constructor(x: ByteArray, y:ByteArray):this(xC=Buffer.from(x),yC=Buffer.from(y))
+    val key = Holder(xC, yC)
 
     class Holder(val x: dynamic, val y: dynamic)
 }
@@ -68,8 +72,9 @@ class CoseEcPrivateKey(d: ByteArray) {
     class Holder(val d: dynamic)
 }
 
-class CoseJsEcPubKey(val xCoord: ByteArray, val yCoord: ByteArray, override val curve: CurveIdentifier) :
+class CoseJsEcPubKey(val xCoord: dynamic, val yCoord: dynamic, override val curve: CurveIdentifier) :
     EcPubKey<dynamic> {
+    constructor(x: ByteArray, y: ByteArray, curve: CurveIdentifier):this(xCoord=Buffer.from(x), yCoord=Buffer.from(y), curve=curve)
     override fun toCoseRepresentation() = CoseEcKey(xCoord, yCoord)
 }
 
@@ -77,7 +82,12 @@ class CoseJsPrivateKey(val d: ByteArray, val curve: CurveIdentifier) : PrivateKe
     override fun toCoseRepresentation() = CoseEcPrivateKey(d)
 }
 
-class JsCertificate() : Certificate<dynamic> {
+class JsCertificate(private val encoded: ByteArray) : Certificate<dynamic> {
+    private val cert = Uint8Array(encoded.toTypedArray()).let {
+        val parsed = fromBER(it.buffer).result; pkijs.src.Certificate.Certificate(js("({'schema':parsed})"))
+    }
+
+
     override fun getValidContentTypes(): List<ContentType> {
         TODO("Not yet implemented")
     }
@@ -91,6 +101,9 @@ class JsCertificate() : Certificate<dynamic> {
     }
 
     override fun getPublicKey(): PublicKey<*> {
-        TODO("Not yet implemented")
+        val keyInfo = (cert.subjectPublicKeyInfo as Json)["parsedKey"] as Json
+        val x = keyInfo["x"]
+        val y = keyInfo["y"]
+        return CoseJsEcPubKey(xCoord= x,yCoord=y, curve=CurveIdentifier.P256)
     }
 }
