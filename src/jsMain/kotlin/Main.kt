@@ -1,9 +1,9 @@
-import cbor.decodeFirstSync
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 import ehn.techiop.hcert.kotlin.chain.fromHexString
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
+import ehn.techiop.hcert.kotlin.crypto.Cbor
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import ehn.techiop.hcert.kotlin.crypto.CoseJsEcPubKey
 import ehn.techiop.hcert.kotlin.crypto.CurveIdentifier
@@ -11,10 +11,6 @@ import ehn.techiop.hcert.kotlin.data.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.khronos.webgl.Uint8Array
-
-
-
 
 
 fun main() {
@@ -63,7 +59,7 @@ fun main() {
     )
     Cose.verify(signedBitString, pubKey).then { println("Signature sucessfully verified!") }
 
-console.info(decodeFirstSync("02"))
+    console.info(Cbor.decode(signedBitString))
     signedBitString[0] = 0
     Cose.verify(signedBitString, pubKey).catch { println("Could not verify with broken header: $it") }
 }

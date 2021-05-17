@@ -1,6 +1,8 @@
 package ehn.techiop.hcert.kotlin.crypto
 
+import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
+import kotlin.js.Json
 import kotlin.js.Promise
 
 internal object Buffer {
@@ -10,6 +12,15 @@ internal object Buffer {
         val b = buffer
         val d = Uint8Array(arr.toTypedArray())
         return js("b.from(d)")
+    }
+}
+
+internal object Cbor{
+    private val cbor =js("extrequire('cbor')")
+    fun decode(data:ByteArray):Json{
+        val c= cbor
+        val d = Buffer.from(data)
+        return js("c.decodeFirstSync(d)")
     }
 }
 
