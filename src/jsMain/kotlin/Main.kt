@@ -11,6 +11,8 @@ import ehn.techiop.hcert.kotlin.data.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.khronos.webgl.Uint8Array
+import org.khronos.webgl.get
 
 
 fun main() {
@@ -50,16 +52,35 @@ fun main() {
     println(Json.encodeToString(ceert))
     println(bar)
 
+    // from https://dgc.a-sit.at/ehn/testsuite
     val signedBitString =
-        "d28443a10126a10442313172496d706f7274616e74206d6573736167652158404c2b6b66dfedc4cfef0f221cf7ac7f95087a4c4245fef0063a0fd4014b670f642d31e26d38345bb4efcdc7ded3083ab4fe71b62a23f766d83785f044b20534f9".fromHexString()
+        "d2844da20448d919375fc1e7b6b20126a0590124a4041a60a4d36d061a60a2306d01624154390103a101a4617681aa62646e01626d616d4f52472d3130303033303231356276706a313131393330353030356264746a323032312d30322d313862636f624154626369783075726e3a757663693a30313a41543a313038303738343346393441454530454535303933464243323534424438313350626d706c45552f312f32302f313532386269736e424d5347504b20417573747269616273640262746769383430353339303036636e616da463666e74754d5553544552465241553c474f455353494e47455262666e754d7573746572667261752d47c3b6c39f696e67657263676e74684741425249454c4562676e684761627269656c656376657265312e302e3063646f626a313939382d30322d32365840fc544db09e37eeb2f88d6ec0e6c16d4f20d8c3f899acd680126c7c8f7743c95b54956f88bf3f92631370e831f5461218b81c75cc728edbd8e98db2d52125f2ba".fromHexString()
     val pubKey = CoseJsEcPubKey(
-        "143329cce7868e416927599cf65a34f3ce2ffda55a7eca69ed8919a394d42f0f".fromHexString(),
-        "60f7f1a780d8a783bfb7a2dd6b2796e8128dbbcef9d3d168db9529971a36e7b9".fromHexString(),
-        CurveIdentifier.ED25519
+        "add55cf5ad1b96d47a8e6d413d3037bb473224d60ab85d6e464f21ee1d38f970".fromHexString(),
+        "5127d9181edfbfa120d7c2659728ce9c1029dc9aa68acf50fd5313b516974177".fromHexString(),
+        CurveIdentifier.P256
     )
-    Cose.verify(signedBitString, pubKey).then { println("Signature sucessfully verified!") }
+    Cose.verify(signedBitString, pubKey).then { println("Signature successfully verified!") }
 
-    console.info(Cbor.decode(signedBitString))
+    val cborJson = Cbor.decode(signedBitString)
+    val protectedHeader = cborJson["value"][0]
+    val unprotectedHeader = cborJson["value"][1]
+    val content = cborJson["value"][2]
+    val signature = cborJson["value"][3]
+    val protectedHeaderCbor = Cbor.decode(protectedHeader)
+    val kid = protectedHeaderCbor.get(4) as Uint8Array? ?:
+            if (unprotectedHeader.length !== undefined)
+               Cbor.decode(unprotectedHeader).get(1) as Uint8Array
+            else
+                throw IllegalArgumentException("KID not found")
+    if (kid === undefined)
+        throw IllegalArgumentException("KID not found")
+    val algorithm = protectedHeaderCbor.get(1)
+    console.info(kid) // is a Uint8Array
+    console.info(algorithm) // is -7, so ECDSA_256
+    val kidHex = (0 until kid.length).map { i -> kid[i].toString(16) }.joinToString("")
+    if (kidHex != "d919375fc1e7b6b2") throw IllegalArgumentException("KID not equal to Austrian DSC")
+
     signedBitString[0] = 0
     Cose.verify(signedBitString, pubKey).catch { println("Could not verify with broken header: $it") }
 }

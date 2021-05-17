@@ -17,7 +17,7 @@ internal object Buffer {
 
 internal object Cbor{
     private val cbor =js("extrequire('cbor')")
-    fun decode(data:ByteArray):Json{
+    fun decode(data:ByteArray):dynamic{
         val c= cbor
         val d = Buffer.from(data)
         return js("c.decodeFirstSync(d)")
