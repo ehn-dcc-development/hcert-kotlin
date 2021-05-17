@@ -51,6 +51,7 @@ kotlin {
                 }
             }
         }
+        useCommonJs()
     }
 
     sourceSets {
@@ -87,8 +88,15 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
+                implementation(npm("bignumber.js", "9.0.1"))
+                implementation(npm("cbor-web", "7.0.5", generateExternals = true))
                 implementation(npm("pako", "2.0.3"))
                 implementation(npm("@types/pako", "1.0.1", generateExternals = true))
+                implementation(npm("asn1js", "2.1.1"))
+                implementation(npm("stream-browserify", "3.0.0"))
+                implementation(npm("util", "0.12.3"))
+                implementation(npm("buffer", "6.0.3"))
+                implementation(npm("node-inspect-extracted", "1.0.7"))
             }
         }
         val jsTest by getting

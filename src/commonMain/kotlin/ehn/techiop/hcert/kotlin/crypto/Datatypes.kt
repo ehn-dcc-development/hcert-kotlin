@@ -2,8 +2,6 @@ package ehn.techiop.hcert.kotlin.crypto
 
 interface PublicKey<T> {
     fun toCoseRepresenation(): T
-
-
 }
 
 interface EcPubKey<T> : PublicKey<T> {
