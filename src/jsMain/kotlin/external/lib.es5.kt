@@ -202,18 +202,6 @@ external interface Int32ArrayConstructor {
     fun <T> from(arrayLike: ArrayLike<T>, mapfn: (v: T, k: Number) -> Number): Int32Array
 }
 
-external interface Uint32ArrayConstructor {
-    fun from(arrayLike: Iterable<Number>, mapfn: (v: Number, k: Number) -> Number = definedExternally, thisArg: Any = definedExternally): Uint32Array
-    fun from(arrayLike: Iterable<Number>): Uint32Array
-    fun from(arrayLike: Iterable<Number>, mapfn: (v: Number, k: Number) -> Number = definedExternally): Uint32Array
-    var prototype: Uint32Array
-    var BYTES_PER_ELEMENT: Number
-    fun of(vararg items: Number): Uint32Array
-    fun from(arrayLike: ArrayLike<Number>): Uint32Array
-    fun <T> from(arrayLike: ArrayLike<T>, mapfn: (v: T, k: Number) -> Number, thisArg: Any = definedExternally): Uint32Array
-    fun <T> from(arrayLike: ArrayLike<T>, mapfn: (v: T, k: Number) -> Number): Uint32Array
-}
-
 external interface Float32ArrayConstructor {
     fun from(arrayLike: Iterable<Number>, mapfn: (v: Number, k: Number) -> Number = definedExternally, thisArg: Any = definedExternally): Float32Array
     fun from(arrayLike: Iterable<Number>): Float32Array

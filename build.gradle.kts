@@ -100,6 +100,7 @@ kotlin {
                 implementation(npm("cbor", "7.0.5"))
                 implementation(npm("node-inspect-extracted", "1.0.7"))
                 implementation(npm("fast-sha256", "1.3.0", generateExternals = true))
+                implementation(npm("url", "0.11.0"))
             }
         }
         val jsTest by getting
