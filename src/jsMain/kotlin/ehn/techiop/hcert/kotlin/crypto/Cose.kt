@@ -42,7 +42,7 @@ internal object Cose {
         signedBitString: ByteArray,
         pubKey: CoseJsEcPubKey
     ) =
-        internalVerify(Buffer.from(signedBitString), pubKey.toCoseRepresenation())
+        internalVerify(Buffer.from(signedBitString), pubKey.toCoseRepresentation())
 
 }
 
@@ -61,11 +61,11 @@ class CoseEcPrivateKey(d: ByteArray) {
 
 class CoseJsEcPubKey(val xCoord: ByteArray, val yCoord: ByteArray, override val curve: CurveIdentifier) :
     EcPubKey<dynamic> {
-    override fun toCoseRepresenation() = CoseEcKey(xCoord, yCoord)
+    override fun toCoseRepresentation() = CoseEcKey(xCoord, yCoord)
 }
 
 class CoseJsPrivateKey(val d: ByteArray, val curve: CurveIdentifier): PrivateKey<dynamic> {
-    override fun toCoseRepresenation() = CoseEcPrivateKey(d)
+    override fun toCoseRepresentation() = CoseEcPrivateKey(d)
 }
 
 class JsCertificate(): Certificate<dynamic> {

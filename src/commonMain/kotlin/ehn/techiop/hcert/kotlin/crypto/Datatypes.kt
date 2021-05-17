@@ -5,11 +5,11 @@ interface Certificate<T> {
 }
 
 interface PrivateKey<T> {
-    fun toCoseRepresenation(): T
+    fun toCoseRepresentation(): T
 }
 
 interface PublicKey<T> {
-    fun toCoseRepresenation(): T
+    fun toCoseRepresentation(): T
 }
 
 interface EcPubKey<T> : PublicKey<T> {

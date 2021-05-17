@@ -29,7 +29,7 @@ class VerificationCoseService(private val repository: CertificateRepository) : C
                         verificationResult.certificateValidFrom = trustedCert.validFrom
                         verificationResult.certificateValidUntil = trustedCert.validUntil
                         verificationResult.certificateValidContent = trustedCert.validContentTypes
-                        if (it.validate(trustedCert.buildCosePublicKey().toCoseRepresenation() as OneKey)) {
+                        if (it.validate(trustedCert.buildCosePublicKey().toCoseRepresentation() as OneKey)) {
                             verificationResult.coseVerified = true
                             return it.GetContent()
                         }

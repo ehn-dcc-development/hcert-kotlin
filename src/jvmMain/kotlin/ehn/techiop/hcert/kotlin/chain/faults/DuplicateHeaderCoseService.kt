@@ -22,7 +22,7 @@ class DuplicateHeaderCoseService(private val cryptoService: CryptoService) : Def
                     CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.PROTECTED)
                 it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.UNPROTECTED)
             }
-            it.sign(cryptoService.getCborSigningKey().toCoseRepresenation() as OneKey)
+            it.sign(cryptoService.getCborSigningKey().toCoseRepresentation() as OneKey)
         }.EncodeToBytes()
     }
 

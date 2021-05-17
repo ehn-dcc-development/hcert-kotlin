@@ -35,7 +35,7 @@ class TrustListEncodeService @OptIn(ExperimentalTime::class) constructor(
                 it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.PROTECTED)
             }
             it.addAttribute(CBORObject.FromObject(42), CBORObject.FromObject(1), Attribute.PROTECTED)
-            it.sign(signingService.getCborSigningKey().toCoseRepresenation() as OneKey)
+            it.sign(signingService.getCborSigningKey().toCoseRepresentation() as OneKey)
         }.EncodeToBytes()
     }
 

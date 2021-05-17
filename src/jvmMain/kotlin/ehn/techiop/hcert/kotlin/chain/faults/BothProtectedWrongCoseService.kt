@@ -21,7 +21,7 @@ class BothProtectedWrongCoseService(private val cryptoService: CryptoService) :
                 it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.UNPROTECTED)
             }
             it.protectedAttributes.Add(HeaderKeys.KID.AsCBOR(), CBORObject.FromObject("foo".toByteArray()))
-            it.sign(cryptoService.getCborSigningKey().toCoseRepresenation() as OneKey)
+            it.sign(cryptoService.getCborSigningKey().toCoseRepresentation() as OneKey)
         }.EncodeToBytes()
     }
 
