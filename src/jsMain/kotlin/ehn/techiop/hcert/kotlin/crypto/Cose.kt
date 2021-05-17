@@ -1,8 +1,11 @@
 package ehn.techiop.hcert.kotlin.crypto
 
 import Asn1js.fromBER
+import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import ehn.techiop.hcert.kotlin.trust.KeyType
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
@@ -99,7 +102,6 @@ class JsCertificate(private val encoded: ByteArray) : Certificate<dynamic> {
         val parsed = fromBER(it.buffer).result; pkijs.src.Certificate.Certificate(js("({'schema':parsed})"))
     }
 
-
     override fun getValidContentTypes(): List<ContentType> {
         TODO("Not yet implemented")
     }
@@ -117,5 +119,16 @@ class JsCertificate(private val encoded: ByteArray) : Certificate<dynamic> {
         val x = keyInfo["x"]
         val y = keyInfo["y"]
         return CoseJsEcPubKey(xCoord= x,yCoord=y, curve=CurveIdentifier.P256)
+    }
+
+    fun toTrustedCertificate(): TrustedCertificate {
+        return TrustedCertificate(
+            validFrom = getValidFrom(),
+            validUntil = getValidUntil(),
+            kid = PkiUtils.calcKid(byteArrayOf()),
+            keyType = KeyType.EC,
+            publicKey = byteArrayOf(),
+            validContentTypes = listOf(ContentType.RECOVERY, ContentType.TEST, ContentType.VACCINATION)
+        )
     }
 }

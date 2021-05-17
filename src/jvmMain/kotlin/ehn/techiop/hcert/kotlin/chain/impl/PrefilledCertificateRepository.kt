@@ -8,7 +8,7 @@ import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 
-class PrefilledCertificateRepository : CertificateRepository {
+actual class PrefilledCertificateRepository : CertificateRepository {
 
     private val list = mutableListOf<X509Certificate>()
 
