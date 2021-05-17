@@ -3,9 +3,11 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.Cbor
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import org.khronos.webgl.Uint8Array
+import kotlin.coroutines.suspendCoroutine
 import kotlin.js.json
 
 actual class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
@@ -14,8 +16,8 @@ actual class DefaultCoseService(private val cryptoService: CryptoService) : Cose
         val header =
             json(*cryptoService.getCborHeaders().map { Pair(it.first.value.toString(), it.second) }.toTypedArray())
         val signer = cryptoService.getCborSigningKey()
-        Cose.sign(header, input, signer)
-        // TODO get result from promise
+        val promise = Cose.sign(header, input, signer)
+        // TODO get result from promise, with suspend
         return byteArrayOf()
     }
 
@@ -34,8 +36,7 @@ actual class DefaultCoseService(private val cryptoService: CryptoService) : Cose
         if (kid === undefined)
             throw IllegalArgumentException("KID not found")
         val algorithm = protectedHeaderCbor.get(1)
-        // TODO Uint8Array as ByteArray!
-        val pubKey = cryptoService.getCborVerificationKey(kid.asDynamic() as ByteArray, verificationResult)
+        val pubKey = cryptoService.getCborVerificationKey(kid.toByteArray(), verificationResult)
         Cose.verify(input, pubKey).also {
             it.then { verificationResult.coseVerified = true }
         }
