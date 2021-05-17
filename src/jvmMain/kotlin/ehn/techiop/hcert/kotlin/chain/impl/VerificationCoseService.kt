@@ -11,7 +11,7 @@ import ehn.techiop.hcert.kotlin.trust.buildCosePublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 
-class VerificationCoseService(private val repository: CertificateRepository) : CoseService {
+actual class VerificationCoseService actual constructor(private val repository: CertificateRepository) : CoseService {
 
     init {
         Security.addProvider(BouncyCastleProvider()) // for SHA256withRSA/PSS
