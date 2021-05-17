@@ -90,7 +90,9 @@ kotlin {
             dependencies {
                 implementation(npm("pako", "2.0.3"))
                 implementation(npm("@types/pako", "1.0.1", generateExternals = true))
-
+                //implementation(npm("@peculiar/x509", "1.3.0", generateExternals = true))
+                implementation(npm("pkijs", "2.1.95"))
+                //implementation(npm("@types/pkijs", "0.0.6", generateExternals = true))
             }
         }
         val jsTest by getting
