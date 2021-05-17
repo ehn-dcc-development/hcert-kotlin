@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.crypto
 
 import Asn1js.fromBER
+import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
@@ -18,6 +19,11 @@ internal object Buffer {
         val d = Uint8Array(arr.toTypedArray()) // needed for JS-magic
         return js("b.from(d)")
     }
+
+    @Suppress("UNUSED_VARIABLE")
+    internal fun toByteArray(arr: dynamic): ByteArray {
+        return Uint8Array(buffer = arr.buffer).toByteArray()
+    }
 }
 
 internal object Cbor {
@@ -28,6 +34,12 @@ internal object Cbor {
         val c = cbor // needed for JS-magic
         val d = Buffer.from(data) // needed for JS-magic
         return js("c.decodeFirstSync(d)")
+    }
+
+    @Suppress("UNUSED_VARIABLE")
+    fun encode(data: Json): dynamic {
+        val c = cbor // needed for JS-magic
+        return js("c.encode(data)")
     }
 }
 

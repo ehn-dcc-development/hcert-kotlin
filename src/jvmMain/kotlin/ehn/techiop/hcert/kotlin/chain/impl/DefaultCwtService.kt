@@ -6,17 +6,15 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
-import kotlin.time.toDuration
 
 /**
  * Encodes/decodes input as a CWT structure, ready to sign with COSE
  */
-open class DefaultCwtService @OptIn(ExperimentalTime::class) constructor(
-    private val countryCode: String = "AT",
-    private val validity: Duration = 48.toDuration(DurationUnit.HOURS),
-    private val clock: Clock = Clock.System,
+actual open class DefaultCwtService @OptIn(ExperimentalTime::class) actual constructor(
+    private val countryCode: String,
+    private val validity: Duration,
+    private val clock: Clock,
 ) : CwtService {
 
     private val keyEuDgcV1 = CBORObject.FromObject(1)

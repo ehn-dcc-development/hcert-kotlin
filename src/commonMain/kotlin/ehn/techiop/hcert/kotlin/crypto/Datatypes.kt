@@ -44,6 +44,7 @@ interface EcPubKey<T> : PublicKey<T> {
 enum class CurveIdentifier(val jsonWebCurveID: String, val coseCurveID: UByte) {
     P256("P-256", 1U),
     P384("P-384", 2U),
+
     //P512("P-512", 3U),
     //X25519("X25519", 4U),
     //X448("X448", 5U),
@@ -54,6 +55,7 @@ enum class CurveIdentifier(val jsonWebCurveID: String, val coseCurveID: UByte) {
 
 enum class CoseHeaderKeys(val value: Int) {
     Algorithm(1),
+
     //CONTENT_TYPE(3),
     KID(4),
     IV(5),
@@ -73,4 +75,15 @@ enum class CoseHeaderKeys(val value: Int) {
     //HKDF_Context_PartyV_Other(-26),
     //HKDF_SuppPub_Other(-999),
     //HKDF_SuppPriv_Other(-998);
+}
+
+enum class CwtHeaderKeys(val value: Int) {
+    ISSUER(1),
+    SUBJECT(2),
+    AUDIENCE(3),
+    EXPIRATION(4),
+    NOT_BEFORE(5),
+    ISSUED_AT(6),
+    CWT_ID(7),
+    HCERT(-260),
 }

@@ -7,7 +7,10 @@ import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.Cbor
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import org.khronos.webgl.Uint8Array
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.js.Promise
 import kotlin.js.json
 
 actual class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
@@ -37,7 +40,8 @@ actual class DefaultCoseService(private val cryptoService: CryptoService) : Cose
             throw IllegalArgumentException("KID not found")
         val algorithm = protectedHeaderCbor.get(1)
         val pubKey = cryptoService.getCborVerificationKey(kid.toByteArray(), verificationResult)
-        Cose.verify(input, pubKey).also {
+        val promise = Cose.verify(input, pubKey).also {
+            // TODO make this a suspend function, and then provide a wrapper from JS to call it as a promise
             it.then { verificationResult.coseVerified = true }
         }
         return content
@@ -48,4 +52,7 @@ actual class DefaultCoseService(private val cryptoService: CryptoService) : Cose
             return DefaultCoseService(cryptoService)
         }
     }
+}
+suspend fun <T> Promise<T>.await(): T = suspendCoroutine { cont ->
+    then({ cont.resume(it) }, { cont.resumeWithException(it) })
 }

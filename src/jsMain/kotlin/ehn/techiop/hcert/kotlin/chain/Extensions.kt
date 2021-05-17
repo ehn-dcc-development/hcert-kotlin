@@ -11,7 +11,7 @@ actual fun ByteArray.toHexString() = joinToString("") { it.toString(16) }
 
 actual fun String.fromBase64() = js("Buffer").from(this, "base64").unsafeCast<ByteArray>()
 
-actual fun String.fromBase64Url()= js("Buffer").from(this, "base64url").unsafeCast<ByteArray>()
+actual fun String.fromBase64Url() = js("Buffer").from(this, "base64url").unsafeCast<ByteArray>()
 
 //See https://stackoverflow.com/a/66614516
 actual fun String.fromHexString(): ByteArray {
@@ -23,3 +23,7 @@ actual fun String.fromHexString(): ByteArray {
 }
 
 fun Uint8Array.toByteArray() = ByteArray(length) { this[it] }
+
+fun Map<Any, Any>.mapToJson() = js("{}").also { json ->
+    forEach { json[it.key] = it.value }
+}
