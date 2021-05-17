@@ -1,7 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain.faults
 
 import COSE.Attribute
+import COSE.OneKey
 import COSE.Sign1Message
+import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 
@@ -16,10 +18,11 @@ class DuplicateHeaderCoseService(private val cryptoService: CryptoService) : Def
         return Sign1Message().also {
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
-                it.addAttribute(header.first, header.second, Attribute.PROTECTED)
-                it.addAttribute(header.first, header.second, Attribute.UNPROTECTED)
+                it.addAttribute(
+                    CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.PROTECTED)
+                it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.UNPROTECTED)
             }
-            it.sign(cryptoService.getCborSigningKey())
+            it.sign(cryptoService.getCborSigningKey().toCoseRepresenation() as OneKey)
         }.EncodeToBytes()
     }
 

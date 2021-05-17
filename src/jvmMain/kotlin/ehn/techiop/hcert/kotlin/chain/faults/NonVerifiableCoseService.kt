@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.faults
 
 import COSE.Attribute
 import COSE.Sign1Message
+import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
@@ -17,9 +18,9 @@ class NonVerifiableCoseService(private val cryptoService: CryptoService) : Defau
         return Sign1Message().also {
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
-                it.addAttribute(header.first, header.second, Attribute.PROTECTED)
+                it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.PROTECTED)
             }
-            it.sign(RandomEcKeyCryptoService().getCborSigningKey())
+            it.sign(RandomEcKeyCryptoService().getCborSigningKey().oneKey)
         }.EncodeToBytes()
     }
 

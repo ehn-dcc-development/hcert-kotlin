@@ -2,10 +2,12 @@ package ehn.techiop.hcert.kotlin.chain.faults
 
 import COSE.Attribute
 import COSE.HeaderKeys
+import COSE.OneKey
 import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
+import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 
 /**
  * Puts header entries into the unprotected COSE header.
@@ -18,13 +20,13 @@ class WrongUnprotectedCoseService(private val cryptoService: CryptoService) : De
         return Sign1Message().also {
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
-                if (header.first == HeaderKeys.KID) {
-                    it.addAttribute(header.first, CBORObject.FromObject("foo".toByteArray()), Attribute.UNPROTECTED)
+                if (header.first == CoseHeaderKeys.KID) {
+                    it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject("foo".toByteArray()), Attribute.UNPROTECTED)
                 } else {
-                    it.addAttribute(header.first, header.second, Attribute.UNPROTECTED)
+                    it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.UNPROTECTED)
                 }
             }
-            it.sign(cryptoService.getCborSigningKey())
+            it.sign(cryptoService.getCborSigningKey().toCoseRepresenation() as OneKey)
         }.EncodeToBytes()
     }
 

@@ -1,18 +1,16 @@
 package ehn.techiop.hcert.kotlin.crypto
 
 import COSE.OneKey
-import ehn.techiop.hcert.kotlin.trust.KeyType
-import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
-import org.bouncycastle.asn1.sec.SECNamedCurves
-import org.bouncycastle.asn1.sec.SECObjectIdentifiers
-import org.bouncycastle.jce.ECPointUtil
-import org.bouncycastle.jce.spec.ECNamedCurveSpec
-import java.security.KeyFactory
-import java.security.interfaces.ECPublicKey
-import java.security.spec.ECPublicKeySpec
-import java.security.spec.RSAPublicKeySpec
+import java.security.cert.X509Certificate
 
 class CosePubKey(val oneKey: OneKey) : PublicKey<OneKey> {
     override fun toCoseRepresenation() = oneKey
 }
 
+class CosePrivateKey(val oneKey: OneKey) : PrivateKey<OneKey> {
+    override fun toCoseRepresenation() = oneKey
+}
+
+class JvmCertificate(val certificate: X509Certificate) : Certificate<X509Certificate> {
+
+}

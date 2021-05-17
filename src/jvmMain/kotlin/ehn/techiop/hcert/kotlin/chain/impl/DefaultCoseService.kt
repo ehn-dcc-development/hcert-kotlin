@@ -3,7 +3,9 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import COSE.Attribute
 import COSE.HeaderKeys
 import COSE.MessageTag
+import COSE.OneKey
 import COSE.Sign1Message
+import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
@@ -18,9 +20,9 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
         return Sign1Message().also {
             it.SetContent(input)
             cryptoService.getCborHeaders().forEach { header ->
-                it.addAttribute(header.first, header.second, Attribute.PROTECTED)
+                it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.PROTECTED)
             }
-            it.sign(cryptoService.getCborSigningKey())
+            it.sign(cryptoService.getCborSigningKey().toCoseRepresenation() as OneKey)
         }.EncodeToBytes()
     }
 
@@ -31,7 +33,7 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
                 try {
                     val kid = it.findAttribute(HeaderKeys.KID)?.GetByteString() ?: throw IllegalArgumentException("kid")
                     val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
-                    verificationResult.coseVerified = it.validate(verificationKey)
+                    verificationResult.coseVerified = it.validate(verificationKey.toCoseRepresenation() as OneKey)
                 } catch (e: Throwable) {
                     it.GetContent()
                 }

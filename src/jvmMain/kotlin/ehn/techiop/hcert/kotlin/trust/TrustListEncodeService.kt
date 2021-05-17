@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import COSE.Attribute
+import COSE.OneKey
 import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
@@ -31,10 +32,10 @@ class TrustListEncodeService @OptIn(ExperimentalTime::class) constructor(
         return Sign1Message().also {
             it.SetContent(Cbor.encodeToByteArray(trustList))
             signingService.getCborHeaders().forEach { header ->
-                it.addAttribute(header.first, header.second, Attribute.PROTECTED)
+                it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.PROTECTED)
             }
             it.addAttribute(CBORObject.FromObject(42), CBORObject.FromObject(1), Attribute.PROTECTED)
-            it.sign(signingService.getCborSigningKey())
+            it.sign(signingService.getCborSigningKey().toCoseRepresenation() as OneKey)
         }.EncodeToBytes()
     }
 

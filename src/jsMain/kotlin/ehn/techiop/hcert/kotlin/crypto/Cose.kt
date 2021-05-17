@@ -53,7 +53,21 @@ class CoseEcKey(x: ByteArray, y: ByteArray) {
     class Holder(val x: dynamic, val y: dynamic)
 }
 
+// TODO is "d" sufficient?
+class CoseEcPrivateKey(d: ByteArray) {
+    val key = Holder(Buffer.from(d))
+    class Holder(val d: dynamic)
+}
+
 class CoseJsEcPubKey(val xCoord: ByteArray, val yCoord: ByteArray, override val curve: CurveIdentifier) :
     EcPubKey<dynamic> {
     override fun toCoseRepresenation() = CoseEcKey(xCoord, yCoord)
+}
+
+class CoseJsPrivateKey(val d: ByteArray, val curve: CurveIdentifier): PrivateKey<dynamic> {
+    override fun toCoseRepresenation() = CoseEcPrivateKey(d)
+}
+
+class JsCertificate(): Certificate<dynamic> {
+    // TODO implement JS Certificate
 }

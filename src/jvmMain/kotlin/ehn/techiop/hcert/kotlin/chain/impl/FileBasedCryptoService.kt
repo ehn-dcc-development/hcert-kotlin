@@ -1,12 +1,16 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import COSE.AlgorithmID
-import COSE.HeaderKeys
 import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
+import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.CosePrivateKey
+import ehn.techiop.hcert.kotlin.crypto.CosePubKey
+import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import kotlinx.datetime.Instant
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -48,21 +52,21 @@ class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: S
     }
 
     override fun getCborHeaders() = listOf(
-        Pair(HeaderKeys.Algorithm, algorithmID.AsCBOR()),
-        Pair(HeaderKeys.KID, CBORObject.FromObject(keyId))
+        Pair(CoseHeaderKeys.Algorithm, algorithmID.AsCBOR()),
+        Pair(CoseHeaderKeys.KID, CBORObject.FromObject(keyId))
     )
 
-    override fun getCborSigningKey() = OneKey(publicKey, privateKey)
+    override fun getCborSigningKey() = CosePrivateKey(OneKey(publicKey, privateKey))
 
-    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): OneKey {
+    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): ehn.techiop.hcert.kotlin.crypto.PublicKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
         verificationResult.certificateValidFrom = Instant.fromEpochSeconds(certificate.notBefore.toInstant().epochSecond)
         verificationResult.certificateValidUntil = Instant.fromEpochSeconds(certificate.notAfter.toInstant().epochSecond)
         verificationResult.certificateValidContent = PkiUtils.getValidContentTypes(certificate)
-        return OneKey(publicKey, privateKey)
+        return CosePubKey(OneKey(publicKey, privateKey))
     }
 
-    override fun getCertificate() = certificate
+    override fun getCertificate(): Certificate<*> = JvmCertificate(certificate)
 
     override fun exportPrivateKeyAsPem() = StringWriter().apply {
         PemWriter(this).use {
