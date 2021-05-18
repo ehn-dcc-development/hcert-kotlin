@@ -81,6 +81,7 @@ class ExtendedTestRunner {
     }
 
     fun verificationLoader(filename: String) {
+
         val contents = "" // todo load file
         val context = TestContext(
             1,
@@ -96,8 +97,7 @@ class ExtendedTestRunner {
 
     fun verification(filename: String, case: TestCase) {
         println("Executing verification test case \"${filename}\": \"${case.context.description}\"")
-        // TODO val clock = case.context.validationClock?.let { Clock.fixed(it, ZoneOffset.UTC) } ?: Clock.systemUTC()
-        val clock = case.context.validationClock?.let { Clock.System } ?: Clock.System
+        val clock = case.context.validationClock?.let { FixedClock(it) } ?: Clock.System
         val decisionService = DecisionService(clock)
         if (case.context.certificate == null) throw IllegalArgumentException("certificate")
         val certificateRepository = PrefilledCertificateRepository(case.context.certificate)

@@ -1,12 +1,14 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.ext.FixedClock
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
@@ -20,7 +22,7 @@ class TrustListTest {
 
     @Test
     fun serverClientExchange() {
-        val clock = Clock.System // TODO Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)
+        val clock = FixedClock(Instant.fromEpochMilliseconds(0))
         val cryptoService = RandomEcKeyCryptoService(clock = clock)
         val certificate = cryptoService.getCertificate()
         val trustListEncoded = TrustListEncodeService(cryptoService, clock = clock).encode(randomCertificates(clock))

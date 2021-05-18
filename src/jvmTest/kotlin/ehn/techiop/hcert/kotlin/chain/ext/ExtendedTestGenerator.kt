@@ -38,6 +38,7 @@ import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -52,7 +53,7 @@ class ExtendedTestGenerator {
     private val eudgcRec = Json.decodeFromString<GreenCertificate>(SampleData.recovery)
     private val eudgcTest = Json.decodeFromString<GreenCertificate>(SampleData.testNaa)
     private val eudgcTestRat = Json.decodeFromString<GreenCertificate>(SampleData.testRat)
-    private val clock = kotlinx.datetime.Clock.System //Clock.fixed(Instant.parse("2021-05-03T18:00:00Z"), ZoneOffset.UTC)
+    private val clock = FixedClock(Instant.parse("2021-05-03T18:00:00Z"))
     private val cryptoService = RandomEcKeyCryptoService(clock = clock)
 
     @Test
@@ -524,7 +525,7 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeCO16ValidationClockBeforeIssuedAt() {
-        val clockInFuture = Clock.System //TODO Clock.fixed(Instant.parse("2023-05-03T18:00:00Z"), ZoneOffset.UTC)
+        val clockInFuture = FixedClock(Instant.parse("2023-05-03T18:00:00Z"))
         val cryptoService = RandomEcKeyCryptoService(clock = clockInFuture)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
@@ -544,7 +545,7 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeCO17ValidationClockAfterExpired() {
-        val clockInPast = Clock.System //TODO Clock.fixed(Instant.parse("2018-05-03T18:00:00Z"), ZoneOffset.UTC)
+        val clockInPast = FixedClock(Instant.parse("2018-05-03T18:00:00Z"))
         val cryptoService = RandomEcKeyCryptoService(clock = clockInPast)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
