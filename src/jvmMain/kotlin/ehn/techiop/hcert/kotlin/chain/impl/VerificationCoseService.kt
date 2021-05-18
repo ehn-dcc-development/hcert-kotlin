@@ -7,7 +7,6 @@ import COSE.Sign1Message
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.trust.buildCosePublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 
@@ -29,7 +28,7 @@ actual class VerificationCoseService actual constructor(private val repository: 
                         verificationResult.certificateValidFrom = trustedCert.validFrom
                         verificationResult.certificateValidUntil = trustedCert.validUntil
                         verificationResult.certificateValidContent = trustedCert.validContentTypes
-                        if (it.validate(trustedCert.buildCosePublicKey().toCoseRepresentation() as OneKey)) {
+                        if (it.validate(trustedCert.cosePublicKey.toCoseRepresentation() as OneKey)) {
                             verificationResult.coseVerified = true
                             return it.GetContent()
                         }

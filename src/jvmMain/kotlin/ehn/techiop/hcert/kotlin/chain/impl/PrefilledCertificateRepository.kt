@@ -4,6 +4,8 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils.toTrustedCertificate
+import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
+import ehn.techiop.hcert.kotlin.crypto.kid
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -27,7 +29,7 @@ actual class PrefilledCertificateRepository : CertificateRepository {
         kid: ByteArray,
         verificationResult: VerificationResult
     ): List<TrustedCertificate> {
-        val certList = list.filter { PkiUtils.calcKid(it) contentEquals kid }
+        val certList = list.filter {it.kid contentEquals kid }
         if (certList.isEmpty()) throw IllegalArgumentException("kid")
         return certList.map { it.toTrustedCertificate() }
     }

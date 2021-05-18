@@ -9,6 +9,8 @@ interface Certificate<T> {
     fun getValidFrom(): Instant
     fun getValidUntil(): Instant
     fun getPublicKey(): PublicKey<*>
+    fun toTrustedCertificate(): TrustedCertificate
+    fun calcKid():ByteArray
 
 }
 

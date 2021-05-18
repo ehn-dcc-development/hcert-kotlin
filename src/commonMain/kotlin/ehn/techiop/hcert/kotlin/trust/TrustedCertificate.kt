@@ -1,110 +1,73 @@
 package ehn.techiop.hcert.kotlin.trust
 
+import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.PublicKey
 import kotlinx.datetime.Instant
-import kotlinx.datetime.serializers.InstantIso8601Serializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.cbor.ByteString
 
 
+interface TrustedCertificate {
+
+    val kid: ByteArray
+
+    val cosePublicKey: PublicKey<*>
+
+    val validContentTypes: List<ContentType>
+
+    val validFrom: Instant
+
+    val validUntil: Instant
+
+}
+
 @ExperimentalSerializationApi
 @Serializable
-data class TrustedCertificate constructor(
-    @SerialName("f")
-    @Serializable(with = InstantIso8601Serializer::class)
-    val validFrom: Instant,
-
-    @SerialName("u")
-    @Serializable(with = InstantIso8601Serializer::class)
-    val validUntil: Instant,
-
+data class TrustedCertificateV2(
     @SerialName("i")
     @ByteString
-    val kid: ByteArray,
+    override val kid: ByteArray,
 
-    @SerialName("k")
-    val keyType: KeyType,
-
-    /**
-     * Public key in PKCS#1 encoding, i.e. without algorithm identifiers around it.
-     * For EC: "04 || X || Y".
-     * For RSA: "ASN1-SEQ { MODULUS, EXPONENT }"
-     */
-    @SerialName("p")
+    @SerialName("c")
     @ByteString
-    val publicKey: ByteArray,
+    val certificate: ByteArray
+) : TrustedCertificate {
 
-    @SerialName("t")
-    val validContentTypes: List<ContentType>,
-) {
-    /*
-    companion object {
-        fun fromCert(certificate: X509Certificate) = TrustedCertificate(
-            validFrom = certificate.notBefore.toInstant(),
-            validUntil = certificate.notAfter.toInstant(),
-            kid = PkiUtils.calcKid(certificate),
-            keyType = when (certificate.publicKey) {
-                is RSAPublicKey -> KeyType.RSA
-                is ECPublicKey -> KeyType.EC
-                else -> throw IllegalArgumentException("keyType")
-            },
-            publicKey = SubjectPublicKeyInfo.getInstance(certificate.publicKey.encoded).publicKeyData.bytes,
-            validContentTypes = PkiUtils.getValidContentTypes(certificate)
-        )
-    }
+    //**WARNING*** do not user lazy delegates! it *will* break!!!
 
-    fun buildOneKey(): OneKey {
-        val publicKey = when (keyType) {
-            KeyType.RSA -> {
-                val rsaPublicKey = org.bouncycastle.asn1.pkcs.RSAPublicKey.getInstance(publicKey)
-                val spec = RSAPublicKeySpec(rsaPublicKey.modulus, rsaPublicKey.publicExponent)
-                KeyFactory.getInstance("RSA").generatePublic(spec)
-            }
-            KeyType.EC -> {
-                val ecCurveName = when (publicKey.size) {
-                    65 -> SECNamedCurves.getName(SECObjectIdentifiers.secp256r1)
-                    97 -> SECNamedCurves.getName(SECObjectIdentifiers.secp384r1)
-                    else -> throw IllegalArgumentException("key")
-                }
-                val param = SECNamedCurves.getByName(ecCurveName)
-                val paramSpec = ECNamedCurveSpec(ecCurveName, param.curve, param.g, param.n)
-                val publicPoint = ECPointUtil.decodePoint(paramSpec.curve, publicKey)
-                val spec = ECPublicKeySpec(publicPoint, paramSpec)
-                KeyFactory.getInstance("EC").generatePublic(spec)
-            }
-        }
-        return OneKey(publicKey, null)
-    }
-*/
+    @Transient
+    val decodedCertificate = decodeCertificate()
+
+    @Transient
+    override val validContentTypes=decodedCertificate.getValidContentTypes()
+    @Transient
+    override val cosePublicKey =decodedCertificate.getPublicKey()
+    @Transient
+    override val validUntil  =decodedCertificate.getValidUntil()
+    @Transient
+    override val validFrom =decodedCertificate.getValidFrom()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        other?.let {
-            if (this::class != other::class) return false
-        }
+        other ?: let { if (this::class != it::class) return false }
 
-        other as TrustedCertificate
+        other as TrustedCertificateV2
 
-        if (validFrom != other.validFrom) return false
-        if (validUntil != other.validUntil) return false
         if (!kid.contentEquals(other.kid)) return false
-        if (keyType != other.keyType) return false
-        if (!publicKey.contentEquals(other.publicKey)) return false
-        if (validContentTypes != other.validContentTypes) return false
+        if (!certificate.contentEquals(other.certificate)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = validFrom.hashCode()
-        result = 31 * result + validUntil.hashCode()
-        result = 31 * result + kid.contentHashCode()
-        result = 31 * result + keyType.hashCode()
-        result = 31 * result + publicKey.contentHashCode()
-        result = 31 * result + validContentTypes.hashCode()
+        var result = kid.contentHashCode()
+        result = 31 * result + certificate.contentHashCode()
         return result
     }
 }
 
-expect fun TrustedCertificate.buildCosePublicKey():PublicKey<*>
+
+expect fun TrustedCertificateV2.decodeCertificate(): Certificate<*>

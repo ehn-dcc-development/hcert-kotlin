@@ -46,7 +46,7 @@ actual class TrustListDecodeService actual constructor(
 
     private fun validate(sign1Message: Sign1Message, kid: ByteArray): Boolean {
         repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
-            if (sign1Message.validate(it.buildCosePublicKey().toCoseRepresentation() as OneKey)) {
+            if (sign1Message.validate(it.cosePublicKey.toCoseRepresentation() as OneKey)) {
                 return true
             }
         }

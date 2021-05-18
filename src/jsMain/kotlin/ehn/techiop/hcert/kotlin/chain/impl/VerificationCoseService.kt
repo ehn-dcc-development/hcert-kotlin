@@ -3,7 +3,6 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import Buffer
 import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.crypto.Cose
-import ehn.techiop.hcert.kotlin.trust.buildCosePublicKey
 import org.khronos.webgl.Uint8Array
 
 actual class VerificationCoseService actual constructor(private val repository: CertificateRepository) : CoseService {
@@ -38,7 +37,7 @@ actual class VerificationCoseService actual constructor(private val repository: 
             verificationResult.certificateValidFrom = trustedCert.validFrom
             verificationResult.certificateValidUntil = trustedCert.validUntil
             verificationResult.certificateValidContent = trustedCert.validContentTypes
-            val pubKey = trustedCert.buildCosePublicKey()
+            val pubKey = trustedCert.cosePublicKey
             val result = Cose.verify(input, pubKey)
             console.info("COSE VERIFIED")
             console.info(result)

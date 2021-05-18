@@ -1,10 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain.common
 
-import COSE.OneKey
+import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import ehn.techiop.hcert.kotlin.trust.KeyType
-import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
-import kotlinx.datetime.Instant
+import ehn.techiop.hcert.kotlin.trust.oidRecovery
+import ehn.techiop.hcert.kotlin.trust.oidTest
+import ehn.techiop.hcert.kotlin.trust.oidVaccination
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.x500.X500Name
@@ -14,28 +14,19 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import java.io.ByteArrayInputStream
 import java.math.BigInteger
 import java.security.KeyPair
-import java.security.MessageDigest
 import java.security.PrivateKey
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPrivateKey
-import java.security.interfaces.ECPublicKey
-import java.security.interfaces.RSAPublicKey
 import java.time.Clock
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-actual object PkiUtils {
+object PkiUtils {
 
     const val oidTest = "1.3.6.1.4.1.0.1847.2021.1.1"
     const val oidVaccination = "1.3.6.1.4.1.0.1847.2021.1.2"
     const val oidRecovery = "1.3.6.1.4.1.0.1847.2021.1.3"
-
-    actual fun calcKid(encodedCert: ByteArray) = MessageDigest.getInstance("SHA-256")
-        .digest(encodedCert)
-        .copyOf(8)
-
-    fun calcKid(certificate: X509Certificate) = PkiUtils.calcKid(certificate.encoded)
 
     fun selfSignCertificate(
         subjectName: X500Name,
@@ -104,18 +95,7 @@ actual object PkiUtils {
     }
 
 
-    fun X509Certificate.toTrustedCertificate( ) = TrustedCertificate(
-        validFrom = Instant.fromEpochMilliseconds(notBefore.toInstant().toEpochMilli()),
-        validUntil = Instant.fromEpochMilliseconds(notAfter.toInstant().toEpochMilli()),
-        kid = calcKid(this),
-        keyType = when (publicKey) {
-            is RSAPublicKey -> KeyType.RSA
-            is ECPublicKey -> KeyType.EC
-            else -> throw IllegalArgumentException("keyType")
-        },
-        publicKey = SubjectPublicKeyInfo.getInstance(publicKey.encoded).publicKeyData.bytes,
-        validContentTypes = getValidContentTypes(this)
-    )
+    fun X509Certificate.toTrustedCertificate() = JvmCertificate(this).toTrustedCertificate()
 
 
 }

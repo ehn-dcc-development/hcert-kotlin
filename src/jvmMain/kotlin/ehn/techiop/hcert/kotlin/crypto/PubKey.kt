@@ -3,8 +3,16 @@ package ehn.techiop.hcert.kotlin.crypto
 import COSE.OneKey
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
 import kotlinx.datetime.Instant
+import java.security.MessageDigest
 import java.security.cert.X509Certificate
+
+val X509Certificate.kid: ByteArray
+    get() = MessageDigest.getInstance("SHA-256")
+        .digest(encoded)
+        .copyOf(8)
 
 class CosePubKey(val oneKey: OneKey) : PublicKey<OneKey> {
     override fun toCoseRepresentation() = oneKey
@@ -31,5 +39,11 @@ class JvmCertificate(val certificate: X509Certificate) : Certificate<X509Certifi
     override fun getPublicKey(): PublicKey<*> {
         return CosePubKey(OneKey(certificate.publicKey, null))
     }
+
+    override fun toTrustedCertificate(): TrustedCertificate {
+        return TrustedCertificateV2(calcKid(), certificate.encoded)
+    }
+
+    override fun calcKid() = certificate.kid
 
 }

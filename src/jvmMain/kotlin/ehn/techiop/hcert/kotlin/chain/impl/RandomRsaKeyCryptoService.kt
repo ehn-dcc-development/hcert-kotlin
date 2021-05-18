@@ -6,12 +6,7 @@ import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
-import ehn.techiop.hcert.kotlin.crypto.Certificate
-import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.CosePrivateKey
-import ehn.techiop.hcert.kotlin.crypto.CosePubKey
-import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
-import ehn.techiop.hcert.kotlin.crypto.PublicKey
+import ehn.techiop.hcert.kotlin.crypto.*
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Instant
 import org.bouncycastle.asn1.x500.X500Name
@@ -37,7 +32,7 @@ class RandomRsaKeyCryptoService(
     private val keyPair = KeyPairGenerator.getInstance("RSA")
         .apply { initialize(keySize) }.genKeyPair()
     private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair, contentType, clock)
-    private val keyId = PkiUtils.calcKid(certificate)
+    private val keyId = certificate.kid
 
     override fun getCborHeaders() = listOf(
         Pair(CoseHeaderKeys.Algorithm, AlgorithmID.RSA_PSS_256.AsCBOR()),

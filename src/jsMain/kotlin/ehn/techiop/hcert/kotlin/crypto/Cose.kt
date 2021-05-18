@@ -2,16 +2,17 @@ package ehn.techiop.hcert.kotlin.crypto
 
 import Asn1js.fromBER
 import Buffer
+import Hash
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import ehn.techiop.hcert.kotlin.trust.KeyType
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
 import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
-import kotlin.js.Date
+import pkijs.src.Time.Time
 import kotlin.js.Json
 import kotlin.js.Promise
 
@@ -28,8 +29,8 @@ internal object Cose {
 
     }
 
-    fun verify(signedBitString: ByteArray, pubKey: PublicKey<*>):ByteArray =
-        internalVerify(Buffer.from(signedBitString.toUint8Array()), pubKey.toCoseRepresentation()).toByteArray()
+    fun verify(signedBitString: ByteArray, pubKey: PublicKey<*>): ByteArray =
+        internalVerify(Buffer.from(signedBitString), pubKey.toCoseRepresentation()).toByteArray()
 
     @Suppress("UNUSED_VARIABLE")
     private fun internalSign(header: dynamic, data: dynamic, signer: dynamic): Promise<ByteArray> {
@@ -75,30 +76,30 @@ class CoseJsPrivateKey(val d: ByteArray, val curve: CurveIdentifier) : PrivateKe
     override fun toCoseRepresentation() = CoseEcPrivateKey(d)
 }
 
-class JsCertificate(private val encoded: ByteArray) : Certificate<dynamic> {
+class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
 
     constructor(pem: String) : this(
         pem.lines().let { it.dropLast(1).drop(1) }.joinToString(separator = "").fromBase64()
     )
 
-    private val cert = Uint8Array(encoded.toTypedArray()).let {
-        val parsed = fromBER(it.buffer).result; pkijs.src.Certificate.Certificate(js("({'schema':parsed})"))
+    private val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->
+        fromBER(bytes.buffer).result.let { pkijs.src.Certificate.Certificate(js("({'schema':it})")) }
     }
 
-    init {
-        onlyCert = this
-    }
 
     override fun getValidContentTypes(): List<ContentType> {
-        TODO("Not yet implemented")
+        //TODO
+        return listOf()
     }
 
     override fun getValidFrom(): Instant {
-        TODO("Not yet implemented")
+        val date = (cert.notBefore as Time).value
+        return Instant.parse(date.toISOString())
     }
 
     override fun getValidUntil(): Instant {
-        TODO("Not yet implemented")
+        val date = (cert.notAfter as Time).value
+        return Instant.parse(date.toISOString())
     }
 
     override fun getPublicKey(): PublicKey<*> {
@@ -113,19 +114,12 @@ class JsCertificate(private val encoded: ByteArray) : Certificate<dynamic> {
     }
 
     override fun toTrustedCertificate(): TrustedCertificate {
-        val pk = ((cert.subjectPublicKeyInfo as Json)["subjectPublicKey"] as Json)["valueBeforeDecode"] as ArrayBuffer
-
-        return TrustedCertificate(
-            Clock.System.now(),
-            Clock.System.now(),
-            byteArrayOf(),
-            KeyType.EC,
-            (cert.subjectPublicKeyInfo as Buffer).toByteArray(),
-            listOf()
-        )
+        return TrustedCertificateV2(calcKid(), encoded)
     }
 
-    companion object {
-        var onlyCert: JsCertificate? = null
+    override fun calcKid(): ByteArray {
+        val hash = Hash()
+        hash.update(encoded.toUint8Array())
+        return hash.digest().toByteArray().copyOf(8)
     }
 }

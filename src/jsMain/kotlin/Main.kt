@@ -9,6 +9,8 @@ import ehn.techiop.hcert.kotlin.crypto.*
 import ehn.techiop.hcert.kotlin.data.*
 import kotlinx.browser.window
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.internal.JSJoda.Instant
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.khronos.webgl.Uint8Array
@@ -16,6 +18,7 @@ import org.khronos.webgl.get
 import pkijs.src.Certificate.Certificate
 import org.w3c.fetch.Request
 import org.w3c.xhr.XMLHttpRequest
+import kotlin.js.Date
 
 
 fun main() {
