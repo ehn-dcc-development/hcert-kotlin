@@ -8,6 +8,8 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+expect fun loadResource(filename: String): String?
+
 class ExtendedTestRunner {
 
     @Test
@@ -79,9 +81,11 @@ class ExtendedTestRunner {
     }
 
     fun verificationLoader(filename: String) {
-        loadResource(filename) {
-            verification(filename, Json.decodeFromString(it))
+        val loadResource = loadResource(filename)
+        if (loadResource == null) {
+            throw Throwable("Could not find resource $filename")
         }
+        verification(filename, Json.decodeFromString(loadResource))
 
     }
 

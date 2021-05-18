@@ -16,6 +16,3 @@ actual fun String.fromBase64Url() = Base64.getUrlDecoder().decode(this)
 actual fun String.fromHexString() = chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 
 
-actual fun loadResource(filename: String, cb: (String) -> Unit) {
-    cb(String::class.java.getResource(filename)?.readText() ?: "")
-    }

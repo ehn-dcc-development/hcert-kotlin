@@ -20,12 +20,32 @@ repositories {
     mavenCentral()
 }
 
+/*
 
 val copyJsTestResources by tasks.creating(Copy::class) {
     group = "copy"
     from("$projectDir/src/commonTest/resources")
     into("${rootProject.buildDir}/js/packages/${project.name}-test/src/commonTest/resources")
+    if(!File("${projectDir.absolutePath}/src/jsTest/generated").mkdirs()){
+        throw Throwable("Could not create generated sources folder")
+    }
+    val f = File("${projectDir.absolutePath}/src/jsTest/generated/TestCaseHolder.kt")
+    val w = f.writer()
+    w.write("""object RHolder{
+        |private val m=mutableMapOf<String,String>()
+        |init{
+    """.trimMargin())
+    val r = File("${projectDir.absolutePath}/src/commonTest/resources").listFiles().forEach {
+        w.write("m.[\"${it.name}\"]=" +
+                "  \"\"\"${it.readText()}\"\"\" ")
+    }
+w.write("}" +
+        "fun get(k:String)=m[k]" +
+        "}")
+    w.close()
+    this
 }
+*/
 
 
 kotlin {
@@ -65,15 +85,19 @@ kotlin {
     js(LEGACY) {
         browser {
             testTask {
-                dependsOn(copyJsTestResources)
+//dependsOn(copyJsTestResources)
                 useKarma {
                     useChromeHeadless()
                     webpackConfig.cssSupport.enabled = false
+                    webpackConfig.configDirectory = project.projectDir.resolve("webpack.config.test.d")
                 }
             }
         }
+        //sourceSets.create("src/jsTest/generated")
         useCommonJs()
+
     }
+
 
 
     sourceSets {
@@ -126,11 +150,58 @@ kotlin {
                 implementation(npm("url", "0.11.0"))
             }
         }
+
+
         val jsTest by getting {
+            sourceSets { kotlin.srcDir("src/jsTest/generated") }
             dependencies {
                 implementation(kotlin("test-js"))
             }
         }
+
     }
 }
 
+tasks.named("jsProcessResources") {
+    dependsOn(tasks.named("jsGenerateTestClasses"))
+}
+
+tasks.register("jsGenerateTestClasses") {
+    println("Wrapping test resources into code")
+    doFirst {
+        val dir = File("${projectDir.absolutePath}/src/jsTest/generated")
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw Throwable("Could not create generated sources folder")
+            }
+        }
+        val f = File("${projectDir.absolutePath}/src/jsTest/generated/TestCaseHolder.kt")
+        f.delete()
+        f.createNewFile()
+        if (!f.canWrite()) {
+            throw Throwable("cannot write generated source file $f")
+        }
+        val w = f.writer()
+        w.write(
+            """object RHolder{
+        |private val m=mutableMapOf<String,String>()
+        |init{
+    """.trimMargin()
+        )
+        val r = File("${projectDir.absolutePath}/src/commonTest/resources").listFiles().forEach {
+            val encodeBase64 =
+                de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
+
+            w.write(
+                "m[\"${it.name}\"]=\"" + String(encodeBase64) +
+                        "\"\n"
+            )
+        }
+        w.write(
+            "}" +
+                    "fun get(k:String)=m[k]" +
+                    "}"
+        )
+        w.close()
+    }
+}

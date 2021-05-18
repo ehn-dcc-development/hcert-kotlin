@@ -8,3 +8,4 @@
 .gradle
 **/build/
 !src/**/build/
+src/jsTest/generated
