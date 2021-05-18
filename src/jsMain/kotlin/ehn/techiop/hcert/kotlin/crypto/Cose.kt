@@ -52,14 +52,14 @@ internal object Cose {
     private fun internalVerify(
         data: dynamic,
         verifier: dynamic
-    ): Promise<Any> {
+    ): Uint8Array {
         val c = cose // needed for JS-magic
-        return (js("c.sign.verify(data, verifier)") as Promise<Any>)
+        return js("c.sign.verify(data, verifier)") as Uint8Array
 
     }
 
-    fun verify(signedBitString: ByteArray, pubKey: PublicKey<*>) =
-        internalVerify(Buffer.from(signedBitString), pubKey.toCoseRepresentation())
+    fun verify(signedBitString: ByteArray, pubKey: PublicKey<*>):ByteArray =
+        internalVerify(Buffer.from(signedBitString), pubKey.toCoseRepresentation()).toByteArray()
 
     @Suppress("UNUSED_VARIABLE")
     private fun internalSign(header: dynamic, data: dynamic, signer: dynamic): Promise<ByteArray> {

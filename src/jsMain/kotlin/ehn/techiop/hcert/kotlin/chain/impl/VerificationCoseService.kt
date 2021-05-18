@@ -4,7 +4,6 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.crypto.Cbor
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import ehn.techiop.hcert.kotlin.trust.buildCosePublicKey
@@ -36,16 +35,12 @@ actual class VerificationCoseService actual constructor(private val repository: 
             verificationResult.certificateValidUntil = trustedCert.validUntil
             verificationResult.certificateValidContent = trustedCert.validContentTypes
             val pubKey = trustedCert.buildCosePublicKey()
-            Cose.verify(input, pubKey).also {
-                // TODO make this a suspend function, and then provide a wrapper from JS to call it as a promise
-                it.then {
-                    console.info("COSE VERIFIED")
-                    verificationResult.coseVerified = true
-                }
-                return@forEach
-            }
+           val result= Cose.verify(input, pubKey)
+            console.info("COSE VERIFIED")
+            console.info(result)
+            verificationResult.coseVerified = true
+            return@forEach
         }
         return content
     }
-
 }

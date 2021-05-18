@@ -40,10 +40,9 @@ actual class DefaultCoseService(private val cryptoService: CryptoService) : Cose
             throw IllegalArgumentException("KID not found")
         val algorithm = protectedHeaderCbor.get(1)
         val pubKey = cryptoService.getCborVerificationKey(kid.toByteArray(), verificationResult)
-        val promise = Cose.verify(input, pubKey).also {
-            // TODO make this a suspend function, and then provide a wrapper from JS to call it as a promise
-            it.then { verificationResult.coseVerified = true }
-        }
+        val result = Cose.verify(input, pubKey)
+        // TODO make this a suspend function, and then provide a wrapper from JS to call it as a promise
+        verificationResult.coseVerified = true
         return content
     }
 
@@ -53,6 +52,7 @@ actual class DefaultCoseService(private val cryptoService: CryptoService) : Cose
         }
     }
 }
+
 suspend fun <T> Promise<T>.await(): T = suspendCoroutine { cont ->
     then({ cont.resume(it) }, { cont.resumeWithException(it) })
 }

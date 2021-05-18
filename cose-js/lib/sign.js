@@ -112,7 +112,6 @@ exports.create = function (headers, payload, signers, options) {
 };
 
 function doVerify (SigStructure, verifier, alg, sig) {
-  return new Promise((resolve, reject) => {
     if (!AlgFromTags[alg]) {
       throw new Error('Unknown algorithm, ' + alg);
     }
@@ -128,12 +127,9 @@ function doVerify (SigStructure, verifier, alg, sig) {
     const ec = new EC(COSEAlgToNodeAlg[AlgFromTags[alg].sign].sign);
     const key = ec.keyFromPublic(pub);
     sig = { 'r': sig.slice(0, sig.length / 2), 's': sig.slice(sig.length / 2) };
-    if (key.verify(msgHash, sig)) {
-      resolve();
-    } else {
-      throw new Error('Signature missmatch');
+    if (!key.verify(msgHash, sig)) {
+          throw new Error('Signature missmatch');
     }
-  });
 }
 
 function getSigner (signers, verifier) {
@@ -158,8 +154,7 @@ function getCommonParameter (first, second, parameter) {
 
 exports.verify = function (payload, verifier, options) {
   options = options || {};
-  return cbor.decodeFirst(payload)
-    .then((obj) => {
+  let obj = cbor.decodeFirstSync(payload)
       let type = options.defaultType ? options.defaultType : SignTag;
       if (obj instanceof Tagged) {
         if (obj.tag !== SignTag && obj.tag !== Sign1Tag) {
@@ -206,10 +201,8 @@ exports.verify = function (payload, verifier, options) {
           externalAAD,
           plaintext
         ];
-        return doVerify(SigStructure, verifier, alg, sig)
-          .then(() => {
-            return plaintext;
-          });
+        doVerify(SigStructure, verifier, alg, sig)
+        return plaintext;
       } else {
         const externalAAD = verifier.externalAAD || EMPTY_BUFFER;
 
@@ -221,10 +214,7 @@ exports.verify = function (payload, verifier, options) {
           externalAAD,
           plaintext
         ];
-        return doVerify(SigStructure, verifier, alg, signer)
-          .then(() => {
-            return plaintext;
-          });
+        doVerify(SigStructure, verifier, alg, signer)
+        return plaintext;
       }
-    });
 };
