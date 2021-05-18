@@ -11,7 +11,7 @@ import kotlin.time.ExperimentalTime
 /**
  * Encodes/decodes input as a CWT structure, ready to sign with COSE
  */
-actual open class DefaultCwtService @OptIn(ExperimentalTime::class) actual constructor(
+actual open class DefaultCwtService actual constructor(
     private val countryCode: String,
     private val validity: Duration,
     private val clock: Clock,

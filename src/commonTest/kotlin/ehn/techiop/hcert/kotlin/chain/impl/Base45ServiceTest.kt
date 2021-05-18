@@ -7,7 +7,6 @@ import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalUnsignedTypes::class)
 class Base45ServiceTest {
 
     @Test

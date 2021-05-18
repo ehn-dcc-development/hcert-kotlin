@@ -35,12 +35,19 @@ kotlin {
                 freeCompilerArgs = listOf(
                     "-Xopt-in=kotlin.RequiresOptIn",
                     "-Xopt-in=kotlin.ExperimentalUnsignedTypes",
+                    "-Xopt-in=kotlin.time.ExperimentalTime",
                     "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
                 )
             }
         }
     }
-
+    sourceSets.all {
+        languageSettings.apply {
+            useExperimentalAnnotation("kotlin.time.ExperimentalTime")
+            useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
+            useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
+        }
+    }
     jvm {
         compilations.all {
             kotlinOptions {

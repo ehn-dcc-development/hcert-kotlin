@@ -21,7 +21,6 @@ actual class TrustListDecodeService actual constructor(
     private val clock: Clock
 ) {
 
-    @OptIn(ExperimentalTime::class)
     actual fun decode(input: ByteArray, optionalContent: ByteArray?): List<TrustedCertificate> {
         val sign1Message = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
         val kid = sign1Message.protectedAttributes[HeaderKeys.KID.AsCBOR()].GetByteString()

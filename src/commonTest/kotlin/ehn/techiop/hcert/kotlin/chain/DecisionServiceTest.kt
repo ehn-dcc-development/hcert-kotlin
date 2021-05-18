@@ -10,7 +10,6 @@ import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 
-@OptIn(ExperimentalTime::class)
 class DecisionServiceTest {
 
     private val decisionService = DecisionService()

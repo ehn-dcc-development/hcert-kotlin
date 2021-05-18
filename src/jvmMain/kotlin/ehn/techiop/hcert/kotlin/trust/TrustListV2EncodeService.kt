@@ -16,14 +16,13 @@ import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 
-class TrustListV2EncodeService @OptIn(ExperimentalTime::class) constructor(
+class TrustListV2EncodeService constructor(
     private val signingService: CryptoService,
     private val validity: Duration = Duration.hours(48),
     private val clock: Clock = Clock.System,
 ) {
 
     fun encode(certificates: Set<X509Certificate>): ByteArray {
-        val now = clock.now()
         val trustList = TrustListV2(
             certificates = certificates.map { it.toTrustedCertificate() }
         )

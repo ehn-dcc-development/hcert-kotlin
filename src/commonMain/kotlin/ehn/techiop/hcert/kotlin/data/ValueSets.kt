@@ -31,7 +31,7 @@ expect object ValueSetsInstanceHolder {
 }
 
 @Serializable
-data class ValueSet @OptIn(ExperimentalTime::class) constructor(
+data class ValueSet constructor(
     val valueSetId: String,
     val valueSetDate: LocalDate,
     val valueSetValues: Map<String, ValueSetEntry>
