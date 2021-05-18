@@ -15,7 +15,10 @@ class FileBasedCryptoServiceTest {
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        assertThat(input.getCborSigningKey().EncodeToBytes(), equalTo(parsed.getCborSigningKey().EncodeToBytes()))
+        assertThat(
+            input.getCborSigningKey().oneKey.EncodeToBytes(),
+            equalTo(parsed.getCborSigningKey().oneKey.EncodeToBytes())
+        )
         assertThat(input.getCertificate(), equalTo(parsed.getCertificate()))
     }
 
@@ -27,7 +30,10 @@ class FileBasedCryptoServiceTest {
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        assertThat(input.getCborSigningKey().EncodeToBytes(), equalTo(parsed.getCborSigningKey().EncodeToBytes()))
+        assertThat(
+            input.getCborSigningKey().oneKey.EncodeToBytes(),
+            equalTo(parsed.getCborSigningKey().oneKey.EncodeToBytes())
+        )
         assertThat(input.getCertificate(), equalTo(parsed.getCertificate()))
     }
 

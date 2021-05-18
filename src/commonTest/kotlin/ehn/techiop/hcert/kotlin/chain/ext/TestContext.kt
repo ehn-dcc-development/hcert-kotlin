@@ -1,11 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.kotlin.data.InstantStringSerializer
-import ehn.techiop.hcert.kotlin.data.X509CertificateSerializer
+
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.security.cert.X509Certificate
-import java.time.Instant
+
 
 @Serializable
 data class TestContext(
@@ -14,10 +13,10 @@ data class TestContext(
     @SerialName("SCHEMA")
     val schema: String,
     @SerialName("CERTIFICATE")
-    @Serializable(with = X509CertificateSerializer::class)
-    val certificate: X509Certificate?,
+    //@Serializable(with = X509CertificateSerializer::class)
+    val certificate: ByteArray?,
     @SerialName("VALIDATIONCLOCK")
-    @Serializable(with = InstantStringSerializer::class)
+    //@Serializable(with = InstantStringSerializer::class)
     val validationClock: Instant?,
     @SerialName("DESCRIPTION")
     val description: String,

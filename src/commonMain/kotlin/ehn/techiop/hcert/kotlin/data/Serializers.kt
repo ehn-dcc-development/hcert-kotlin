@@ -67,7 +67,9 @@ object X509CertificateSerializer : KSerializer<X509Certificate> {
 @Serializer(forClass = ValueSetEntryAdapter::class)
 object ValueSetEntryAdapterSerializer : KSerializer<ValueSetEntryAdapter> {
     override fun deserialize(decoder: Decoder): ValueSetEntryAdapter {
-        return ValueSetsInstanceHolder.INSTANCE.find(decoder.decodeString())
+        return ValueSetEntryAdapter(decoder.decodeString(), ValueSetEntry("foo", "de", true, "system", "version"))
+        //TODO
+        //return ValueSetsInstanceHolder.INSTANCE.find(decoder.decodeString())
     }
 
     override fun serialize(encoder: Encoder, value: ValueSetEntryAdapter) {

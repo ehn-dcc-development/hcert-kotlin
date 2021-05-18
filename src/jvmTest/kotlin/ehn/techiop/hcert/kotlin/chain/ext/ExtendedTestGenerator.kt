@@ -1,7 +1,5 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import ehn.techiop.hcert.data.Eudgc
 import ehn.techiop.hcert.kotlin.chain.Base45Service
 import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.chain.Chain
@@ -35,27 +33,26 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.toHexString
+import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import kotlinx.datetime.Clock
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.security.cert.X509Certificate
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZoneOffset
 
 @Disabled("Don't want to generate test case files every time")
 class ExtendedTestGenerator {
 
-    private val eudgcVac = ObjectMapper().readValue(SampleData.vaccination, Eudgc::class.java)
-    private val eudgcRec = ObjectMapper().readValue(SampleData.recovery, Eudgc::class.java)
-    private val eudgcTest = ObjectMapper().readValue(SampleData.testNaa, Eudgc::class.java)
-    private val eudgcTestRat = ObjectMapper().readValue(SampleData.testRat, Eudgc::class.java)
-    private val clock = Clock.fixed(Instant.parse("2021-05-03T18:00:00Z"), ZoneOffset.UTC)
+    private val eudgcVac = Json.decodeFromString<GreenCertificate>(SampleData.vaccination)
+    private val eudgcRec = Json.decodeFromString<GreenCertificate>(SampleData.recovery)
+    private val eudgcTest = Json.decodeFromString<GreenCertificate>(SampleData.testNaa)
+    private val eudgcTestRat = Json.decodeFromString<GreenCertificate>(SampleData.testRat)
+    private val clock = kotlinx.datetime.Clock.System //Clock.fixed(Instant.parse("2021-05-03T18:00:00Z"), ZoneOffset.UTC)
     private val cryptoService = RandomEcKeyCryptoService(clock = clock)
 
     @Test
@@ -75,7 +72,7 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeGen02Recovery() {
-        val eudgc = ObjectMapper().readValue(SampleData.recovery, Eudgc::class.java)
+        val eudgc = Json.decodeFromString<GreenCertificate>(SampleData.recovery)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgc)
 
@@ -90,7 +87,7 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeGen03TestNaa() {
-        val eudgc = ObjectMapper().readValue(SampleData.testNaa, Eudgc::class.java)
+        val eudgc = Json.decodeFromString<GreenCertificate>(SampleData.testNaa)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgc)
 
@@ -105,7 +102,7 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeGen04TestRat() {
-        val eudgc = ObjectMapper().readValue(SampleData.testRat, Eudgc::class.java)
+        val eudgc = Json.decodeFromString<GreenCertificate>(SampleData.testRat)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgc)
 
@@ -527,7 +524,7 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeCO16ValidationClockBeforeIssuedAt() {
-        val clockInFuture = Clock.fixed(Instant.parse("2023-05-03T18:00:00Z"), ZoneOffset.UTC)
+        val clockInFuture = Clock.System //TODO Clock.fixed(Instant.parse("2023-05-03T18:00:00Z"), ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clockInFuture)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
@@ -547,7 +544,7 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeCO17ValidationClockAfterExpired() {
-        val clockInPast = Clock.fixed(Instant.parse("2018-05-03T18:00:00Z"), ZoneOffset.UTC)
+        val clockInPast = Clock.System //TODO Clock.fixed(Instant.parse("2018-05-03T18:00:00Z"), ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clockInPast)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcTest)
@@ -690,7 +687,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                eudgc = eudgcTest,
+                greenCertificate = eudgcTest,
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -709,7 +706,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                eudgc = eudgcTest,
+                greenCertificate = eudgcTest,
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -729,14 +726,14 @@ class ExtendedTestGenerator {
             }
         }
         """.trimIndent()
-        val eudgcWrong = ObjectMapper().readValue(wrong, Eudgc::class.java)
+        val eudgcWrong = Json.decodeFromString<GreenCertificate>(wrong)
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcWrong)
 
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                eudgc = eudgcWrong,
+                greenCertificate = eudgcWrong,
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -749,17 +746,18 @@ class ExtendedTestGenerator {
 
     @Test
     fun writeDGC2Wrong() {
-        val eudgcWrong = ObjectMapper().readValue(SampleData.recovery, Eudgc::class.java)
-        eudgcWrong.t = eudgcTest.t
-        eudgcWrong.v = eudgcVac.v
-        eudgcWrong.r = eudgcRec.r
+        val eudgcWrong = Json.decodeFromString<GreenCertificate>(SampleData.recovery)
+        // TODO
+        //eudgcWrong.tests = eudgcTest.tests
+        //eudgcWrong.vaccinations = eudgcVac.vaccinations
+        //eudgcWrong.recoveryStatements = eudgcRec.recoveryStatements
         val chain = ChainBuilder.good(clock, cryptoService).build()
         val result = chain.encode(eudgcWrong)
 
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                eudgc = eudgcWrong,
+                greenCertificate = eudgcWrong,
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -778,7 +776,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                eudgc = eudgcTest,
+                greenCertificate = eudgcTest,
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -797,7 +795,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                eudgc = eudgcTestRat,
+                greenCertificate = eudgcTestRat,
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -816,7 +814,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                eudgc = eudgcRec,
+                greenCertificate = eudgcRec,
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -835,7 +833,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(
-                eudgc = eudgcVac,
+                greenCertificate = eudgcVac,
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
@@ -898,7 +896,7 @@ class ExtendedTestGenerator {
     }
 
     data class ChainResultAdapter(
-        val eudgc: Eudgc? = null,
+        val greenCertificate: GreenCertificate? = null,
         val cborHex: String? = null,
         val coseHex: String? = null,
         val compressedHex: String? = null,
@@ -907,8 +905,8 @@ class ExtendedTestGenerator {
         val qrCode: String? = null,
     ) {
         companion object {
-            fun from(eudgc: Eudgc, result: ChainResult) = ChainResultAdapter(
-                eudgc = eudgc,
+            fun from(eudgc: GreenCertificate, result: ChainResult) = ChainResultAdapter(
+                greenCertificate = eudgc,
                 cborHex = result.step0Cbor.toHexString(),
                 coseHex = result.step2Cose.toHexString(),
                 compressedHex = result.step3Compressed.toHexString(),
@@ -920,7 +918,7 @@ class ExtendedTestGenerator {
 
     private fun createVerificationTestCaseJson(
         clock: Clock,
-        certificate: X509Certificate,
+        certificate: Certificate<*>,
         result: ChainResultAdapter,
         description: String,
         filename: String,
@@ -929,12 +927,12 @@ class ExtendedTestGenerator {
         val context = TestContext(
             version = 1,
             schema = "1.0.0",
-            certificate = certificate,
-            validationClock = clock.instant(),
+            certificate = (certificate as JvmCertificate).certificate.encoded,
+            validationClock = clock.now(),
             description = description
         )
         val testcase = TestCase(
-            eudgc = result.eudgc?.let { GreenCertificate.fromEuSchema(it) },
+            eudgc = result.greenCertificate,
             cborHex = result.cborHex,
             coseHex = result.coseHex,
             compressedHex = result.compressedHex,
@@ -951,7 +949,7 @@ class ExtendedTestGenerator {
 
     private fun createGenerationTestCaseJson(
         clock: Clock,
-        eudgc: Eudgc,
+        greenCertificate: GreenCertificate,
         result: ChainResult,
         description: String,
         filename: String,
@@ -961,11 +959,11 @@ class ExtendedTestGenerator {
             version = 1,
             schema = "1.0.0",
             certificate = null,
-            validationClock = clock.instant(),
+            validationClock = clock.now(),
             description = description
         )
         val testcase = TestCase(
-            eudgc = GreenCertificate.fromEuSchema(eudgc),
+            eudgc = greenCertificate,
             cborHex = result.step0Cbor.toHexString(),
             coseHex = null,
             compressedHex = null,

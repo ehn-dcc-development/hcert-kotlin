@@ -19,6 +19,10 @@ actual class PrefilledCertificateRepository : CertificateRepository {
         }
     }
 
+    actual constructor(input: ByteArray) {
+        TODO("Not yet implemented")
+    }
+
     override fun loadTrustedCertificates(
         kid: ByteArray,
         verificationResult: VerificationResult

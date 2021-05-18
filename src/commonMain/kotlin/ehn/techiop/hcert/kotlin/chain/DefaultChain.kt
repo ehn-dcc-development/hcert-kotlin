@@ -9,7 +9,7 @@ object DefaultChain {
         DefaultCwtService(),
         DefaultCoseService.getInstance(cryptoService),
         DefaultContextIdentifierService(),
-        DefaultCompressorService.getInstance(),
+        DefaultCompressorService(),
         DefaultBase45Service()
     )
 
@@ -21,7 +21,7 @@ object DefaultChain {
         DefaultCwtService(),
         VerificationCoseService(repository),
         DefaultContextIdentifierService(),
-        DefaultCompressorService.getInstance(),
+        DefaultCompressorService(),
         DefaultBase45Service()
     )
 }

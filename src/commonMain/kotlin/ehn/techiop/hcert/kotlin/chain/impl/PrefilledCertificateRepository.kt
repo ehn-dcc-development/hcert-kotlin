@@ -4,6 +4,8 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 
 expect class PrefilledCertificateRepository : CertificateRepository {
 
+    constructor(input: ByteArray)
+
 }
 
 

@@ -6,12 +6,12 @@ import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import org.khronos.webgl.Uint8Array
 
-actual open class DefaultCompressorService(private val compressionLevel: Int = 9) : CompressorService {
+actual open class DefaultCompressorService actual constructor(private val level: Int) : CompressorService {
     override fun encode(input: ByteArray): ByteArray {
         return (Pako.deflate(input.toUint8Array(),
             object : Pako.DeflateFunctionOptions {
                 override var level: dynamic
-                    get() = compressionLevel
+                    get() = this@DefaultCompressorService.level
                     set(value) {}
             }) as Uint8Array).toByteArray()
     }
@@ -27,9 +27,4 @@ actual open class DefaultCompressorService(private val compressionLevel: Int = 9
         }
     }
 
-    actual companion object {
-        actual fun getInstance(): DefaultCompressorService {
-            return DefaultCompressorService()
-        }
-    }
 }

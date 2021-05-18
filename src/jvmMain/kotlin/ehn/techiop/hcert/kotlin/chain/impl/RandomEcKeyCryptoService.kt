@@ -8,6 +8,7 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.crypto.*
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter
@@ -15,12 +16,12 @@ import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator
 import org.bouncycastle.util.io.pem.PemWriter
 import java.io.StringWriter
 import java.security.KeyPairGenerator
-import java.time.Clock
+
 
 class RandomEcKeyCryptoService(
     private val keySize: Int = 256,
     contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
-    clock: Clock = Clock.systemUTC(),
+    clock: Clock = Clock.System
 ) : CryptoService {
 
     private val keyPair = KeyPairGenerator.getInstance("EC")

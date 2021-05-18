@@ -9,7 +9,7 @@ import java.util.zip.InflaterInputStream
 /**
  * Compresses/decompresses input with ZLIB, [level] specifies the compression level (0-9)
  */
-actual open class DefaultCompressorService(private val level: Int = 9) : CompressorService {
+actual open class DefaultCompressorService actual constructor(private val level: Int) : CompressorService {
 
     /**
      * Compresses input with ZLIB = deflating
@@ -32,9 +32,4 @@ actual open class DefaultCompressorService(private val level: Int = 9) : Compres
         }
     }
 
-    actual companion object {
-        actual fun getInstance(): DefaultCompressorService {
-            return DefaultCompressorService()
-        }
-    }
 }

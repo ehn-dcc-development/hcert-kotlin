@@ -1,12 +1,12 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import ehn.techiop.hcert.kotlin.chain.DefaultChain.buildCreationChain
-import ehn.techiop.hcert.kotlin.chain.DefaultChain.buildVerificationChain
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
+import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.params.ParameterizedTest
@@ -29,12 +29,12 @@ class SimpleChainTest {
     }
 
     private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: VerificationDecision) {
-        val input = ObjectMapper().readValue(jsonInput, Eudgc::class.java)
+        val input = Json.decodeFromString<GreenCertificate>(jsonInput)
         val verificationResult = VerificationResult()
 
-        val encodingChain = Chain.buildCreationChain(cryptoService)
+        val encodingChain = DefaultChain.buildCreationChain(cryptoService)
         val certificateRepository = PrefilledCertificateRepository(cryptoService.getCertificate())
-        val decodingChain = Chain.buildVerificationChain(certificateRepository)
+        val decodingChain = DefaultChain.buildVerificationChain(certificateRepository)
 
         val output = encodingChain.encode(input)
 

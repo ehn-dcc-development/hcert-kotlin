@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import ehn.techiop.hcert.data.Eudgc
+
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCborService
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCompressorService
@@ -18,9 +17,11 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.not
-import org.hamcrest.MatcherAssert.assertThat
+import ehn.techiop.hcert.kotlin.data.GreenCertificate
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.Test
 
 class FaultyImplementationsTest {
@@ -110,7 +111,7 @@ class FaultyImplementationsTest {
         )
 
     private val input = SampleData.vaccination
-    private val decodedFromInput = ObjectMapper().readValue(input, Eudgc::class.java)
+    private val decodedFromInput = Json.decodeFromString<GreenCertificate>(input)
 
     @Test
     fun correct() {
@@ -210,7 +211,8 @@ class FaultyImplementationsTest {
             decodedFromInput,
             false,
             VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true; cborDecoded = true
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true; cborDecoded =
+                true
             })
     }
 
@@ -228,22 +230,25 @@ class FaultyImplementationsTest {
 
     private fun assertVerification(
         chainOutput: String,
-        input: Eudgc,
+        input: GreenCertificate,
         expectDataToMatch: Boolean,
         expectedResult: VerificationResult,
     ) {
         val verificationResult = VerificationResult()
         val vaccinationData = chainCorrect.decode(chainOutput, verificationResult)
-        assertThat(verificationResult.base45Decoded, equalTo(expectedResult.base45Decoded))
-        assertThat(verificationResult.cwtDecoded, equalTo(expectedResult.cwtDecoded))
-        assertThat(verificationResult.cborDecoded, equalTo(expectedResult.cborDecoded))
-        assertThat(verificationResult.coseVerified, equalTo(expectedResult.coseVerified))
-        assertThat(verificationResult.zlibDecoded, equalTo(expectedResult.zlibDecoded))
-        assertThat(verificationResult.contextIdentifier, equalTo(expectedResult.contextIdentifier))
+        MatcherAssert.assertThat(verificationResult.base45Decoded, CoreMatchers.equalTo(expectedResult.base45Decoded))
+        MatcherAssert.assertThat(verificationResult.cwtDecoded, CoreMatchers.equalTo(expectedResult.cwtDecoded))
+        MatcherAssert.assertThat(verificationResult.cborDecoded, CoreMatchers.equalTo(expectedResult.cborDecoded))
+        MatcherAssert.assertThat(verificationResult.coseVerified, CoreMatchers.equalTo(expectedResult.coseVerified))
+        MatcherAssert.assertThat(verificationResult.zlibDecoded, CoreMatchers.equalTo(expectedResult.zlibDecoded))
+        MatcherAssert.assertThat(
+            verificationResult.contextIdentifier,
+            CoreMatchers.equalTo(expectedResult.contextIdentifier)
+        )
         if (expectDataToMatch) {
-            assertThat(vaccinationData, equalTo(input))
+            MatcherAssert.assertThat(vaccinationData, CoreMatchers.equalTo(input))
         } else {
-            assertThat(vaccinationData, not(equalTo(input)))
+            MatcherAssert.assertThat(vaccinationData, CoreMatchers.not(CoreMatchers.equalTo(input)))
         }
     }
 

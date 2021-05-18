@@ -32,6 +32,7 @@ kotlin {
             }
         }
     }
+
     jvm {
         compilations.all {
             kotlinOptions {
@@ -40,6 +41,10 @@ kotlin {
                     "-Xjsr305=strict"
                 )
             }
+        }
+        withJava()
+        testRuns["test"].executionTask.configure {
+            useJUnitPlatform()
         }
     }
     js(LEGACY) {
@@ -62,7 +67,12 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
             }
         }
-        val commonTest by getting
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+            }
+        }
         val jvmMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.0")
@@ -71,15 +81,11 @@ kotlin {
                 implementation("com.google.zxing:javase:3.4.1")
                 implementation("org.bouncycastle:bcpkix-jdk15to18:1.68")
                 implementation("javax.validation:validation-api:2.0.1.Final")
-                implementation("com.google.code.findbugs:jsr305:3.0.2")
-                implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
-                implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.3")
-                implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test-junit"))
+                implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
                 implementation("org.junit.jupiter:junit-jupiter-params:5.7.1")
                 implementation("org.hamcrest:hamcrest:2.2")
@@ -103,6 +109,10 @@ kotlin {
                 implementation(npm("url", "0.11.0"))
             }
         }
-        val jsTest by getting
+        val jsTest by getting {
+            dependencies {
+                implementation(kotlin("test-js"))
+            }
+        }
     }
 }
