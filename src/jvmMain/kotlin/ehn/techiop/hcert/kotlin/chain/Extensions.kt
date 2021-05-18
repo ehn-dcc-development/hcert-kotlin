@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import java.io.File
 import java.util.*
 
 actual fun ByteArray.asBase64() = Base64.getEncoder().encodeToString(this)
@@ -13,3 +14,9 @@ actual fun String.fromBase64() = Base64.getDecoder().decode(this)
 actual fun String.fromBase64Url() = Base64.getUrlDecoder().decode(this)
 
 actual fun String.fromHexString() = chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+
+actual fun loadResource(filename: String): String {
+    return File(filename).readText()
+    val resource = String::class.java.getResource(filename)
+    return resource?.readText() ?: ""
+}

@@ -6,6 +6,8 @@ expect class PrefilledCertificateRepository : CertificateRepository {
 
     constructor(input: ByteArray)
 
+    constructor(base64Encoded: String)
+
 }
 
 

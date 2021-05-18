@@ -928,7 +928,7 @@ class ExtendedTestGenerator {
         val context = TestContext(
             version = 1,
             schema = "1.0.0",
-            certificate = (certificate as JvmCertificate).certificate.encoded,
+            certificate = (certificate as JvmCertificate).certificate.encoded.asBase64(),
             validationClock = clock.now(),
             description = description
         )

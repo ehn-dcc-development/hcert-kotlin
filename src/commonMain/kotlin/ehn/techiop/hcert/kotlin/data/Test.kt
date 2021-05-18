@@ -5,7 +5,6 @@ import kotlinx.datetime.serializers.InstantIso8601Serializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 
 @Serializable
 @ExperimentalSerializationApi
@@ -45,6 +44,13 @@ data class Test constructor(
     @SerialName("ci")
     val certificateIdentifier: String,
 ) {
+    /*
+    val dateTimeSample by lazy {
+        Instant.fromEpochSeconds(sc)
+    }
+    val dateTimeResult by lazy {
+        dr?.let { Instant.fromEpochSeconds(it) }
+    }*/
     /*fun toEuSchema() = TestEntry().apply {
         tg = target.key
         tt = type

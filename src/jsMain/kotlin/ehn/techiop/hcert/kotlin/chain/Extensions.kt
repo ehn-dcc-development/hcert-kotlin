@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.chain
 import Buffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
+import org.w3c.fetch.Request
 
 actual fun ByteArray.asBase64() = Buffer.from(this.toUint8Array()).toString("base64")
 
@@ -21,6 +22,10 @@ actual fun String.fromHexString(): ByteArray {
     return chunked(2)
         .map { it.toInt(16).toByte() }
         .toByteArray()
+}
+
+actual fun loadResource(filename: String): String {
+    return filename
 }
 
 fun ByteArray.toUint8Array(): Uint8Array {

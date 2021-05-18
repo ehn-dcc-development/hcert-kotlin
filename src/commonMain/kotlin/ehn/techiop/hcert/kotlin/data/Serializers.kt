@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.data
 
 import kotlinx.datetime.*
+import kotlinx.datetime.Instant.Companion
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
@@ -19,19 +20,20 @@ object LocalDateSerializer : KSerializer<LocalDate> {
     }
 }*/
 
-/*@ExperimentalSerializationApi
+/*
+@ExperimentalSerializationApi
 @Serializer(forClass = Instant::class)
 object InstantLongSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {
-        return LocalDateTime.parse(decoder.decodeString()).toInstant(TimeZone.UTC)
+        return Instant.fromEpochSeconds(decoder.decodeLong())
     }
 
     override fun serialize(encoder: Encoder, value: Instant) {
-        encoder.encodeString(value.toLocalDateTime(TimeZone.UTC).toString())
+        encoder.encodeLong(value.epochSeconds)
     }
-}
+}*/
 
-@ExperimentalSerializationApi
+/*@ExperimentalSerializationApi
 @Serializer(forClass = Instant::class)
 object InstantStringSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {

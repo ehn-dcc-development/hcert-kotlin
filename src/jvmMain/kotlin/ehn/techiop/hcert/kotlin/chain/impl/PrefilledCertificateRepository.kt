@@ -5,6 +5,7 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils.toTrustedCertificate
 import ehn.techiop.hcert.kotlin.crypto.kid
+import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
@@ -33,6 +34,11 @@ actual class PrefilledCertificateRepository : CertificateRepository {
         pemEncodedCertificates.forEach {
             list += factory.generateCertificate(it.byteInputStream()) as X509Certificate
         }
+    }
+
+    actual constructor(base64Encoded: String) {
+        val factory = CertificateFactory.getInstance("X.509")
+        list += factory.generateCertificate(base64Encoded.fromBase64().inputStream()) as X509Certificate
     }
 
     override fun loadTrustedCertificates(

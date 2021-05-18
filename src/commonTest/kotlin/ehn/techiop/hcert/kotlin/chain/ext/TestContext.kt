@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
 
+import ehn.techiop.hcert.kotlin.crypto.Certificate
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,7 +15,7 @@ data class TestContext(
     val schema: String,
     @SerialName("CERTIFICATE")
     //@Serializable(with = X509CertificateSerializer::class)
-    val certificate: ByteArray?,
+    val certificate: String?,
     @SerialName("VALIDATIONCLOCK")
     //@Serializable(with = InstantStringSerializer::class)
     val validationClock: Instant?,
