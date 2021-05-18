@@ -7,7 +7,7 @@ object DefaultChain {
     fun buildCreationChain(cryptoService: CryptoService) = Chain(
         DefaultCborService(),
         DefaultCwtService(),
-        DefaultCoseService.getInstance(cryptoService),
+        DefaultCoseService(cryptoService),
         DefaultContextIdentifierService(),
         DefaultCompressorService(),
         DefaultBase45Service()

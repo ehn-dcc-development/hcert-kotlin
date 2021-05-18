@@ -10,7 +10,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.js.Promise
 import kotlin.js.json
 
-actual class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
+actual class DefaultCoseService actual constructor(private val cryptoService: CryptoService) : CoseService {
 
     override fun encode(input: ByteArray): ByteArray {
         val header =
@@ -50,11 +50,6 @@ actual class DefaultCoseService(private val cryptoService: CryptoService) : Cose
         return content.toByteArray()
     }
 
-    actual companion object {
-        actual fun getInstance(cryptoService: CryptoService): DefaultCoseService {
-            return DefaultCoseService(cryptoService)
-        }
-    }
 }
 
 suspend fun <T> Promise<T>.await(): T = suspendCoroutine { cont ->

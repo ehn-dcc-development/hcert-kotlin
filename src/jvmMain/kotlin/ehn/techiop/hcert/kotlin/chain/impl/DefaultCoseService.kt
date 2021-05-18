@@ -10,7 +10,7 @@ import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
-actual open class DefaultCoseService(private val cryptoService: CryptoService) : CoseService {
+actual open class DefaultCoseService actual constructor(private val cryptoService: CryptoService) : CoseService {
 
     override fun encode(input: ByteArray): ByteArray {
         return Sign1Message().also {
@@ -40,12 +40,6 @@ actual open class DefaultCoseService(private val cryptoService: CryptoService) :
             }.GetContent()
         } catch (e: Throwable) {
             input
-        }
-    }
-
-    actual companion object {
-        actual fun getInstance(cryptoService: CryptoService): DefaultCoseService {
-            return DefaultCoseService(cryptoService)
         }
     }
 
