@@ -6,6 +6,7 @@ import ehn.techiop.hcert.kotlin.trust.KeyType
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.serialization.ExperimentalSerializationApi
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.x500.X500Name
@@ -31,12 +32,13 @@ import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-actual object PkiUtils {
+object PkiUtils {
 
     const val oidTest = "1.3.6.1.4.1.0.1847.2021.1.1"
     const val oidVaccination = "1.3.6.1.4.1.0.1847.2021.1.2"
     const val oidRecovery = "1.3.6.1.4.1.0.1847.2021.1.3"
 
+    @ExperimentalSerializationApi
     fun selfSignCertificate(
         subjectName: X500Name,
         keyPair: KeyPair,

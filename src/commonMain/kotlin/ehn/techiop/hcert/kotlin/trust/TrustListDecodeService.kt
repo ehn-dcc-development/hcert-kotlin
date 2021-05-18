@@ -4,5 +4,7 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import kotlinx.datetime.Clock
 
 expect class TrustListDecodeService(repository: CertificateRepository, clock: Clock = Clock.System) {
-    fun decode(input: ByteArray): TrustList
+
+    fun decode(input: ByteArray, optionalContent: ByteArray? = null): List<TrustedCertificate>
+
 }

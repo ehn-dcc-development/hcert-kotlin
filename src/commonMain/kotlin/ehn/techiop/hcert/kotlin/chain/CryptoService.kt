@@ -4,6 +4,10 @@ import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.PrivateKey
 import ehn.techiop.hcert.kotlin.crypto.PublicKey
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlin.time.ExperimentalTime
+
+@ExperimentalSerializationApi
 
 interface CryptoService {
 

@@ -9,7 +9,8 @@ import kotlin.test.assertEquals
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
-@ExperimentalTime
+
+@OptIn(ExperimentalTime::class)
 class DecisionServiceTest {
 
     private val decisionService = DecisionService()

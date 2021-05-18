@@ -1,7 +1,12 @@
 package ehn.techiop.hcert.kotlin.crypto
 
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
 import kotlinx.datetime.Instant
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlin.time.ExperimentalTime
+
+@ExperimentalSerializationApi
 
 interface Certificate<T> {
 
@@ -9,8 +14,8 @@ interface Certificate<T> {
     fun getValidFrom(): Instant
     fun getValidUntil(): Instant
     fun getPublicKey(): PublicKey<*>
-    fun toTrustedCertificate(): TrustedCertificate
-    fun calcKid():ByteArray
+    fun toTrustedCertificate(): TrustedCertificateV2
+    fun calcKid(): ByteArray
 
 }
 

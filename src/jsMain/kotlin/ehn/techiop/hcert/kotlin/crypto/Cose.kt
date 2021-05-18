@@ -8,7 +8,11 @@ import cose.EcCosePublicKey
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
-import ehn.techiop.hcert.kotlin.trust.*
+import ehn.techiop.hcert.kotlin.trust.ContentType
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
+import ehn.techiop.hcert.kotlin.trust.oidRecovery
+import ehn.techiop.hcert.kotlin.trust.oidTest
+import ehn.techiop.hcert.kotlin.trust.oidVaccination
 import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
@@ -112,7 +116,7 @@ class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
         )
     }
 
-    override fun toTrustedCertificate(): TrustedCertificate {
+    override fun toTrustedCertificate(): TrustedCertificateV2 {
         return TrustedCertificateV2(calcKid(), encoded)
     }
 
