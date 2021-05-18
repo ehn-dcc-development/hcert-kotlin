@@ -6,12 +6,11 @@ import Hash
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
-import ehn.techiop.hcert.kotlin.trust.ContentType
-import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
-import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
+import ehn.techiop.hcert.kotlin.trust.*
 import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
+import pkijs.src.ExtKeyUsage.ExtKeyUsage
 import pkijs.src.Time.Time
 import kotlin.js.Json
 import kotlin.js.Promise
@@ -88,8 +87,21 @@ class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
 
 
     override fun getValidContentTypes(): List<ContentType> {
-        //TODO
-        return listOf()
+
+        val extKeyUsage = cert.extensions.find {
+            it.extnID == "2.5.29.37"
+        } as ExtKeyUsage?
+        val contentTypes = mutableSetOf<ContentType>()
+        extKeyUsage?.let {
+            it.keyPurposes.forEach { oidStr ->
+                when (oidStr) {
+                    oidRecovery -> contentTypes.add(ContentType.RECOVERY)
+                    oidTest -> contentTypes.add(ContentType.TEST)
+                    oidVaccination -> contentTypes.add(ContentType.VACCINATION)
+                }
+            }
+        }
+        return contentTypes.toList()
     }
 
     override fun getValidFrom(): Instant {
