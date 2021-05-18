@@ -17,7 +17,7 @@ actual open class DefaultCoseService(private val cryptoService: CryptoService) :
             it.SetContent(input)
             cryptoService.getCborHeaders().forEach { header ->
                 it.addAttribute(
-                    CBORObject.FromObject(header.first),
+                    CBORObject.FromObject(header.first.value),
                     CBORObject.FromObject(header.second),
                     Attribute.PROTECTED
                 )

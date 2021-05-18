@@ -19,8 +19,15 @@ class DuplicateHeaderCoseService(private val cryptoService: CryptoService) : Def
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
                 it.addAttribute(
-                    CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.PROTECTED)
-                it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.UNPROTECTED)
+                    CBORObject.FromObject(header.first.value),
+                    CBORObject.FromObject(header.second),
+                    Attribute.PROTECTED
+                )
+                it.addAttribute(
+                    CBORObject.FromObject(header.first.value),
+                    CBORObject.FromObject(header.second),
+                    Attribute.UNPROTECTED
+                )
             }
             it.sign(cryptoService.getCborSigningKey().toCoseRepresentation() as OneKey)
         }.EncodeToBytes()

@@ -19,8 +19,9 @@ class Base45ServiceTest {
     }
 
     private fun testString(plain: String, encoded: String) {
-        assertEquals(Base45Encoder.encode(plain.encodeToByteArray()), encoded)
-        assertEquals(Base45Encoder.decode(Base45Encoder.encode(plain.encodeToByteArray())), plain.encodeToByteArray())
+        val implEncoded = Base45Encoder.encode(plain.encodeToByteArray())
+        assertEquals(implEncoded, encoded)
+        assertEquals(Base45Encoder.decode(implEncoded).asList(), plain.encodeToByteArray().asList())
     }
 
     @Test
@@ -35,7 +36,7 @@ class Base45ServiceTest {
         val encoded = Base45Encoder.encode(deflated)
         // transfer
         val decoded = Base45Encoder.decode(encoded)
-        assertEquals(decoded, deflated)
+        assertEquals(decoded.asList(), deflated.asList())
     }
 
     @Test
@@ -46,7 +47,7 @@ class Base45ServiceTest {
         val encoded = Base45Encoder.encode(deflated)
         // transfer
         val decoded = Base45Encoder.decode(encoded)
-        assertEquals(decoded, deflated)
+        assertEquals(decoded.asList(), deflated.asList())
         val inflated = compressorService.decode(decoded, VerificationResult())
         assertEquals(inflated.decodeToString(), input)
     }

@@ -18,7 +18,11 @@ class NonVerifiableCoseService(private val cryptoService: CryptoService) : Defau
         return Sign1Message().also {
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
-                it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.PROTECTED)
+                it.addAttribute(
+                    CBORObject.FromObject(header.first.value),
+                    CBORObject.FromObject(header.second),
+                    Attribute.PROTECTED
+                )
             }
             it.sign(RandomEcKeyCryptoService().getCborSigningKey().oneKey)
         }.EncodeToBytes()

@@ -18,7 +18,11 @@ class UnprotectedCoseService(private val cryptoService: CryptoService) : Default
         return Sign1Message().also {
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
-                it.addAttribute(CBORObject.FromObject(header.first), CBORObject.FromObject(header.second), Attribute.UNPROTECTED)
+                it.addAttribute(
+                    CBORObject.FromObject(header.first.value),
+                    CBORObject.FromObject(header.second),
+                    Attribute.UNPROTECTED
+                )
             }
             it.sign(cryptoService.getCborSigningKey().toCoseRepresentation() as OneKey)
         }.EncodeToBytes()

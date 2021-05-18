@@ -211,8 +211,7 @@ class FaultyImplementationsTest {
             decodedFromInput,
             false,
             VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true; cborDecoded =
-                true
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true
             })
     }
 
