@@ -3,6 +3,8 @@ package ehn.techiop.hcert.kotlin.crypto
 import Asn1js.fromBER
 import Buffer
 import Hash
+import cose.EcCosePrivateKey
+import cose.EcCosePublicKey
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
@@ -16,48 +18,22 @@ import kotlin.js.Json
 import kotlin.js.Promise
 
 internal object Cose {
-    private val cose = js("require('cose-js')")
+    fun verify(signedBitString: ByteArray, pubKey: PublicKey<*>): ByteArray {
+        val key = pubKey.toCoseRepresentation() as EcCosePublicKey
+        val verifier = object: cose.Verifier {
+            override val key = key
+        }
 
-    @Suppress("UNUSED_VARIABLE")
-    private fun internalVerify(
-        data: dynamic,
-        verifier: dynamic
-    ): Uint8Array {
-        val c = cose // needed for JS-magic
-        return js("c.sign.verify(data, verifier)") as Uint8Array
-
+        return cose.sign.verify(Buffer.from(signedBitString.toUint8Array()), verifier).toByteArray()
     }
 
-    fun verify(signedBitString: ByteArray, pubKey: PublicKey<*>): ByteArray =
-        internalVerify(Buffer.from(signedBitString), pubKey.toCoseRepresentation()).toByteArray()
-
-    @Suppress("UNUSED_VARIABLE")
-    private fun internalSign(header: dynamic, data: dynamic, signer: dynamic): Promise<ByteArray> {
-        val c = cose // needed for JS-magic
-        return (js("c.sign.create(header, data, signer)") as Promise<ByteArray>)
+    fun sign(header: Json, input: ByteArray, privateKey: PrivateKey<*>): Promise<Buffer>{
+        val key = privateKey.toCoseRepresentation() as EcCosePrivateKey
+        val signer = object: cose.Signer {
+            override val key = key
+        }
+        return cose.sign.create(header.asDynamic(), Buffer(input.toUint8Array()), signer).then { it }
     }
-
-    fun sign(header: Json, input: ByteArray, privateKey: PrivateKey<*>) =
-        internalSign(header, input, privateKey.toCoseRepresentation()).then { it }
-}
-
-
-class CoseEcKey(xC: dynamic, yC: dynamic) {
-    constructor(x: ByteArray, y: ByteArray) : this(
-        xC = Buffer.from(x.toUint8Array()),
-        yC = Buffer.from(y.toUint8Array())
-    )
-
-    val key = Holder(xC, yC)
-
-    class Holder(val x: dynamic, val y: dynamic)
-}
-
-// TODO is "d" sufficient?
-class CoseEcPrivateKey(d: ByteArray) {
-    val key = Holder(Buffer.from(d.toUint8Array()))
-
-    class Holder(val d: dynamic)
 }
 
 class CoseJsEcPubKey(val xCoord: dynamic, val yCoord: dynamic, override val curve: CurveIdentifier) :
@@ -68,11 +44,22 @@ class CoseJsEcPubKey(val xCoord: dynamic, val yCoord: dynamic, override val curv
         curve = curve
     )
 
-    override fun toCoseRepresentation() = CoseEcKey(xC = xCoord, yC = yCoord)
+    override fun toCoseRepresentation(): dynamic {
+        val key = object : cose.EcCosePublicKey {
+            override val x = xCoord
+            override val y = yCoord
+        }
+        return key
+    }
 }
 
-class CoseJsPrivateKey(val d: ByteArray, val curve: CurveIdentifier) : PrivateKey<dynamic> {
-    override fun toCoseRepresentation() = CoseEcPrivateKey(d)
+class CoseJsPrivateKey(val da: ByteArray, val curve: CurveIdentifier) : PrivateKey<dynamic> {
+    override fun toCoseRepresentation(): EcCosePrivateKey{
+        val key = object : cose.EcCosePrivateKey {
+            override val d = Buffer(da.toUint8Array())
+        }
+        return key
+    }
 }
 
 class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {

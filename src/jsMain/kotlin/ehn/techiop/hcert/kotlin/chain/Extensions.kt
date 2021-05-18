@@ -23,15 +23,24 @@ actual fun String.fromHexString(): ByteArray {
         .toByteArray()
 }
 
-fun Map<Any, Any>.mapToJson() = js("{}").also { json ->
-    forEach { json[it.key] = it.value }
-
 fun ByteArray.toUint8Array(): Uint8Array {
     return Uint8Array(toTypedArray())
 }
 
 fun Uint8Array.toByteArray(): ByteArray {
     return ByteArray(this.length) { this[it] }
+}
+
+fun Map<Any, Any>.mapToJson() = js("{}").also { json ->
+    forEach { json[it.key] = it.value }
+}
+
+fun toMap(container: dynamic): HashMap<String, Any> {
+    val m = HashMap<String, Any>().asDynamic()
+    m.map = container
+    val keys = js("Object.keys")
+    m.`$size` = keys(container).length
+    return m
 }
 
 fun Buffer.Companion.from(arr: ByteArray): Buffer {

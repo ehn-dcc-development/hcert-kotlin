@@ -25,7 +25,7 @@ actual class VerificationCoseService actual constructor(private val repository: 
         val protectedHeaderCbor = Cbor.Decoder.decodeAllSync(protectedHeader)[0].asDynamic()
         val kid = protectedHeaderCbor.get(4) as Uint8Array? ?: if (unprotectedHeader.length !== undefined)
             // TODO: Does this work?
-            Cbor.Decoder.decodeAllSync(unprotectedHeader).asDynamic().get(1) as Uint8Array
+            Cbor.Decoder.decodeAllSync(unprotectedHeader)[0].asDynamic().get(4) as Uint8Array
         else
             throw IllegalArgumentException("KID not found")
         if (kid === undefined)

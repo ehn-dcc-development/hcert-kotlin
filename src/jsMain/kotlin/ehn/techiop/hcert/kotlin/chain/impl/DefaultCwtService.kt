@@ -36,29 +36,28 @@ actual open class DefaultCwtService @OptIn(ExperimentalTime::class) actual const
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.cwtDecoded = false
         try {
-            // TODO: Does this work?
-
-            val cbor = Cbor.Decoder.decodeAllSync(Buffer.from(input.toUint8Array()))[0] as Cbor.Tagged
-            val cborValue = cbor.value as Array<Any>
-            val issuer = cborValue.get(CwtHeaderKeys.ISSUER.value)
+            // TODO: Can we get rid of dynamic here?
+            val cwtMap = Cbor.Decoder.decodeAllSync(Buffer.from(input.toUint8Array()))[0].asDynamic()
+            val issuer = cwtMap.get(CwtHeaderKeys.ISSUER.value)
             if (issuer !== undefined) {
                 verificationResult.issuer = issuer.toString()
             }
 
-            val issuedAt = cborValue.get(CwtHeaderKeys.ISSUED_AT.value)
+            val issuedAt = cwtMap.get(CwtHeaderKeys.ISSUED_AT.value)
             if (issuedAt !== undefined) {
                 verificationResult.issuedAt = Instant.fromEpochSeconds((issuedAt as Number).toLong())
             }
 
-            val expiration = cborValue.get(CwtHeaderKeys.EXPIRATION.value)
+            val expiration = cwtMap.get(CwtHeaderKeys.EXPIRATION.value)
             if (expiration !== undefined) {
                 verificationResult.expirationTime = Instant.fromEpochSeconds((expiration as Number).toLong())
             }
 
-            val hcert = cborValue.get(CwtHeaderKeys.HCERT.value)
+            val hcert = cwtMap.get(CwtHeaderKeys.HCERT.value)
             if (hcert !== undefined) {
-                // TODO: Can we get rid of dynamic here?
-                val eudgcV1 = (hcert.asDynamic()).get(1)
+                console.log(hcert)
+
+                val eudgcV1 = (hcert).get(1)
                 if (eudgcV1 !== undefined) {
                     verificationResult.cwtDecoded = true
                     return Cbor.Encoder.encode(eudgcV1).toByteArray()
