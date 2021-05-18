@@ -25,11 +25,16 @@ actual fun String.fromHexString(): ByteArray {
         .toByteArray()
 }
 
-actual fun loadResource(filename: String, cb:(String)->Unit) {
+actual fun loadResource(filename: String, cb: (String) -> Unit) {
+    println("loading $filename")
     window.fetch(Request(filename)).then(onFulfilled = {
         it.text().then(onFulfilled = {
-          cb(it)
-        })})
+            println("LOADED $it")
+            cb(it)
+        }).catch {
+            throw it
+        }
+    }).catch { throw it }
 }
 
 fun ByteArray.toUint8Array(): Uint8Array {

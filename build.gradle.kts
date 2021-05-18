@@ -20,6 +20,14 @@ repositories {
     mavenCentral()
 }
 
+
+val copyJsTestResources by tasks.creating(Copy::class) {
+    group = "copy"
+    from("$projectDir/src/commonTest/resources")
+    into("${rootProject.buildDir}/js/packages/${project.name}-test/src/commonTest/resources")
+}
+
+
 kotlin {
     targets.all {
         compilations.all {
@@ -50,6 +58,7 @@ kotlin {
     js(LEGACY) {
         browser {
             testTask {
+                dependsOn(copyJsTestResources)
                 useKarma {
                     useChromeHeadless()
                     webpackConfig.cssSupport.enabled = false
@@ -58,6 +67,7 @@ kotlin {
         }
         useCommonJs()
     }
+
 
     sourceSets {
         val commonMain by getting {
@@ -116,3 +126,4 @@ kotlin {
         }
     }
 }
+

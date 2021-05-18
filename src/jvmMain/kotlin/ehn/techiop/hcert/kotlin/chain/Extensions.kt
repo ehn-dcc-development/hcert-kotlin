@@ -17,5 +17,5 @@ actual fun String.fromHexString() = chunked(2).map { it.toInt(16).toByte() }.toB
 
 
 actual fun loadResource(filename: String, cb: (String) -> Unit) {
-    cb(File(filename).readText())
+    cb(String::class.java.getResource(filename)?.readText() ?: "")
     }
