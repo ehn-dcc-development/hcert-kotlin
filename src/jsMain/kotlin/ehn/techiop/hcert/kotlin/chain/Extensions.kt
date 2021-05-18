@@ -7,7 +7,7 @@ actual fun ByteArray.asBase64() = js("Buffer").from(this).toString("base64") as 
 
 actual fun ByteArray.asBase64Url() = js("Buffer").from(this).toString("base64url") as String
 
-actual fun ByteArray.toHexString() = joinToString("") { it.toString(16) }
+actual fun ByteArray.toHexString() = joinToString("") { ('0' + (it.toUByte()).toString(16)).takeLast(2) }
 
 actual fun String.fromBase64() = js("Buffer").from(this, "base64").unsafeCast<ByteArray>()
 
@@ -30,5 +30,5 @@ fun ByteArray.toUint8Array(): Uint8Array {
 }
 
 fun Uint8Array.toByteArray(): ByteArray {
-    return ByteArray(this.length){ this[it] }
+    return ByteArray(this.length) { this[it] }
 }

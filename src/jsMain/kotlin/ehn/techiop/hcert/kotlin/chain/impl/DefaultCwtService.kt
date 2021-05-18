@@ -4,12 +4,14 @@ import ehn.techiop.hcert.kotlin.chain.CwtService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.mapToJson
 import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.crypto.Buffer
 import ehn.techiop.hcert.kotlin.crypto.Cbor
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.khronos.webgl.Uint8Array
+import kotlin.math.exp
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -26,10 +28,10 @@ actual open class DefaultCwtService @OptIn(ExperimentalTime::class) actual const
         val issueTime = clock.now()
         val expirationTime = issueTime + validity
         val map = mapOf<Any, Any>(
-            CwtHeaderKeys.ISSUER to countryCode,
-            CwtHeaderKeys.ISSUED_AT to issueTime.epochSeconds,
-            CwtHeaderKeys.EXPIRATION to expirationTime.epochSeconds,
-            CwtHeaderKeys.HCERT to mapOf(
+            CwtHeaderKeys.ISSUER.value to countryCode,
+            CwtHeaderKeys.ISSUED_AT.value to issueTime.epochSeconds,
+            CwtHeaderKeys.EXPIRATION.value to expirationTime.epochSeconds,
+            CwtHeaderKeys.HCERT.value to mapOf(
                 1 to input
             )
         )
@@ -41,27 +43,31 @@ actual open class DefaultCwtService @OptIn(ExperimentalTime::class) actual const
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.cwtDecoded = false
         try {
-            val cbor = Cbor.decode(input)
-            (cbor["value"].get(CwtHeaderKeys.ISSUER) as Any?)?.let {
-                verificationResult.issuer = it.toString()
+            val cbor = Cbor.decode(input)[0]
+            val issuer = cbor.get(CwtHeaderKeys.ISSUER.value)
+            if (issuer !== undefined) {
+                verificationResult.issuer = issuer.toString()
             }
-            (cbor["value"].get(CwtHeaderKeys.ISSUED_AT) as Any?)?.let {
-                verificationResult.issuedAt = Instant.fromEpochSeconds(it as Long)
+            val issuedAt = cbor.get(CwtHeaderKeys.ISSUED_AT.value)
+            if (issuedAt !== undefined) {
+                verificationResult.issuedAt = Instant.fromEpochSeconds((issuedAt as Number).toLong())
             }
-            (cbor["value"].get(CwtHeaderKeys.EXPIRATION) as Any?)?.let {
-                verificationResult.expirationTime = Instant.fromEpochSeconds(it as Long)
+            val expiration = cbor.get(CwtHeaderKeys.EXPIRATION.value)
+            if (expiration !== undefined) {
+                verificationResult.expirationTime = Instant.fromEpochSeconds((expiration as Number).toLong())
             }
 
-            val hcert = cbor["value"].get(CwtHeaderKeys.HCERT)
+            val hcert = cbor.get(CwtHeaderKeys.HCERT.value)
             if (hcert !== undefined) {
                 val eudgcV1 = hcert.get(1)
                 if (eudgcV1 !== undefined) {
                     verificationResult.cwtDecoded = true
-                    return (eudgcV1 as Uint8Array).toByteArray()
+                    return Cbor.encode(eudgcV1)
                 }
             }
             return input
         } catch (e: Throwable) {
+            e.printStackTrace()
             return input
         }
     }

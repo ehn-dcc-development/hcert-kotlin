@@ -28,12 +28,14 @@ internal object Buffer {
     }
 }
 
-internal object Cbor{
-    private val cbor =js("require('cbor')")
-    fun decode(data:ByteArray):dynamic{
-        val c= cbor
-        val d = Buffer.from(data)
-        return js("c.decodeFirstSync(d)")
+internal object Cbor {
+    private val cbor = js("require('cbor')")
+
+    @Suppress("UNUSED_VARIABLE")
+    fun decode(data: ByteArray): dynamic {
+        val c = cbor // needed for JS-magic
+        val d = Buffer.from(data) // needed for JS-magic
+        return js("c.decodeAllSync(d)")
     }
 
     @Suppress("UNUSED_VARIABLE")
@@ -70,8 +72,9 @@ internal object Cose {
 }
 
 
-class CoseEcKey(xC: dynamic, yC:dynamic) {
-    constructor(x: ByteArray, y:ByteArray):this(xC=Buffer.from(x),yC=Buffer.from(y))
+class CoseEcKey(xC: dynamic, yC: dynamic) {
+    constructor(x: ByteArray, y: ByteArray) : this(xC = Buffer.from(x), yC = Buffer.from(y))
+
     val key = Holder(xC, yC)
 
     class Holder(val x: dynamic, val y: dynamic)
@@ -86,8 +89,13 @@ class CoseEcPrivateKey(d: ByteArray) {
 
 class CoseJsEcPubKey(val xCoord: dynamic, val yCoord: dynamic, override val curve: CurveIdentifier) :
     EcPubKey<dynamic> {
-    constructor(x: ByteArray, y: ByteArray, curve: CurveIdentifier):this(xCoord=Buffer.from(x), yCoord=Buffer.from(y), curve=curve)
-    override fun toCoseRepresentation() = CoseEcKey(xCoord, yCoord)
+    constructor(x: ByteArray, y: ByteArray, curve: CurveIdentifier) : this(
+        xCoord = Buffer.from(x),
+        yCoord = Buffer.from(y),
+        curve = curve
+    )
+
+    override fun toCoseRepresentation() = CoseEcKey(xC = xCoord, yC = yCoord)
 }
 
 class CoseJsPrivateKey(val d: ByteArray, val curve: CurveIdentifier) : PrivateKey<dynamic> {
@@ -95,8 +103,17 @@ class CoseJsPrivateKey(val d: ByteArray, val curve: CurveIdentifier) : PrivateKe
 }
 
 class JsCertificate(private val encoded: ByteArray) : Certificate<dynamic> {
+
+    constructor(pem: String) : this(
+        pem.lines().let { it.dropLast(1).drop(1) }.joinToString(separator = "").fromBase64()
+    )
+
     private val cert = Uint8Array(encoded.toTypedArray()).let {
         val parsed = fromBER(it.buffer).result; pkijs.src.Certificate.Certificate(js("({'schema':parsed})"))
+    }
+
+    init {
+        onlyCert = this
     }
 
     override fun getValidContentTypes(): List<ContentType> {
@@ -115,17 +132,27 @@ class JsCertificate(private val encoded: ByteArray) : Certificate<dynamic> {
         val keyInfo = (cert.subjectPublicKeyInfo as Json)["parsedKey"] as Json
         val x = keyInfo["x"]
         val y = keyInfo["y"]
-        return CoseJsEcPubKey(xCoord= x,yCoord=y, curve=CurveIdentifier.P256)
+        return CoseJsEcPubKey(
+            xCoord = Uint8Array(buffer = x as ArrayBuffer),
+            yCoord = Uint8Array(buffer = y as ArrayBuffer),
+            curve = CurveIdentifier.P256
+        )
     }
 
-    fun toTrustedCertificate(): TrustedCertificate {
+    override fun toTrustedCertificate(): TrustedCertificate {
+        val pk = ((cert.subjectPublicKeyInfo as Json)["subjectPublicKey"] as Json)["valueBeforeDecode"] as ArrayBuffer
+
         return TrustedCertificate(
-            validFrom = getValidFrom(),
-            validUntil = getValidUntil(),
-            kid = PkiUtils.calcKid(byteArrayOf()),
-            keyType = KeyType.EC,
-            publicKey = byteArrayOf(),
-            validContentTypes = listOf(ContentType.RECOVERY, ContentType.TEST, ContentType.VACCINATION)
+            Clock.System.now(),
+            Clock.System.now(),
+            byteArrayOf(),
+            KeyType.EC,
+            Buffer.toByteArray(cert.subjectPublicKeyInfo),
+            listOf()
         )
+    }
+
+    companion object {
+        var onlyCert: JsCertificate? = null
     }
 }
