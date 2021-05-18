@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import Buffer
+import kotlinx.browser.window
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 import org.w3c.fetch.Request
@@ -24,8 +25,11 @@ actual fun String.fromHexString(): ByteArray {
         .toByteArray()
 }
 
-actual fun loadResource(filename: String): String {
-    return filename
+actual fun loadResource(filename: String, cb:(String)->Unit) {
+    window.fetch(Request(filename)).then(onFulfilled = {
+        it.text().then(onFulfilled = {
+          cb(it)
+        })})
 }
 
 fun ByteArray.toUint8Array(): Uint8Array {

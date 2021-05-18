@@ -13,4 +13,4 @@ expect fun String.fromBase64Url() :ByteArray
 
 expect fun String.fromHexString() :ByteArray
 
-expect fun loadResource(filename: String): String
+expect fun loadResource(filename: String,cb: (String)->Unit)
