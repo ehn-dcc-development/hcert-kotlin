@@ -9,10 +9,10 @@ import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
-import kotlinx.serialization.cbor.Cbor as KCbor
 import kotlinx.serialization.decodeFromByteArray
 import org.khronos.webgl.Uint8Array
 import kotlin.time.Duration
+import kotlinx.serialization.cbor.Cbor as KCbor
 
 actual class TrustListDecodeService actual constructor(
     private val repository: CertificateRepository,

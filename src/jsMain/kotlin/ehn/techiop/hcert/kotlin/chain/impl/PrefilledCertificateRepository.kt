@@ -20,18 +20,19 @@ actual class PrefilledCertificateRepository : CertificateRepository {
     }
 
     actual constructor(input: ByteArray) {
-      list+=JsCertificate(input)
+        list += JsCertificate(input)
     }
 
     actual constructor(base64Encoded: String) {
-        list+=JsCertificate(base64Encoded)
+        list += JsCertificate(base64Encoded)
     }
 
     override fun loadTrustedCertificates(
         kid: ByteArray,
         verificationResult: VerificationResult
     ): List<TrustedCertificate> {
-        // TODO Kid check!
+        val certList = list.filter { it.calcKid() contentEquals kid }
+        if (certList.isEmpty()) throw IllegalArgumentException("kid")
         return listOf(list[0].toTrustedCertificate())
     }
 
