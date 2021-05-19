@@ -4,6 +4,15 @@ import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import kotlin.time.ExperimentalTime
 
+val inputPaths = listOf(
+    "/value-sets/disease-agent-targeted.json",
+    "/value-sets/test-manf.json",
+    "/value-sets/test-result.json",
+    "/value-sets/vaccine-mah-manf.json",
+    "/value-sets/vaccine-medicinal-product.json",
+    "/value-sets/vaccine-prophylaxis.json",
+)
+
 /**
  * Holds a list of value sets, that get lazily loaded from the JSON files in "src/main/resources/value-sets".
  */

@@ -9,3 +9,4 @@
 **/build/
 !src/**/build/
 src/jsTest/generated
+src/jsMain/generated

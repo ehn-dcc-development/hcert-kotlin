@@ -106,6 +106,7 @@ kotlin {
             }
         }
         val jsMain by getting {
+            sourceSets { kotlin.srcDir("src/jsMain/generated") }
             dependencies {
                 implementation(npm("pako", "2.0.3"))
                 implementation(npm("@types/pako", "1.0.1", generateExternals = true))
@@ -136,6 +137,7 @@ kotlin {
 
 tasks.named("jsProcessResources") {
     dependsOn(tasks.named("jsGenerateTestClasses"))
+    dependsOn(tasks.named("jsGenerateValueSets"))
 }
 
 tasks.register("jsGenerateTestClasses") {
@@ -166,6 +168,45 @@ tasks.register("jsGenerateTestClasses") {
 
             w.write(
                 "m[\"${it.name}\"]=\"" + String(encodeBase64) +
+                        "\"\n"
+            )
+        }
+        w.write(
+            "}" +
+                    "fun get(k:String)=m[k]" +
+                    "}"
+        )
+        w.close()
+    }
+}
+tasks.register("jsGenerateValueSets") {
+    println("Wrapping resources resources into code")
+    doFirst {
+        val dir = File("${projectDir.absolutePath}/src/jsMain/generated")
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw Throwable("Could not create generated sources folder")
+            }
+        }
+        val f = File("${projectDir.absolutePath}/src/jsMain/generated/ResourceHolder.kt")
+        f.delete()
+        f.createNewFile()
+        if (!f.canWrite()) {
+            throw Throwable("cannot write generated source file $f")
+        }
+        val w = f.writer()
+        w.write(
+            """object ResourceHolder{
+        |private val m=mutableMapOf<String,String>()
+        |init{
+    """.trimMargin()
+        )
+        val r = File("${projectDir.absolutePath}/src/commonMain/resources/value-sets").listFiles().forEach {
+            val encodeBase64 =
+                de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
+
+            w.write(
+                "m[\"/value-sets/${it.name}\"]=\"" + String(encodeBase64) +
                         "\"\n"
             )
         }
