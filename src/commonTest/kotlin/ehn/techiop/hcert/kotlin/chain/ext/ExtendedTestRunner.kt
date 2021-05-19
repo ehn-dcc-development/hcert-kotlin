@@ -12,13 +12,13 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-expect fun allResources(): Map<String, String>
+expect fun allOfficialTestCases(): Map<String, String>
 
 class ExtendedTestRunner {
 
     @Test
     fun verificationStarter() {
-        allResources()
+        allOfficialTestCases()
             .filterNot { it.key.contains("NL/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/107
             .filterNot { it.key.contains("FR/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/128
             .filterNot { it.key.contains("CY/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/105

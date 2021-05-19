@@ -1,7 +1,12 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import RHolder
-import ehn.techiop.hcert.kotlin.chain.fromBase64
+import TestResourceHolder
+import ehn.techiop.hcert.kotlin.data.loadAsString
 
-actual fun allResources() =
-    RHolder.m.map { it.key to it.value.fromBase64().decodeToString() }.sortedBy { it.first }.toMap()
+
+actual fun allOfficialTestCases(): Map<String, String> {
+    val map = mutableMapOf<String, String>()
+    TestResourceHolder.allResourceNames().filter { it.startsWith("dgc-testdata/") }.filter { it.endsWith(".json") }
+        .forEach { map[it] = TestResourceHolder.loadAsString(it)!! }
+    return map
+}

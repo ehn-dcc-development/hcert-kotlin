@@ -57,14 +57,12 @@ kotlin {
     js(LEGACY) {
         browser {
             testTask {
-                //dependsOn(copyJsTestResources)
                 useKarma {
                     useChromeHeadless()
                     webpackConfig.cssSupport.enabled = false
                 }
             }
         }
-        //sourceSets.create("src/jsTest/generated")
         useCommonJs()
 
     }
@@ -130,78 +128,67 @@ kotlin {
                 implementation(kotlin("test-js"))
             }
         }
-
     }
 }
 
-tasks.named("jsProcessResources") {
-    dependsOn(tasks.named("jsGenerateTestClasses"))
-    dependsOn(tasks.named("jsGenerateValueSets"))
+/*
+* KJS: No way to get test resources in a multiplatform project.
+* https://youtrack.jetbrains.com/issue/KT-36824
+*
+* These tasks work around this glaring issue by wrapping test resources into code and providing accessors
+* requires base64 decoding afterwards and can surely be optimized, but at least it provides access to test resources
+*
+* Bonus Issue: this also affects main resources, bc test cases can obviously call code which already depends on resources
+* Therefore, we also use the trick in jsMain
+* */
+
+tasks.named("clean") { dependsOn(tasks.named("jsCleanResources")) }
+tasks.named("compileKotlinJs") { dependsOn(tasks.named("jsWrapMainResources")) }
+tasks.named("compileTestKotlinJs") { dependsOn(tasks.named("jsWrapTestResources")) }
+tasks.register("jsWrapTestResources") { doFirst { wrapJsResources(test = true) } }
+tasks.register("jsWrapMainResources") { doFirst { wrapJsResources() } }
+
+tasks.register("jsCleanResources") {
+    File("${projectDir.absolutePath}/src/jsTest/generated").deleteRecursively()
+    File("${projectDir.absolutePath}/src/jsMain/generated").deleteRecursively()
 }
 
-tasks.register("jsGenerateTestClasses") {
-    println("Wrapping test resources into code")
-    doFirst {
-        val dir = File("${projectDir.absolutePath}/src/jsTest/generated")
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                throw Throwable("Could not create generated sources folder")
-            }
-        }
-        val f = File("${projectDir.absolutePath}/src/jsTest/generated/TestCaseHolder.kt")
-        f.delete()
-        f.createNewFile()
-        if (!f.canWrite()) {
-            throw Throwable("cannot write generated source file $f")
-        }
-        f.writer().use { w ->
-            w.write(
-                """object RHolder{
-                |val m=mutableMapOf<String,String>()
-                |init{
-                """.trimMargin()
-            )
-            val baseDir = File("${projectDir.absolutePath}/src/commonTest/resources/dgc-testdata")
-            baseDir.walkTopDown()
-                .filter { it.name.endsWith("json") }.toList().forEach {
-                    val encodeBase64 =
-                        de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
-                    w.write("m[\"${it.relativeTo(baseDir).path}\"]=\"" + String(encodeBase64) + "\"\n")
-                }
-            w.write("}" + "fun get(k:String)=m[k]" + "}")
+
+fun wrapJsResources(test: Boolean = false) {
+    val prefix = if (test) "Test" else "Main"
+    println("Wrapping $prefix resources into ${prefix}ResourceHolder.kt")
+
+    val dir = File("${projectDir.absolutePath}/src/js${prefix}/generated")
+    if (!dir.exists()) {
+        if (!dir.mkdirs()) {
+            throw Throwable("Could not create generated sources folder")
         }
     }
-}
-tasks.register("jsGenerateValueSets") {
-    println("Wrapping resources resources into code")
-    doFirst {
-        val dir = File("${projectDir.absolutePath}/src/jsMain/generated")
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                throw Throwable("Could not create generated sources folder")
-            }
+    val f = File("${projectDir.absolutePath}/src/js${prefix}/generated/${prefix}ResourceHolder.kt")
+    f.delete()
+    f.createNewFile()
+    if (!f.canWrite()) {
+        throw Throwable("Could not write generated source file $f")
+    }
+    f.writer().use { w ->
+        if (!test) {
+            w.write("interface R { fun get(key: String): String?;fun allResourceNames():List<String>}")
         }
-        val f = File("${projectDir.absolutePath}/src/jsMain/generated/ResourceHolder.kt")
-        f.delete()
-        f.createNewFile()
-        if (!f.canWrite()) {
-            throw Throwable("cannot write generated source file $f")
-        }
-        f.writer().use { w ->
+        w.write(
+            "object ${prefix}ResourceHolder:R{private val m = mutableMapOf<String,String>();init{\n"
+        )
+
+        val basePath = "${projectDir.absolutePath}/src/common${prefix}/resources"
+        val baseFile = File(basePath)
+        baseFile.walkBottomUp().filter { !it.isDirectory }.forEach {
+            val encodeBase64 =
+                de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
+            val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
             w.write(
-                """object ResourceHolder{
-                |val m=mutableMapOf<String,String>()
-                |init{
-                """.trimMargin()
+                "m[\"${key.replace("\$", "\\\$")}\"]=\"" + String(encodeBase64) + "\"\n"
             )
-            val baseDir = File("${projectDir.absolutePath}/src/commonMain/resources/value-sets")
-            baseDir.listFiles().forEach {
-                val encodeBase64 =
-                    de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
-                w.write("m[\"/value-sets/${it.name}\"]=\"" + String(encodeBase64) + "\"\n")
-            }
-            w.write("}" + "fun get(k:String)=m[k]" + "}")
-            w.close()
         }
+        w.write("}override fun get(key:String)=m[key];")
+        w.write("override fun allResourceNames()=m.keys.toList()}")
     }
 }

@@ -2,7 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.ext
 
 import java.io.File
 
-actual fun allResources(): Map<String, String> {
+actual fun allOfficialTestCases(): Map<String, String> {
     val baseDir = File("src/commonTest/resources/dgc-testdata")
     return baseDir.walkTopDown()
         .filter { it.name.endsWith(".json") }
