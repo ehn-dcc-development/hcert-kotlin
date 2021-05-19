@@ -57,7 +57,7 @@ kotlin {
     js(LEGACY) {
         browser {
             testTask {
-//dependsOn(copyJsTestResources)
+                //dependsOn(copyJsTestResources)
                 useKarma {
                     useChromeHeadless()
                     webpackConfig.cssSupport.enabled = false
@@ -155,28 +155,22 @@ tasks.register("jsGenerateTestClasses") {
         if (!f.canWrite()) {
             throw Throwable("cannot write generated source file $f")
         }
-        val w = f.writer()
-        w.write(
-            """object RHolder{
-        |private val m=mutableMapOf<String,String>()
-        |init{
-    """.trimMargin()
-        )
-        val r = File("${projectDir.absolutePath}/src/commonTest/resources").listFiles().forEach {
-            val encodeBase64 =
-                de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
-
+        f.writer().use { w ->
             w.write(
-                "m[\"${it.name}\"]=\"" + String(encodeBase64) +
-                        "\"\n"
+                """object RHolder{
+                |private val m=mutableMapOf<String,String>()
+                |init{
+                """.trimMargin()
             )
+            val baseDir = File("${projectDir.absolutePath}/src/commonTest/resources")
+            baseDir.walkTopDown()
+                .filter { it.name.endsWith("json") }.toList().forEach {
+                    val encodeBase64 =
+                        de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
+                    w.write("m[\"${it.relativeTo(baseDir).path}\"]=\"" + String(encodeBase64) + "\"\n")
+                }
+            w.write("}" + "fun get(k:String)=m[k]" + "}")
         }
-        w.write(
-            "}" +
-                    "fun get(k:String)=m[k]" +
-                    "}"
-        )
-        w.close()
     }
 }
 tasks.register("jsGenerateValueSets") {
@@ -194,27 +188,21 @@ tasks.register("jsGenerateValueSets") {
         if (!f.canWrite()) {
             throw Throwable("cannot write generated source file $f")
         }
-        val w = f.writer()
-        w.write(
-            """object ResourceHolder{
-        |private val m=mutableMapOf<String,String>()
-        |init{
-    """.trimMargin()
-        )
-        val r = File("${projectDir.absolutePath}/src/commonMain/resources/value-sets").listFiles().forEach {
-            val encodeBase64 =
-                de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
-
+        f.writer().use { w ->
             w.write(
-                "m[\"/value-sets/${it.name}\"]=\"" + String(encodeBase64) +
-                        "\"\n"
+                """object ResourceHolder{
+                |private val m=mutableMapOf<String,String>()
+                |init{
+                """.trimMargin()
             )
+            val baseDir = File("${projectDir.absolutePath}/src/commonMain/resources/value-sets")
+            baseDir.listFiles().forEach {
+                val encodeBase64 =
+                    de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
+                w.write("m[\"/value-sets/${it.name}\"]=\"" + String(encodeBase64) + "\"\n")
+            }
+            w.write("}" + "fun get(k:String)=m[k]" + "}")
+            w.close()
         }
-        w.write(
-            "}" +
-                    "fun get(k:String)=m[k]" +
-                    "}"
-        )
-        w.close()
     }
 }
