@@ -6,15 +6,8 @@ import ehn.techiop.hcert.kotlin.chain.DecisionService
 import ehn.techiop.hcert.kotlin.chain.VerificationDecision
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.fromBase64
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
-import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.toHexString
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -32,6 +25,13 @@ class ExtendedTestRunner {
 
     @ParameterizedTest
     @MethodSource("verificationProvider")
+    fun verificationLoader(file: File) {
+        println("Loading $file")
+        val text = file.bufferedReader().readText()
+        val content = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(text)
+        verification(file.path, content)
+    }
+
     fun verification(filename: String, case: TestCase) {
         println("Executing verification test case \"${filename}\": \"${case.context.description}\"")
         val clock = case.context.validationClock?.let { Clock.fixed(it, ZoneOffset.UTC) } ?: Clock.systemUTC()
@@ -107,122 +107,26 @@ class ExtendedTestRunner {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("generationProvider")
-    fun generation(filename: String, case: TestCase) {
-        println("Executing generation test case \"${filename}\": \"${case.context.description}\"")
-        if (case.eudgc == null) throw IllegalArgumentException("eudgc")
-        val clock = case.context.validationClock?.let { Clock.fixed(it, ZoneOffset.UTC) } ?: Clock.systemUTC()
-        val creationChain = Chain(
-            DefaultCborService(),
-            DefaultCwtService(clock = clock),
-            DefaultCoseService(RandomEcKeyCryptoService(clock = clock)),
-            DefaultContextIdentifierService(),
-            DefaultCompressorService(),
-            DefaultBase45Service()
-        )
-
-        val chainResult = creationChain.encode(case.eudgc.toEuSchema())
-
-        case.expectedResult.schemaGeneration?.let {
-            // TODO Implement schema verification
-        }
-        case.expectedResult.encodeGeneration?.let {
-            assertThat(chainResult.step0Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
-        }
-    }
-
     companion object {
 
         @JvmStatic
         @Suppress("unused")
         fun verificationProvider(): List<Arguments> {
-            val testcaseFiles = listOf(
-                "src/test/resources/AT01.json",
-                "src/test/resources/AT02.json",
-                "src/test/resources/AT03.json",
-                "src/test/resources/AT04.json",
-                "src/test/resources/HR01.json",
-                "src/test/resources/HR02.json",
-                "src/test/resources/HR03.json",
-                "src/test/resources/SE01.json",
-                "src/test/resources/SE02.json",
-                "src/test/resources/SE03.json",
-                "src/test/resources/SE04.json",
-                // TODO CBOR Tag? "src/test/resources/SE05.json",
-                // TODO Validity? "src/test/resources/SE06.json",
-                "src/test/resources/BG01.json",
-                "src/test/resources/RO01.json",
-                "src/test/resources/RO02.json",
-                // TODO Datetime "src/test/resources/IS01.json",
-                // TODO Datetime "src/test/resources/IS02.json",
-                "src/test/resources/DK05.json",
-                "src/test/resources/DK06.json",
-                "src/test/resources/DK07.json",
-                "src/test/resources/DK08.json",
-                "src/test/resources/DK09.json",
-                // TODO kid "src/test/resources/GR01.json",
-                // TODO kid "src/test/resources/GR02.json",
-                "src/test/resources/testcaseQ1.json",
-                //"src/test/resources/testcaseQ2.json",
-                "src/test/resources/testcaseH1.json",
-                "src/test/resources/testcaseH2.json",
-                "src/test/resources/testcaseH3.json",
-                "src/test/resources/testcaseB1.json",
-                "src/test/resources/testcaseZ1.json",
-                "src/test/resources/testcaseZ2.json",
-                "src/test/resources/testcaseCO1.json",
-                "src/test/resources/testcaseCO2.json",
-                "src/test/resources/testcaseCO3.json",
-                //"src/test/resources/testcaseCO4.json",
-                "src/test/resources/testcaseCO5.json",
-                "src/test/resources/testcaseCO6.json",
-                "src/test/resources/testcaseCO7.json",
-                "src/test/resources/testcaseCO8.json",
-                "src/test/resources/testcaseCO9.json",
-                "src/test/resources/testcaseCO10.json",
-                "src/test/resources/testcaseCO11.json",
-                "src/test/resources/testcaseCO12.json",
-                "src/test/resources/testcaseCO13.json",
-                "src/test/resources/testcaseCO14.json",
-                "src/test/resources/testcaseCO15.json",
-                "src/test/resources/testcaseCO16.json",
-                "src/test/resources/testcaseCO17.json",
-                "src/test/resources/testcaseCO18.json",
-                "src/test/resources/testcaseCO19.json",
-                "src/test/resources/testcaseCO20.json",
-                "src/test/resources/testcaseCO21.json",
-                "src/test/resources/testcaseCO22.json",
-                "src/test/resources/testcaseCO23.json",
-                "src/test/resources/testcaseCBO1.json",
-                "src/test/resources/testcaseCBO2.json",
-                "src/test/resources/testcaseDGC1.json",
-                "src/test/resources/testcaseDGC2.json",
-                "src/test/resources/testcaseDGC3.json",
-                "src/test/resources/testcaseDGC4.json",
-                "src/test/resources/testcaseDGC5.json",
-                "src/test/resources/testcaseDGC6.json",
-            )
-            return testcaseFiles.map {
-                println("Loading $it...")
-                val text = File(it).bufferedReader().readText()
-                Arguments.of(it, Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(text))
-            }
-        }
-
-        @JvmStatic
-        @Suppress("unused")
-        fun generationProvider(): List<Arguments> {
-            val testcaseFiles = listOf(
-                "src/test/resources/gentestcase01.json",
-                "src/test/resources/gentestcase02.json",
-                "src/test/resources/gentestcase03.json",
-                "src/test/resources/gentestcase04.json",
-            )
-            return testcaseFiles.map {
-                val text = File(it).bufferedReader().readText()
-                Arguments.of(it, Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(text))
-            }
+            // import from dgc-testdata with
+            // find . -name "*.json" -exec cp --parents {} ~/hcert-kotlin/src/test/resources/dgc-testdata \;
+            return File("src/test/resources/dgc-testdata").walkTopDown()
+                .filter { it.name.endsWith(".json") }.toList()
+                .filterNot { it.path.contains("/NL/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/107
+                .filterNot { it.path.contains("/FR/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/128
+                .filterNot { it.path.contains("/CY/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/105
+                .filterNot { it.path.contains("/DE/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/119
+                .filterNot { it.path.contains("/ES/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/32
+                .filterNot { it.path.contains("/IS/") } //TODO DateTime Parsing
+                .filterNot { it.path.contains("/PL/") } //TODO Expirationcheck
+                .filterNot { it.path.contains("/SE/") } //TODO Cose Tags
+                .filterNot { it.path.contains("/SI/") } //TODO Cose Tags
+                .sorted()
+                .map { Arguments.of(it) }
         }
 
     }
