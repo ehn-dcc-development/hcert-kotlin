@@ -12,7 +12,6 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-expect fun loadResource(filename: String): String?
 expect fun allResources(): Map<String, String>
 
 class ExtendedTestRunner {
@@ -29,12 +28,12 @@ class ExtendedTestRunner {
             .filterNot { it.key.contains("PL/") } //TODO Expirationcheck (JVM too)
             .filterNot { it.key.contains("SE/") } //TODO Cose Tags (JVM too)
             .filterNot { it.key.contains("SI/") } //TODO Cose Tags (JVM too)
-            .filterNot { it.key.contains("IT/") } //TODO DateTimeParseException: Text '2021-05-17T18:22:17' could not be parsed at index 19: 2021-05-17T18:22:17, at index: 19 -- only JS?
-            .filterNot { it.key.contains("BG/") } //TODO COSE verification failed -- only JS?
-            .filterNot { it.key.contains("LU/") } //TODO COSE verification failed -- only JS?
-            .filterNot { it.key.contains("RO/2DCode/raw/4.json") } //TODO CBOR decoding failed -- only JS?
-            .filterNot { it.key.contains("CO1.json") } //TODO RSA failed -- only JS
-            .filterNot { it.key.contains("CO2.json") } //TODO RSA failed -- only JS
+            .filterNot { it.key.contains("IT/") } //TODO DateTimeParseException: Text '2021-05-17T18:22:17' could not be parsed at index 19: 2021-05-17T18:22:17, at index: 19 -- only JS!
+            .filterNot { it.key.contains("BG/") } //TODO COSE verification failed -- only JS!
+            .filterNot { it.key.contains("LU/") } //TODO COSE verification failed -- only JS!
+            .filterNot { it.key.contains("RO/2DCode/raw/4.json") } //TODO CBOR decoding failed (JVM too)
+            .filterNot { it.key.contains("CO1.json") } //TODO RSA failed -- only JS!
+            .filterNot { it.key.contains("CO2.json") } //TODO RSA failed -- only JS!
             .forEach {
                 val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
                 verification(it.key, case)
