@@ -11,7 +11,6 @@ actual class VerificationCoseService actual constructor(private val repository: 
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.coseVerified = false
-
         try {
             val cborJson = Cbor.Decoder.decodeAllSync(Buffer.from(input.toUint8Array()))
             val cwt = cborJson[0] as Cbor.Tagged
@@ -35,8 +34,6 @@ actual class VerificationCoseService actual constructor(private val repository: 
                 verificationResult.certificateValidContent = trustedCert.validContentTypes
                 val pubKey = trustedCert.cosePublicKey
                 val result = Cose.verify(input, pubKey)
-                //console.info("COSE VERIFIED")
-                //console.info(JSON.stringify(result))
                 verificationResult.coseVerified = true
                 return@forEach
             }
