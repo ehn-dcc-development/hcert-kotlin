@@ -122,36 +122,36 @@ class ExtendedTestRunner {
             //if (!it) assertEquals(VerificationDecision.FAIL, decision)
         }
         case.expectedResult.prefix?.let {
-            if (it) assertEquals(case.base45, chainResult.step4Encoded)
-            if (!it) assertEquals(VerificationDecision.FAIL, decision)
+            if (it) assertEquals(case.base45, chainResult.step4Encoded, "Prefix Expected")
+            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Prefix Not Expected")
         }
         case.expectedResult.base45Decode?.let {
-            assertEquals(it, verificationResult.base45Decoded)
+            assertEquals(it, verificationResult.base45Decoded, "Base45 Decoding Bin")
             if (it && case.compressedHex != null) {
-                assertEquals(case.compressedHex.lowercase(), chainResult.step3Compressed.toHexString().lowercase())
+                assertEquals(case.compressedHex.lowercase(), chainResult.step3Compressed.toHexString().lowercase(), "Base45 Decoding Hex")
             }
-            if (!it) assertEquals(VerificationDecision.FAIL, decision)
+            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Base54 Decoding Fail Expected")
         }
         case.expectedResult.compression?.let {
-            assertEquals(it, verificationResult.zlibDecoded)
-            if (it) assertEquals(case.coseHex?.lowercase(), chainResult.step2Cose.toHexString().lowercase())
+            assertEquals(it, verificationResult.zlibDecoded, "Zlib Decompression Bin")
+            if (it) assertEquals(case.coseHex?.lowercase(), chainResult.step2Cose.toHexString().lowercase(), "Zlib Decompression Hex")
         }
         case.expectedResult.coseSignature?.let {
-            assertEquals(it, verificationResult.coseVerified)
-            if (!it) assertEquals(VerificationDecision.FAIL, decision)
+            assertEquals(it, verificationResult.coseVerified, "Cose Signature Verification")
+            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Cose Signature Verification FAIL Expected")
         }
         case.expectedResult.cborDecode?.let {
-            assertEquals(it, verificationResult.cborDecoded)
+            assertEquals(it, verificationResult.cborDecoded, "CBOR Decoding")
             if (it) {
-                assertEquals(case.eudgc, chainResult.eudgc)
+                assertEquals(case.eudgc, chainResult.eudgc, "CBOR Decoding GOOD Expected")
                 // doesn't make sense to compare exact CBOR hex encoding
                 //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
             }
-            if (!it) assertEquals(VerificationDecision.FAIL, decision)
+            if (!it) assertEquals(VerificationDecision.FAIL, decision, "CBOR Decoding FAIL Expected")
         }
         case.expectedResult.json?.let {
-            assertEquals(case.eudgc, chainResult.eudgc)
-            if (!it) assertEquals(VerificationDecision.FAIL, decision)
+            assertEquals(case.eudgc, chainResult.eudgc, "JSON Decoding")
+            if (!it) assertEquals(VerificationDecision.FAIL, decision, "JSON Decoding FAIL expected")
         }
         case.expectedResult.schemaValidation?.let {
             // TODO Implement schema validation
@@ -159,12 +159,12 @@ class ExtendedTestRunner {
             //if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.expirationCheck?.let {
-            if (it) assertEquals(VerificationDecision.GOOD, decision)
-            if (!it) assertEquals(VerificationDecision.FAIL, decision)
+            if (it) assertEquals(VerificationDecision.GOOD, decision, "Expiry Check GOOD Expected")
+            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Expiry Check FAIL Expected")
         }
         case.expectedResult.keyUsage?.let {
-            if (it) assertEquals(VerificationDecision.GOOD, decision)
-            if (!it) assertEquals(VerificationDecision.FAIL, decision)
+            if (it) assertEquals(VerificationDecision.GOOD, decision, "Key Usage GOOD Expected")
+            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Key Usage FAIL Expected")
         }
     }
 
