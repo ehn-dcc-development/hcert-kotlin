@@ -26,12 +26,12 @@ class ExtendedTestRunner {
 //        verificationLoader("SE03.json")
 //        verificationLoader("SE04.json")
 //        // TODO CBOR Tag? verificationLoader("SE05.json")
-//        // TODO Validity? verificationLoader("SE06.json")
+ verificationLoader("SE06.json")
 //        verificationLoader("BG01.json")
 //        verificationLoader("RO01.json")
 //        verificationLoader("RO02.json")
-//        // TODO Datetime verificationLoader("IS01.json")
-//        // TODO Datetime verificationLoader("IS02.json")
+        verificationLoader("IS01.json")
+        verificationLoader("IS02.json")
 //        verificationLoader("DK05.json")
 //        verificationLoader("DK06.json")
 //        verificationLoader("DK07.json")
@@ -78,6 +78,7 @@ class ExtendedTestRunner {
         verificationLoader("testcaseDGC4.json")
         verificationLoader("testcaseDGC5.json")
         verificationLoader("testcaseDGC6.json")
+        verificationLoader("testcaseIlegalDateFormat.json")
     }
 
     fun verificationLoader(filename: String) {
