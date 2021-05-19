@@ -61,7 +61,6 @@ kotlin {
                 useKarma {
                     useChromeHeadless()
                     webpackConfig.cssSupport.enabled = false
-                    webpackConfig.configDirectory = project.projectDir.resolve("webpack.config.test.d")
                 }
             }
         }
@@ -158,11 +157,11 @@ tasks.register("jsGenerateTestClasses") {
         f.writer().use { w ->
             w.write(
                 """object RHolder{
-                |private val m=mutableMapOf<String,String>()
+                |val m=mutableMapOf<String,String>()
                 |init{
                 """.trimMargin()
             )
-            val baseDir = File("${projectDir.absolutePath}/src/commonTest/resources")
+            val baseDir = File("${projectDir.absolutePath}/src/commonTest/resources/dgc-testdata")
             baseDir.walkTopDown()
                 .filter { it.name.endsWith("json") }.toList().forEach {
                     val encodeBase64 =
@@ -191,7 +190,7 @@ tasks.register("jsGenerateValueSets") {
         f.writer().use { w ->
             w.write(
                 """object ResourceHolder{
-                |private val m=mutableMapOf<String,String>()
+                |val m=mutableMapOf<String,String>()
                 |init{
                 """.trimMargin()
             )

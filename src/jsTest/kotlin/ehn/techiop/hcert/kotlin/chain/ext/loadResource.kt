@@ -9,3 +9,6 @@ actual fun loadResource(filename: String): String? {
     val decodeToString = fromBase64?.decodeToString()
     return decodeToString
 }
+
+actual fun allResources() =
+    RHolder.m.map { it.key to it.value.fromBase64().decodeToString() }.sortedBy { it.first }.toMap()

@@ -1,7 +1,11 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.DecisionService
+import ehn.techiop.hcert.kotlin.chain.DefaultChain
+import ehn.techiop.hcert.kotlin.chain.VerificationDecision
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import kotlinx.datetime.Clock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -9,84 +13,32 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 expect fun loadResource(filename: String): String?
+expect fun allResources(): Map<String, String>
 
 class ExtendedTestRunner {
 
     @Test
     fun verificationStarter() {
-        verificationLoader("AT01.json")
-        verificationLoader("AT02.json")
-        verificationLoader("AT03.json")
-        verificationLoader("AT04.json")
-//        verificationLoader("HR01.json")
-//        verificationLoader("HR02.json")
-//        verificationLoader("HR03.json")
-//        verificationLoader("SE01.json")
-//        verificationLoader("SE02.json")
-//        verificationLoader("SE03.json")
-//        verificationLoader("SE04.json")
-//        // TODO CBOR Tag? verificationLoader("SE05.json")
-        // TODO verificationLoader("SE06.json")
-//        verificationLoader("BG01.json")
-//        verificationLoader("RO01.json")
-//        verificationLoader("RO02.json")
-        //TODO Datetime verificationLoader("IS01.json")
-        //TODO Datetime verificationLoader("IS02.json")
-//        verificationLoader("DK05.json")
-//        verificationLoader("DK06.json")
-//        verificationLoader("DK07.json")
-//        verificationLoader("DK08.json")
-//        verificationLoader("DK09.json")
-        // TODO kid verificationLoader("GR01.json")
-        // TODO kid verificationLoader("GR02.json")
-        verificationLoader("testcaseQ1.json")
-        //verificationLoader("testcaseQ2.json")
-        verificationLoader("testcaseH1.json")
-        verificationLoader("testcaseH2.json")
-        verificationLoader("testcaseH3.json")
-        verificationLoader("testcaseB1.json")
-        verificationLoader("testcaseZ1.json")
-        verificationLoader("testcaseZ2.json")
-        //TODO RSA verificationLoader("testcaseCO1.json")
-        //TODO RSA verificationLoader("testcaseCO2.json")
-        verificationLoader("testcaseCO3.json")
-        //verificationLoader("testcaseCO4.json")
-        verificationLoader("testcaseCO5.json")
-        verificationLoader("testcaseCO6.json")
-        verificationLoader("testcaseCO7.json")
-        verificationLoader("testcaseCO8.json")
-        verificationLoader("testcaseCO9.json")
-        verificationLoader("testcaseCO10.json")
-        verificationLoader("testcaseCO11.json")
-        verificationLoader("testcaseCO12.json")
-        verificationLoader("testcaseCO13.json")
-        verificationLoader("testcaseCO14.json")
-        verificationLoader("testcaseCO15.json")
-        verificationLoader("testcaseCO16.json")
-        verificationLoader("testcaseCO17.json")
-        verificationLoader("testcaseCO18.json")
-        verificationLoader("testcaseCO19.json")
-        verificationLoader("testcaseCO20.json")
-        verificationLoader("testcaseCO21.json")
-        verificationLoader("testcaseCO22.json")
-        verificationLoader("testcaseCO23.json")
-        verificationLoader("testcaseCBO1.json")
-        verificationLoader("testcaseCBO2.json")
-        verificationLoader("testcaseDGC1.json")
-        verificationLoader("testcaseDGC2.json")
-        verificationLoader("testcaseDGC3.json")
-        verificationLoader("testcaseDGC4.json")
-        verificationLoader("testcaseDGC5.json")
-        verificationLoader("testcaseDGC6.json")
-    }
-
-    fun verificationLoader(filename: String) {
-        val loadResource = loadResource(filename)
-        if (loadResource == null) {
-            throw Throwable("Could not find resource $filename")
-        }
-        verification(filename, Json { ignoreUnknownKeys = true }.decodeFromString(loadResource))
-
+        allResources()
+            .filterNot { it.key.contains("NL/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/107
+            .filterNot { it.key.contains("FR/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/128
+            .filterNot { it.key.contains("CY/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/105
+            .filterNot { it.key.contains("DE/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/119
+            .filterNot { it.key.contains("ES/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/32
+            .filterNot { it.key.contains("IS/") } //TODO DateTime Parsing (JVM too)
+            .filterNot { it.key.contains("PL/") } //TODO Expirationcheck (JVM too)
+            .filterNot { it.key.contains("SE/") } //TODO Cose Tags (JVM too)
+            .filterNot { it.key.contains("SI/") } //TODO Cose Tags (JVM too)
+            .filterNot { it.key.contains("IT/") } //TODO DateTimeParseException: Text '2021-05-17T18:22:17' could not be parsed at index 19: 2021-05-17T18:22:17, at index: 19 -- only JS?
+            .filterNot { it.key.contains("BG/") } //TODO COSE verification failed -- only JS?
+            .filterNot { it.key.contains("LU/") } //TODO COSE verification failed -- only JS?
+            .filterNot { it.key.contains("RO/2DCode/raw/4.json") } //TODO CBOR decoding failed -- only JS?
+            .filterNot { it.key.contains("CO1.json") } //TODO RSA failed -- only JS
+            .filterNot { it.key.contains("CO2.json") } //TODO RSA failed -- only JS
+            .forEach {
+                val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
+                verification(it.key, case)
+            }
     }
 
     fun verification(filename: String, case: TestCase) {
