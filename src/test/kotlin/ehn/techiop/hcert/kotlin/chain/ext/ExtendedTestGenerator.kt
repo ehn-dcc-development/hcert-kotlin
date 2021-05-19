@@ -45,7 +45,6 @@ import java.io.File
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Instant
-import java.time.ZoneId
 import java.time.ZoneOffset
 
 @Disabled("Don't want to generate test case files every time")
@@ -127,7 +126,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(base45WithPrefix = result.step5Prefixed, qrCode = qrCode),
-            "INVALID: QR code cannot be read", "testcaseQ1",
+            "INVALID: QR code cannot be read", "Q1",
             TestExpectedResults(
                 qrDecode = false,
             )
@@ -144,7 +143,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(base45 = result.step4Encoded, base45WithPrefix = result.step5Prefixed),
-            "INVALID: Context does not match schema (HL0:)", "testcaseH1",
+            "INVALID: Context does not match schema (HL0:)", "H1",
             TestExpectedResults(
                 prefix = false,
             )
@@ -159,7 +158,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(base45 = result.step4Encoded, base45WithPrefix = result.step5Prefixed),
-            "INVALID: Context value not supported (HC2:)", "testcaseH2",
+            "INVALID: Context value not supported (HC2:)", "H2",
             TestExpectedResults(
                 prefix = false,
             )
@@ -174,7 +173,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter(base45 = result.step4Encoded, base45WithPrefix = result.step5Prefixed),
-            "INVALID: Context value missing (only BASE45 encoding)", "testcaseH3",
+            "INVALID: Context value missing (only BASE45 encoding)", "H3",
             TestExpectedResults(
                 prefix = false,
             )
@@ -193,7 +192,7 @@ class ExtendedTestGenerator {
                 base45 = result.step4Encoded,
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: BASE45 invalid (wrong encoding characters)", "testcaseB1",
+            "INVALID: BASE45 invalid (wrong encoding characters)", "B1",
             TestExpectedResults(
                 qrDecode = true,
                 prefix = true,
@@ -215,7 +214,7 @@ class ExtendedTestGenerator {
                 compressedHex = result.step3Compressed.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: Compression broken", "testcaseZ1",
+            "INVALID: Compression broken", "Z1",
             TestExpectedResults(
                 compression = false
             )
@@ -234,7 +233,7 @@ class ExtendedTestGenerator {
                 compressedHex = result.step3Compressed.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: Not compressed", "testcaseZ2",
+            "INVALID: Not compressed", "Z2",
             TestExpectedResults(
                 compression = false
             )
@@ -250,7 +249,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter.from(eudgcVac, result),
-            "VALID: RSA 2048 key", "testcaseCO1",
+            "VALID: RSA 2048 key", "CO1",
             TestExpectedResults(
                 prefix = true,
                 base45Decode = true,
@@ -271,7 +270,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter.from(eudgcVac, result),
-            "VALID: RSA 3072 key", "testcaseCO2",
+            "VALID: RSA 3072 key", "CO2",
             TestExpectedResults(
                 prefix = true,
                 base45Decode = true,
@@ -292,7 +291,7 @@ class ExtendedTestGenerator {
         createVerificationTestCaseJson(
             clock, cryptoService.getCertificate(),
             ChainResultAdapter.from(eudgcVac, result),
-            "VALID: EC 256 key", "testcaseCO3",
+            "VALID: EC 256 key", "CO3",
             TestExpectedResults(
                 prefix = true,
                 base45Decode = true,
@@ -318,7 +317,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: Signature cryptographically invalid", "testcaseCO5",
+            "INVALID: Signature cryptographically invalid", "CO5",
             TestExpectedResults(
                 coseSignature = false,
             )
@@ -338,7 +337,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: OID for Test present, but DGC for vacc", "testcaseCO6",
+            "INVALID: OID for Test present, but DGC for vacc", "CO6",
             TestExpectedResults(
                 keyUsage = false
             )
@@ -358,7 +357,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: OID for Test present, but DGC for recovery", "testcaseCO7",
+            "INVALID: OID for Test present, but DGC for recovery", "CO7",
             TestExpectedResults(
                 keyUsage = false
             )
@@ -378,7 +377,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: OID for Vacc present, but DGC for test", "testcaseCO8",
+            "INVALID: OID for Vacc present, but DGC for test", "CO8",
             TestExpectedResults(
                 keyUsage = false
             )
@@ -398,7 +397,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: OID for Vacc present, but DGC for recovery", "testcaseCO9",
+            "INVALID: OID for Vacc present, but DGC for recovery", "CO9",
             TestExpectedResults(
                 keyUsage = false
             )
@@ -418,7 +417,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: OID for Recovery present, but DGC for vacc", "testcaseCO10",
+            "INVALID: OID for Recovery present, but DGC for vacc", "CO10",
             TestExpectedResults(
                 keyUsage = false
             )
@@ -438,7 +437,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "VALID: OID for Recovery present, but DGC for test", "testcaseCO11",
+            "VALID: OID for Recovery present, but DGC for test", "CO11",
             TestExpectedResults(
                 keyUsage = false
             )
@@ -458,7 +457,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "VALID: OID for Test present, DGC is test", "testcaseCO12",
+            "VALID: OID for Test present, DGC is test", "CO12",
             TestExpectedResults(
                 keyUsage = true
             )
@@ -478,8 +477,8 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "VALID: OID for Vacc present, DGC is vacc",
-            "testcaseCO13", TestExpectedResults(
+            "VALID: OID for Vacc present, DGC is vacc", "CO13",
+            TestExpectedResults(
                 keyUsage = true
             )
         )
@@ -498,7 +497,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "VALID: OID for Recovery present, DGC is recovery", "testcaseCO14",
+            "VALID: OID for Recovery present, DGC is recovery", "CO14",
             TestExpectedResults(
                 keyUsage = true
             )
@@ -518,7 +517,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "VALID: no OID present, DGC is recovery", "testcaseCO15",
+            "VALID: no OID present, DGC is recovery", "CO15",
             TestExpectedResults(
                 keyUsage = true
             )
@@ -529,7 +528,7 @@ class ExtendedTestGenerator {
     fun writeCO16ValidationClockBeforeIssuedAt() {
         val clockInFuture = Clock.fixed(Instant.parse("2023-05-03T18:00:00Z"), ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clockInFuture)
-        val chain = ChainBuilder.good(clock, cryptoService).build()
+        val chain = ChainBuilder.good(clockInFuture, cryptoService).build()
         val result = chain.encode(eudgcTest)
 
         createVerificationTestCaseJson(
@@ -539,7 +538,8 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: validation clock before \"ISSUED AT\"", "testcaseCO16", TestExpectedResults(
+            "INVALID: validation clock before \"ISSUED AT\"", "CO16",
+            TestExpectedResults(
                 expirationCheck = false
             )
         )
@@ -549,7 +549,7 @@ class ExtendedTestGenerator {
     fun writeCO17ValidationClockAfterExpired() {
         val clockInPast = Clock.fixed(Instant.parse("2018-05-03T18:00:00Z"), ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clockInPast)
-        val chain = ChainBuilder.good(clock, cryptoService).build()
+        val chain = ChainBuilder.good(clockInPast, cryptoService).build()
         val result = chain.encode(eudgcTest)
 
         createVerificationTestCaseJson(
@@ -559,7 +559,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: validation clock after \"expired\"", "testcaseCO17",
+            "INVALID: validation clock after \"expired\"", "CO17",
             TestExpectedResults(
                 expirationCheck = false
             )
@@ -578,7 +578,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "VALID: KID in protected header correct, KID in unprotected header not present", "testcaseCO18",
+            "VALID: KID in protected header correct, KID in unprotected header not present", "CO18",
             TestExpectedResults(
                 coseSignature = true
             )
@@ -597,7 +597,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "VALID: KID in protected header not present, KID in unprotected header correct", "testcaseCO19",
+            "VALID: KID in protected header not present, KID in unprotected header correct", "CO19",
             TestExpectedResults(
                 coseSignature = true
             )
@@ -616,7 +616,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "VALID: KID in protected header correct, KID in unprotected header correct", "testcaseCO20",
+            "VALID: KID in protected header correct, KID in unprotected header correct", "CO20",
             TestExpectedResults(
                 coseSignature = true
             )
@@ -635,7 +635,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "VALID: KID in protected header correct, KID in unprotected header not correct", "testcaseCO21",
+            "VALID: KID in protected header correct, KID in unprotected header not correct", "CO21",
             TestExpectedResults(
                 coseSignature = true
             )
@@ -654,7 +654,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: KID in protected header not correct, KID in unprotected header correct", "testcaseCO22",
+            "INVALID: KID in protected header not correct, KID in unprotected header correct", "CO22",
             TestExpectedResults(
                 coseSignature = false
             )
@@ -673,7 +673,7 @@ class ExtendedTestGenerator {
                 coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: KID in protected header not present, KID in unprotected header not correct", "testcaseCO23",
+            "INVALID: KID in protected header not present, KID in unprotected header not correct", "CO23",
             TestExpectedResults(
                 coseSignature = false
             )
@@ -694,8 +694,8 @@ class ExtendedTestGenerator {
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: wrong CBOR structure",
-            "testcaseCBO1", TestExpectedResults(
+            "INVALID: wrong CBOR structure", "CBO1",
+            TestExpectedResults(
                 cborDecode = false
             )
         )
@@ -711,9 +711,10 @@ class ExtendedTestGenerator {
             ChainResultAdapter(
                 eudgc = eudgcTest,
                 cborHex = result.step0Cbor.toHexString(),
+                coseHex = result.step2Cose.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: wrong CWT structure", "testcaseCBO2",
+            "INVALID: wrong CWT structure", "CBO2",
             TestExpectedResults(
                 coseSignature = false
             )
@@ -740,7 +741,7 @@ class ExtendedTestGenerator {
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: DGC does not adhere to schema", "testcaseDGC1",
+            "INVALID: DGC does not adhere to schema", "DGC1",
             TestExpectedResults(
                 schemaValidation = false
             )
@@ -763,7 +764,7 @@ class ExtendedTestGenerator {
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: DGC adheres to schema but contains multiple certificates", "testcaseDGC2",
+            "INVALID: DGC adheres to schema but contains multiple certificates", "DGC2",
             TestExpectedResults(
                 schemaValidation = false
             )
@@ -782,7 +783,7 @@ class ExtendedTestGenerator {
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: correct test1 DGC", "testcaseDGC3",
+            "INVALID: correct test1 DGC", "DGC3",
             TestExpectedResults(
                 schemaValidation = true
             )
@@ -801,7 +802,7 @@ class ExtendedTestGenerator {
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: correct test2 DGC", "testcaseDGC4",
+            "INVALID: correct test2 DGC", "DGC4",
             TestExpectedResults(
                 schemaValidation = true
             )
@@ -820,7 +821,7 @@ class ExtendedTestGenerator {
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: correct recovery DGC", "testcaseDGC5",
+            "INVALID: correct recovery DGC", "DGC5",
             TestExpectedResults(
                 schemaValidation = true
             )
@@ -839,7 +840,7 @@ class ExtendedTestGenerator {
                 cborHex = result.step0Cbor.toHexString(),
                 base45WithPrefix = result.step5Prefixed
             ),
-            "INVALID: correct vacc DGC", "testcaseDGC6",
+            "INVALID: correct vacc DGC", "DGC6",
             TestExpectedResults(
                 schemaValidation = true
             )
@@ -944,7 +945,7 @@ class ExtendedTestGenerator {
             context = context,
             expectedResult = expectedResult
         )
-        File("src/test/resources/$filename.json").bufferedWriter().use {
+        File("src/test/resources/dgc-testdata/common/2DCode/raw/$filename.json").bufferedWriter().use {
             it.write(Json { prettyPrint = true }.encodeToString(testcase))
         }
     }
