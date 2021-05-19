@@ -20,11 +20,11 @@ actual class PrefilledCertificateRepository : CertificateRepository {
     }
 
     actual constructor(input: ByteArray) {
-        TODO("Not yet implemented")
+      list+=JsCertificate(input)
     }
 
     actual constructor(base64Encoded: String) {
-        TODO("Not yet implemented")
+        list+=JsCertificate(base64Encoded)
     }
 
     override fun loadTrustedCertificates(

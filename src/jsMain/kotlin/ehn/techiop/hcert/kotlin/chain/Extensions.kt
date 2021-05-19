@@ -12,15 +12,7 @@ actual fun ByteArray.asBase64Url() = Buffer.from(this.toUint8Array()).toString("
 
 actual fun ByteArray.toHexString() = joinToString("") { ('0' + (it.toUByte()).toString(16)).takeLast(2) }
 
-actual fun String.fromBase64() :ByteArray
-    {
-val str= this
-
-      return  (js(
-            "var raw = window.atob(str); var rawLength = raw.length; var array = new Uint8Array(new ArrayBuffer(rawLength)); var i=0;for(i = 0; i < rawLength; i++) { array[i] = raw.charCodeAt(i);  };return array;"
-        ) as Uint8Array).toByteArray()
-    }
-
+actual fun String.fromBase64() = Buffer.from(this, "base64").toByteArray()
 
 actual fun String.fromBase64Url() = Buffer.from(this, "base64url").toByteArray()
 

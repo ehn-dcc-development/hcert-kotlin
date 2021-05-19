@@ -20,34 +20,6 @@ repositories {
     mavenCentral()
 }
 
-/*
-
-val copyJsTestResources by tasks.creating(Copy::class) {
-    group = "copy"
-    from("$projectDir/src/commonTest/resources")
-    into("${rootProject.buildDir}/js/packages/${project.name}-test/src/commonTest/resources")
-    if(!File("${projectDir.absolutePath}/src/jsTest/generated").mkdirs()){
-        throw Throwable("Could not create generated sources folder")
-    }
-    val f = File("${projectDir.absolutePath}/src/jsTest/generated/TestCaseHolder.kt")
-    val w = f.writer()
-    w.write("""object RHolder{
-        |private val m=mutableMapOf<String,String>()
-        |init{
-    """.trimMargin())
-    val r = File("${projectDir.absolutePath}/src/commonTest/resources").listFiles().forEach {
-        w.write("m.[\"${it.name}\"]=" +
-                "  \"\"\"${it.readText()}\"\"\" ")
-    }
-w.write("}" +
-        "fun get(k:String)=m[k]" +
-        "}")
-    w.close()
-    this
-}
-*/
-
-
 kotlin {
     targets.all {
         compilations.all {

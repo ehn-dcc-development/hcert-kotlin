@@ -69,7 +69,7 @@ class CoseJsPrivateKey(val da: ByteArray, val curve: CurveIdentifier) : PrivateK
 class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
 
     constructor(pem: String) : this(
-        pem.lines().let { it.dropLast(1).drop(1) }.joinToString(separator = "").fromBase64()
+        pem.lines().joinToString(separator = "").fromBase64()
     )
 
     private val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->

@@ -40,7 +40,7 @@ actual class VerificationCoseService actual constructor(private val repository: 
             val pubKey = trustedCert.cosePublicKey
             val result = Cose.verify(input, pubKey)
             console.info("COSE VERIFIED")
-            console.info(result)
+            console.info(JSON.stringify(result))
             verificationResult.coseVerified = true
             return@forEach
         }

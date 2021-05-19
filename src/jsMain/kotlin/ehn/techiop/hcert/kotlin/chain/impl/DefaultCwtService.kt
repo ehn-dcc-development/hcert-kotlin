@@ -55,7 +55,7 @@ actual open class DefaultCwtService actual constructor(
 
             val hcert = cwtMap.get(CwtHeaderKeys.HCERT.value)
             if (hcert !== undefined) {
-                console.log(hcert)
+                console.log(JSON.stringify(hcert))
 
                 val eudgcV1 = (hcert).get(1)
                 if (eudgcV1 !== undefined) {
