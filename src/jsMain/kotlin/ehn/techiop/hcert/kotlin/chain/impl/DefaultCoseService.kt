@@ -28,21 +28,17 @@ actual class DefaultCoseService actual constructor(private val cryptoService: Cr
         val cose = cborJson[0] as Cbor.Tagged
         val coseValue = cose.value as Array<Buffer>
         val protectedHeader = coseValue[0]
-        val unprotectedHeader = coseValue[1]
+        val unprotectedHeader = coseValue[1].asDynamic()
         val content = coseValue[2]
         val signature = coseValue[3]
 
-        // TODO: Can we get rid of dynamic here?
         val protectedHeaderCbor = Cbor.Decoder.decodeAllSync(protectedHeader)[0].asDynamic()
+        val kid = protectedHeaderCbor?.get(4) as Uint8Array? ?:
+            unprotectedHeader?.get(4) as Uint8Array
 
-        val kid = protectedHeaderCbor.get(4) as Uint8Array? ?: if (unprotectedHeader.length !== undefined)
-            // TODO: Does this work? will be confirmed by testcases!
-            Cbor.Decoder.decodeAllSync(unprotectedHeader)[0].asDynamic().get(4) as Uint8Array
-        else
-            throw IllegalArgumentException("KID not found")
-        if (kid === undefined)
-            throw IllegalArgumentException("KID not found")
-        val algorithm = protectedHeaderCbor.get(1)
+        if (kid === undefined) throw IllegalArgumentException("KID not found")
+
+        val algorithm = protectedHeaderCbor?.get(1) ?: unprotectedHeader?.get(1)
         val pubKey = cryptoService.getCborVerificationKey(kid.toByteArray(), verificationResult)
         val result = Cose.verify(input, pubKey)
         // TODO make this a suspend function, and then provide a wrapper from JS to call it as a promise
