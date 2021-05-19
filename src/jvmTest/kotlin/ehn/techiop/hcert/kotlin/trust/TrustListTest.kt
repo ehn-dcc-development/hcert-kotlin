@@ -31,9 +31,6 @@ class TrustListTest {
         val trustListEncoded = encodeService.encodeContent(randomCertificates(clock))
         val trustListSignature = encodeService.encodeSignature(trustListEncoded)
 
-        println(trustListEncoded.toHexString())
-        println(trustListSignature.toHexString())
-
         verifyClientOperations(certificate, clock, trustListSignature, trustListEncoded)
     }
 

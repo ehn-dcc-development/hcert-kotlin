@@ -78,10 +78,9 @@ class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
 
 
     override fun getValidContentTypes(): List<ContentType> {
-
-        val extKeyUsage = cert.extensions.find {
+        val extKeyUsage = cert.extensions.firstOrNull {
             it.extnID == "2.5.29.37"
-        } as ExtKeyUsage?
+        }?.parsedValue as ExtKeyUsage?
         val contentTypes = mutableSetOf<ContentType>()
         extKeyUsage?.let {
             it.keyPurposes.forEach { oidStr ->
@@ -91,6 +90,11 @@ class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
                     oidVaccination -> contentTypes.add(ContentType.VACCINATION)
                 }
             }
+        }
+        if (contentTypes.isEmpty()) {
+            contentTypes.add(ContentType.RECOVERY)
+            contentTypes.add(ContentType.TEST)
+            contentTypes.add(ContentType.VACCINATION)
         }
         return contentTypes.toList()
     }

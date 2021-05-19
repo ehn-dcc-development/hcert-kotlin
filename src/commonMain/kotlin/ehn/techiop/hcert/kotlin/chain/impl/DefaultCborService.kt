@@ -30,8 +30,7 @@ open class DefaultCborService : CborService {
                 verificationResult.content.add(ContentType.RECOVERY)
             return result
         } catch (e: Throwable) {
-            e.printStackTrace()
-            // TODO Error handling!
+             // TODO Error handling!
             return GreenCertificate("N", Person(givenName = "bar"), LocalDate(1970, 1, 1))
         }
     }

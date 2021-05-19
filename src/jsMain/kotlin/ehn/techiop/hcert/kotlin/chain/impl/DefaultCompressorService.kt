@@ -7,6 +7,7 @@ import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import org.khronos.webgl.Uint8Array
 
 actual open class DefaultCompressorService actual constructor(private val level: Int) : CompressorService {
+
     override fun encode(input: ByteArray): ByteArray {
         return (Pako.deflate(input.toUint8Array(),
             object : Pako.DeflateFunctionOptions {
@@ -22,7 +23,7 @@ actual open class DefaultCompressorService actual constructor(private val level:
             return Pako.inflate(input.toUint8Array()).toByteArray().also {
                 verificationResult.zlibDecoded = true
             }
-        } catch (e: Throwable) {
+        } catch (e: dynamic) {
             input
         }
     }
