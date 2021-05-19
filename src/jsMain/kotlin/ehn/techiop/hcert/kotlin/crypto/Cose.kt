@@ -24,16 +24,16 @@ import kotlin.js.Promise
 internal object Cose {
     fun verify(signedBitString: ByteArray, pubKey: PublicKey<*>): ByteArray {
         val key = pubKey.toCoseRepresentation() as EcCosePublicKey
-        val verifier = object: cose.Verifier {
+        val verifier = object : cose.Verifier {
             override val key = key
         }
 
         return cose.sign.verify(Buffer.from(signedBitString.toUint8Array()), verifier).toByteArray()
     }
 
-    fun sign(header: Json, input: ByteArray, privateKey: PrivateKey<*>): Promise<Buffer>{
+    fun sign(header: Json, input: ByteArray, privateKey: PrivateKey<*>): Promise<Buffer> {
         val key = privateKey.toCoseRepresentation() as EcCosePrivateKey
-        val signer = object: cose.Signer {
+        val signer = object : cose.Signer {
             override val key = key
         }
         return cose.sign.create(header.asDynamic(), Buffer(input.toUint8Array()), signer).then { it }
@@ -58,7 +58,7 @@ class CoseJsEcPubKey(val xCoord: dynamic, val yCoord: dynamic, override val curv
 }
 
 class CoseJsPrivateKey(val da: ByteArray, val curve: CurveIdentifier) : PrivateKey<dynamic> {
-    override fun toCoseRepresentation(): EcCosePrivateKey{
+    override fun toCoseRepresentation(): EcCosePrivateKey {
         val key = object : cose.EcCosePrivateKey {
             override val d = Buffer(da.toUint8Array())
         }

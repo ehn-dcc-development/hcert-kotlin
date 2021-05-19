@@ -1,7 +1,11 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.CoseService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import org.khronos.webgl.Uint8Array
 
@@ -21,8 +25,7 @@ actual class VerificationCoseService actual constructor(private val repository: 
             val signature = cwtValue[3]
 
             val protectedHeaderCbor = Cbor.Decoder.decodeAllSync(protectedHeader)[0].asDynamic()
-            val kid = protectedHeaderCbor?.get(4) as Uint8Array? ?:
-                unprotectedHeader?.get(4) as Uint8Array
+            val kid = protectedHeaderCbor?.get(4) as Uint8Array? ?: unprotectedHeader?.get(4) as Uint8Array
 
             if (kid === undefined) throw IllegalArgumentException("KID not found")
 

@@ -1,11 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
 
-import ehn.techiop.hcert.kotlin.crypto.Certificate
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-
 
 @Serializable
 data class TestContext(
