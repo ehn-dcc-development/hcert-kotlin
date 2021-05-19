@@ -26,7 +26,7 @@ class ExtendedTestRunner {
 //        verificationLoader("SE03.json")
 //        verificationLoader("SE04.json")
 //        // TODO CBOR Tag? verificationLoader("SE05.json")
- verificationLoader("SE06.json")
+        verificationLoader("SE06.json")
 //        verificationLoader("BG01.json")
 //        verificationLoader("RO01.json")
 //        verificationLoader("RO02.json")
@@ -86,7 +86,7 @@ class ExtendedTestRunner {
         if (loadResource == null) {
             throw Throwable("Could not find resource $filename")
         }
-        verification(filename, Json.decodeFromString(loadResource))
+        verification(filename, Json { ignoreUnknownKeys = true }.decodeFromString(loadResource))
 
     }
 
@@ -128,13 +128,21 @@ class ExtendedTestRunner {
         case.expectedResult.base45Decode?.let {
             assertEquals(it, verificationResult.base45Decoded, "Base45 Decoding Bin")
             if (it && case.compressedHex != null) {
-                assertEquals(case.compressedHex.lowercase(), chainResult.step3Compressed.toHexString().lowercase(), "Base45 Decoding Hex")
+                assertEquals(
+                    case.compressedHex.lowercase(),
+                    chainResult.step3Compressed.toHexString().lowercase(),
+                    "Base45 Decoding Hex"
+                )
             }
             if (!it) assertEquals(VerificationDecision.FAIL, decision, "Base54 Decoding Fail Expected")
         }
         case.expectedResult.compression?.let {
             assertEquals(it, verificationResult.zlibDecoded, "Zlib Decompression Bin")
-            if (it) assertEquals(case.coseHex?.lowercase(), chainResult.step2Cose.toHexString().lowercase(), "Zlib Decompression Hex")
+            if (it) assertEquals(
+                case.coseHex?.lowercase(),
+                chainResult.step2Cose.toHexString().lowercase(),
+                "Zlib Decompression Hex"
+            )
         }
         case.expectedResult.coseSignature?.let {
             assertEquals(it, verificationResult.coseVerified, "Cose Signature Verification")
