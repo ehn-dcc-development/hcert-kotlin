@@ -28,7 +28,7 @@ internal object Cose {
             override val key = key
         }
 
-        return cose.sign.verify(Buffer.from(signedBitString.toUint8Array()), verifier).toByteArray()
+        return cose.sign.verifySync(Buffer.from(signedBitString.toUint8Array()), verifier).toByteArray()
     }
 
     fun sign(header: Json, input: ByteArray, privateKey: PrivateKey<*>): Promise<Buffer> {

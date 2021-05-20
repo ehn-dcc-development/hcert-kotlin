@@ -41,7 +41,7 @@ external interface Signer {
 }
 external open class sign {
     companion object {
-        fun verify(message: Buffer, verifier: Verifier): Buffer
+        fun verifySync(message: Buffer, verifier: Verifier): Buffer
         fun create(headers: Headers, data: Buffer, signer: Signer): Promise<Buffer>
     }
 }
