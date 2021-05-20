@@ -14,6 +14,7 @@ import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import pkijs.src.ExtKeyUsage.ExtKeyUsage
+import pkijs.src.RSAPublicKey.RSAPublicKey
 import pkijs.src.Time.Time
 import kotlin.js.Json
 import kotlin.js.Promise
@@ -54,13 +55,13 @@ class CoseJsEcPubKey(val xCoord: dynamic, val yCoord: dynamic, override val curv
     }
 }
 
-class CoseJsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: ArrayBuffer) :
+class CoseJsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
     PublicKey<dynamic> {
 
     override fun toCoseRepresentation(): RsaCosePublicKey {
         return object : RsaCosePublicKey {
             override val n = Buffer.from(Uint8Array(modulus))
-            override val e = Buffer.from(Uint8Array(publicExponent))
+            override val e = publicExponent
         }
     }
 }
@@ -133,10 +134,11 @@ class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
             )
         } else if (isRSA) {
             val kValue = (keyInfo["modulus"] as Json)["valueBlock"] as Json
+            val rsaKey = keyInfo as RSAPublicKey
             console.info(JSON.stringify(kValue))
             val mod = kValue["valueHex"] as ArrayBuffer
             console.info(JSON.stringify(mod))
-            val exponent = ((keyInfo["publicExponent"] as Json)["valueBlock"] as Json)["valueHex"] as ArrayBuffer
+            val exponent = rsaKey.publicExponent.valueBlock.valueDec
             console.info(JSON.stringify(exponent))
             return CoseJsRsaPubKey(mod, exponent)
         } else TODO("Not implemeneted")

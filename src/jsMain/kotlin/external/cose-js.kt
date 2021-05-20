@@ -14,7 +14,7 @@ external interface EcCosePublicKey : CosePublicKey {
 }
 external interface RsaCosePublicKey : CosePublicKey {
     val n: Buffer
-    val e: Buffer
+    val e: Number
 }
 
 external interface CosePrivateKey {}
