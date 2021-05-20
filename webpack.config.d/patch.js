@@ -10,6 +10,8 @@ config.resolve.alias = {
     util: require.resolve("util"),
     'node-inspect-extracted': require.resolve("node-inspect-extracted"),
     url: require.resolve("url"),
+    assert: require.resolve("assert"),
+    constants: require.resolve("constants-browserify")
 }
 
 // Add polyfills for implicitly required node.js built-ins

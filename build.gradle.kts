@@ -119,6 +119,9 @@ kotlin {
                 implementation(npm("fast-sha256", "1.3.0", generateExternals = true))
                 implementation(npm("url", "0.11.0"))
                 implementation(npm("elliptic", "6.5.4"))
+                implementation(npm("node-rsa", "1.1.1"))
+                implementation(npm("constants-browserify", "1.0.0"))
+                implementation(npm("assert", "2.0.0"))
             }
         }
 
