@@ -44,10 +44,11 @@ actual class DefaultCoseService actual constructor(private val cryptoService: Cr
             val algorithm = protectedHeaderCbor?.get(1) ?: unprotectedHeader?.get(1)
 
             val pubKey = cryptoService.getCborVerificationKey(kid.toByteArray(), verificationResult)
-            val result = Cose.verify(input, pubKey)
+            val result = Cose.verifySync(input, pubKey)
             verificationResult.coseVerified = true
             return content.toByteArray()
         } catch (e: dynamic) {
+            (e as Throwable).printStackTrace()
             return input
         }
     }

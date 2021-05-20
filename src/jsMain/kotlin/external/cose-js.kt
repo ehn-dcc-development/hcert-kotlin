@@ -12,6 +12,10 @@ external interface EcCosePublicKey : CosePublicKey {
     val x: Buffer
     val y: Buffer
 }
+external interface RsaCosePublicKey : CosePublicKey {
+    val n: Buffer
+    val e: Buffer
+}
 
 external interface CosePrivateKey {}
 
@@ -20,7 +24,7 @@ external interface EcCosePrivateKey : CosePrivateKey {
 }
 
 external interface Verifier {
-    val key: CosePublicKey?
+    val key: CosePublicKey
 }
 
 external interface AlgorithmHeader {

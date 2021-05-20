@@ -36,7 +36,7 @@ actual class VerificationCoseService actual constructor(private val repository: 
                 verificationResult.certificateValidUntil = trustedCert.validUntil
                 verificationResult.certificateValidContent = trustedCert.validContentTypes
                 val pubKey = trustedCert.cosePublicKey
-                val result = Cose.verify(input, pubKey)
+                val result = Cose.verifySync(input, pubKey)
                 verificationResult.coseVerified = true
                 return@forEach
             }

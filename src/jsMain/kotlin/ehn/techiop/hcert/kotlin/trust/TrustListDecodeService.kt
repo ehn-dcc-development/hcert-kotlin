@@ -70,7 +70,7 @@ actual class TrustListDecodeService actual constructor(
     private fun validate(input: ByteArray, kid: ByteArray): Boolean {
         repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
             try {
-                val result = Cose.verify(input, it.cosePublicKey)
+                val result = Cose.verifySync(input, it.cosePublicKey)
                 if (result !== undefined) return true
             } catch (ignored: dynamic) {
             }

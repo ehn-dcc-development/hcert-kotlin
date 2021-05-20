@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.data.Person
 import ehn.techiop.hcert.kotlin.trust.ContentType
