@@ -19,7 +19,7 @@ class FileBasedCryptoServiceTest {
             input.getCborSigningKey().oneKey.EncodeToBytes(),
             equalTo(parsed.getCborSigningKey().oneKey.EncodeToBytes())
         )
-        assertThat(input.getCertificate().calcKid(), equalTo(parsed.getCertificate().calcKid()))
+        assertThat(input.getCertificate().kid, equalTo(parsed.getCertificate().kid))
     }
 
     @ParameterizedTest
@@ -34,7 +34,7 @@ class FileBasedCryptoServiceTest {
             input.getCborSigningKey().oneKey.EncodeToBytes(),
             equalTo(parsed.getCborSigningKey().oneKey.EncodeToBytes())
         )
-        assertThat(input.getCertificate().calcKid(), equalTo(parsed.getCertificate().calcKid()))
+        assertThat(input.getCertificate().kid, equalTo(parsed.getCertificate().kid))
     }
 
 }

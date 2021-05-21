@@ -6,7 +6,6 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
 
 /**
  * Encodes/decodes input as a CWT structure, ready to sign with COSE

@@ -1,10 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import COSE.Attribute
-import COSE.HeaderKeys
-import COSE.MessageTag
-import COSE.OneKey
-import COSE.Sign1Message
+import COSE.*
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.CryptoService

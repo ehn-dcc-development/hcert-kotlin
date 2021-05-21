@@ -31,7 +31,7 @@ actual class PrefilledCertificateRepository : CertificateRepository {
         kid: ByteArray,
         verificationResult: VerificationResult
     ): List<TrustedCertificate> {
-        val certList = list.filter { it.calcKid() contentEquals kid }
+        val certList = list.filter { it.kid contentEquals kid }
         if (certList.isEmpty()) throw IllegalArgumentException("kid")
         return listOf(list[0].toTrustedCertificate())
     }

@@ -28,10 +28,10 @@ fun main() {
     val dsc="MIIC6DCCAdCgAwIBAgIFAMFkOjcwDQYJKoZIhvcNAQELBQAwETEPMA0GA1UEAwwGUlNBLU1lMB4XDTIxMDUwMzE4MDAwMFoXDTIxMDYwMjE4MDAwMFowETEPMA0GA1UEAwwGUlNBLU1lMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAz2ixJL06PlaxpRD3bWwIWN25x4gMav4A8oJOYh9g9Rt1s8PGto9zXfAwZ/md9h9CwDkHSaU2Sssj5jvp0yZpO8fLiEZcX5BnriC65CvYDGpwnvvF9XtpuZsT5OJ/vokAMSFgIoBEWt5LzC7vTP7GEBFshysossEr1S+HRCIxZjJt9tstEm156PlRB40SCp9lU1d3BRpHj3uuPCwsYSsO25Yk/1fQJU1AbmNmdbEKL5VEgbcHyL1TkGOITF6T5DTAJNCzl/UMezEBizK7b1RpTUI9TOV6xr9kzZY/wQ05fJ02xISnC/6hKi4a83fZO/ADelr2eeOS4PWrTeh9CgbY3wIDAQABo0cwRTAOBgNVHQ8BAf8EBAMCBaAwMwYDVR0lBCwwKgYMKwYBBAEAjjePZQEBBgwrBgEEAQCON49lAQIGDCsGAQQBAI43j2UBAzANBgkqhkiG9w0BAQsFAAOCAQEAsYrUM/J16wTBZxeWTszAVxXiKirwoV9Nt82WW9vn6Px5tZZ5m3yazfZeARkokhcvUZ9U0VDLgX09Yzj0NjSLc82WknIxf5FT3NhDE8ax7VoOH17pv2YflNP0bXO2YQqX/7XFMfHaZ5KKdQmThht7BVYRKZR8Ksi2TvnFxnBdLNcWl41LNaNpM5vSjZ236OhWBNZrFx4OD2XLEJkk6NZ4txrsHmpSogyIlF9kextqxEqg+9aluWQyiz4Q4HcIPd1S7M/CsanO4URrLLKKmBzaaQV2JBoTwEBZ5NiZj3LpfaxsbiyGnwYxMlb0RO2V/8JvKYNOWgl7tVQk7+Uut/MHrg=="
     val jsCertificate = JsCertificate(dsc)
     console.info(jsCertificate)
-    console.info(Json.encodeToString(jsCertificate.getValidFrom()))
-    console.info(Json.encodeToString(jsCertificate.getValidUntil()))
+    console.info(Json.encodeToString(jsCertificate.validFrom))
+    console.info(Json.encodeToString(jsCertificate.validUntil))
     console.info(Json.encodeToString(jsCertificate.toTrustedCertificate()))
-    console.info(Json.encodeToString(jsCertificate.calcKid()))
+    console.info(Json.encodeToString(jsCertificate.kid))
     val chain = DefaultChain.buildVerificationChain(PrefilledCertificateRepository(jsCertificate))
     window.fetch(Request("qr.txt")).then(onFulfilled = {
         it.text().then(onFulfilled = {

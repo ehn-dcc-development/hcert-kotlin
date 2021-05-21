@@ -7,6 +7,7 @@ import java.io.File
 actual object ValueSetsInstanceHolder {
     actual val INSTANCE: ValueSetHolder by lazy {
 
-        ValueSetHolder(inputPaths.map{"src/commonMain/resources/$it"}.map { Json.decodeFromString(File(it).readText()) })
+        ValueSetHolder(inputPaths.map { "src/commonMain/resources/$it" }
+            .map { Json.decodeFromString(File(it).readText()) })
     }
 }

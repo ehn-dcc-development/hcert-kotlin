@@ -2,7 +2,6 @@ package ehn.techiop.hcert.kotlin.crypto
 
 import COSE.OneKey
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
-import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
 import kotlinx.datetime.Instant
 import java.security.MessageDigest
@@ -24,26 +23,15 @@ class CosePrivKey(val oneKey: OneKey) : PrivKey<OneKey> {
 
 class JvmCertificate(val certificate: X509Certificate) : Certificate<X509Certificate> {
 
-    override fun getValidContentTypes(): List<ContentType> {
-        return PkiUtils.getValidContentTypes(certificate)
-    }
+    override val validContentTypes = PkiUtils.getValidContentTypes(certificate)
 
-    override fun getValidFrom(): Instant {
-        return Instant.fromEpochMilliseconds(certificate.notBefore.time)
-    }
+    override val validFrom = Instant.fromEpochMilliseconds(certificate.notBefore.time)
 
-    override fun getValidUntil(): Instant {
-        return Instant.fromEpochMilliseconds(certificate.notAfter.time)
-    }
+    override val validUntil = Instant.fromEpochMilliseconds(certificate.notAfter.time)
 
-    override fun getPublicKey(): PubKey<*> {
-        return CosePubKey(OneKey(certificate.publicKey, null))
-    }
+    override val publicKey: PubKey<*> = CosePubKey(OneKey(certificate.publicKey, null))
 
-    override fun toTrustedCertificate(): TrustedCertificateV2 {
-        return TrustedCertificateV2(calcKid(), certificate.encoded)
-    }
+    override fun toTrustedCertificate() = TrustedCertificateV2(kid, certificate.encoded)
 
-    override fun calcKid() = certificate.kid
-
+    override val kid = certificate.kid
 }

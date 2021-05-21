@@ -6,23 +6,23 @@ import kotlinx.datetime.Instant
 
 
 interface Certificate<T> {
-    fun getValidContentTypes(): List<ContentType>
-    fun getValidFrom(): Instant
-    fun getValidUntil(): Instant
-    fun getPublicKey(): PubKey<*>
+    val validContentTypes: List<ContentType>
+    val validFrom: Instant
+    val validUntil: Instant
+    val publicKey: PubKey<*>
     fun toTrustedCertificate(): TrustedCertificateV2
-    fun calcKid(): ByteArray
+    val kid: ByteArray
 }
 
 interface PrivKey<T> {
     fun toCoseRepresentation(): T
 }
 
-interface EcPrivKey<T>:PrivKey<T>
-interface RsaPrivKey<T>:PrivKey<T>
+interface EcPrivKey<T> : PrivKey<T>
+interface RsaPrivKey<T> : PrivKey<T>
 
 interface PubKey<T> {
-   fun toCoseRepresentation(): T
+    fun toCoseRepresentation(): T
 }
 
 interface EcPubKey<T> : PubKey<T>

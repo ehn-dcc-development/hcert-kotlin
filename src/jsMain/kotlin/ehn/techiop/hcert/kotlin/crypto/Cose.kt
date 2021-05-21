@@ -30,7 +30,7 @@ internal object Cose {
 
     fun sign(header: Json, input: ByteArray, privKey: PrivKey<*>): Promise<Buffer> {
         val key = privKey.toCoseRepresentation() as EcCosePrivateKey
-        val signer = object : cose.Signer {
+        val signer = object : Signer {
             override val key = key
         }
         @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
@@ -80,68 +80,73 @@ class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
     }
 
 
-    override fun getValidContentTypes(): List<ContentType> {
-        val extKeyUsage = cert.extensions.firstOrNull {
-            it.extnID == "2.5.29.37"
-        }?.parsedValue as ExtKeyUsage?
-        val contentTypes = mutableSetOf<ContentType>()
-        extKeyUsage?.let {
-            it.keyPurposes.forEach { oidStr ->
-                when (oidStr) {
-                    oidRecovery -> contentTypes.add(ContentType.RECOVERY)
-                    oidTest -> contentTypes.add(ContentType.TEST)
-                    oidVaccination -> contentTypes.add(ContentType.VACCINATION)
+    override val validContentTypes: List<ContentType>
+        get() {
+            val extKeyUsage = cert.extensions.firstOrNull {
+                it.extnID == "2.5.29.37"
+            }?.parsedValue as ExtKeyUsage?
+            val contentTypes = mutableSetOf<ContentType>()
+            extKeyUsage?.let {
+                it.keyPurposes.forEach { oidStr ->
+                    when (oidStr) {
+                        oidRecovery -> contentTypes.add(ContentType.RECOVERY)
+                        oidTest -> contentTypes.add(ContentType.TEST)
+                        oidVaccination -> contentTypes.add(ContentType.VACCINATION)
+                    }
                 }
             }
-        }
-        if (contentTypes.isEmpty()) {
-            contentTypes.add(ContentType.RECOVERY)
-            contentTypes.add(ContentType.TEST)
-            contentTypes.add(ContentType.VACCINATION)
-        }
-        return contentTypes.toList()
-    }
-
-    override fun getValidFrom(): Instant {
-        val date = (cert.notBefore as Time).value
-        return Instant.parse(date.toISOString())
-    }
-
-    override fun getValidUntil(): Instant {
-        val date = (cert.notAfter as Time).value
-        return Instant.parse(date.toISOString())
-    }
-
-    override fun getPublicKey(): PubKey<*> {
-        val publicKeyOID = ((cert.subjectPublicKeyInfo as Json)["algorithm"] as Json)["algorithmId"] as String
-        //TODO investigate asn1 lib to use proper OID objects
-        val isEC = publicKeyOID == "1.2.840.10045.2.1"
-        val isRSA = publicKeyOID.startsWith("1.2.840.113549")
-        val keyInfo = (cert.subjectPublicKeyInfo as Json)["parsedKey"] as Json
-        return when {
-            isEC -> {
-                val x = keyInfo["x"] as ArrayBuffer
-                val y = keyInfo["y"] as ArrayBuffer
-                JsEcPubKey(Uint8Array(x), Uint8Array(y))
+            if (contentTypes.isEmpty()) {
+                contentTypes.add(ContentType.RECOVERY)
+                contentTypes.add(ContentType.TEST)
+                contentTypes.add(ContentType.VACCINATION)
             }
-            isRSA -> {
-                val kValue = (keyInfo["modulus"] as Json)["valueBlock"] as Json
-                val rsaKey = keyInfo as RSAPublicKey
-                val mod = kValue["valueHex"] as ArrayBuffer
-                val exponent = rsaKey.publicExponent.valueBlock.valueDec
-                JsRsaPubKey(mod, exponent)
-            }
-            else -> TODO("Not implemeneted")
+            return contentTypes.toList()
         }
-    }
+
+    override val validFrom: Instant
+        get() {
+            val date = (cert.notBefore as Time).value
+            return Instant.parse(date.toISOString())
+        }
+
+    override val validUntil: Instant
+        get() {
+            val date = (cert.notAfter as Time).value
+            return Instant.parse(date.toISOString())
+        }
+
+    override val publicKey: PubKey<*>
+        get() {
+            val publicKeyOID = ((cert.subjectPublicKeyInfo as Json)["algorithm"] as Json)["algorithmId"] as String
+            //TODO investigate asn1 lib to use proper OID objects
+            val isEC = publicKeyOID == "1.2.840.10045.2.1"
+            val isRSA = publicKeyOID.startsWith("1.2.840.113549")
+            val keyInfo = (cert.subjectPublicKeyInfo as Json)["parsedKey"] as Json
+            return when {
+                isEC -> {
+                    val x = keyInfo["x"] as ArrayBuffer
+                    val y = keyInfo["y"] as ArrayBuffer
+                    JsEcPubKey(Uint8Array(x), Uint8Array(y))
+                }
+                isRSA -> {
+                    val kValue = (keyInfo["modulus"] as Json)["valueBlock"] as Json
+                    val rsaKey = keyInfo as RSAPublicKey
+                    val mod = kValue["valueHex"] as ArrayBuffer
+                    val exponent = rsaKey.publicExponent.valueBlock.valueDec
+                    JsRsaPubKey(mod, exponent)
+                }
+                else -> TODO("Not implemented")
+            }
+        }
 
     override fun toTrustedCertificate(): TrustedCertificateV2 {
-        return TrustedCertificateV2(calcKid(), encoded)
+        return TrustedCertificateV2(kid, encoded)
     }
 
-    override fun calcKid(): ByteArray {
-        val hash = Hash()
-        hash.update(encoded.toUint8Array())
-        return hash.digest().toByteArray().copyOf(8)
-    }
+    override val kid: ByteArray
+        get() {
+            val hash = Hash()
+            hash.update(encoded.toUint8Array())
+            return hash.digest().toByteArray().copyOf(8)
+        }
 }

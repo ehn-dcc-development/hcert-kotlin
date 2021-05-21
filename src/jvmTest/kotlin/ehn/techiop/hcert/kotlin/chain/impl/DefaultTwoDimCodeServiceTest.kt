@@ -3,9 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import com.google.zxing.BarcodeFormat
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.greaterThan
-import org.hamcrest.Matchers.notNullValue
+import org.hamcrest.Matchers.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.random.Random

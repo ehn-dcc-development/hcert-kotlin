@@ -2,7 +2,6 @@ package ehn.techiop.hcert.kotlin.data
 
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
-import kotlin.time.ExperimentalTime
 
 val inputPaths = listOf(
     "/value-sets/disease-agent-targeted.json",

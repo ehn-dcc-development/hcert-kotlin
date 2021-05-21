@@ -43,8 +43,10 @@ class RandomEcKeyCryptoService(
 
     override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
-        verificationResult.certificateValidFrom = Instant.fromEpochSeconds(certificate.notBefore.toInstant().epochSecond)
-        verificationResult.certificateValidUntil = Instant.fromEpochSeconds(certificate.notAfter.toInstant().epochSecond)
+        verificationResult.certificateValidFrom =
+            Instant.fromEpochSeconds(certificate.notBefore.toInstant().epochSecond)
+        verificationResult.certificateValidUntil =
+            Instant.fromEpochSeconds(certificate.notAfter.toInstant().epochSecond)
         verificationResult.certificateValidContent = PkiUtils.getValidContentTypes(certificate)
         return CosePubKey(OneKey(keyPair.public, keyPair.private))
     }

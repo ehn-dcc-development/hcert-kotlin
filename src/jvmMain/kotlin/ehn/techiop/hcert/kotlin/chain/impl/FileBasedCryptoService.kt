@@ -54,10 +54,15 @@ class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: S
 
     override fun getCborSigningKey() = CosePrivKey(OneKey(publicKey, privateKey))
 
-    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): ehn.techiop.hcert.kotlin.crypto.PubKey<*> {
+    override fun getCborVerificationKey(
+        kid: ByteArray,
+        verificationResult: VerificationResult
+    ): ehn.techiop.hcert.kotlin.crypto.PubKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
-        verificationResult.certificateValidFrom = Instant.fromEpochSeconds(certificate.notBefore.toInstant().epochSecond)
-        verificationResult.certificateValidUntil = Instant.fromEpochSeconds(certificate.notAfter.toInstant().epochSecond)
+        verificationResult.certificateValidFrom =
+            Instant.fromEpochSeconds(certificate.notBefore.toInstant().epochSecond)
+        verificationResult.certificateValidUntil =
+            Instant.fromEpochSeconds(certificate.notAfter.toInstant().epochSecond)
         verificationResult.certificateValidContent = PkiUtils.getValidContentTypes(certificate)
         return CosePubKey(OneKey(publicKey, privateKey))
     }

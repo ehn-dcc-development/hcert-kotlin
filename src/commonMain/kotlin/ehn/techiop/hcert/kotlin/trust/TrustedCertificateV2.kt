@@ -24,16 +24,16 @@ data class TrustedCertificateV2(
     val decodedCertificate = decodeCertificate()
 
     @Transient
-    override val validContentTypes = decodedCertificate.getValidContentTypes()
+    override val validContentTypes = decodedCertificate.validContentTypes
 
     @Transient
-    override val cosePublicKey = decodedCertificate.getPublicKey()
+    override val cosePublicKey = decodedCertificate.publicKey
 
     @Transient
-    override val validUntil = decodedCertificate.getValidUntil()
+    override val validUntil = decodedCertificate.validUntil
 
     @Transient
-    override val validFrom = decodedCertificate.getValidFrom()
+    override val validFrom = decodedCertificate.validFrom
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

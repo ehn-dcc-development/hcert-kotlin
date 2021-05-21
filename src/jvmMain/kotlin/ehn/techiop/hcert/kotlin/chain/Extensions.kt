@@ -1,6 +1,5 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import java.io.File
 import java.util.*
 
 actual fun ByteArray.asBase64() = Base64.getEncoder().encodeToString(this)

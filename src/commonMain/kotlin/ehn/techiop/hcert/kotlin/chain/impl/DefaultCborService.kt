@@ -2,7 +2,6 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.data.Person
 import ehn.techiop.hcert.kotlin.trust.ContentType
@@ -15,7 +14,6 @@ open class DefaultCborService : CborService {
 
 
     override fun encode(input: GreenCertificate) = Cbor.encodeToByteArray(input)
-
 
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): GreenCertificate {
@@ -31,7 +29,7 @@ open class DefaultCborService : CborService {
                 verificationResult.content.add(ContentType.RECOVERY)
             return result
         } catch (e: Throwable) {
-             // TODO Error handling!
+            // TODO Error handling!
             return GreenCertificate("N", Person(givenName = "bar"), LocalDate(1970, 1, 1))
         }
     }
