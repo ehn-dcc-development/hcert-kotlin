@@ -1,9 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.chain.impl.*
+import kotlin.js.JsName
 
 object DefaultChain {
-
+    @JsName("buildCreationChain")
     fun buildCreationChain(cryptoService: CryptoService) = Chain(
         DefaultCborService(),
         DefaultCwtService(),
@@ -17,6 +18,7 @@ object DefaultChain {
     /**
      * Builds a "default" chain for verifying, i.e. one with the implementation according to spec.
      */
+    @JsName("buildVerificationChain")
     fun buildVerificationChain(repository: CertificateRepository) = Chain(
         DefaultCborService(),
         DefaultCwtService(),

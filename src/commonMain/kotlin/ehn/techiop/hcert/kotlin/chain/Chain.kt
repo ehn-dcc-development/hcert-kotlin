@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
+import kotlin.js.JsName
 
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes
@@ -28,6 +29,7 @@ class Chain(
      *
      * The result ([ChainResult]) will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
      */
+    @JsName("encode")
     fun encode(input: GreenCertificate): ChainResult {
         val cbor = cborService.encode(input)
         val cwt = cwtService.encode(cbor)
@@ -51,6 +53,7 @@ class Chain(
      * Beware that [verificationResult] will be filled with detailed information about the decoding,
      * which shall be passed to an instance of [DecisionService] to decide on a final verdict.
      */
+    @JsName("decode")
     fun decode(input: String, verificationResult: VerificationResult): GreenCertificate {
         return decodeExtended(input, verificationResult).eudgc
     }
@@ -69,6 +72,7 @@ class Chain(
      * Beware that [verificationResult] will be filled with detailed information about the decoding,
      * which shall be passed to an instance of [DecisionService] to decide on a final verdict.
      */
+    @JsName("decodeExtended")
     fun decodeExtended(input: String, verificationResult: VerificationResult): ChainDecodeResult {
         val encoded = contextIdentifierService.decode(input, verificationResult)
         val compressed = base45Service.decode(encoded, verificationResult)
