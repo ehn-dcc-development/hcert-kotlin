@@ -135,11 +135,8 @@ class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
         } else if (isRSA) {
             val kValue = (keyInfo["modulus"] as Json)["valueBlock"] as Json
             val rsaKey = keyInfo as RSAPublicKey
-            console.info(JSON.stringify(kValue))
             val mod = kValue["valueHex"] as ArrayBuffer
-            console.info(JSON.stringify(mod))
             val exponent = rsaKey.publicExponent.valueBlock.valueDec
-            console.info(JSON.stringify(exponent))
             return CoseJsRsaPubKey(mod, exponent)
         } else TODO("Not implemeneted")
     }

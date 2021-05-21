@@ -32,8 +32,8 @@ class ExtendedTestRunner {
             .filterNot { it.key.contains("BG/") } //TODO COSE verification failed -- only JS!
             .filterNot { it.key.contains("LU/") } //TODO COSE verification failed -- only JS!
             .filterNot { it.key.contains("RO/2DCode/raw/4.json") } //TODO CBOR decoding failed (JVM too)
-            .filterNot { it.key.contains("CO1.json") } //TODO RSA failed -- only JS!
-            .filterNot { it.key.contains("CO2.json") } //TODO RSA failed -- only JS!
+            //.filterNot { it.key.contains("CO1.json") } //TODO RSA failed -- only JS!
+            //.filterNot { it.key.contains("CO2.json") } //TODO RSA failed -- only JS!
             .forEach {
                 val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
                 verification(it.key, case)
