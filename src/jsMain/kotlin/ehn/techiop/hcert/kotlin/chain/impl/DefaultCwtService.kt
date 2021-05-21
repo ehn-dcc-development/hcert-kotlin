@@ -1,11 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.CwtService
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.mapToJson
-import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.chain.toUint8Array
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -38,7 +34,7 @@ actual open class DefaultCwtService actual constructor(
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.cwtDecoded = false
-        try {
+        return jsTry {
             // TODO: Can we get rid of dynamic here?
             val cwtMap = Cbor.Decoder.decodeAllSync(Buffer.from(input.toUint8Array()))[0].asDynamic()
             val issuer = cwtMap.get(CwtHeaderKeys.ISSUER.value)
@@ -63,13 +59,12 @@ actual open class DefaultCwtService actual constructor(
                 val eudgcV1 = (hcert).get(1)
                 if (eudgcV1 !== undefined) {
                     verificationResult.cwtDecoded = true
-                    return Cbor.Encoder.encode(eudgcV1).toByteArray()
+                    return@jsTry Cbor.Encoder.encode(eudgcV1).toByteArray()
                 }
             }
-
-            return input
-        } catch (e: dynamic) {
-            return input
+            return@jsTry input
+        }.catch{
+             input
         }
     }
 

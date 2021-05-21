@@ -48,3 +48,21 @@ fun toMap(container: dynamic): HashMap<String, Any> {
 fun Buffer.Companion.from(arr: ByteArray): Buffer {
     return from(arr.toUint8Array())
 }
+
+internal class H<T>(internal val result: T?, internal val err: Throwable?)
+
+internal inline fun <reified T> jsTry(block: () -> T): H<T> {
+    return try {
+        H(block(), null)
+    } catch (e: dynamic) {
+        H(null, (if (e is Throwable) e else Throwable(JSON.stringify(e))) as? Throwable)
+    }
+}
+
+internal inline fun <reified T> H<T>.catch(block: (t: Throwable) -> T): T {
+    return if (this.err == null) result!! else block(this.err)
+}
+
+internal inline fun H<Unit>.catch(block: (t: Throwable) -> Unit) {
+    if (this.err != null) block(this.err)
+}

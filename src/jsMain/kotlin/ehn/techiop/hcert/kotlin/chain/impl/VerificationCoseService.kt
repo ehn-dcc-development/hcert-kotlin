@@ -1,11 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.chain.CoseService
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.chain.toUint8Array
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import org.khronos.webgl.Uint8Array
 
@@ -15,7 +11,7 @@ actual class VerificationCoseService actual constructor(private val repository: 
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.coseVerified = false
-        try {
+        return jsTry {
             val cborJson = Cbor.Decoder.decodeAllSync(Buffer.from(input.toUint8Array()))
             val cwt = cborJson[0] as Cbor.Tagged
             val cwtValue = cwt.value as Array<Buffer>
@@ -41,9 +37,9 @@ actual class VerificationCoseService actual constructor(private val repository: 
                 return@forEach
             }
 
-            return content.toByteArray()
-        } catch (e: dynamic) {
-            return input
+             content.toByteArray()
+        }.catch  {
+            input
         }
     }
 }
