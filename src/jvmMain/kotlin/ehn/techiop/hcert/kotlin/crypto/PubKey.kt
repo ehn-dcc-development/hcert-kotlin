@@ -13,11 +13,11 @@ val X509Certificate.kid: ByteArray
         .digest(encoded)
         .copyOf(8)
 
-class CosePubKey(val oneKey: OneKey) : PublicKey<OneKey> {
+class CosePubKey(val oneKey: OneKey) : PubKey<OneKey> {
     override fun toCoseRepresentation() = oneKey
 }
 
-class CosePrivateKey(val oneKey: OneKey) : PrivateKey<OneKey> {
+class CosePrivKey(val oneKey: OneKey) : PrivKey<OneKey> {
     override fun toCoseRepresentation() = oneKey
 }
 
@@ -36,7 +36,7 @@ class JvmCertificate(val certificate: X509Certificate) : Certificate<X509Certifi
         return Instant.fromEpochMilliseconds(certificate.notAfter.time)
     }
 
-    override fun getPublicKey(): PublicKey<*> {
+    override fun getPublicKey(): PubKey<*> {
         return CosePubKey(OneKey(certificate.publicKey, null))
     }
 

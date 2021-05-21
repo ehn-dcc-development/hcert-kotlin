@@ -6,25 +6,28 @@ import kotlinx.datetime.Instant
 
 
 interface Certificate<T> {
-
     fun getValidContentTypes(): List<ContentType>
     fun getValidFrom(): Instant
     fun getValidUntil(): Instant
-    fun getPublicKey(): PublicKey<*>
+    fun getPublicKey(): PubKey<*>
     fun toTrustedCertificate(): TrustedCertificateV2
     fun calcKid(): ByteArray
-
 }
 
-interface PrivateKey<T> {
+interface PrivKey<T> {
     fun toCoseRepresentation(): T
 }
 
-interface PublicKey<T> {
-    fun toCoseRepresentation(): T
+interface EcPrivKey<T>:PrivKey<T>
+interface RsaPrivKey<T>:PrivKey<T>
+
+interface PubKey<T> {
+   fun toCoseRepresentation(): T
 }
 
-interface EcPubKey<T> : PublicKey<T> {
+interface EcPubKey<T> : PubKey<T>
+/*
+{
     val curve: CurveIdentifier
 }
 
@@ -56,6 +59,7 @@ enum class CurveIdentifier(val jsonWebCurveID: String, val coseCurveID: UByte) {
     //Ed448("Ed448", 7U),
     //SECP256K1("secp256k1", 0U)
 }
+*/
 
 enum class CoseHeaderKeys(val value: Int) {
     Algorithm(1),

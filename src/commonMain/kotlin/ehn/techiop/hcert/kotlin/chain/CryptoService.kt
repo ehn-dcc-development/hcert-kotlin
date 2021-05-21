@@ -2,17 +2,17 @@ package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.PrivateKey
-import ehn.techiop.hcert.kotlin.crypto.PublicKey
+import ehn.techiop.hcert.kotlin.crypto.PrivKey
+import ehn.techiop.hcert.kotlin.crypto.PubKey
 
 
 interface CryptoService {
 
     fun getCborHeaders(): List<Pair<CoseHeaderKeys, Any>>
 
-    fun getCborSigningKey(): PrivateKey<*>
+    fun getCborSigningKey(): PrivKey<*>
 
-    fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult = VerificationResult()): PublicKey<*>
+    fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult = VerificationResult()): PubKey<*>
 
     fun getCertificate(): Certificate<*>
 

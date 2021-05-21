@@ -39,9 +39,9 @@ class RandomEcKeyCryptoService(
         Pair(CoseHeaderKeys.KID, CBORObject.FromObject(keyId))
     )
 
-    override fun getCborSigningKey() = CosePrivateKey(OneKey(keyPair.public, keyPair.private))
+    override fun getCborSigningKey() = CosePrivKey(OneKey(keyPair.public, keyPair.private))
 
-    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PublicKey<*> {
+    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
         verificationResult.certificateValidFrom = Instant.fromEpochSeconds(certificate.notBefore.toInstant().epochSecond)
         verificationResult.certificateValidUntil = Instant.fromEpochSeconds(certificate.notAfter.toInstant().epochSecond)

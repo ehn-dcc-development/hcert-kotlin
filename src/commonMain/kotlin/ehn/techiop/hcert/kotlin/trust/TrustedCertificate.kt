@@ -1,13 +1,13 @@
 package ehn.techiop.hcert.kotlin.trust
 
-import ehn.techiop.hcert.kotlin.crypto.PublicKey
+import ehn.techiop.hcert.kotlin.crypto.PubKey
 import kotlinx.datetime.Instant
 
 interface TrustedCertificate {
 
     val kid: ByteArray
 
-    val cosePublicKey: PublicKey<*>
+    val cosePublicKey: PubKey<*>
 
     val validContentTypes: List<ContentType>
 

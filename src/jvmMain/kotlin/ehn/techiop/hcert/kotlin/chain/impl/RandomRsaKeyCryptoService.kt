@@ -8,10 +8,10 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.CosePrivateKey
+import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
 import ehn.techiop.hcert.kotlin.crypto.CosePubKey
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
-import ehn.techiop.hcert.kotlin.crypto.PublicKey
+import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.crypto.kid
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
@@ -46,9 +46,9 @@ class RandomRsaKeyCryptoService(
         Pair(CoseHeaderKeys.KID, CBORObject.FromObject(keyId))
     )
 
-    override fun getCborSigningKey() = CosePrivateKey(OneKey(keyPair.public, keyPair.private))
+    override fun getCborSigningKey() = CosePrivKey(OneKey(keyPair.public, keyPair.private))
 
-    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PublicKey<*> {
+    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
         verificationResult.certificateValidFrom =
             Instant.fromEpochSeconds(certificate.notBefore.toInstant().epochSecond)
