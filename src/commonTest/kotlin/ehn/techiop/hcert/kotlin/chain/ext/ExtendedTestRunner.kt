@@ -108,9 +108,8 @@ class ExtendedTestRunner {
             if (!it) assertEquals(VerificationDecision.FAIL, decision, "JSON Decoding FAIL expected")
         }
         case.expectedResult.schemaValidation?.let {
-            // TODO Implement schema validation
-            //assertThat(verificationResult.cborDecoded, equalTo(it))
-            //if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
+            assertEquals(it, verificationResult.schemaValidated)
+            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Schema Validation FAIL expected")
         }
         case.expectedResult.expirationCheck?.let {
             if (it) assertEquals(VerificationDecision.GOOD, decision, "Expiry Check GOOD Expected")

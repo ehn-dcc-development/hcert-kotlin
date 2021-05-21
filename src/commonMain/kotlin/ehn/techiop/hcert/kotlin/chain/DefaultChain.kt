@@ -10,7 +10,8 @@ object DefaultChain {
         DefaultCoseService(cryptoService),
         DefaultContextIdentifierService(),
         DefaultCompressorService(),
-        DefaultBase45Service()
+        DefaultBase45Service(),
+        DefaultSchemaValidationService()
     )
 
     /**
@@ -22,6 +23,7 @@ object DefaultChain {
         VerificationCoseService(repository),
         DefaultContextIdentifierService(),
         DefaultCompressorService(),
-        DefaultBase45Service()
+        DefaultBase45Service(),
+        DefaultSchemaValidationService()
     )
 }

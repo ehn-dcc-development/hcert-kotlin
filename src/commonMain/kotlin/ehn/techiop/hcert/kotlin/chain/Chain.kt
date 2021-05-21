@@ -14,6 +14,7 @@ class Chain(
     private val contextIdentifierService: ContextIdentifierService,
     private val compressorService: CompressorService,
     private val base45Service: Base45Service,
+    private val schemaValidationService: SchemaValidationService
 ) {
 
     /**
@@ -45,7 +46,7 @@ class Chain(
      * - [CoseService]
      * - [CwtService]
      * - [CborService]
-     * The result ([Eudgc]) will contain the parsed data.
+     * The result ([GreenCertificate]) will contain the parsed data.
      *
      * Beware that [verificationResult] will be filled with detailed information about the decoding,
      * which shall be passed to an instance of [DecisionService] to decide on a final verdict.
@@ -62,6 +63,7 @@ class Chain(
      * - [CoseService]
      * - [CwtService]
      * - [CborService]
+     * - [SchemaValidationService]
      * The result ([ChainDecodeResult]) will contain the parsed data, as well as intermediate results.
      *
      * Beware that [verificationResult] will be filled with detailed information about the decoding,
@@ -74,6 +76,7 @@ class Chain(
         val cwt = coseService.decode(cose, verificationResult)
         val cbor = cwtService.decode(cwt, verificationResult)
         val eudgc = cborService.decode(cbor, verificationResult)
+        verificationResult.schemaValidated = schemaValidationService.validate(eudgc)
         return ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded)
     }
 }

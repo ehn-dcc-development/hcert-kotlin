@@ -52,7 +52,10 @@ class VerificationResult {
      */
     var cborDecoded = false
 
-    // TODO Schema validation?
+    /**
+     * Schema validation succeeded
+     */
+    var schemaValidated = false
 
     /**
      * Lifetime of certificate used for verification of COSE
