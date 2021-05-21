@@ -62,12 +62,12 @@ kotlin {
                     webpackConfig.cssSupport.enabled = false
                 }
             }
+            webpackTask {
+                output.library = "hcert"
+            }
         }
         useCommonJs()
-
     }
-
-
 
     sourceSets {
         val commonMain by getting {
