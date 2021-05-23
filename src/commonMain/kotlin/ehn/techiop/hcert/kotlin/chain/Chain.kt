@@ -80,7 +80,8 @@ class Chain(
         val cwt = coseService.decode(cose, verificationResult)
         val cbor = cwtService.decode(cwt, verificationResult)
         val eudgc = cborService.decode(cbor, verificationResult)
-        verificationResult.schemaValidated = schemaValidationService.validate(eudgc)
+        //TODO: investigate issues with JS
+      //  verificationResult.schemaValidated = schemaValidationService.validate(eudgc)
         return ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded)
     }
 }

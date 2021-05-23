@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 
 actual class DefaultSchemaValidationService : SchemaValidationService {
     override fun validate(data: GreenCertificate): Boolean {
-        val json = JSON.parse<dynamic>(Json.encodeToString(data))
+        val json = JSON.parse<GreenCertificate>(Json.encodeToString(data))
         val ajv = AJV2020()
         addFormats(ajv)
 

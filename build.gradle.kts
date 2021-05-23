@@ -55,6 +55,7 @@ kotlin {
         }
     }
     js(LEGACY) {
+        moduleName = "hcert"
         browser {
             testTask {
                 useKarma {
@@ -64,10 +65,23 @@ kotlin {
             }
             webpackTask {
                 output.library = "hcert"
+                output.libraryTarget="umd"
             }
         }
         useCommonJs()
     }
+   /* js("node", LEGACY) {
+        moduleName = "hcert-node"
+        browser {
+            distribution {
+                directory = file("$projectDir/output-node/")
+            }
+            webpackTask {
+                output.library = "hcert-node"
+            }
+        }
+        useCommonJs()
+    }*/
 
     sourceSets {
         val commonMain by getting {
@@ -127,14 +141,33 @@ kotlin {
                 implementation(npm("ajv-formats", "2.1.0"))
             }
         }
-
-
         val jsTest by getting {
             sourceSets { kotlin.srcDir("src/jsTest/generated") }
             dependencies {
                 implementation(kotlin("test-js"))
             }
         }
+
+      /*  val nodeMain by getting {
+            sourceSets {
+                kotlin.srcDir("src/jsMain/generated")
+                kotlin.srcDir("src/jsMain/kotlin")
+            }
+            dependencies {
+                implementation(npm("pako", "2.0.3"))
+                implementation(npm("@types/pako", "1.0.1", generateExternals = true))
+                implementation(npm("pkijs", "2.1.95"))
+                implementation(npm("cose-js", File("${projectDir.absolutePath}/cose-js"), generateExternals = false))
+                implementation(npm("cbor", "7.0.5"))
+                implementation(npm("fast-sha256", "1.3.0", generateExternals = true))
+                implementation(npm("elliptic", "6.5.4"))
+                implementation(npm("node-rsa", "1.1.1"))
+                implementation(npm("base64url", "3.0.1"))
+                implementation(npm("ajv", "8.5.0"))
+                implementation(npm("ajv-formats", "2.1.0"))
+            }
+
+        }*/
     }
 }
 

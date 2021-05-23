@@ -4,6 +4,7 @@ import Asn1js.fromBER
 import Buffer
 import Hash
 import cose.*
+import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
@@ -71,9 +72,14 @@ class JsEcPrivKey(val da: ByteArray) : EcPrivKey<EcCosePrivateKey> {
     }
 }
 
-class JsCertificate(val encoded: ByteArray) : Certificate<dynamic> {
+/*
+ * Primary constructopfillrs is nicely exposed to javascript by default; secondary constructors not without any custom annotations, so we make the pem-parsing constructor the default one
+ */
+class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
 
-    constructor(pem: String) : this(pem.lines().joinToString(separator = "").fromBase64())
+    val encoded: ByteArray = pemEncodedCertificate.lines().joinToString(separator = "").fromBase64()
+
+    constructor(encoded: ByteArray) : this(encoded.asBase64())
 
     private val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->
         fromBER(bytes.buffer).result.let { pkijs.src.Certificate.Certificate(js("({'schema':it})")) }
