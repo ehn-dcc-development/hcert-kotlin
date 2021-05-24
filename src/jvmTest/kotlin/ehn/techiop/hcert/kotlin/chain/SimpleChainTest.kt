@@ -30,7 +30,6 @@ class SimpleChainTest {
 
     private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: VerificationDecision) {
         val input = Json.decodeFromString<GreenCertificate>(jsonInput)
-        val verificationResult = VerificationResult()
 
         val encodingChain = DefaultChain.buildCreationChain(cryptoService)
         val certificateRepository = PrefilledCertificateRepository(cryptoService.getCertificate())
@@ -38,8 +37,9 @@ class SimpleChainTest {
 
         val output = encodingChain.encode(input)
 
-        val vaccinationData = decodingChain.decode(output.step5Prefixed, verificationResult)
-        assertThat(vaccinationData, equalTo(input))
+        val vaccinationData = decodingChain.decode(output.step5Prefixed)
+        val verificationResult =vaccinationData.verificationResult
+        assertThat(vaccinationData.greenCertificate, equalTo(input))
         assertThat(verificationResult.cborDecoded, equalTo(true))
         assertThat(DecisionService().decide(verificationResult), equalTo(outcome))
     }

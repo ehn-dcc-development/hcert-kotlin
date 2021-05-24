@@ -822,6 +822,7 @@ class ExtendedTestGenerator {
         val contextIdentifierService: ContextIdentifierService,
         val compressorService: CompressorService,
         val base45Service: Base45Service,
+        val schemaValidationService:SchemaValidationService
     ) {
         companion object {
             fun good(clock: Clock, cryptoService: CryptoService) = ChainBuilder(
@@ -830,21 +831,22 @@ class ExtendedTestGenerator {
                 DefaultCoseService(cryptoService),
                 DefaultContextIdentifierService(),
                 DefaultCompressorService(),
-                DefaultBase45Service()
+                DefaultBase45Service(),
+                DefaultSchemaValidationService()
             )
         }
 
         fun with(compressorService: CompressorService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
 
         fun with(base45Service: Base45Service) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
 
         fun with(contextIdentifierService: ContextIdentifierService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
 
         fun build() =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
 
         fun with(cryptoService: CryptoService) = Chain(
             cborService,
@@ -852,17 +854,17 @@ class ExtendedTestGenerator {
             DefaultCoseService(cryptoService),
             contextIdentifierService,
             compressorService,
-            base45Service
+            base45Service, schemaValidationService
         )
 
         fun with(coseService: CoseService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
 
         fun with(cwtService: CwtService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
 
         fun with(cborService: CborService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
 
     }
 

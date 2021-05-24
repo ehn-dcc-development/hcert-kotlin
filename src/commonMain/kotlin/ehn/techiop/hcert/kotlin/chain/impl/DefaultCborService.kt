@@ -16,7 +16,7 @@ open class DefaultCborService : CborService {
     override fun encode(input: GreenCertificate) = Cbor.encodeToByteArray(input)
 
 
-    override fun decode(input: ByteArray, verificationResult: VerificationResult): GreenCertificate {
+    override fun decode(input: ByteArray, verificationResult: VerificationResult): GreenCertificate? {
         verificationResult.cborDecoded = false
         try {
             val result = Cbor.decodeFromByteArray<GreenCertificate>(input)
@@ -29,8 +29,7 @@ open class DefaultCborService : CborService {
                 verificationResult.content.add(ContentType.RECOVERY)
             return result
         } catch (e: Throwable) {
-            // TODO Error handling!
-            return GreenCertificate("N", Person(givenName = "bar"), LocalDate(1970, 1, 1))
+           return null
         }
     }
 }

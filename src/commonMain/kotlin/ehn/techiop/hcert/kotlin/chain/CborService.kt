@@ -9,6 +9,6 @@ interface CborService {
 
     fun encode(input: GreenCertificate): ByteArray
 
-    fun decode(input: ByteArray, verificationResult: VerificationResult): GreenCertificate
+    fun decode(input: ByteArray, verificationResult: VerificationResult): GreenCertificate?
 
 }

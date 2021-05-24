@@ -19,8 +19,9 @@ class FaultyImplementationsTest {
     private val contextIdentifierService = DefaultContextIdentifierService()
     private val compressorService = DefaultCompressorService()
     private val base45Service = DefaultBase45Service()
+    private val schemaValidationService= DefaultSchemaValidationService()
     private val chainCorrect =
-        Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service)
+        Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
     private val chainFaultyBase45 =
         Chain(
             cborService,
@@ -28,7 +29,7 @@ class FaultyImplementationsTest {
             coseService,
             contextIdentifierService,
             compressorService,
-            FaultyBase45Service()
+            FaultyBase45Service(), schemaValidationService
         )
     private val chainFaultyCompressor =
         Chain(
@@ -37,10 +38,10 @@ class FaultyImplementationsTest {
             coseService,
             contextIdentifierService,
             FaultyCompressorService(),
-            base45Service
+            base45Service, schemaValidationService
         )
     private val chainNoopCompressor =
-        Chain(cborService, cwtService, coseService, contextIdentifierService, NoopCompressorService(), base45Service)
+        Chain(cborService, cwtService, coseService, contextIdentifierService, NoopCompressorService(), base45Service, schemaValidationService)
     private val chainNoopContextIdentifier =
         Chain(
             cborService,
@@ -48,7 +49,7 @@ class FaultyImplementationsTest {
             coseService,
             NoopContextIdentifierService(),
             compressorService,
-            base45Service
+            base45Service, schemaValidationService
         )
     private val chainUnverifiableCose =
         Chain(
@@ -57,7 +58,7 @@ class FaultyImplementationsTest {
             NonVerifiableCoseService(cryptoService),
             contextIdentifierService,
             compressorService,
-            base45Service
+            base45Service, schemaValidationService
         )
     private val chainUnprotectedCose =
         Chain(
@@ -66,7 +67,7 @@ class FaultyImplementationsTest {
             UnprotectedCoseService(cryptoService),
             contextIdentifierService,
             compressorService,
-            base45Service
+            base45Service, schemaValidationService
         )
     private val chainFaultyCose =
         Chain(
@@ -75,7 +76,7 @@ class FaultyImplementationsTest {
             FaultyCoseService(cryptoService),
             contextIdentifierService,
             compressorService,
-            base45Service
+            base45Service, schemaValidationService
         )
     private val chainFaultyCwt =
         Chain(
@@ -84,7 +85,7 @@ class FaultyImplementationsTest {
             coseService,
             contextIdentifierService,
             compressorService,
-            base45Service
+            base45Service, schemaValidationService
         )
     private val chainFaultyCbor =
         Chain(
@@ -93,7 +94,7 @@ class FaultyImplementationsTest {
             coseService,
             contextIdentifierService,
             compressorService,
-            base45Service
+            base45Service, schemaValidationService
         )
 
     private val input = SampleData.vaccination
@@ -219,8 +220,8 @@ class FaultyImplementationsTest {
         expectDataToMatch: Boolean,
         expectedResult: VerificationResult,
     ) {
-        val verificationResult = VerificationResult()
-        val vaccinationData = chainCorrect.decode(chainOutput, verificationResult)
+        val vaccinationData = chainCorrect.decode(chainOutput)
+        val verificationResult =vaccinationData.verificationResult
         MatcherAssert.assertThat(verificationResult.base45Decoded, CoreMatchers.equalTo(expectedResult.base45Decoded))
         MatcherAssert.assertThat(verificationResult.cwtDecoded, CoreMatchers.equalTo(expectedResult.cwtDecoded))
         MatcherAssert.assertThat(verificationResult.cborDecoded, CoreMatchers.equalTo(expectedResult.cborDecoded))
@@ -231,9 +232,9 @@ class FaultyImplementationsTest {
             CoreMatchers.equalTo(expectedResult.contextIdentifier)
         )
         if (expectDataToMatch) {
-            MatcherAssert.assertThat(vaccinationData, CoreMatchers.equalTo(input))
+            MatcherAssert.assertThat(vaccinationData.greenCertificate, CoreMatchers.equalTo(input))
         } else {
-            MatcherAssert.assertThat(vaccinationData, CoreMatchers.not(CoreMatchers.equalTo(input)))
+            MatcherAssert.assertThat(vaccinationData.greenCertificate, CoreMatchers.not(CoreMatchers.equalTo(input)))
         }
     }
 

@@ -1,9 +1,13 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
+@Serializable
 data class ChainDecodeResult(
-    val eudgc: GreenCertificate,
+    val eudgc: GreenCertificate?,
     val step0Cbor: ByteArray,
     val step1Cwt: ByteArray,
     val step2Cose: ByteArray,
@@ -35,5 +39,7 @@ data class ChainDecodeResult(
         result = 31 * result + step4Encoded.hashCode()
         return result
     }
+
+    fun toJson() = Json.encodeToString(this)
 
 }

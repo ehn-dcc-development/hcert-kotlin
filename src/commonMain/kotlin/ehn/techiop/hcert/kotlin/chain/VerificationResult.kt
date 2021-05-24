@@ -2,7 +2,11 @@ package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
+@Serializable
 class VerificationResult {
 
     /**
@@ -97,5 +101,6 @@ class VerificationResult {
                 ")"
     }
 
+    fun toJson() = Json.encodeToString(this)
 
 }

@@ -1,7 +1,14 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
+import kotlinx.serialization.Serializable
 import kotlin.js.JsName
+
+
+@Serializable
+data class DecodeExtendedResult(val verificationResult: VerificationResult, val chainDecodeResult: ChainDecodeResult)
+@Serializable
+data class DecodeResult(val verificationResult: VerificationResult, val greenCertificate: GreenCertificate?)
 
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes
@@ -54,8 +61,9 @@ class Chain(
      * which shall be passed to an instance of [DecisionService] to decide on a final verdict.
      */
     @JsName("decode")
-    fun decode(input: String, verificationResult: VerificationResult): GreenCertificate {
-        return decodeExtended(input, verificationResult).eudgc
+    fun decode(input: String): DecodeResult {
+        val decodeExtended = decodeExtended(input)
+        return DecodeResult(decodeExtended.verificationResult, decodeExtended.chainDecodeResult.eudgc)
     }
 
     /**
@@ -73,7 +81,8 @@ class Chain(
      * which shall be passed to an instance of [DecisionService] to decide on a final verdict.
      */
     @JsName("decodeExtended")
-    fun decodeExtended(input: String, verificationResult: VerificationResult): ChainDecodeResult {
+    fun decodeExtended(input: String): DecodeExtendedResult {
+        val verificationResult = VerificationResult()
         val encoded = contextIdentifierService.decode(input, verificationResult)
         val compressed = base45Service.decode(encoded, verificationResult)
         val cose = compressorService.decode(compressed, verificationResult)
@@ -81,8 +90,8 @@ class Chain(
         val cbor = cwtService.decode(cwt, verificationResult)
         val eudgc = cborService.decode(cbor, verificationResult)
         //TODO: investigate issues with JS
-      //  verificationResult.schemaValidated = schemaValidationService.validate(eudgc)
-        return ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded)
+       // eudgc?.let{ verificationResult.schemaValidated = schemaValidationService.validate(it) }
+        return DecodeExtendedResult(verificationResult, ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded))
     }
 }
 
