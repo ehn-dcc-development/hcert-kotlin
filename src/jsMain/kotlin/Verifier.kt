@@ -18,3 +18,16 @@ class Verifier(vararg val pemEncodedCertCertificates: String) {
 
     fun decide(verificationResult: JSON) = decisionService.decide(Json.decodeFromDynamic(verificationResult)).name
 }
+
+/**
+ * Expose some functions to be called from regular JavaScript
+ *
+ * Needs to be in a "main" method:
+ * https://stackoverflow.com/questions/60183300/how-to-call-kotlin-js-functions-from-regular-javascript#comment106601781_60184178
+ */
+fun main() {
+    if (false) {
+        Verifier("foo").verify("bar")
+
+    }
+}
