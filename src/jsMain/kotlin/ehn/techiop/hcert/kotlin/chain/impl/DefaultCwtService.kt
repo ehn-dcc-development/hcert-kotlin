@@ -54,7 +54,6 @@ actual open class DefaultCwtService actual constructor(
 
             val hcert = cwtMap.get(CwtHeaderKeys.HCERT.value)
             if (hcert !== undefined) {
-                //console.log(JSON.stringify(hcert))
 
                 val eudgcV1 = (hcert).get(1)
                 if (eudgcV1 !== undefined) {
@@ -62,9 +61,9 @@ actual open class DefaultCwtService actual constructor(
                     return@jsTry Cbor.Encoder.encode(eudgcV1).toByteArray()
                 }
             }
-            return@jsTry input
+            throw Throwable("could not decode CWT. hcert:$hcert, expiration: $expiration, issuedAt: $issuedAt, issuer: $issuer")
         }.catch{
-             input
+             throw it
         }
     }
 

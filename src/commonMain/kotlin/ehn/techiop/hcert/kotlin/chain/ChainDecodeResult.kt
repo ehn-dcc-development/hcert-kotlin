@@ -11,11 +11,11 @@ import kotlin.js.JsExport
 @Serializable
 data class ChainDecodeResult(
     val eudgc: GreenCertificate?,
-    val step0Cbor: ByteArray,
-    val step1Cwt: ByteArray,
-    val step2Cose: ByteArray,
-    val step3Compressed: ByteArray,
-    val step4Encoded: String,
+    val step0Cbor: ByteArray?,
+    val step1Cwt: ByteArray?,
+    val step2Cose: ByteArray?,
+    val step3Compressed: ByteArray?,
+    val step4Encoded: String?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -92,13 +92,25 @@ class Chain(
     @JsName("decodeExtended")
     fun decodeExtended(input: String): DecodeExtendedResult {
         val verificationResult = VerificationResult()
-        val encoded = contextIdentifierService.decode(input, verificationResult)
-        val compressed = base45Service.decode(encoded, verificationResult)
-        val cose = compressorService.decode(compressed, verificationResult)
-        val cwt = coseService.decode(cose, verificationResult)
-        val cbor = cwtService.decode(cwt, verificationResult)
-        if (verificationResult.cwtDecoded) verificationResult.schemaValidated = schemaValidationService.validate(cbor)
-        val eudgc = cborService.decode(cbor, verificationResult)
+
+        var eudgc: GreenCertificate? = null
+        var cbor: ByteArray? = null
+        var cwt: ByteArray? = null
+        var cose: ByteArray? = null
+        var compressed: ByteArray? = null
+        var encoded: String? = null
+
+        try {
+            encoded = contextIdentifierService.decode(input, verificationResult)
+            compressed = base45Service.decode(encoded, verificationResult)
+            cose = compressorService.decode(compressed, verificationResult)
+            cwt = coseService.decode(cose, verificationResult)
+            cbor = cwtService.decode(cwt, verificationResult)
+            schemaValidationService.validate(cbor, verificationResult)
+            eudgc = cborService.decode(cbor, verificationResult)
+        } catch (t: Throwable) {
+
+        }
         return DecodeExtendedResult(verificationResult, ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded))
     }
 }

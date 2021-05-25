@@ -28,7 +28,7 @@ actual open class DefaultCompressorService actual constructor(private val level:
                 verificationResult.zlibDecoded = true
             }
         } catch (e: Throwable) {
-            input
+            throw e
         }
     }
 

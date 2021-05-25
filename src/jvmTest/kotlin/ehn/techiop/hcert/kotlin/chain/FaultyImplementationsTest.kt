@@ -138,10 +138,9 @@ class FaultyImplementationsTest {
         assertVerification(
             chainNoopCompressor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            true,
+            false,
             VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false; coseVerified = true; cwtDecoded =
-                true; cborDecoded = true
+                contextIdentifier = "HC1:"; base45Decoded = true;
             })
     }
 

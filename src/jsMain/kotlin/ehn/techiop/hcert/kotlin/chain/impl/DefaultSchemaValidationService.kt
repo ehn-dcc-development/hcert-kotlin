@@ -4,10 +4,7 @@ import AJV2020
 import Cbor.DecodeOptions
 import MainResourceHolder
 import addFormats
-import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.catch
-import ehn.techiop.hcert.kotlin.chain.jsTry
-import ehn.techiop.hcert.kotlin.chain.toBuffer
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.data.loadAsString
 
 actual class DefaultSchemaValidationService : SchemaValidationService {
@@ -31,18 +28,21 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
     }
 
 
-    override fun validate(cbor: ByteArray): Boolean {
-        return jsTry {
+    override fun validate(cbor: ByteArray, verificationResult: VerificationResult) {
+        jsTry {
             val json = Cbor.Decoder.decodeFirstSync(input = cbor.toBuffer(), options = object : DecodeOptions {})
 
-            ajv.validate(schema, json)/*.also {
-                if (!it) {
-                    console.log("Data does not follow schema:")
-                    console.log(JSON.stringify(ajv.errors))
-                }
-            }*/
-
-        }.catch { false }
+            if (!ajv.validate(schema, json)) {
+                throw Throwable("Data does not follow schema: ${JSON.stringify(ajv.errors)}")
+                /*.let {
+                     if (!it) {
+                         console.log("Data does not follow schema:")
+                         console.log(JSON.stringify(ajv.errors))
+                     }
+                 }*/
+            }
+            verificationResult.schemaValidated = true
+        }.catch { throw it }
 
     }
 }

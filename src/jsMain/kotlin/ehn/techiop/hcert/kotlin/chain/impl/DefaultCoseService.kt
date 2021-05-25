@@ -44,7 +44,7 @@ actual class DefaultCoseService actual constructor(private val cryptoService: Cr
             verificationResult.coseVerified = true
             content.toByteArray()
         }.catch {
-            input
+            throw it
         }
     }
 

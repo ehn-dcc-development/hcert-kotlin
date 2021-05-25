@@ -3,5 +3,8 @@ package ehn.techiop.hcert.kotlin.chain
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 
 interface SchemaValidationService {
-    fun validate(cbor: ByteArray): Boolean
+    /**
+     * Throws a Throwable if schema validation fails
+     */
+    fun validate(cbor: ByteArray, verificationResult: VerificationResult)
 }

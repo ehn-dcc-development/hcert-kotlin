@@ -35,7 +35,7 @@ actual open class DefaultCoseService actual constructor(private val cryptoServic
                 }
             }.GetContent()
         } catch (e: Throwable) {
-            input
+            throw e
         }
     }
 
