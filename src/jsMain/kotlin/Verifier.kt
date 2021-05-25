@@ -9,12 +9,14 @@ import kotlin.js.Json as jsJson
 @JsExport
 @JsName("Verifier")
 class Verifier(vararg val pemEncodedCertCertificates: String) {
+
     private val repo = PrefilledCertificateRepository(pemEncodedCertificates = pemEncodedCertCertificates)
     private val chain = DefaultChain.buildVerificationChain(repo)
 
     private val decisionService = DecisionService()
 
-    fun verify(qrContent: String): jsJson = JSON.parse(Json.encodeToString(chain.decode(qrContent)))
+    fun verify(qrContent: String): jsJson =
+        JSON.parse(Json { encodeDefaults = true }.encodeToString(chain.decode(qrContent)))
 
     fun decide(verificationResult: JSON) = decisionService.decide(Json.decodeFromDynamic(verificationResult)).name
 }
@@ -28,6 +30,6 @@ class Verifier(vararg val pemEncodedCertCertificates: String) {
 fun main() {
     if (false) {
         Verifier("foo").verify("bar")
-
     }
+    console.info("EGC Verifier Loaded")
 }
