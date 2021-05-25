@@ -1,17 +1,20 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import AJV2020
+import Cbor.DecodeOptions
+import MainResourceHolder
 import addFormats
 import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
-import ehn.techiop.hcert.kotlin.data.GreenCertificate
+import ehn.techiop.hcert.kotlin.chain.catch
+import ehn.techiop.hcert.kotlin.chain.jsTry
+import ehn.techiop.hcert.kotlin.chain.toBuffer
 import ehn.techiop.hcert.kotlin.data.loadAsString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 actual class DefaultSchemaValidationService : SchemaValidationService {
-    override fun validate(data: GreenCertificate): Boolean {
-        val json = JSON.parse<GreenCertificate>(Json.encodeToString(data))
-        val ajv = AJV2020()
+    val ajv = AJV2020()
+    val schema: dynamic
+
+    init {
         addFormats(ajv)
 
         // Warning: AJV does not support the valueset-uri keyword used in the schema.
@@ -20,19 +23,26 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
         ajv.addKeyword("valueset-uri")
 
         val schemaString = MainResourceHolder.loadAsString("json/DGC.combined-schema.json")
-        val schema = JSON.parse<dynamic>(schemaString!!)
+        schema = JSON.parse<dynamic>(schemaString!!)
 
-        val schemaValid = ajv.validateSchema(schema)
-        if (!schemaValid) {
-            console.log("Schema invalid:")
-            console.log(JSON.stringify(ajv.errors))
+        if (!ajv.validateSchema(schema)) {
+            throw Throwable("JSON schema invalid: ${JSON.stringify(ajv.errors)}")
         }
+    }
 
-        val valid = ajv.validate(schema, json)
-        if (!valid) {
-            console.log("Data does not follow schema:")
-            console.log(JSON.stringify(ajv.errors))
-        }
-        return valid
+
+    override fun validate(cbor: ByteArray): Boolean {
+        return jsTry {
+            val json = Cbor.Decoder.decodeFirstSync(input = cbor.toBuffer(), options = object : DecodeOptions {})
+
+            ajv.validate(schema, json)/*.also {
+                if (!it) {
+                    console.log("Data does not follow schema:")
+                    console.log(JSON.stringify(ajv.errors))
+                }
+            }*/
+
+        }.catch { false }
+
     }
 }

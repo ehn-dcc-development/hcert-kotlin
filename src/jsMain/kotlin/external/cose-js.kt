@@ -17,7 +17,7 @@ external interface RsaCosePublicKey : CosePublicKey {
     val e: Number
 }
 
-external interface CosePrivateKey {}
+external interface CosePrivateKey
 
 external interface EcCosePrivateKey : CosePrivateKey {
     val d: Buffer
@@ -41,11 +41,11 @@ external interface Headers {
 }
 
 external interface Signer {
-    val key: EcCosePrivateKey
+    val key: CosePrivateKey
 }
 external open class sign {
     companion object {
         fun verifySync(message: Buffer, verifier: Verifier): Buffer
-        fun create(headers: Headers, data: Buffer, signer: Signer): Promise<Buffer>
+        fun createSync(headers: dynamic, data: Buffer, signer: Signer): Buffer
     }
 }

@@ -29,13 +29,13 @@ internal object Cose {
         return sign.verifySync(Buffer.from(signedBitString.toUint8Array()), verifier).toByteArray()
     }
 
-    fun sign(header: Json, input: ByteArray, privKey: PrivKey<*>): Promise<Buffer> {
-        val key = privKey.toCoseRepresentation() as EcCosePrivateKey
+    fun sign(header: dynamic, input: ByteArray, privKey: PrivKey<*>): Buffer {
+        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+        val key = privKey.toCoseRepresentation() as CosePrivateKey
         val signer = object : Signer {
             override val key = key
         }
-        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-        return sign.create(header.asDynamic() as Headers, Buffer(input.toUint8Array()), signer).then { it }
+        return sign.createSync(header, Buffer(input.toUint8Array()), signer)
     }
 }
 

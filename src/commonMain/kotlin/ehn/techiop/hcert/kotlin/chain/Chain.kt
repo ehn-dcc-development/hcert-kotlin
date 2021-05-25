@@ -4,7 +4,6 @@ import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.js.JsExport
 import kotlin.js.JsName
 
 
@@ -98,9 +97,8 @@ class Chain(
         val cose = compressorService.decode(compressed, verificationResult)
         val cwt = coseService.decode(cose, verificationResult)
         val cbor = cwtService.decode(cwt, verificationResult)
+        if (verificationResult.cwtDecoded) verificationResult.schemaValidated = schemaValidationService.validate(cbor)
         val eudgc = cborService.decode(cbor, verificationResult)
-        //TODO: investigate issues with JS
-        eudgc?.let { verificationResult.schemaValidated = schemaValidationService.validate(it) }
         return DecodeExtendedResult(verificationResult, ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded))
     }
 }

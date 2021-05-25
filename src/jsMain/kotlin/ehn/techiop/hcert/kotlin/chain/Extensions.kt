@@ -29,6 +29,8 @@ fun ByteArray.toUint8Array(): Uint8Array {
     return Uint8Array(toTypedArray())
 }
 
+fun ByteArray.toBuffer():Buffer = Buffer.from(toUint8Array())
+
 fun Uint8Array.toByteArray(): ByteArray {
     return ByteArray(this.length) { this[it] }
 }
