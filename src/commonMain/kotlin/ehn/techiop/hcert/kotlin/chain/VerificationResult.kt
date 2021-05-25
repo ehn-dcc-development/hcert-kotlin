@@ -5,6 +5,8 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlin.js.JsExport
 
 @Serializable
 class VerificationResult {
@@ -101,6 +103,7 @@ class VerificationResult {
                 ")"
     }
 
-    fun toJson() = Json.encodeToString(this)
+    fun toJson() = Json.encodeToJsonElement(this)
+    fun toJsonString() = toJson().toString()
 
 }

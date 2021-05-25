@@ -2,13 +2,23 @@ package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlin.js.JsExport
 import kotlin.js.JsName
 
 
+//@JsExport
 @Serializable
-data class DecodeExtendedResult(val verificationResult: VerificationResult, val chainDecodeResult: ChainDecodeResult)
+data class DecodeExtendedResult(val verificationResult: VerificationResult, val chainDecodeResult: ChainDecodeResult) {
+    fun toJson() = Json.encodeToString(this)
+}
+
+//@JsExport
 @Serializable
-data class DecodeResult(val verificationResult: VerificationResult, val greenCertificate: GreenCertificate?)
+data class DecodeResult(val verificationResult: VerificationResult, val greenCertificate: GreenCertificate?) {
+    fun toJson() = Json.encodeToString(this)
+}
 
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes
@@ -90,7 +100,7 @@ class Chain(
         val cbor = cwtService.decode(cwt, verificationResult)
         val eudgc = cborService.decode(cbor, verificationResult)
         //TODO: investigate issues with JS
-       // eudgc?.let{ verificationResult.schemaValidated = schemaValidationService.validate(it) }
+        eudgc?.let { verificationResult.schemaValidated = schemaValidationService.validate(it) }
         return DecodeExtendedResult(verificationResult, ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded))
     }
 }

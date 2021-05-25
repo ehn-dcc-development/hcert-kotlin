@@ -75,10 +75,12 @@ class JsEcPrivKey(val da: ByteArray) : EcPrivKey<EcCosePrivateKey> {
 /*
  * Primary constructopfillrs is nicely exposed to javascript by default; secondary constructors not without any custom annotations, so we make the pem-parsing constructor the default one
  */
+//@JsExport
 class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
 
     val encoded: ByteArray = pemEncodedCertificate.lines().joinToString(separator = "").fromBase64()
 
+    @JsName("fromPem")
     constructor(encoded: ByteArray) : this(encoded.asBase64())
 
     private val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->

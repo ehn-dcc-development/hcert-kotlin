@@ -107,11 +107,10 @@ class ExtendedTestRunner {
             assertEquals(case.eudgc, chainResult.chainDecodeResult.eudgc, "JSON Decoding")
             if (!it) assertEquals(VerificationDecision.FAIL, decision, "JSON Decoding FAIL expected")
         }
-        //TODO Schema Validation
-        /*case.expectedResult.schemaValidation?.let {
+        case.expectedResult.schemaValidation?.let {
             assertEquals(it, verificationResult.schemaValidated, "Schema Validation")
             if (!it) assertEquals(VerificationDecision.FAIL, decision, "Schema Validation FAIL expected")
-        }*/
+        }
         case.expectedResult.expirationCheck?.let {
             if (it) assertEquals(VerificationDecision.GOOD, decision, "Expiry Check GOOD Expected")
             if (!it) assertEquals(VerificationDecision.FAIL, decision, "Expiry Check FAIL Expected")

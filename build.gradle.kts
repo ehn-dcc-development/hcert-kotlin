@@ -1,6 +1,6 @@
 plugins {
-    kotlin("multiplatform") version "1.5.0"
-    kotlin("plugin.serialization") version "1.5.0"
+    kotlin("multiplatform") version "1.5.10"
+    kotlin("plugin.serialization") version "1.5.10"
     id("idea")
 }
 
@@ -65,27 +65,29 @@ kotlin {
             }
             webpackTask {
                 output.library = "hcert"
-                output.libraryTarget="umd"
+                output.libraryTarget = "umd"
             }
         }
+        binaries.executable()
         useCommonJs()
     }
-   /* js("node", LEGACY) {
-        moduleName = "hcert-node"
-        browser {
-            distribution {
-                directory = file("$projectDir/output-node/")
-            }
-            webpackTask {
-                output.library = "hcert-node"
-            }
-        }
-        useCommonJs()
-    }*/
+    /* js("node", LEGACY) {
+         moduleName = "hcert-node"
+         browser {
+             distribution {
+                 directory = file("$projectDir/output-node/")
+             }
+             webpackTask {
+                 output.library = "hcert-node"
+             }
+         }
+         useCommonJs()
+     }*/
 
     sourceSets {
         val commonMain by getting {
             dependencies {
+                //cannot use 0.2.1 due to https://youtrack.jetbrains.com/issue/KT-43237 when also seeking to expose node module
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.1.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
@@ -99,7 +101,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.0")
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.10")
                 implementation("com.augustcellars.cose:cose-java:1.1.0")
                 implementation("com.google.zxing:core:3.4.1")
                 implementation("com.google.zxing:javase:3.4.1")
@@ -148,26 +150,26 @@ kotlin {
             }
         }
 
-      /*  val nodeMain by getting {
-            sourceSets {
-                kotlin.srcDir("src/jsMain/generated")
-                kotlin.srcDir("src/jsMain/kotlin")
-            }
-            dependencies {
-                implementation(npm("pako", "2.0.3"))
-                implementation(npm("@types/pako", "1.0.1", generateExternals = true))
-                implementation(npm("pkijs", "2.1.95"))
-                implementation(npm("cose-js", File("${projectDir.absolutePath}/cose-js"), generateExternals = false))
-                implementation(npm("cbor", "7.0.5"))
-                implementation(npm("fast-sha256", "1.3.0", generateExternals = true))
-                implementation(npm("elliptic", "6.5.4"))
-                implementation(npm("node-rsa", "1.1.1"))
-                implementation(npm("base64url", "3.0.1"))
-                implementation(npm("ajv", "8.5.0"))
-                implementation(npm("ajv-formats", "2.1.0"))
-            }
+        /*  val nodeMain by getting {
+              sourceSets {
+                  kotlin.srcDir("src/jsMain/generated")
+                  kotlin.srcDir("src/jsMain/kotlin")
+              }
+              dependencies {
+                  implementation(npm("pako", "2.0.3"))
+                  implementation(npm("@types/pako", "1.0.1", generateExternals = true))
+                  implementation(npm("pkijs", "2.1.95"))
+                  implementation(npm("cose-js", File("${projectDir.absolutePath}/cose-js"), generateExternals = false))
+                  implementation(npm("cbor", "7.0.5"))
+                  implementation(npm("fast-sha256", "1.3.0", generateExternals = true))
+                  implementation(npm("elliptic", "6.5.4"))
+                  implementation(npm("node-rsa", "1.1.1"))
+                  implementation(npm("base64url", "3.0.1"))
+                  implementation(npm("ajv", "8.5.0"))
+                  implementation(npm("ajv-formats", "2.1.0"))
+              }
 
-        }*/
+          }*/
     }
 }
 
@@ -229,6 +231,6 @@ fun wrapJsResources(test: Boolean = false) {
             )
         }
         w.write("}override fun get(key:String)=m[key];")
-        w.write("override fun allResourceNames()=m.keys.toList()}")
+        w.write("override fun allResourceNames()=m.keys.sorted()}")
     }
 }

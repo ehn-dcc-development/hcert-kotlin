@@ -4,7 +4,10 @@ import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlin.js.JsExport
 
+//@JsExport
 @Serializable
 data class ChainDecodeResult(
     val eudgc: GreenCertificate?,
@@ -40,6 +43,7 @@ data class ChainDecodeResult(
         return result
     }
 
-    fun toJson() = Json.encodeToString(this)
+    fun toJson() = Json.encodeToJsonElement(this)
+    fun toJsonString() = toJson().toString()
 
 }

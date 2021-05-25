@@ -3,6 +3,9 @@ package ehn.techiop.hcert.kotlin.data
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+
 
 @Serializable
 data class GreenCertificate(
@@ -24,6 +27,7 @@ data class GreenCertificate(
     @SerialName("t")
     val tests: List<Test?>? = null,
 ) {
+
 
     /*
     fun toEuSchema() = Eudgc().apply {
