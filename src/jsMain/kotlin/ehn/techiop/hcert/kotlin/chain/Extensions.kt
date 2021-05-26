@@ -1,20 +1,20 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import Buffer
-import kotlinx.browser.window
+import base64url
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 import org.w3c.fetch.Request
 
 actual fun ByteArray.asBase64() = Buffer.from(this.toUint8Array()).toString("base64")
 
-actual fun ByteArray.asBase64Url() = Buffer.from(this.toUint8Array()).toString("base64url")
+actual fun ByteArray.asBase64Url() = base64url.toBase64(Buffer.from(this.toUint8Array()))
 
 actual fun ByteArray.toHexString() = joinToString("") { ('0' + (it.toUByte()).toString(16)).takeLast(2) }
 
 actual fun String.fromBase64() = Buffer.from(this, "base64").toByteArray()
 
-actual fun String.fromBase64Url() = Buffer.from(this, "base64url").toByteArray()
+actual fun String.fromBase64Url() = base64url.toBuffer(this).toByteArray()
 
 //See https://stackoverflow.com/a/66614516
 actual fun String.fromHexString(): ByteArray {

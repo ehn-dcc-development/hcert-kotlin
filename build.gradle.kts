@@ -122,6 +122,7 @@ kotlin {
                 implementation(npm("node-rsa", "1.1.1"))
                 implementation(npm("constants-browserify", "1.0.0"))
                 implementation(npm("assert", "2.0.0"))
+                implementation(npm("base64url", "3.0.1"))
             }
         }
 
