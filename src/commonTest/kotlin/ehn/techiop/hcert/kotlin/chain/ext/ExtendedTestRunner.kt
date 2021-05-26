@@ -1,7 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.DecisionService
+import ehn.techiop.hcert.kotlin.chain.DefaultChain
+import ehn.techiop.hcert.kotlin.chain.VerificationDecision
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import kotlinx.datetime.Clock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -13,8 +16,21 @@ expect fun allOfficialTestCases(): Map<String, String>
 class ExtendedTestRunner {
 
     @Test
+    fun common() {
+        allOfficialTestCases()
+            .filter { it.key.contains("common/") }
+            .filterNot { it.key.contains("DGC1.json") } //TODO @ckollmann Implement JVM Schema validation
+            .filterNot { it.key.contains("DGC2.json") } //TODO @ckollmann Schema validation????
+            .forEach {
+                val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
+                verification(it.key, case)
+            }
+    }
+
+    @Test
     fun verificationStarter() {
         allOfficialTestCases()
+            .filterNot { it.key.contains("common/") }
             .filterNot { it.key.contains("NL/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/107
             .filterNot { it.key.contains("FR/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/128
             .filterNot { it.key.contains("CY/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/105
@@ -24,8 +40,6 @@ class ExtendedTestRunner {
             .filterNot { it.key.contains("PL/") } //TODO Expirationcheck (JVM too)
             .filterNot { it.key.contains("SE/") } //TODO Cose Tags (JVM too)
             .filterNot { it.key.contains("SI/") } //TODO Cose Tags (JVM too)
-            .filterNot { it.key.contains("DGC1.json") } //TODO @ckollmann Implement JVM Schema validation
-            .filterNot { it.key.contains("DGC2.json") } //TODO @ckollmann Schema validation????
             .filterNot { it.key.contains("IT/") } //TODO DateTimeParseException: Text '2021-05-17T18:22:17' could not be parsed at index 19: 2021-05-17T18:22:17, at index: 19 -- only JS!
             .filterNot { it.key.contains("BG/") } //TODO COSE verification failed -- only JS!
             .filterNot { it.key.contains("LU/") } //TODO COSE verification failed -- only JS!
@@ -61,7 +75,7 @@ class ExtendedTestRunner {
                 } else throw IllegalArgumentException("Input")
 
         val chainResult = decodingChain.decodeExtended(qrCodeContent)
-        val verificationResult=chainResult.verificationResult
+        val verificationResult = chainResult.verificationResult
         val decision = decisionService.decide(verificationResult)
 
         case.expectedResult.qrDecode?.let {
