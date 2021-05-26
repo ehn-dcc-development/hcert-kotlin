@@ -1,8 +1,10 @@
 package ehn.techiop.hcert.kotlin.crypto
 
 import Asn1js.fromBER
-import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
+import Buffer
+import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.KeyType
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
@@ -12,38 +14,6 @@ import org.khronos.webgl.Uint8Array
 import kotlin.js.Date
 import kotlin.js.Json
 import kotlin.js.Promise
-
-internal object Buffer {
-    private val buffer = js("require('buffer').Buffer")
-    @Suppress("UNUSED_VARIABLE")
-    internal fun from(arr: ByteArray): dynamic {
-        val b = buffer // needed for JS-magic
-        val d = Uint8Array(arr.toTypedArray()) // needed for JS-magic
-        return js("b.from(d)")
-    }
-
-    @Suppress("UNUSED_VARIABLE")
-    internal fun toByteArray(arr: dynamic): ByteArray {
-        return Uint8Array(buffer = arr.buffer).toByteArray()
-    }
-}
-
-internal object Cbor {
-    private val cbor = js("require('cbor')")
-
-    @Suppress("UNUSED_VARIABLE")
-    fun decode(data: ByteArray): dynamic {
-        val c = cbor // needed for JS-magic
-        val d = Buffer.from(data) // needed for JS-magic
-        return js("c.decodeAllSync(d)")
-    }
-
-    @Suppress("UNUSED_VARIABLE")
-    fun encode(data: Json): dynamic {
-        val c = cbor // needed for JS-magic
-        return js("c.encode(data)")
-    }
-}
 
 internal object Cose {
     private val cose = js("require('cose-js')")
@@ -59,7 +29,7 @@ internal object Cose {
     }
 
     fun verify(signedBitString: ByteArray, pubKey: PublicKey<*>):ByteArray =
-        internalVerify(Buffer.from(signedBitString), pubKey.toCoseRepresentation()).toByteArray()
+        internalVerify(Buffer.from(signedBitString.toUint8Array()), pubKey.toCoseRepresentation()).toByteArray()
 
     @Suppress("UNUSED_VARIABLE")
     private fun internalSign(header: dynamic, data: dynamic, signer: dynamic): Promise<ByteArray> {
@@ -73,7 +43,10 @@ internal object Cose {
 
 
 class CoseEcKey(xC: dynamic, yC: dynamic) {
-    constructor(x: ByteArray, y: ByteArray) : this(xC = Buffer.from(x), yC = Buffer.from(y))
+    constructor(x: ByteArray, y: ByteArray) : this(
+        xC = Buffer.from(x.toUint8Array()),
+        yC = Buffer.from(y.toUint8Array())
+    )
 
     val key = Holder(xC, yC)
 
@@ -82,7 +55,7 @@ class CoseEcKey(xC: dynamic, yC: dynamic) {
 
 // TODO is "d" sufficient?
 class CoseEcPrivateKey(d: ByteArray) {
-    val key = Holder(Buffer.from(d))
+    val key = Holder(Buffer.from(d.toUint8Array()))
 
     class Holder(val d: dynamic)
 }
@@ -90,8 +63,8 @@ class CoseEcPrivateKey(d: ByteArray) {
 class CoseJsEcPubKey(val xCoord: dynamic, val yCoord: dynamic, override val curve: CurveIdentifier) :
     EcPubKey<dynamic> {
     constructor(x: ByteArray, y: ByteArray, curve: CurveIdentifier) : this(
-        xCoord = Buffer.from(x),
-        yCoord = Buffer.from(y),
+        xCoord = Buffer.from(x.toUint8Array()),
+        yCoord = Buffer.from(y.toUint8Array()),
         curve = curve
     )
 
@@ -147,7 +120,7 @@ class JsCertificate(private val encoded: ByteArray) : Certificate<dynamic> {
             Clock.System.now(),
             byteArrayOf(),
             KeyType.EC,
-            Buffer.toByteArray(cert.subjectPublicKeyInfo),
+            (cert.subjectPublicKeyInfo as Buffer).toByteArray(),
             listOf()
         )
     }

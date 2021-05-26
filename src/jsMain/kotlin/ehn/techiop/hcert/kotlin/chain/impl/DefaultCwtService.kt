@@ -1,17 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.CwtService
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.mapToJson
-import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.chain.toHexString
-import ehn.techiop.hcert.kotlin.crypto.Buffer
-import ehn.techiop.hcert.kotlin.crypto.Cbor
+import Buffer
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import org.khronos.webgl.Uint8Array
-import kotlin.math.exp
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -36,35 +29,42 @@ actual open class DefaultCwtService @OptIn(ExperimentalTime::class) actual const
             )
         )
         val export = map.mapToJson()
-        val buffer = Cbor.encode(export)
-        return Buffer.toByteArray(buffer)
+        val buffer = Cbor.Encoder.encode(export)
+        return buffer.toByteArray()
     }
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.cwtDecoded = false
         try {
-            val cbor = Cbor.decode(input)[0]
-            val issuer = cbor.get(CwtHeaderKeys.ISSUER.value)
+            // TODO: Does this work?
+
+            val cbor = Cbor.Decoder.decodeAllSync(Buffer.from(input.toUint8Array()))[0] as Cbor.Tagged
+            val cborValue = cbor.value as Array<Any>
+            val issuer = cborValue.get(CwtHeaderKeys.ISSUER.value)
             if (issuer !== undefined) {
                 verificationResult.issuer = issuer.toString()
             }
-            val issuedAt = cbor.get(CwtHeaderKeys.ISSUED_AT.value)
+
+            val issuedAt = cborValue.get(CwtHeaderKeys.ISSUED_AT.value)
             if (issuedAt !== undefined) {
                 verificationResult.issuedAt = Instant.fromEpochSeconds((issuedAt as Number).toLong())
             }
-            val expiration = cbor.get(CwtHeaderKeys.EXPIRATION.value)
+
+            val expiration = cborValue.get(CwtHeaderKeys.EXPIRATION.value)
             if (expiration !== undefined) {
                 verificationResult.expirationTime = Instant.fromEpochSeconds((expiration as Number).toLong())
             }
 
-            val hcert = cbor.get(CwtHeaderKeys.HCERT.value)
+            val hcert = cborValue.get(CwtHeaderKeys.HCERT.value)
             if (hcert !== undefined) {
-                val eudgcV1 = hcert.get(1)
+                // TODO: Can we get rid of dynamic here?
+                val eudgcV1 = (hcert.asDynamic()).get(1)
                 if (eudgcV1 !== undefined) {
                     verificationResult.cwtDecoded = true
-                    return Cbor.encode(eudgcV1)
+                    return Cbor.Encoder.encode(eudgcV1).toByteArray()
                 }
             }
+
             return input
         } catch (e: Throwable) {
             e.printStackTrace()

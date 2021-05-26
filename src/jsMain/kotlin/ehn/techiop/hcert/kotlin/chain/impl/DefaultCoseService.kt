@@ -1,10 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.CoseService
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.crypto.Cbor
+import Buffer
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import org.khronos.webgl.Uint8Array
 import kotlin.coroutines.resume
@@ -26,14 +23,22 @@ actual class DefaultCoseService(private val cryptoService: CryptoService) : Cose
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.coseVerified = false
-        val cborJson = Cbor.decode(input)
-        val protectedHeader = cborJson["value"][0]
-        val unprotectedHeader = cborJson["value"][1]
-        val content = cborJson["value"][2]
-        val signature = cborJson["value"][3]
-        val protectedHeaderCbor = Cbor.decode(protectedHeader)
+        console.log("DefaultCoseService cbor:")
+
+        val cborJson = Cbor.Decoder.decodeAllSync(Buffer(input.toUint8Array()))
+        val cwt = cborJson[0] as Cbor.Tagged
+        val cwtValue = cwt.value as Array<Buffer>
+        val protectedHeader = cwtValue[0]
+        val unprotectedHeader = cwtValue[1]
+        val content = cwtValue[2]
+        val signature = cwtValue[3]
+
+        // TODO: Can we get rid of dynamic here?
+        val protectedHeaderCbor = Cbor.Decoder.decodeAllSync(protectedHeader)[0].asDynamic()
+
         val kid = protectedHeaderCbor.get(4) as Uint8Array? ?: if (unprotectedHeader.length !== undefined)
-            Cbor.decode(unprotectedHeader).get(1) as Uint8Array
+            // TODO: Does this work?
+            Cbor.Decoder.decodeAllSync(unprotectedHeader).get(1) as Uint8Array
         else
             throw IllegalArgumentException("KID not found")
         if (kid === undefined)
@@ -43,7 +48,7 @@ actual class DefaultCoseService(private val cryptoService: CryptoService) : Cose
         val result = Cose.verify(input, pubKey)
         // TODO make this a suspend function, and then provide a wrapper from JS to call it as a promise
         verificationResult.coseVerified = true
-        return content
+        return content.toByteArray()
     }
 
     actual companion object {

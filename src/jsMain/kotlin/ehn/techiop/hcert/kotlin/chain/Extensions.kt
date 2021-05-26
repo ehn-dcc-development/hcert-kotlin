@@ -1,17 +1,18 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import Buffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 
-actual fun ByteArray.asBase64() = js("Buffer").from(this).toString("base64") as String
+actual fun ByteArray.asBase64() = Buffer.from(this.toUint8Array()).toString("base64")
 
-actual fun ByteArray.asBase64Url() = js("Buffer").from(this).toString("base64url") as String
+actual fun ByteArray.asBase64Url() = Buffer.from(this.toUint8Array()).toString("base64url")
 
 actual fun ByteArray.toHexString() = joinToString("") { ('0' + (it.toUByte()).toString(16)).takeLast(2) }
 
-actual fun String.fromBase64() = js("Buffer").from(this, "base64").unsafeCast<ByteArray>()
+actual fun String.fromBase64() = Buffer.from(this, "base64").toByteArray()
 
-actual fun String.fromBase64Url() = js("Buffer").from(this, "base64url").unsafeCast<ByteArray>()
+actual fun String.fromBase64Url()= Buffer.from(this, "base64url").toByteArray()
 
 //See https://stackoverflow.com/a/66614516
 actual fun String.fromHexString(): ByteArray {
@@ -31,4 +32,8 @@ fun ByteArray.toUint8Array(): Uint8Array {
 
 fun Uint8Array.toByteArray(): ByteArray {
     return ByteArray(this.length) { this[it] }
+}
+
+fun Buffer.Companion.from(arr: ByteArray): Buffer {
+    return from(arr.toUint8Array())
 }

@@ -6,11 +6,6 @@ import ehn.techiop.hcert.kotlin.chain.fromHexString
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
 import ehn.techiop.hcert.kotlin.crypto.*
-import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
-import ehn.techiop.hcert.kotlin.crypto.Cbor
-import ehn.techiop.hcert.kotlin.crypto.Cose
-import ehn.techiop.hcert.kotlin.crypto.CoseJsEcPubKey
-import ehn.techiop.hcert.kotlin.crypto.CurveIdentifier
 import ehn.techiop.hcert.kotlin.data.*
 import kotlinx.browser.window
 import kotlinx.datetime.LocalDate
