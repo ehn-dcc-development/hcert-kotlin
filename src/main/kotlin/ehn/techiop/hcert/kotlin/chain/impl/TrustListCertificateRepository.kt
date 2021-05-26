@@ -7,19 +7,19 @@ import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import java.time.Clock
 
 class TrustListCertificateRepository(
-    input: ByteArray,
+    trustListSignature: ByteArray,
+    trustListContent: ByteArray? = null,
     certificateRepository: CertificateRepository,
     clock: Clock = Clock.systemUTC(),
-) :
-    CertificateRepository {
+) : CertificateRepository {
 
-    private val list = TrustListDecodeService(certificateRepository, clock).decode(input).certificates
+    private val list = TrustListDecodeService(certificateRepository, clock).decode(trustListSignature, trustListContent)
 
     override fun loadTrustedCertificates(
         kid: ByteArray,
         verificationResult: VerificationResult
     ): List<TrustedCertificate> {
-        val certList = list.filter { it.kid contentEquals kid }
+        val certList = list.filter { it.getKid() contentEquals kid }
         if (certList.isEmpty()) throw IllegalArgumentException("kid")
         return certList
     }

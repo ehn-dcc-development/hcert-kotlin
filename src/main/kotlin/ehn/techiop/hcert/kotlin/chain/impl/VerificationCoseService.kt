@@ -24,9 +24,9 @@ class VerificationCoseService(private val repository: CertificateRepository) : C
                 try {
                     val kid = it.findAttribute(HeaderKeys.KID)?.GetByteString() ?: throw IllegalArgumentException("kid")
                     repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
-                        verificationResult.certificateValidFrom = trustedCert.validFrom
-                        verificationResult.certificateValidUntil = trustedCert.validUntil
-                        verificationResult.certificateValidContent = trustedCert.validContentTypes
+                        verificationResult.certificateValidFrom = trustedCert.getValidFrom()
+                        verificationResult.certificateValidUntil = trustedCert.getValidUntil()
+                        verificationResult.certificateValidContent = trustedCert.getValidContentTypes()
                         if (it.validate(trustedCert.buildOneKey())) {
                             verificationResult.coseVerified = true
                             return it.GetContent()

@@ -10,18 +10,19 @@ import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
 
-class TrustListEncodeService(
+class TrustListV1EncodeService(
     private val signingService: CryptoService,
     private val validity: Duration = Duration.ofHours(48),
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
     fun encode(certificates: Set<X509Certificate>): ByteArray {
-        val now = clock.instant()
-        val trustList = TrustList(
-            validFrom = now,
-            validUntil = now + validity,
-            certificates = certificates.map { TrustedCertificate.fromCert(it) }
+        val validFrom = clock.instant()
+        val validUntil = validFrom + validity
+        val trustList = TrustListV1(
+            validFrom = validFrom,
+            validUntil = validUntil,
+            certificates = certificates.map { TrustedCertificateV1.fromCert(it) }
         )
 
         return Sign1Message().also {
