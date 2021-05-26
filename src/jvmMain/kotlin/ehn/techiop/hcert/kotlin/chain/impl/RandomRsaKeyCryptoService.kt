@@ -16,7 +16,6 @@ import ehn.techiop.hcert.kotlin.crypto.kid
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.ExperimentalSerializationApi
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter
@@ -25,9 +24,7 @@ import org.bouncycastle.util.io.pem.PemWriter
 import java.io.StringWriter
 import java.security.KeyPairGenerator
 import java.security.Security
-import kotlin.time.ExperimentalTime
 
-@ExperimentalSerializationApi
 
 class RandomRsaKeyCryptoService(
     private val keySize: Int = 2048,

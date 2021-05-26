@@ -12,8 +12,6 @@ import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.ExperimentalSerializationApi
-import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
@@ -21,7 +19,6 @@ import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.jupiter.api.Test
 import java.security.cert.X509Certificate
 
-@ExperimentalSerializationApi
 
 class TrustListTest {
 

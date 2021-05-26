@@ -8,17 +8,13 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils.toTrustedCertificate
 import ehn.techiop.hcert.kotlin.chain.impl.CwtHeaderKeys
 import kotlinx.datetime.Clock
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
 import java.security.MessageDigest
 import java.security.cert.X509Certificate
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
-import kotlin.time.toDuration
 
-@ExperimentalSerializationApi
 
 class TrustListV2EncodeService @OptIn(ExperimentalTime::class) constructor(
     private val signingService: CryptoService,

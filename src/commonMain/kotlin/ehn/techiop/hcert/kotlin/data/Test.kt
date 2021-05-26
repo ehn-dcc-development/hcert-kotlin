@@ -2,12 +2,11 @@ package ehn.techiop.hcert.kotlin.data
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.serializers.InstantIso8601Serializer
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@ExperimentalSerializationApi
+
 data class Test constructor(
     @SerialName("tg")
     val target: ValueSetEntryAdapter,

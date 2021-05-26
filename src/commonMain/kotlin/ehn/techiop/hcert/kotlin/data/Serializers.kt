@@ -1,8 +1,5 @@
 package ehn.techiop.hcert.kotlin.data
 
-import kotlinx.datetime.*
-import kotlinx.datetime.Instant.Companion
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.encoding.Decoder
@@ -21,7 +18,7 @@ object LocalDateSerializer : KSerializer<LocalDate> {
 }*/
 
 /*
-@ExperimentalSerializationApi
+
 @Serializer(forClass = Instant::class)
 object InstantLongSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {
@@ -33,7 +30,7 @@ object InstantLongSerializer : KSerializer<Instant> {
     }
 }*/
 
-/*@ExperimentalSerializationApi
+/*
 @Serializer(forClass = Instant::class)
 object InstantStringSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {
@@ -44,7 +41,6 @@ object InstantStringSerializer : KSerializer<Instant> {
         encoder.encodeLong(value.epochSeconds)
     }
 }*/
-
 
 
 /*
@@ -65,7 +61,7 @@ object X509CertificateSerializer : KSerializer<X509Certificate> {
 
 */
 
-@ExperimentalSerializationApi
+
 @Serializer(forClass = ValueSetEntryAdapter::class)
 object ValueSetEntryAdapterSerializer : KSerializer<ValueSetEntryAdapter> {
     override fun deserialize(decoder: Decoder): ValueSetEntryAdapter {

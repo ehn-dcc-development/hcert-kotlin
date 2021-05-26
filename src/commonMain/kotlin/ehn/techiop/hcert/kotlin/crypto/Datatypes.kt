@@ -3,10 +3,7 @@ package ehn.techiop.hcert.kotlin.crypto
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
 import kotlinx.datetime.Instant
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlin.time.ExperimentalTime
 
-@ExperimentalSerializationApi
 
 interface Certificate<T> {
 

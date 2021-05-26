@@ -5,11 +5,7 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import kotlinx.datetime.Clock
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlin.time.ExperimentalTime
 
-
-@ExperimentalSerializationApi
 
 class TrustListCertificateRepository(
     trustListSignature: ByteArray,

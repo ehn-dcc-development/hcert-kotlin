@@ -9,15 +9,12 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.impl.CwtHeaderKeys
 import kotlinx.datetime.Clock
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import java.security.MessageDigest
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
-
-@ExperimentalSerializationApi
 
 actual class TrustListDecodeService actual constructor(
     private val repository: CertificateRepository,

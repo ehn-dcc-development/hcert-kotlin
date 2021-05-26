@@ -1,15 +1,11 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import ehn.techiop.hcert.kotlin.crypto.Certificate
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.cbor.ByteString
-import kotlin.time.ExperimentalTime
 
-
-@ExperimentalSerializationApi
 
 @Serializable
 data class TrustedCertificateV2(
@@ -58,7 +54,5 @@ data class TrustedCertificateV2(
     }
 }
 
-
-@ExperimentalSerializationApi
 
 expect fun TrustedCertificateV2.decodeCertificate(): Certificate<*>
