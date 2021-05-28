@@ -81,6 +81,7 @@ tasks.withType<Test> {
 
 configure<com.github.eirnym.js2p.JsonSchemaExtension> {
     targetPackage = "ehn.techiop.hcert.data"
+    includeAdditionalProperties = false
     includeGeneratedAnnotation = false
     serializable = true
     useTitleAsClassname = true

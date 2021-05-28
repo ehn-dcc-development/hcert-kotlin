@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import ehn.techiop.hcert.data.Eudcc
 import ehn.techiop.hcert.kotlin.chain.CborService
@@ -19,6 +20,7 @@ open class DefaultCborService : CborService {
         verificationResult.cborDecoded = false
         try {
             return CBORMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .readValue(input, Eudcc::class.java)
                 .also { result ->
                     verificationResult.cborDecoded = true

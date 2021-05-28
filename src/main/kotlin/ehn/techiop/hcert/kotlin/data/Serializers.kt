@@ -27,7 +27,12 @@ object LocalDateSerializer : KSerializer<LocalDate> {
 @Serializer(forClass = Instant::class)
 object InstantStringSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {
-        return DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(decoder.decodeString(), Instant::from)
+        val string = decoder.decodeString()
+        try {
+            return DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(string, Instant::from)
+        } catch (e: Exception) {
+            return Instant.parse(if (string.contains('Z')) string else string + 'Z')
+        }
     }
 
     override fun serialize(encoder: Encoder, value: Instant) {

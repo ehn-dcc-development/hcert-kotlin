@@ -20,5 +20,5 @@ data class TestContext(
     @Serializable(with = InstantStringSerializer::class)
     val validationClock: Instant?,
     @SerialName("DESCRIPTION")
-    val description: String,
+    val description: String? = null,
 )

@@ -11,41 +11,61 @@ class DecisionService(private val clock: Clock = Clock.systemUTC()) {
 
     fun decide(verificationResult: VerificationResult): VerificationDecision {
         if (!verificationResult.coseVerified)
-            return VerificationDecision.FAIL
+            return VerificationDecision.FAIL.also {
+                println("!verificationResult.coseVerified")
+            }
 
         if (!verificationResult.base45Decoded)
-            return VerificationDecision.FAIL
+            return VerificationDecision.FAIL.also {
+                println("!verificationResult.base45Decoded")
+            }
 
         if (!verificationResult.cwtDecoded)
-            return VerificationDecision.FAIL
+            return VerificationDecision.FAIL.also {
+                println("!verificationResult.cwtDecoded")
+            }
 
         if (!verificationResult.cborDecoded)
-            return VerificationDecision.FAIL
+            return VerificationDecision.FAIL.also {
+                println("!verificationResult.cborDecoded")
+            }
 
         if (verificationResult.contextIdentifier == null)
-            return VerificationDecision.FAIL
+            return VerificationDecision.FAIL.also {
+                println("verificationResult.contextIdentifier == null")
+            }
 
         verificationResult.issuedAt?.let { issuedAt ->
             verificationResult.certificateValidFrom?.let { certValidFrom ->
                 if (issuedAt.isBefore(certValidFrom))
-                    return VerificationDecision.FAIL
+                    return VerificationDecision.FAIL.also {
+                        println("issuedAt.isBefore(certValidFrom)")
+                    }
             }
             if (issuedAt.isAfter(clock.instant()))
-                return VerificationDecision.FAIL
+                return VerificationDecision.FAIL.also {
+                    println("issuedAt.isAfter(clock.instant())")
+                }
         }
 
         verificationResult.expirationTime?.let { expirationTime ->
             verificationResult.certificateValidUntil?.let { certValidUntil ->
                 if (expirationTime.isAfter(certValidUntil))
-                    return VerificationDecision.FAIL
+                    return VerificationDecision.FAIL.also {
+                        println("expirationTime.isAfter(certValidUntil)")
+                    }
             }
             if (expirationTime.isBefore(clock.instant()))
-                return VerificationDecision.FAIL
+                return VerificationDecision.FAIL.also {
+                    println("expirationTime.isBefore(clock.instant())")
+                }
         }
 
         for (content in verificationResult.content) {
             if (!verificationResult.certificateValidContent.contains(content))
-                return VerificationDecision.FAIL
+                return VerificationDecision.FAIL.also {
+                    println("!verificationResult.certificateValidContent.contains(content)")
+                }
         }
 
         return VerificationDecision.GOOD

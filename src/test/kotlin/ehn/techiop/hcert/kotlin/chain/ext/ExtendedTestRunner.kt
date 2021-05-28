@@ -28,12 +28,13 @@ class ExtendedTestRunner {
     fun verificationLoader(file: File) {
         println("Loading $file")
         val text = file.bufferedReader().readText()
-        val content = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(text)
+        val content = Json { ignoreUnknownKeys = true; coerceInputValues = true }.decodeFromString<TestCase>(text)
         verification(file.path, content)
     }
 
     fun verification(filename: String, case: TestCase) {
-        println("Executing verification test case \"${filename}\": \"${case.context.description}\"")
+        val description = case.context.description ?: "<NO DESCRIPTION>"
+        println("Executing verification test case \"${filename}\": \"$description\"")
         val clock = case.context.validationClock?.let { Clock.fixed(it, ZoneOffset.UTC) } ?: Clock.systemUTC()
         val decisionService = DecisionService(clock)
         if (case.context.certificate == null) throw IllegalArgumentException("certificate")
@@ -55,6 +56,8 @@ class ExtendedTestRunner {
 
         val chainResult = decodingChain.decodeExtended(qrCodeContent, verificationResult)
         val decision = decisionService.decide(verificationResult)
+        println(verificationResult)
+        println(decision)
 
         case.expectedResult.qrDecode?.let {
             if (it) assertThat(qrCodeContent, equalTo(case.base45WithPrefix))
@@ -112,19 +115,15 @@ class ExtendedTestRunner {
         @JvmStatic
         @Suppress("unused")
         fun verificationProvider(): List<Arguments> {
-            // import from dgc-testdata with
-            // find . -name "*.json" -exec cp --parents {} ~/hcert-kotlin/src/test/resources/dgc-testdata \;
             return File("src/test/resources/dgc-testdata").walkTopDown()
                 .filter { it.name.endsWith(".json") }.toList()
-                .filterNot { it.path.contains("/NL/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/107
-                .filterNot { it.path.contains("/FR/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/128
-                .filterNot { it.path.contains("/CY/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/105
-                .filterNot { it.path.contains("/DE/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/119
-                .filterNot { it.path.contains("/ES/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/32
-                .filterNot { it.path.contains("/IS/") } //TODO DateTime Parsing
-                .filterNot { it.path.contains("/PL/") } //TODO Expirationcheck
-                .filterNot { it.path.contains("/SE/") } //TODO Cose Tags
-                .filterNot { it.path.contains("/SI/") } //TODO Cose Tags
+                .filterNot { it.path.contains("/CY/") } // com.google.zxing.ChecksumException
+                .filterNot { it.path.contains("/CZ/") } // Version not an int
+                .filterNot { it.path.contains("/DE/") } // Issued At not right
+                .filterNot { it.path.contains("test+recovery") } // Certificate missing OID
+                .filterNot { it.path.contains("recovery+vaccination") } // Certificate missing OID
+                .filterNot { it.path.contains("test+vaccination") } // Certificate missing OID
+                .filterNot { it.path.contains("+wrong") } // Certificate missing OID
                 .sorted()
                 .map { Arguments.of(it) }
         }
