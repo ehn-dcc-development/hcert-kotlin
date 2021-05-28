@@ -13,6 +13,8 @@ All services are implemented according to the [Specification 1.0.5](https://gith
 
 The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, Version 1.2.1, from 2021-05-27.
 
+The test resources are imported as a git submodule from <https://github.com/eu-digital-green-certificates/dgc-testdata/> into `src/test/resources/dgc-testdata`. Please clone this repository with `git clone --recursive` or run `git submodule init && git submodule update` afterwards.
+
 ## Usage
 
 `ehn.techiop.hcert.kotlin.chain.Chain` is the main class for encoding and decoding HCERT data. For encoding, pass an instance of a `Eudcc` (class generated from the JSON schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
@@ -103,6 +105,7 @@ To publish this package to GitHub, create a personal access token (read <https:/
 
 Version 0.4.0:
  - Update ehn-dgc-schema to 1.2.1
+ - Include dgc-testdata as a git submodule
 
 Version 0.3.1:
  - Implement a TrustList V2, with details is `hcert-service-kotlin`

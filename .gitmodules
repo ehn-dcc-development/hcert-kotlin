@@ -1,0 +1,3 @@
+[submodule "src/test/resources/dgc-testdata"]
+	path = src/test/resources/dgc-testdata
+	url = git@github.com:eu-digital-green-certificates/dgc-testdata.git
