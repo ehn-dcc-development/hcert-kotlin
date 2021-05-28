@@ -10,10 +10,10 @@ data class Person(
     val familyName: String? = null,
 
     @SerialName("fnt")
-    val familyNameTransliterated: String? = null,
+    val familyNameTransliterated: String,
 
     @SerialName("gn")
-    val givenName: String,
+    val givenName: String? = null,
 
     @SerialName("gnt")
     val givenNameTransliterated: String? = null,
@@ -30,7 +30,7 @@ data class Person(
         @JvmStatic
         fun fromEuSchema(it: PersonName) = Person(
             familyName = it.fn,
-            familyNameTransliterated = it.fnt,
+            familyNameTransliterated = it.fnt!!,
             givenName = it.gn,
             givenNameTransliterated = it.gnt,
         )
