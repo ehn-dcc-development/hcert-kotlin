@@ -25,17 +25,6 @@ object LocalDateSerializer : KSerializer<LocalDate> {
 }
 
 @Serializer(forClass = Instant::class)
-object InstantLongSerializer : KSerializer<Instant> {
-    override fun deserialize(decoder: Decoder): Instant {
-        return Instant.ofEpochSecond(decoder.decodeLong())
-    }
-
-    override fun serialize(encoder: Encoder, value: Instant) {
-        encoder.encodeLong(value.epochSecond)
-    }
-}
-
-@Serializer(forClass = Instant::class)
 object InstantStringSerializer : KSerializer<Instant> {
     override fun deserialize(decoder: Decoder): Instant {
         return DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(decoder.decodeString(), Instant::from)

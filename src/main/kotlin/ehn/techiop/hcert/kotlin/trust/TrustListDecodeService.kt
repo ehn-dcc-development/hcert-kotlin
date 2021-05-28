@@ -18,8 +18,8 @@ class TrustListDecodeService(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    fun decode(input: ByteArray, optionalContent: ByteArray? = null): List<TrustedCertificate> {
-        val sign1Message = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
+    fun decode(signature: ByteArray, content: ByteArray? = null): List<TrustedCertificate> {
+        val sign1Message = Sign1Message.DecodeFromBytes(signature, MessageTag.Sign1) as Sign1Message
         val kid = sign1Message.protectedAttributes[HeaderKeys.KID.AsCBOR()].GetByteString()
             ?: throw IllegalArgumentException("kid")
 
@@ -29,18 +29,10 @@ class TrustListDecodeService(
         val version = sign1Message.protectedAttributes[CBORObject.FromObject(42)].AsInt32()
         val payload = sign1Message.GetContent()
         if (version == 1) {
-            val trustList = Cbor.decodeFromByteArray<TrustListV1>(payload)
-
-            if (trustList.validFrom.isAfter(clock.instant().plusSeconds(300)))
-                throw IllegalArgumentException("ValidFrom")
-
-            if (trustList.validUntil.isBefore(clock.instant().minusSeconds(300)))
-                throw IllegalArgumentException("ValidUntil")
-
-            return trustList.certificates
-        } else if (version == 2 && optionalContent != null) {
+            throw IllegalArgumentException("Version")
+        } else if (version == 2 && content != null) {
             val cwtMap = CBORObject.DecodeFromBytes(payload)
-            val actualHash = MessageDigest.getInstance("SHA256").digest(optionalContent)
+            val actualHash = MessageDigest.getInstance("SHA256").digest(content)
 
             val expectedHash = cwtMap[CwtHeaderKeys.SUBJECT.AsCBOR()].GetByteString()
             if (!(expectedHash contentEquals actualHash))
@@ -54,7 +46,7 @@ class TrustListDecodeService(
             if (validUntil.isBefore(clock.instant().minusSeconds(300)))
                 throw IllegalArgumentException("ValidUntil")
 
-            return Cbor.decodeFromByteArray<TrustListV2>(optionalContent).certificates
+            return Cbor.decodeFromByteArray<TrustListV2>(content).certificates
         } else {
             throw IllegalArgumentException("version")
         }

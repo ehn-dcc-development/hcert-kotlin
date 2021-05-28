@@ -19,16 +19,6 @@ import java.time.ZoneOffset
 class TrustListTest {
 
     @Test
-    fun v1serverClientExchange() {
-        val clock = Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)
-        val cryptoService = RandomEcKeyCryptoService(clock = clock)
-        val certificate = cryptoService.getCertificate()
-        val trustListEncoded = TrustListV1EncodeService(cryptoService, clock = clock).encode(randomCertificates(clock))
-
-        verifyClientOperations(certificate, clock, trustListEncoded)
-    }
-
-    @Test
     fun v2serverClientExchange() {
         val clock = Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)
         val cryptoService = RandomEcKeyCryptoService(clock = clock)
