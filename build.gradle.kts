@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform") version "1.5.10"
     kotlin("plugin.serialization") version "1.5.10"
     id("idea")
+    id("com.github.jk1.dependency-license-report") version "1.16"
 }
 
 group = "ehn.techiop.hcert"
@@ -88,8 +89,9 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 //cannot use 0.2.1 due to https://youtrack.jetbrains.com/issue/KT-43237 when also seeking to expose node module
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.1.0")
+                //however, we only releasy bundles and can monkey-patch it (see webpack.config.d/patch.js)
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.2.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
             }
         }

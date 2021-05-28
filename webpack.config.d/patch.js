@@ -21,15 +21,16 @@ config.plugins.push(
         Buffer: ['buffer', 'Buffer'],
     }))
 config.performance = {
-    maxEntrypointSize: 512000*4,
-    maxAssetSize: 512000*4
+    maxEntrypointSize: 512000*5,
+    maxAssetSize: 512000*5
 }
+
 //workaround for https://youtrack.jetbrains.com/issue/KT-43237
-//const resolve = config.resolve
-//const alias = resolve.alias = resolve.alias || {}
-//const fallback = resolve.fallback = resolve.fallback || {}
-//function addAlias (moduleName) {
-//    alias[moduleName + '-jsLegacy'] = moduleName + '-js-legacy'
-//}
-//addAlias('kotlinx-serialization-kotlinx-serialization-core')
-//addAlias('kotlinx-serialization-kotlinx-serialization-json')
+const resolve = config.resolve
+const alias = resolve.alias = resolve.alias || {}
+const fallback = resolve.fallback = resolve.fallback || {}
+function addAlias (moduleName) {
+    alias[moduleName + '-jsLegacy'] = moduleName + '-js-legacy'
+}
+addAlias('kotlinx-serialization-kotlinx-serialization-core')
+addAlias('kotlinx-serialization-kotlinx-serialization-json')
