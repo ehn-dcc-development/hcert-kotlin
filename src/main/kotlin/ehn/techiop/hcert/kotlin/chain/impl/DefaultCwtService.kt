@@ -51,8 +51,8 @@ open class DefaultCwtService(
             }
 
             map[CwtHeaderKeys.HCERT.AsCBOR()]?.let { hcert -> // SPEC
-                hcert[keyEuDgcV1]?.let { eudgcV1 ->
-                    return getContents(eudgcV1).also {
+                hcert[keyEuDgcV1]?.let { eudccV1 ->
+                    return getContents(eudccV1).also {
                         verificationResult.cwtDecoded = true
                     }
                 }

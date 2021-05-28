@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.data.Eudcc
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
@@ -12,7 +12,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes
  *
- * @see [Eudgc]
+ * @see [Eudcc]
  */
 class Chain(
     private val cborService: CborService,
@@ -34,7 +34,7 @@ class Chain(
      *
      * The result ([ChainResult]) will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
      */
-    fun encode(input: Eudgc): ChainResult {
+    fun encode(input: Eudcc): ChainResult {
         val cbor = cborService.encode(input)
         val cwt = cwtService.encode(cbor)
         val cose = coseService.encode(cwt)
@@ -52,13 +52,13 @@ class Chain(
      * - [CoseService]
      * - [CwtService]
      * - [CborService]
-     * The result ([Eudgc]) will contain the parsed data.
+     * The result ([Eudcc]) will contain the parsed data.
      *
      * Beware that [verificationResult] will be filled with detailed information about the decoding,
      * which shall be passed to an instance of [DecisionService] to decide on a final verdict.
      */
-    fun decode(input: String, verificationResult: VerificationResult): Eudgc {
-        return decodeExtended(input, verificationResult).eudgc
+    fun decode(input: String, verificationResult: VerificationResult): Eudcc {
+        return decodeExtended(input, verificationResult).eudcc
     }
 
     /**
@@ -80,8 +80,8 @@ class Chain(
         val cose = compressorService.decode(compressed, verificationResult)
         val cwt = coseService.decode(cose, verificationResult)
         val cbor = cwtService.decode(cwt, verificationResult)
-        val eudgc = cborService.decode(cbor, verificationResult)
-        return ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded)
+        val eudcc = cborService.decode(cbor, verificationResult)
+        return ChainDecodeResult(eudcc, cbor, cwt, cose, compressed, encoded)
     }
 
     companion object {

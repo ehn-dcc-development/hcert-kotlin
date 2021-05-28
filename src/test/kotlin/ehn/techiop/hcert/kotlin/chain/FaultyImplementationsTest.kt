@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.data.Eudcc
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCborService
 import ehn.techiop.hcert.kotlin.chain.faults.FaultyCompressorService
@@ -110,7 +110,7 @@ class FaultyImplementationsTest {
         )
 
     private val input = SampleData.vaccination
-    private val decodedFromInput = ObjectMapper().readValue(input, Eudgc::class.java)
+    private val decodedFromInput = ObjectMapper().readValue(input, Eudcc::class.java)
 
     @Test
     fun correct() {
@@ -228,7 +228,7 @@ class FaultyImplementationsTest {
 
     private fun assertVerification(
         chainOutput: String,
-        input: Eudgc,
+        input: Eudcc,
         expectDataToMatch: Boolean,
         expectedResult: VerificationResult,
     ) {

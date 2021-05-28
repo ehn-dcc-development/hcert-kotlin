@@ -2,7 +2,7 @@ package ehn.techiop.hcert.kotlin.data
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
-import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.data.Eudcc
 import ehn.techiop.hcert.kotlin.chain.SampleData
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
@@ -24,7 +24,7 @@ class DataTest {
     @MethodSource("stringProvider")
     fun decodeEncodeTest(input: String) {
         val dataOurs = Json.decodeFromString<GreenCertificate>(input)
-        val dataTheirs = ObjectMapper().readValue(input, Eudgc::class.java)
+        val dataTheirs = ObjectMapper().readValue(input, Eudcc::class.java)
         assertThat(dataOurs, equalTo(GreenCertificate.fromEuSchema(dataTheirs)))
         assertThat(dataOurs.toEuSchema(), equalTo(dataTheirs))
 

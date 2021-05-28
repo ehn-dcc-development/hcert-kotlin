@@ -1,19 +1,21 @@
 # Electronic Health Certificate Kotlin Library
 
-Implements a very basic validation and creation chain of electronic health certificates:
+Implements a very basic validation and creation chain for electronic health certificates:
  - Encode in CBOR
+ - Wrap in a CWT structure
  - Sign and embed in COSE
  - Compress with ZLib
- - Prepend with context identifier
+ - Encode in Base45
+ - Prepend with Context Identifier
  - Encode as QR Code
 
 All services are implemented according to the [Specification 1.0.5](https://github.com/ehn-digital-green-development/hcert-spec), Version 1.0.5 from 2021-04-18.
 
-The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, Version 1.0.0, from 2021-04-30.
+The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, Version 1.2.1, from 2021-05-27.
 
 ## Usage
 
-`ehn.techiop.hcert.kotlin.chain.Chain` is the main class for encoding and decoding HCERT data. For encoding, pass an instance of a `Eudgc` (class generated from the JSON schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
+`ehn.techiop.hcert.kotlin.chain.Chain` is the main class for encoding and decoding HCERT data. For encoding, pass an instance of a `Eudcc` (class generated from the JSON schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
 
 The usage of interfaces for all services (CBOR, COSE, ZLib, Context) in the chain may seem over-engineered at first, but it allows us to create wrongly encoded results, by passing faulty implementations of the service. Those services reside in the namespace `ehn.techiop.hcert.kotlin.chain.faults` and should, obviously, not be used for production code.
 
@@ -31,7 +33,7 @@ Chain chain = Chain.buildCreationChain(cryptoService);
 
 // Load the input data from somewhere ...
 String json = "{ \"sub\": { \"gn\": \"Gabriele\", ...";
-String input = new ObjectMapper().readValue(jsonInput, Eudgc.class);
+String input = new ObjectMapper().readValue(jsonInput, Eudcc.class);
 
 // Apply all encoding steps from the Chain: CBOR, COSE, ZLIB, Base45, Context
 ChainResult result = chain.encode(input);
@@ -54,7 +56,7 @@ Chain chain = Chain.buildVerificationChain();
 String input = "HC1:NCFC:MVIMAP2SQ20MU...";
 
 VerificationResult verificationResult = new VerificationResult();
-Eudgc dgc = chain.decode(input, verificationResult);
+Eudcc dgc = chain.decode(input, verificationResult);
 VerificationDecision decision = new DecisionService().decide(verificationResult);
 // is either VerificationDecision.GOOD or VerificationDecision.FAIL
 
@@ -68,7 +70,7 @@ The JSON schema is copied to `src/main/resources/json`. From there, the Gradle p
 
 Sample data objects are provided in `SampleData`, with special thanks to Christian Baumann.
 
-Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for data deserialized from an HCERT structure. It can be converted using `GreenCertificate.fromEuSchema(eudgcObject)`. Those classes can also be de-/serialized with [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), i.e. `Cbor.encodeToByteArray()` or `Cbor.decodeFromByteArray<GreenCertificate>()`.
+Classes in `ehn.techiop.hcert.kotlin.data` provide more meaningful names for data deserialized from an HCERT structure. It can be converted using `GreenCertificate.fromEuSchema(eudccObject)`. Those classes can also be de-/serialized with [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), i.e. `Cbor.encodeToByteArray()` or `Cbor.decodeFromByteArray<GreenCertificate>()`.
 
 These classes also use `ValueSetEntry` objects, that are loaded from the valuesets of the dgc-schema. These provide additional information, e.g. for the key "EU/1/20/1528" to map to the vaccine "Comirnaty".
 
@@ -98,6 +100,9 @@ Implementers may load values for constructor parameters from a configuration fil
 To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`
 
 ## Changelog
+
+Version 0.4.0:
+ - Update ehn-dgc-schema to 1.2.1
 
 Version 0.3.1:
  - Implement a TrustList V2, with details is `hcert-service-kotlin`

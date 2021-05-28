@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.data.Eudcc
 import ehn.techiop.hcert.kotlin.chain.Chain
 import ehn.techiop.hcert.kotlin.chain.DecisionService
 import ehn.techiop.hcert.kotlin.chain.VerificationDecision
@@ -82,14 +82,14 @@ class ExtendedTestRunner {
         case.expectedResult.cborDecode?.let {
             assertThat(verificationResult.cborDecoded, equalTo(it))
             if (it) {
-                assertThat(chainResult.eudgc.removeEmptyArrays(), equalTo(case.eudgc?.toEuSchema()))
+                assertThat(chainResult.eudcc.removeEmptyArrays(), equalTo(case.eudcc?.toEuSchema()))
                 // doesn't make sense to compare exact CBOR hex encoding
                 //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
             }
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.json?.let {
-            assertThat(chainResult.eudgc.removeEmptyArrays(), equalTo(case.eudgc?.toEuSchema()))
+            assertThat(chainResult.eudcc.removeEmptyArrays(), equalTo(case.eudcc?.toEuSchema()))
             if (!it) assertThat(decision, equalTo(VerificationDecision.FAIL))
         }
         case.expectedResult.schemaValidation?.let {
@@ -133,7 +133,7 @@ class ExtendedTestRunner {
 
 }
 
-private fun Eudgc.removeEmptyArrays() = Eudgc().also {
+private fun Eudcc.removeEmptyArrays() = Eudcc().also {
     it.ver = this.ver
     it.dob = this.dob
     it.nam = this.nam

@@ -12,7 +12,7 @@ data class Test(
     val target: ValueSetEntryAdapter,
 
     @SerialName("tt")
-    val type: String,
+    val type: ValueSetEntryAdapter,
 
     @SerialName("nm")
     val nameNaa: String? = null,
@@ -23,10 +23,6 @@ data class Test(
     @SerialName("sc")
     @Serializable(with = InstantStringSerializer::class)
     val dateTimeSample: Instant,
-
-    @SerialName("dr")
-    @Serializable(with = InstantStringSerializer::class)
-    val dateTimeResult: Instant? = null,
 
     @SerialName("tr")
     val resultPositive: ValueSetEntryAdapter,
@@ -45,11 +41,10 @@ data class Test(
 ) {
     fun toEuSchema() = TestEntry().apply {
         tg = target.key
-        tt = type
+        tt = type.key
         nm = nameNaa
         ma = nameRat?.key
         sc = Date(dateTimeSample.toEpochMilli())
-        dr = dateTimeResult?.let { Date(it.toEpochMilli()) }
         tr = resultPositive.key
         tc = testFacility
         co = country
@@ -61,11 +56,10 @@ data class Test(
         @JvmStatic
         fun fromEuSchema(it: TestEntry) = Test(
             target = ValueSetHolder.INSTANCE.find("disease-agent-targeted", it.tg),
-            type = it.tt,
+            type = ValueSetHolder.INSTANCE.find("covid-19-lab-test-type", it.tt),
             nameNaa = it.nm,
             nameRat = it.ma?.let { ValueSetHolder.INSTANCE.find("covid-19-lab-test-manufacturer-and-name", it) },
             dateTimeSample = it.sc.toInstant(),
-            dateTimeResult = it.dr?.toInstant(),
             resultPositive = ValueSetHolder.INSTANCE.find("covid-19-lab-result", it.tr),
             testFacility = it.tc,
             country = it.co,

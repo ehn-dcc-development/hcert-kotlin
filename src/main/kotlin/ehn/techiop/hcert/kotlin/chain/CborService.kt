@@ -1,14 +1,14 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.data.Eudcc
 
 /**
  * Encodes/decodes input as a CBOR structure
  */
 interface CborService {
 
-    fun encode(input: Eudgc): ByteArray
+    fun encode(input: Eudcc): ByteArray
 
-    fun decode(input: ByteArray, verificationResult: VerificationResult): Eudgc
+    fun decode(input: ByteArray, verificationResult: VerificationResult): Eudcc
 
 }

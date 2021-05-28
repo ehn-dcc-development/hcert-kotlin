@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TestCase(
     @SerialName("JSON")
-    val eudgc: GreenCertificate? = null,
+    val eudcc: GreenCertificate? = null,
     @SerialName("CBOR")
     val cborHex: String? = null,
     @SerialName("COSE")

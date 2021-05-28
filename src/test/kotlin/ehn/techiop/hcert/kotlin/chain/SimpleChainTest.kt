@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.data.Eudcc
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
@@ -28,7 +28,7 @@ class SimpleChainTest {
     }
 
     private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: VerificationDecision) {
-        val input = ObjectMapper().readValue(jsonInput, Eudgc::class.java)
+        val input = ObjectMapper().readValue(jsonInput, Eudcc::class.java)
         val verificationResult = VerificationResult()
 
         val encodingChain = Chain.buildCreationChain(cryptoService)

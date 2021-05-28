@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.data
 
-import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.data.Eudcc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
@@ -15,8 +15,7 @@ data class GreenCertificate(
     val subject: Person,
 
     @SerialName("dob")
-    @Serializable(with = LocalDateSerializer::class)
-    val dateOfBirth: LocalDate,
+    val dateOfBirthString: String,
 
     @SerialName("v")
     val vaccinations: List<Vaccination?>? = null,
@@ -28,10 +27,38 @@ data class GreenCertificate(
     val tests: List<Test?>? = null,
 ) {
 
-    fun toEuSchema() = Eudgc().apply {
+    constructor(
+        schemaVersion: String,
+        subject: Person,
+        dateOfBirth: LocalDate,
+        vaccinations: List<Vaccination?>?,
+        recoveryStatements: List<RecoveryStatement?>?,
+        tests: List<Test?>?
+    ) : this(
+        schemaVersion, subject,
+        dateOfBirth.format(DateTimeFormatter.ISO_LOCAL_DATE),
+        vaccinations,
+        recoveryStatements,
+        tests
+    )
+
+    /**
+     * For [dateOfBirthString] ("dob"), month and day are optional in eu-dcc-schema 1.2.1,
+     * so we may not be able to get a valid [LocalDate] from it.
+     */
+    @Serializable(with = LocalDateSerializer::class)
+    val dateOfBirth: LocalDate?
+        get() = try {
+            LocalDate.parse(dateOfBirthString, DateTimeFormatter.ISO_LOCAL_DATE)
+        } catch (e: Throwable) {
+            null
+        }
+
+
+    fun toEuSchema() = Eudcc().apply {
         ver = schemaVersion
         nam = subject.toEuSchema()
-        dob = dateOfBirth.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        dob = dateOfBirthString
         v = vaccinations?.filterNotNull()?.map { it.toEuSchema() }?.toList()?.ifEmpty { null }
         r = recoveryStatements?.filterNotNull()?.map { it.toEuSchema() }?.toList()?.ifEmpty { null }
         t = tests?.filterNotNull()?.map { it.toEuSchema() }?.toList()?.ifEmpty { null }
@@ -40,7 +67,7 @@ data class GreenCertificate(
     companion object {
 
         @JvmStatic
-        fun fromEuSchema(input: Eudgc): GreenCertificate? {
+        fun fromEuSchema(input: Eudcc): GreenCertificate? {
             if (input.nam == null || input.ver == null || input.dob == null) {
                 return null
             }
@@ -48,7 +75,7 @@ data class GreenCertificate(
                 GreenCertificate(
                     schemaVersion = input.ver,
                     subject = Person.fromEuSchema(input.nam),
-                    dateOfBirth = LocalDate.parse(input.dob, DateTimeFormatter.ISO_LOCAL_DATE),
+                    dateOfBirthString = input.dob,
                     vaccinations = input.v?.let { it.map { v -> Vaccination.fromEuSchema(v) } },
                     recoveryStatements = input.r?.let { it.map { r -> RecoveryStatement.fromEuSchema(r) } },
                     tests = input.t?.let { it.map { t -> Test.fromEuSchema(t) } },

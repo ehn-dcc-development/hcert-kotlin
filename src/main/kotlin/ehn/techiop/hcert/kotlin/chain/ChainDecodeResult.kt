@@ -1,9 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.data.Eudcc
 
 data class ChainDecodeResult(
-    val eudgc: Eudgc,
+    val eudcc: Eudcc,
     val step0Cbor: ByteArray,
     val step1Cwt: ByteArray,
     val step2Cose: ByteArray,
@@ -16,7 +16,7 @@ data class ChainDecodeResult(
 
         other as ChainDecodeResult
 
-        if (eudgc != other.eudgc) return false
+        if (eudcc != other.eudcc) return false
         if (!step0Cbor.contentEquals(other.step0Cbor)) return false
         if (!step1Cwt.contentEquals(other.step1Cwt)) return false
         if (!step2Cose.contentEquals(other.step2Cose)) return false
@@ -27,7 +27,7 @@ data class ChainDecodeResult(
     }
 
     override fun hashCode(): Int {
-        var result = eudgc.hashCode()
+        var result = eudcc.hashCode()
         result = 31 * result + step0Cbor.contentHashCode()
         result = 31 * result + step1Cwt.contentHashCode()
         result = 31 * result + step2Cose.contentHashCode()

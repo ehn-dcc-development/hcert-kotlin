@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
-import ehn.techiop.hcert.data.Eudgc
+import ehn.techiop.hcert.data.Eudcc
 import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.trust.ContentType
@@ -11,15 +11,15 @@ import ehn.techiop.hcert.kotlin.trust.ContentType
  */
 open class DefaultCborService : CborService {
 
-    override fun encode(input: Eudgc): ByteArray {
+    override fun encode(input: Eudcc): ByteArray {
         return CBORMapper().writeValueAsBytes(input)
     }
 
-    override fun decode(input: ByteArray, verificationResult: VerificationResult): Eudgc {
+    override fun decode(input: ByteArray, verificationResult: VerificationResult): Eudcc {
         verificationResult.cborDecoded = false
         try {
             return CBORMapper()
-                .readValue(input, Eudgc::class.java)
+                .readValue(input, Eudcc::class.java)
                 .also { result ->
                     verificationResult.cborDecoded = true
                     if (result.t?.filterNotNull()?.isNotEmpty() == true)
@@ -30,7 +30,7 @@ open class DefaultCborService : CborService {
                         verificationResult.content.add(ContentType.RECOVERY)
                 }
         } catch (e: Throwable) {
-            return Eudgc()
+            return Eudcc()
         }
     }
 
