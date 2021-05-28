@@ -3,7 +3,6 @@ package ehn.techiop.hcert.kotlin.chain.common
 import kotlin.math.pow
 import kotlin.math.roundToLong
 
-@ExperimentalUnsignedTypes
 object Base45Encoder {
 
     // https://datatracker.ietf.org/doc/draft-faltstrom-base45/?include_text=1

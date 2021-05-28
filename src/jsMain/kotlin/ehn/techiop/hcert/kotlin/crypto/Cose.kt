@@ -3,12 +3,23 @@ package ehn.techiop.hcert.kotlin.crypto
 import Asn1js.fromBER
 import Buffer
 import Hash
-import cose.*
+import cose.CosePrivateKey
+import cose.CosePublicKey
+import cose.EcCosePrivateKey
+import cose.EcCosePublicKey
+import cose.RsaCosePublicKey
+import cose.Signer
+import cose.Verifier
+import cose.sign
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
-import ehn.techiop.hcert.kotlin.trust.*
+import ehn.techiop.hcert.kotlin.trust.ContentType
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
+import ehn.techiop.hcert.kotlin.trust.oidRecovery
+import ehn.techiop.hcert.kotlin.trust.oidTest
+import ehn.techiop.hcert.kotlin.trust.oidVaccination
 import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
@@ -16,7 +27,6 @@ import pkijs.src.ExtKeyUsage.ExtKeyUsage
 import pkijs.src.RSAPublicKey.RSAPublicKey
 import pkijs.src.Time.Time
 import kotlin.js.Json
-import kotlin.js.Promise
 
 internal object Cose {
     fun verifySync(signedBitString: ByteArray, pubKey: PubKey<*>): ByteArray {
@@ -72,10 +82,11 @@ class JsEcPrivKey(val da: ByteArray) : EcPrivKey<EcCosePrivateKey> {
     }
 }
 
-/*
- * Primary constructopfillrs is nicely exposed to javascript by default; secondary constructors not without any custom annotations, so we make the pem-parsing constructor the default one
+/**
+ * Primary constructor is nicely exposed to javascript by default;
+ * secondary constructors not without any custom annotations;
+ * so we make the pem-parsing constructor the default one
  */
-//@JsExport
 class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
 
     val encoded: ByteArray = pemEncodedCertificate.lines().joinToString(separator = "").fromBase64()

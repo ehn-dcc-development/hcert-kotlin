@@ -57,7 +57,7 @@ actual open class DefaultCwtService actual constructor(
                     }
                 }
             }
-           throw Throwable("could not decode CWT")
+            throw Throwable("could not decode CWT")
         } catch (e: Throwable) {
             throw e
         }

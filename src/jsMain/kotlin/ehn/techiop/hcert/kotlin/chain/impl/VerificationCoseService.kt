@@ -1,7 +1,13 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.CoseService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.catch
+import ehn.techiop.hcert.kotlin.chain.jsTry
+import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import org.khronos.webgl.Uint8Array
 
@@ -37,9 +43,9 @@ actual class VerificationCoseService actual constructor(private val repository: 
                 return@forEach
             }
 
-             content.toByteArray()
-        }.catch  {
-           throw it
+            content.toByteArray()
+        }.catch {
+            throw it
         }
     }
 }

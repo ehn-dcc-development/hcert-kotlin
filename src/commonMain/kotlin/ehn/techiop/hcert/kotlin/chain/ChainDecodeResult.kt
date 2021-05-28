@@ -2,12 +2,9 @@ package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotlin.js.JsExport
 
-//@JsExport
 @Serializable
 data class ChainDecodeResult(
     val eudgc: GreenCertificate?,

@@ -7,13 +7,11 @@ import kotlinx.serialization.json.Json
 import kotlin.js.JsName
 
 
-//@JsExport
 @Serializable
 data class DecodeExtendedResult(val verificationResult: VerificationResult, val chainDecodeResult: ChainDecodeResult) {
     fun toJson() = Json.encodeToString(this)
 }
 
-//@JsExport
 @Serializable
 data class DecodeResult(val verificationResult: VerificationResult, val greenCertificate: GreenCertificate?) {
     fun toJson() = Json.encodeToString(this)
@@ -22,7 +20,7 @@ data class DecodeResult(val verificationResult: VerificationResult, val greenCer
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes
  *
- * @see [Eudgc]
+ * @see [GreenCertificate]
  */
 class Chain(
     private val cborService: CborService,
@@ -109,7 +107,7 @@ class Chain(
             schemaValidationService.validate(cbor, verificationResult)
             eudgc = cborService.decode(cbor, verificationResult)
         } catch (t: Throwable) {
-
+            // ignore it on purpose,
         }
         return DecodeExtendedResult(verificationResult, ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded))
     }

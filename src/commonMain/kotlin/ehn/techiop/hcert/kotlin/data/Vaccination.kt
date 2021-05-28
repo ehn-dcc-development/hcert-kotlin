@@ -35,33 +35,4 @@ data class Vaccination(
 
     @SerialName("ci")
     val certificateIdentifier: String,
-) {
-    /*fun toEuSchema() = VaccinationEntry().apply {
-        tg = target.key
-        vp = vaccine.key
-        mp = medicinalProduct.key
-        ma = authorizationHolder.key
-        dn = doseNumber
-        sd = doseTotalNumber
-        dt = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
-        co = country
-        `is` = certificateIssuer
-        ci = certificateIdentifier
-    }
-
-    companion object {
-        @JvmStatic
-        fun fromEuSchema(it: VaccinationEntry) = Vaccination(
-            target = ValueSetHolder.INSTANCE.find("disease-agent-targeted", it.tg),
-            vaccine = ValueSetHolder.INSTANCE.find("sct-vaccines-covid-19", it.vp),
-            medicinalProduct = ValueSetHolder.INSTANCE.find("vaccines-covid-19-names", it.mp),
-            authorizationHolder = ValueSetHolder.INSTANCE.find("vaccines-covid-19-auth-holders", it.ma),
-            doseNumber = it.dn,
-            doseTotalNumber = it.sd,
-            date = LocalDate.parse(it.dt, DateTimeFormatter.ISO_LOCAL_DATE),
-            country = it.co,
-            certificateIssuer = it.`is`,
-            certificateIdentifier = it.ci
-        )
-    }*/
-}
+)

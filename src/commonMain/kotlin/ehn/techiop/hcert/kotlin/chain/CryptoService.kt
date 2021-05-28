@@ -6,6 +6,9 @@ import ehn.techiop.hcert.kotlin.crypto.PrivKey
 import ehn.techiop.hcert.kotlin.crypto.PubKey
 
 
+/**
+ * Uses a cryptographic key-pair to sign and verify COSE structures
+ */
 interface CryptoService {
 
     fun getCborHeaders(): List<Pair<CoseHeaderKeys, Any>>

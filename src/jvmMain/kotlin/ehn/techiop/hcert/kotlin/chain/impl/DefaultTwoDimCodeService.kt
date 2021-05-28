@@ -26,8 +26,7 @@ class DefaultTwoDimCodeService(
     private val size: Int,
     private val format: BarcodeFormat = BarcodeFormat.QR_CODE,
     private val marginSize: Int = 2
-) :
-    TwoDimCodeService {
+) : TwoDimCodeService {
 
     private val writer = when (format) {
         BarcodeFormat.QR_CODE -> QRCodeWriter()

@@ -34,11 +34,11 @@ actual class VerificationCoseService actual constructor(private val repository: 
                         }
                     }
                 } catch (e: Throwable) {
-                   throw e
+                    throw e
                 }
             }.GetContent()
         } catch (e: Throwable) {
-           throw e
+            throw e
         }
     }
 

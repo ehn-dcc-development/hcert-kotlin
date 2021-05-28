@@ -11,6 +11,4 @@ expect class DefaultCwtService constructor(
     countryCode: String = "AT",
     validity: Duration = Duration.hours(48),
     clock: Clock = Clock.System,
-) : CwtService {
-
-}
+) : CwtService

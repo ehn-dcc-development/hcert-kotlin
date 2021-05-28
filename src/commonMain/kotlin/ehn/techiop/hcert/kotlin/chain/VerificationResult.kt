@@ -3,10 +3,8 @@ package ehn.techiop.hcert.kotlin.chain
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotlin.js.JsExport
 
 @Serializable
 class VerificationResult {

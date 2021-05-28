@@ -33,6 +33,7 @@ actual class PrefilledCertificateRepository : CertificateRepository {
     ): List<TrustedCertificate> {
         val certList = list.filter { it.kid contentEquals kid }
         if (certList.isEmpty()) throw IllegalArgumentException("kid")
+        // TODO return all trusted certificates
         return listOf(list[0].toTrustedCertificate())
     }
 

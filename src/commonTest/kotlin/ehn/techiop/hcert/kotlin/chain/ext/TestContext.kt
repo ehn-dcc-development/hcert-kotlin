@@ -9,14 +9,18 @@ import kotlinx.serialization.Serializable
 data class TestContext(
     @SerialName("VERSION")
     val version: Int,
+
     @SerialName("SCHEMA")
     val schema: String,
+
     @SerialName("CERTIFICATE")
     //@Serializable(with = X509CertificateSerializer::class)
     val certificate: String?,
+
     @SerialName("VALIDATIONCLOCK")
     //@Serializable(with = InstantStringSerializer::class)
     val validationClock: Instant?,
+
     @SerialName("DESCRIPTION")
     val description: String,
 )

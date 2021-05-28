@@ -8,20 +8,28 @@ import kotlinx.serialization.Serializable
 data class TestCase(
     @SerialName("JSON")
     val eudgc: GreenCertificate? = null,
+
     @SerialName("CBOR")
     val cborHex: String? = null,
+
     @SerialName("COSE")
     val coseHex: String? = null,
+
     @SerialName("COMPRESSED")
     val compressedHex: String? = null,
+
     @SerialName("BASE45")
     val base45: String? = null,
+
     @SerialName("PREFIX")
     val base45WithPrefix: String? = null,
+
     @SerialName("2DCODE")
     val qrCodePng: String? = null,
+
     @SerialName("TESTCTX")
     val context: TestContext,
+
     @SerialName("EXPECTEDRESULTS")
     val expectedResult: TestExpectedResults,
 )

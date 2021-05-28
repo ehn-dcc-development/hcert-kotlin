@@ -1,6 +1,11 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CompressorService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.catch
+import ehn.techiop.hcert.kotlin.chain.jsTry
+import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import org.khronos.webgl.Uint8Array
 
 actual open class DefaultCompressorService actual constructor(private val level: Int) : CompressorService {
@@ -21,7 +26,7 @@ actual open class DefaultCompressorService actual constructor(private val level:
                 verificationResult.zlibDecoded = true
             }
         }.catch {
-           throw it
+            throw it
         }
     }
 

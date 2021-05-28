@@ -5,6 +5,7 @@ import com.upokecenter.cbor.CBORObject
 /**
  * Adapted from [COSE.HeaderKeys] to use CWT specific ones (https://tools.ietf.org/html/rfc8392)
  */
+// TODO Replace with [CwtHeaderKeys]
 sealed class CwtHeaderKeys private constructor(value: Int) {
 
     private val value: CBORObject

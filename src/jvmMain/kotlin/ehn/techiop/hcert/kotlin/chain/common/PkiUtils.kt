@@ -2,13 +2,18 @@ package ehn.techiop.hcert.kotlin.chain.common
 
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import ehn.techiop.hcert.kotlin.trust.KeyType
-import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
+import ehn.techiop.hcert.kotlin.trust.oidRecovery
+import ehn.techiop.hcert.kotlin.trust.oidTest
+import ehn.techiop.hcert.kotlin.trust.oidVaccination
 import kotlinx.datetime.Clock
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.x500.X500Name
-import org.bouncycastle.asn1.x509.*
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage
+import org.bouncycastle.asn1.x509.Extension
+import org.bouncycastle.asn1.x509.KeyPurposeId
+import org.bouncycastle.asn1.x509.KeyUsage
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.cert.X509v3CertificateBuilder
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import java.io.ByteArrayInputStream
@@ -18,18 +23,12 @@ import java.security.PrivateKey
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPrivateKey
-import java.security.interfaces.ECPublicKey
-import java.security.interfaces.RSAPublicKey
 import java.util.Date
 import java.util.Random
 import kotlin.time.Duration
 
 
 object PkiUtils {
-
-    const val oidTest = "1.3.6.1.4.1.0.1847.2021.1.1"
-    const val oidVaccination = "1.3.6.1.4.1.0.1847.2021.1.2"
-    const val oidRecovery = "1.3.6.1.4.1.0.1847.2021.1.3"
 
     fun selfSignCertificate(
         subjectName: X500Name,

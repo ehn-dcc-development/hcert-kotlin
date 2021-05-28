@@ -1,7 +1,13 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CwtService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.catch
+import ehn.techiop.hcert.kotlin.chain.jsTry
+import ehn.techiop.hcert.kotlin.chain.mapToJson
+import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -62,8 +68,8 @@ actual open class DefaultCwtService actual constructor(
                 }
             }
             throw Throwable("could not decode CWT. hcert:$hcert, expiration: $expiration, issuedAt: $issuedAt, issuer: $issuer")
-        }.catch{
-             throw it
+        }.catch {
+            throw it
         }
     }
 

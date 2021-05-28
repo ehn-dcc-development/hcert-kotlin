@@ -3,18 +3,14 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import ehn.techiop.hcert.kotlin.chain.CborService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
-import ehn.techiop.hcert.kotlin.data.Person
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import kotlinx.datetime.LocalDate
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
 
 open class DefaultCborService : CborService {
 
-
     override fun encode(input: GreenCertificate) = Cbor.encodeToByteArray(input)
-
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): GreenCertificate? {
         verificationResult.cborDecoded = false
@@ -29,7 +25,7 @@ open class DefaultCborService : CborService {
                 verificationResult.content.add(ContentType.RECOVERY)
             return result
         } catch (e: Throwable) {
-           return null
+            return null
         }
     }
 }
