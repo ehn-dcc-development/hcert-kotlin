@@ -11,15 +11,15 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 
-    private val cryptoService = RandomEcKeyCryptoService()
-    private val cborService = DefaultCborService()
-    private val cwtService = DefaultCwtService()
-    private val coseService = DefaultCoseService(cryptoService)
-    private val contextIdentifierService = DefaultContextIdentifierService()
-    private val compressorService = DefaultCompressorService()
-    private val base45Service = DefaultBase45Service()
-    private val schemaValidationService= DefaultSchemaValidationService()
-    private val chainCorrect =
+private val cryptoService = RandomEcKeyCryptoService()
+private val cborService = DefaultCborService()
+private val cwtService = DefaultCwtService()
+private val coseService = DefaultCoseService(cryptoService)
+private val contextIdentifierService = DefaultContextIdentifierService()
+private val compressorService = DefaultCompressorService()
+private val base45Service = DefaultBase45Service()
+private val schemaValidationService = DefaultSchemaValidationService()
+private val chainCorrect =
     Chain(
         cborService,
         cwtService,
@@ -29,25 +29,25 @@ import kotlinx.serialization.json.Json
         base45Service,
         schemaValidationService
     )
-    private val chainFaultyBase45 =
-        Chain(
-            cborService,
-            cwtService,
-            coseService,
-            contextIdentifierService,
-            compressorService,
-            FaultyBase45Service(), schemaValidationService
-        )
-    private val chainFaultyCompressor =
-        Chain(
-            cborService,
-            cwtService,
-            coseService,
-            contextIdentifierService,
-            FaultyCompressorService(),
-            base45Service, schemaValidationService
-        )
-    private val chainNoopCompressor =
+private val chainFaultyBase45 =
+    Chain(
+        cborService,
+        cwtService,
+        coseService,
+        contextIdentifierService,
+        compressorService,
+        FaultyBase45Service(), schemaValidationService
+    )
+private val chainFaultyCompressor =
+    Chain(
+        cborService,
+        cwtService,
+        coseService,
+        contextIdentifierService,
+        FaultyCompressorService(),
+        base45Service, schemaValidationService
+    )
+private val chainNoopCompressor =
     Chain(
         cborService,
         cwtService,
@@ -57,60 +57,60 @@ import kotlinx.serialization.json.Json
         base45Service,
         schemaValidationService
     )
-    private val chainNoopContextIdentifier =
-        Chain(
-            cborService,
-            cwtService,
-            coseService,
-            NoopContextIdentifierService(),
-            compressorService,
-            base45Service, schemaValidationService
-        )
-    private val chainUnverifiableCose =
-        Chain(
-            cborService,
-            cwtService,
-            NonVerifiableCoseService(cryptoService),
-            contextIdentifierService,
-            compressorService,
-            base45Service, schemaValidationService
-        )
-    private val chainUnprotectedCose =
-        Chain(
-            cborService,
-            cwtService,
-            UnprotectedCoseService(cryptoService),
-            contextIdentifierService,
-            compressorService,
-            base45Service, schemaValidationService
-        )
-    private val chainFaultyCose =
-        Chain(
-            cborService,
-            cwtService,
-            FaultyCoseService(cryptoService),
-            contextIdentifierService,
-            compressorService,
-            base45Service, schemaValidationService
-        )
-    private val chainFaultyCwt =
-        Chain(
-            cborService,
-            FaultyCwtService(),
-            coseService,
-            contextIdentifierService,
-            compressorService,
-            base45Service, schemaValidationService
-        )
-    private val chainFaultyCbor =
-        Chain(
-            FaultyCborService(),
-            cwtService,
-            coseService,
-            contextIdentifierService,
-            compressorService,
-            base45Service, schemaValidationService
-        )
+private val chainNoopContextIdentifier =
+    Chain(
+        cborService,
+        cwtService,
+        coseService,
+        NoopContextIdentifierService(),
+        compressorService,
+        base45Service, schemaValidationService
+    )
+private val chainUnverifiableCose =
+    Chain(
+        cborService,
+        cwtService,
+        NonVerifiableCoseService(cryptoService),
+        contextIdentifierService,
+        compressorService,
+        base45Service, schemaValidationService
+    )
+private val chainUnprotectedCose =
+    Chain(
+        cborService,
+        cwtService,
+        UnprotectedCoseService(cryptoService),
+        contextIdentifierService,
+        compressorService,
+        base45Service, schemaValidationService
+    )
+private val chainFaultyCose =
+    Chain(
+        cborService,
+        cwtService,
+        FaultyCoseService(cryptoService),
+        contextIdentifierService,
+        compressorService,
+        base45Service, schemaValidationService
+    )
+private val chainFaultyCwt =
+    Chain(
+        cborService,
+        FaultyCwtService(),
+        coseService,
+        contextIdentifierService,
+        compressorService,
+        base45Service, schemaValidationService
+    )
+private val chainFaultyCbor =
+    Chain(
+        FaultyCborService(),
+        cwtService,
+        coseService,
+        contextIdentifierService,
+        compressorService,
+        base45Service, schemaValidationService
+    )
 
 private val input = SampleData.vaccination
 private val decodedFromInput = Json.decodeFromString<GreenCertificate>(input)
@@ -232,17 +232,15 @@ private fun assertVerification(
 ) {
     val vaccinationData = chainCorrect.decode(chainOutput)
     val verificationResult = vaccinationData.verificationResult
-    (verificationResult.base45Decoded shouldBe (expectedResult.base45Decoded))
-    (verificationResult.cwtDecoded shouldBe (expectedResult.cwtDecoded))
-    (verificationResult.cborDecoded shouldBe (expectedResult.cborDecoded))
-    (verificationResult.coseVerified shouldBe (expectedResult.coseVerified))
-    (verificationResult.zlibDecoded shouldBe (expectedResult.zlibDecoded))
-    (
-            verificationResult.contextIdentifier shouldBe (expectedResult.contextIdentifier)
-            )
-    if (expectDataToMatch) {
-        (vaccinationData.greenCertificate shouldBe (input))
-    } else {
-        (vaccinationData.greenCertificate shouldNotBe input)
-    }
+    verificationResult.base45Decoded shouldBe expectedResult.base45Decoded
+    verificationResult.cwtDecoded shouldBe expectedResult.cwtDecoded
+    verificationResult.cborDecoded shouldBe expectedResult.cborDecoded
+    verificationResult.coseVerified shouldBe expectedResult.coseVerified
+    verificationResult.zlibDecoded shouldBe expectedResult.zlibDecoded
+
+    verificationResult.contextIdentifier shouldBe expectedResult.contextIdentifier
+
+    if (expectDataToMatch) vaccinationData.greenCertificate shouldBe input
+    else vaccinationData.greenCertificate shouldNotBe input
+
 }

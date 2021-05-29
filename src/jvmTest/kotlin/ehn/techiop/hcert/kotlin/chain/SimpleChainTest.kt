@@ -25,7 +25,7 @@ class SimpleChainTest : FunSpec({
     ) { input ->
 
         withData(
-            nameFn = { "RSA" },
+            nameFn = { "RSA ${it.keySize}" },
             RandomRsaKeyCryptoService(2048, listOf(input.contentType)),
             RandomRsaKeyCryptoService(3072, listOf(input.contentType))
         ) { cryptoSrv ->
@@ -33,7 +33,7 @@ class SimpleChainTest : FunSpec({
         }
 
         withData(
-            nameFn = { "EC" },
+            nameFn = { "EC ${it.keySize}" },
             RandomEcKeyCryptoService(256, listOf(input.contentType)),
             RandomEcKeyCryptoService(384, listOf(input.contentType))
         ) { cryptoSrv ->
@@ -55,7 +55,7 @@ private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: Ver
 
     val vaccinationData = decodingChain.decode(output.step5Prefixed)
     val verificationResult = vaccinationData.verificationResult
-    (vaccinationData.greenCertificate shouldBe input)
-    (verificationResult.cborDecoded shouldBe true)
-    (DecisionService().decide(verificationResult) shouldBe outcome)
+    vaccinationData.greenCertificate shouldBe input
+    verificationResult.cborDecoded shouldBe true
+    DecisionService().decide(verificationResult) shouldBe outcome
 }

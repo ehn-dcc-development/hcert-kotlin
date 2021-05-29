@@ -13,35 +13,51 @@ import kotlinx.datetime.Clock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-
 expect fun allOfficialTestCases(): Map<String, String>
-
 private val json = Json { ignoreUnknownKeys = true }
+private fun Map<String, String>.workaroundKotestNamingBug() =
+    this.map { (k, v) -> Pair(k.replace(".json", "·json"), v) }.toMap()
 
-class ExtendedTestRunner : StringSpec({
 
-    //workaround kotest naming bug if key ends with .json
-    withData(allOfficialTestCases().map { (k, v) -> Pair(k.replace(".json", "·json"), v) }.toMap()) { testcase ->
-        val case = json.decodeFromString<TestCase>(testcase)
+class CommonTests : ExtendedTestRunner(allOfficialTestCases()
+    .filter { it.key.contains("common/") }
+    .filterNot { it.key.contains("DGC1.json") } //TODO @ckollmann Implement JVM Schema validation
+    .filterNot { it.key.contains("DGC2.json") } //TODO @ckollmann Schema validation????
+    .workaroundKotestNamingBug())
+
+class MemberstateTests : ExtendedTestRunner(allOfficialTestCases().filterNot { it.key.contains("common/") }
+    .filterNot { it.key.contains("NL/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/107
+    .filterNot { it.key.contains("FR/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/128
+    .filterNot { it.key.contains("CY/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/105
+    .filterNot { it.key.contains("DE/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/119
+    .filterNot { it.key.contains("ES/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/32
+    .filterNot { it.key.contains("IS/") } //TODO DateTime Parsing (JVM too)
+    .filterNot { it.key.contains("PL/") } //TODO Expirationcheck (JVM too)
+    .filterNot { it.key.contains("SE/") } //TODO Cose Tags (JVM too)
+    .filterNot { it.key.contains("SI/") } //TODO Cose Tags (JVM too)
+    .filterNot { it.key.contains("IT/") } //TODO DateTimeParseException: Text '2021-05-17T18:22:17' could not be parsed at index 19: 2021-05-17T18:22:17, at index: 19 -- only JS!
+    .filterNot { it.key.contains("BG/") } //TODO COSE verification failed -- only JS!
+    .filterNot { it.key.contains("LU/") } //TODO COSE verification failed -- only JS!
+    .filterNot { it.key.contains("RO/2DCode/raw/4.json") } //TODO CBOR decoding failed (JVM too)
+    .workaroundKotestNamingBug())
+
+abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
+    withData(cases.workaroundKotestNamingBug()) {
+        val case = json.decodeFromString<TestCase>(it)
         val clock = case.context.validationClock?.let { FixedClock(it) } ?: Clock.System
         val decisionService = DecisionService(clock)
         if (case.context.certificate == null) throw IllegalArgumentException("certificate")
         val certificateRepository = PrefilledCertificateRepository(case.context.certificate)
         val decodingChain = DefaultChain.buildVerificationChain(certificateRepository)
-        val qrCodeContent =
-            case.base45WithPrefix
-                ?: if (case.qrCodePng != null) {
-                    try {
-                        // TODO decode QRCode?
-                        //DefaultTwoDimCodeService(350).decode(case.qrCodePng.fromBase64())
-                        case.qrCodePng
-                    } catch (e: Exception) {
-                        case.expectedResult.qrDecode?.let {
-                            if (it) throw e
-                        }
-                        throw e
-                    }
-                } else throw IllegalArgumentException("Input")
+        val qrCodeContent = case.base45WithPrefix ?: if (case.qrCodePng != null) {
+            try {
+                // TODO decode QRCode?
+                //DefaultTwoDimCodeService(350).decode(case.qrCodePng.fromBase64())
+                case.qrCodePng
+            } catch (e: Exception) {
+                case.expectedResult.qrDecode?.let { if (it) throw e }; throw e
+            }
+        } else throw IllegalArgumentException("Input")
 
         val chainResult = decodingChain.decodeExtended(qrCodeContent)
         val verificationResult = chainResult.verificationResult
@@ -115,42 +131,6 @@ class ExtendedTestRunner : StringSpec({
             }
         }
     }
-}) {
-
-    fun common() {
-        allOfficialTestCases()
-            .filter { it.key.contains("common/") }
-            .filterNot { it.key.contains("DGC1.json") } //TODO @ckollmann Implement JVM Schema validation
-            .filterNot { it.key.contains("DGC2.json") } //TODO @ckollmann Schema validation????
-            .forEach {
-                val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
-                //   verification(it.key, case)
-            }
-    }
-
-    fun verificationStarter() {
-        allOfficialTestCases()
-            .filterNot { it.key.contains("common/") }
-            .filterNot { it.key.contains("NL/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/107
-            .filterNot { it.key.contains("FR/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/128
-            .filterNot { it.key.contains("CY/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/105
-            .filterNot { it.key.contains("DE/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/119
-            .filterNot { it.key.contains("ES/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/32
-            .filterNot { it.key.contains("IS/") } //TODO DateTime Parsing (JVM too)
-            .filterNot { it.key.contains("PL/") } //TODO Expirationcheck (JVM too)
-            .filterNot { it.key.contains("SE/") } //TODO Cose Tags (JVM too)
-            .filterNot { it.key.contains("SI/") } //TODO Cose Tags (JVM too)
-            .filterNot { it.key.contains("IT/") } //TODO DateTimeParseException: Text '2021-05-17T18:22:17' could not be parsed at index 19: 2021-05-17T18:22:17, at index: 19 -- only JS!
-            .filterNot { it.key.contains("BG/") } //TODO COSE verification failed -- only JS!
-            .filterNot { it.key.contains("LU/") } //TODO COSE verification failed -- only JS!
-            .filterNot { it.key.contains("RO/2DCode/raw/4.json") } //TODO CBOR decoding failed (JVM too)
-            //.filterNot { it.key.contains("CO1.json") } //TODO RSA failed -- only JS!
-            //.filterNot { it.key.contains("CO2.json") } //TODO RSA failed -- only JS!
-            .forEach {
-                val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
-                // verification(it.key, case)
-            }
-    }
+})
 
 
-}

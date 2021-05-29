@@ -24,7 +24,7 @@ class Base45ServiceTest : FunSpec({
     }
 
     withData(
-        nameFn = { "Bytes encode+decode $it" },
+        nameFn = { "Encode+decode ${it.size} bytes" },
         (byteArrayOf(0)),
         (byteArrayOf(0, 15)),
         (byteArrayOf(0, 0)),

@@ -11,10 +11,8 @@ class FileBasedCryptoServiceTest : FunSpec({
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        (
-                input.getCborSigningKey().oneKey.EncodeToBytes() shouldBe (parsed.getCborSigningKey().oneKey.EncodeToBytes())
-                )
-        (input.getCertificate().kid shouldBe (parsed.getCertificate().kid))
+        input.getCborSigningKey().oneKey.EncodeToBytes() shouldBe (parsed.getCborSigningKey().oneKey.EncodeToBytes())
+        input.getCertificate().kid shouldBe (parsed.getCertificate().kid)
     }
     withData(2048, 3072) { keySize ->
         val input = RandomRsaKeyCryptoService(keySize)
@@ -22,9 +20,7 @@ class FileBasedCryptoServiceTest : FunSpec({
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        (
-                input.getCborSigningKey().oneKey.EncodeToBytes() shouldBe (parsed.getCborSigningKey().oneKey.EncodeToBytes())
-                )
-        (input.getCertificate().kid shouldBe (parsed.getCertificate().kid))
+        input.getCborSigningKey().oneKey.EncodeToBytes() shouldBe (parsed.getCborSigningKey().oneKey.EncodeToBytes())
+        input.getCertificate().kid shouldBe (parsed.getCertificate().kid)
     }
 })
