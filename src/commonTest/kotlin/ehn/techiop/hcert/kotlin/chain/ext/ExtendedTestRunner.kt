@@ -5,55 +5,24 @@ import ehn.techiop.hcert.kotlin.chain.DefaultChain
 import ehn.techiop.hcert.kotlin.chain.VerificationDecision
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.toHexString
+import io.kotest.assertions.withClue
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.datatest.withData
+import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlin.test.Test
-import kotlin.test.assertEquals
+
 
 expect fun allOfficialTestCases(): Map<String, String>
 
-class ExtendedTestRunner {
+private val json = Json { ignoreUnknownKeys = true }
 
-    @Test
-    fun common() {
-        allOfficialTestCases()
-            .filter { it.key.contains("common/") }
-            .filterNot { it.key.contains("DGC1.json") } //TODO @ckollmann Implement JVM Schema validation
-            .filterNot { it.key.contains("DGC2.json") } //TODO @ckollmann Schema validation????
-            .forEach {
-                val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
-                verification(it.key, case)
-            }
-    }
+class ExtendedTestRunner : StringSpec({
 
-    @Test
-    fun verificationStarter() {
-        allOfficialTestCases()
-            .filterNot { it.key.contains("common/") }
-            .filterNot { it.key.contains("NL/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/107
-            .filterNot { it.key.contains("FR/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/128
-            .filterNot { it.key.contains("CY/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/105
-            .filterNot { it.key.contains("DE/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/119
-            .filterNot { it.key.contains("ES/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/32
-            .filterNot { it.key.contains("IS/") } //TODO DateTime Parsing (JVM too)
-            .filterNot { it.key.contains("PL/") } //TODO Expirationcheck (JVM too)
-            .filterNot { it.key.contains("SE/") } //TODO Cose Tags (JVM too)
-            .filterNot { it.key.contains("SI/") } //TODO Cose Tags (JVM too)
-            .filterNot { it.key.contains("IT/") } //TODO DateTimeParseException: Text '2021-05-17T18:22:17' could not be parsed at index 19: 2021-05-17T18:22:17, at index: 19 -- only JS!
-            .filterNot { it.key.contains("BG/") } //TODO COSE verification failed -- only JS!
-            .filterNot { it.key.contains("LU/") } //TODO COSE verification failed -- only JS!
-            .filterNot { it.key.contains("RO/2DCode/raw/4.json") } //TODO CBOR decoding failed (JVM too)
-            //.filterNot { it.key.contains("CO1.json") } //TODO RSA failed -- only JS!
-            //.filterNot { it.key.contains("CO2.json") } //TODO RSA failed -- only JS!
-            .forEach {
-                val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
-                verification(it.key, case)
-            }
-    }
-
-    fun verification(filename: String, case: TestCase) {
-        println("Executing verification test case \"${filename}\": \"${case.context.description}\"")
+    //workaround kotest naming bug if key ends with .json
+    withData(allOfficialTestCases().map { (k, v) -> Pair(k.replace(".json", "·json"), v) }.toMap()) { testcase ->
+        val case = json.decodeFromString<TestCase>(testcase)
         val clock = case.context.validationClock?.let { FixedClock(it) } ?: Clock.System
         val decisionService = DecisionService(clock)
         if (case.context.certificate == null) throw IllegalArgumentException("certificate")
@@ -80,61 +49,108 @@ class ExtendedTestRunner {
 
         case.expectedResult.qrDecode?.let {
             // TODO QRCode in Common and JS?
-            //if (it) assertEquals(case.base45WithPrefix, qrCodeContent)
-            //if (!it) assertEquals(VerificationDecision.FAIL, decision)
+            //if (it) (case.base45WithPrefix, qrCodeContent)
+            //if (!it) (VerificationDecision.FAIL, decision)
         }
         case.expectedResult.prefix?.let {
-            if (it) assertEquals(case.base45, chainResult.chainDecodeResult.step4Encoded, "Prefix Expected")
-            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Prefix Not Expected")
+            withClue("Prefix") {
+                if (it) case.base45 shouldBe chainResult.chainDecodeResult.step4Encoded
+                if (!it) VerificationDecision.FAIL shouldBe decision
+            }
         }
         case.expectedResult.base45Decode?.let {
-            assertEquals(it, verificationResult.base45Decoded, "Base45 Decoding Bin")
-            if (it && case.compressedHex != null) {
-                assertEquals(
-                    case.compressedHex.lowercase(),
-                    chainResult.chainDecodeResult.step3Compressed?.toHexString()?.lowercase(),
-                    "Base45 Decoding Hex"
-                )
+            withClue("Base45 Decoding") {
+                verificationResult.base45Decoded shouldBe it
+                if (it && case.compressedHex != null) case.compressedHex.lowercase() shouldBe chainResult.chainDecodeResult.step3Compressed?.toHexString()
+                    ?.lowercase()
+                if (!it) VerificationDecision.FAIL shouldBe decision
             }
-            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Base54 Decoding Fail Expected")
         }
         case.expectedResult.compression?.let {
-            assertEquals(it, verificationResult.zlibDecoded, "Zlib Decompression Bin")
-            if (it) assertEquals(
-                case.coseHex?.lowercase(),
-                chainResult.chainDecodeResult.step2Cose?.toHexString()?.lowercase(),
-                "Zlib Decompression Hex"
-            )
+            withClue("ZLib Decompression") {
+                it shouldBe verificationResult.zlibDecoded
+                if (it) case.coseHex?.lowercase() shouldBe chainResult.chainDecodeResult.step2Cose?.toHexString()
+                    ?.lowercase()
+            }
         }
         case.expectedResult.coseSignature?.let {
-            assertEquals(it, verificationResult.coseVerified, "Cose Signature Verification")
-            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Cose Signature Verification FAIL Expected")
+            withClue("COSE Verify") {
+                it shouldBe verificationResult.coseVerified
+                if (!it) VerificationDecision.FAIL shouldBe decision
+            }
         }
         case.expectedResult.cborDecode?.let {
-            assertEquals(it, verificationResult.cborDecoded, "CBOR Decoding")
-            if (it) {
-                assertEquals(case.eudgc, chainResult.chainDecodeResult.eudgc, "CBOR Decoding GOOD Expected")
-                // doesn't make sense to compare exact CBOR hex encoding
-                //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
+            withClue("CBOR Decoding") {
+                it shouldBe verificationResult.cborDecoded
+                if (it) {
+                    case.eudgc shouldBe chainResult.chainDecodeResult.eudgc
+                    // doesn't make sense to compare exact CBOR hex encoding
+                    //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
+                }
+                if (!it) VerificationDecision.FAIL shouldBe decision
             }
-            if (!it) assertEquals(VerificationDecision.FAIL, decision, "CBOR Decoding FAIL Expected")
         }
         case.expectedResult.json?.let {
-            assertEquals(case.eudgc, chainResult.chainDecodeResult.eudgc, "JSON Decoding")
-            if (!it) assertEquals(VerificationDecision.FAIL, decision, "JSON Decoding FAIL expected")
+            withClue("Green Pass fully decoded") {
+                case.eudgc shouldBe chainResult.chainDecodeResult.eudgc
+                if (!it) VerificationDecision.FAIL shouldBe decision
+            }
         }
         case.expectedResult.schemaValidation?.let {
-            assertEquals(it, verificationResult.schemaValidated, "Schema Validation")
-            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Schema Validation FAIL expected")
+            withClue("Schema verification") {
+                it shouldBe verificationResult.schemaValidated
+                if (!it) VerificationDecision.FAIL shouldBe decision
+            }
         }
         case.expectedResult.expirationCheck?.let {
-            if (it) assertEquals(VerificationDecision.GOOD, decision, "Expiry Check GOOD Expected")
-            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Expiry Check FAIL Expected")
+            withClue("Expiration Check") {
+                if (it) VerificationDecision.GOOD shouldBe decision
+                if (!it) VerificationDecision.FAIL shouldBe decision
+            }
         }
         case.expectedResult.keyUsage?.let {
-            if (it) assertEquals(VerificationDecision.GOOD, decision, "Key Usage GOOD Expected")
-            if (!it) assertEquals(VerificationDecision.FAIL, decision, "Key Usage FAIL Expected")
+            withClue("Key Usage") {
+                if (it) VerificationDecision.GOOD shouldBe decision
+                if (!it) VerificationDecision.FAIL shouldBe decision
+            }
         }
     }
+}) {
+
+    fun common() {
+        allOfficialTestCases()
+            .filter { it.key.contains("common/") }
+            .filterNot { it.key.contains("DGC1.json") } //TODO @ckollmann Implement JVM Schema validation
+            .filterNot { it.key.contains("DGC2.json") } //TODO @ckollmann Schema validation????
+            .forEach {
+                val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
+                //   verification(it.key, case)
+            }
+    }
+
+    fun verificationStarter() {
+        allOfficialTestCases()
+            .filterNot { it.key.contains("common/") }
+            .filterNot { it.key.contains("NL/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/107
+            .filterNot { it.key.contains("FR/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/128
+            .filterNot { it.key.contains("CY/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/105
+            .filterNot { it.key.contains("DE/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/119
+            .filterNot { it.key.contains("ES/") } // https://github.com/eu-digital-green-certificates/dgc-testdata/issues/32
+            .filterNot { it.key.contains("IS/") } //TODO DateTime Parsing (JVM too)
+            .filterNot { it.key.contains("PL/") } //TODO Expirationcheck (JVM too)
+            .filterNot { it.key.contains("SE/") } //TODO Cose Tags (JVM too)
+            .filterNot { it.key.contains("SI/") } //TODO Cose Tags (JVM too)
+            .filterNot { it.key.contains("IT/") } //TODO DateTimeParseException: Text '2021-05-17T18:22:17' could not be parsed at index 19: 2021-05-17T18:22:17, at index: 19 -- only JS!
+            .filterNot { it.key.contains("BG/") } //TODO COSE verification failed -- only JS!
+            .filterNot { it.key.contains("LU/") } //TODO COSE verification failed -- only JS!
+            .filterNot { it.key.contains("RO/2DCode/raw/4.json") } //TODO CBOR decoding failed (JVM too)
+            //.filterNot { it.key.contains("CO1.json") } //TODO RSA failed -- only JS!
+            //.filterNot { it.key.contains("CO2.json") } //TODO RSA failed -- only JS!
+            .forEach {
+                val case = Json { ignoreUnknownKeys = true }.decodeFromString<TestCase>(it.value)
+                // verification(it.key, case)
+            }
+    }
+
 
 }

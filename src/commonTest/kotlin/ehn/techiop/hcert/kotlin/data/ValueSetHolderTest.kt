@@ -1,36 +1,33 @@
 package ehn.techiop.hcert.kotlin.data
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class ValueSetHolderTest {
+class ValueSetHolderTest : FunSpec({
 
-    @Test
-    fun testAccessByKey() {
+    test("Access by Key") {
         val found = ValueSetsInstanceHolder.INSTANCE.find("840539006")
 
-        assertEquals(found.key, ("840539006"))
-        assertEquals(found.valueSetEntry.display, ("COVID-19"))
-        assertEquals(found.valueSetEntry.lang, ("en"))
-        assertEquals(found.valueSetEntry.active, (true))
-        assertEquals(
-            found.valueSetEntry.version,
-            ("http://snomed.info/sct/900000000000207008/version/20210131")
-        )
-        assertEquals(found.valueSetEntry.system, ("http://snomed.info/sct"))
+        found.key shouldBe "840539006"
+        found.valueSetEntry.display shouldBe ("COVID-19")
+        found.valueSetEntry.lang shouldBe ("en")
+        found.valueSetEntry.active shouldBe (true)
+
+        found.valueSetEntry.version shouldBe ("http://snomed.info/sct/900000000000207008/version/20210131")
+
+        (found.valueSetEntry.system shouldBe ("http://snomed.info/sct"))
     }
 
-    @Test
-    fun testAccessByCategoryKey() {
+    test("Access by Category Key") {
         val found = ValueSetsInstanceHolder.INSTANCE.find("vaccines-covid-19-names", "EU/1/20/1528")
-        assertEquals(found.key, ("EU/1/20/1528"))
-        assertEquals(found.valueSetEntry.display, ("Comirnaty"))
-        assertEquals(found.valueSetEntry.lang, ("en"))
-        assertEquals(found.valueSetEntry.active, (true))
-        assertEquals(found.valueSetEntry.version, (""))
-        assertEquals(
-            found.valueSetEntry.system,
-            ("https://ec.europa.eu/health/documents/community-register/html/")
-        )
+        found.key shouldBe ("EU/1/20/1528")
+        found.valueSetEntry.display shouldBe ("Comirnaty")
+        found.valueSetEntry.lang shouldBe ("en")
+        found.valueSetEntry.active shouldBe (true)
+        found.valueSetEntry.version shouldBe ("")
+
+        found.valueSetEntry.system shouldBe
+                ("https://ec.europa.eu/health/documents/community-register/html/")
+
     }
-}
+})

@@ -9,20 +9,18 @@ import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
 import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.longs.shouldBeLessThanOrEqual
+import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.greaterThanOrEqualTo
-import org.hamcrest.Matchers.lessThanOrEqualTo
-import org.junit.jupiter.api.Test
 import java.security.cert.X509Certificate
 
 
-class TrustListTest {
+class TrustListTest : StringSpec({
 
-    @Test
-    fun v2serverClientExchange() {
+    "V2 Client-Server Excahnge"{
         val clock = FixedClock(Instant.fromEpochMilliseconds(0))
         val cryptoService = RandomEcKeyCryptoService(clock = clock)
         val certificate = cryptoService.getCertificate()
@@ -33,40 +31,40 @@ class TrustListTest {
         verifyClientOperations(certificate, clock, trustListSignature, trustListEncoded)
     }
 
-    private fun verifyClientOperations(
-        certificate: Certificate<*>,
-        clock: Clock,
-        trustListSignature: ByteArray,
-        trustListEncoded: ByteArray? = null
-    ) {
-        // might never happen on the client, that the trust list is loaded in this way
-        val clientTrustRoot = PrefilledCertificateRepository(certificate)
-        val decodeService = TrustListDecodeService(clientTrustRoot, clock = clock)
-        val clientTrustList = decodeService.decode(trustListSignature, trustListEncoded)
-        // that's the way to go: Trust list used for verification of QR codes
-        val clientTrustListAdapter =
-            TrustListCertificateRepository(trustListSignature, trustListEncoded, clientTrustRoot, clock)
 
-        assertThat(clientTrustList.size, equalTo(2))
-        for (cert in clientTrustList) {
-            assertThat(cert.validFrom.epochSeconds, lessThanOrEqualTo(clock.now().epochSeconds))
-            assertThat(cert.validUntil.epochSeconds, greaterThanOrEqualTo(clock.now().epochSeconds))
-            assertThat(cert.kid.size, equalTo(8))
-            assertThat(cert.validContentTypes.size, equalTo(3))
+})
 
-            clientTrustListAdapter.loadTrustedCertificates(cert.kid, VerificationResult()).forEach {
-                assertThat(
-                    (it.cosePublicKey.toCoseRepresentation() as OneKey).EncodeToBytes(),
-                    equalTo((cert.cosePublicKey.toCoseRepresentation() as OneKey).EncodeToBytes())
-                )
-            }
+private fun verifyClientOperations(
+    certificate: Certificate<*>,
+    clock: Clock,
+    trustListSignature: ByteArray,
+    trustListEncoded: ByteArray? = null
+) {
+    // might never happen on the client, that the trust list is loaded in this way
+    val clientTrustRoot = PrefilledCertificateRepository(certificate)
+    val decodeService = TrustListDecodeService(clientTrustRoot, clock = clock)
+    val clientTrustList = decodeService.decode(trustListSignature, trustListEncoded)
+    // that's the way to go: Trust list used for verification of QR codes
+    val clientTrustListAdapter =
+        TrustListCertificateRepository(trustListSignature, trustListEncoded, clientTrustRoot, clock)
+
+    (clientTrustList.size shouldBe (2))
+    for (cert in clientTrustList) {
+        (cert.validFrom.epochSeconds shouldBeLessThanOrEqual (clock.now().epochSeconds))
+        (cert.validUntil.epochSeconds shouldBeGreaterThanOrEqual (clock.now().epochSeconds))
+        (cert.kid.size shouldBe (8))
+        (cert.validContentTypes.size shouldBe (3))
+
+        clientTrustListAdapter.loadTrustedCertificates(cert.kid, VerificationResult()).forEach {
+            (
+                    (it.cosePublicKey.toCoseRepresentation() as OneKey).EncodeToBytes() shouldBe ((cert.cosePublicKey.toCoseRepresentation() as OneKey).EncodeToBytes())
+                    )
         }
     }
-
-
-    private fun randomCertificates(clock: Clock): Set<X509Certificate> =
-        listOf(RandomEcKeyCryptoService(clock = clock), RandomRsaKeyCryptoService(clock = clock))
-            .map { (it.getCertificate() as JvmCertificate).certificate }
-            .toSet()
-
 }
+
+
+private fun randomCertificates(clock: Clock): Set<X509Certificate> =
+    listOf(RandomEcKeyCryptoService(clock = clock), RandomRsaKeyCryptoService(clock = clock))
+        .map { (it.getCertificate() as JvmCertificate).certificate }
+        .toSet()

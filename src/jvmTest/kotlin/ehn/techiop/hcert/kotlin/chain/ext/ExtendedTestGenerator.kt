@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 
+
 @Disabled("Don't want to generate test case files every time")
 class ExtendedTestGenerator {
 
@@ -822,7 +823,7 @@ class ExtendedTestGenerator {
         val contextIdentifierService: ContextIdentifierService,
         val compressorService: CompressorService,
         val base45Service: Base45Service,
-        val schemaValidationService:SchemaValidationService
+        val schemaValidationService: SchemaValidationService
     ) {
         companion object {
             fun good(clock: Clock, cryptoService: CryptoService) = ChainBuilder(
@@ -837,16 +838,48 @@ class ExtendedTestGenerator {
         }
 
         fun with(compressorService: CompressorService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
+            Chain(
+                cborService,
+                cwtService,
+                coseService,
+                contextIdentifierService,
+                compressorService,
+                base45Service,
+                schemaValidationService
+            )
 
         fun with(base45Service: Base45Service) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
+            Chain(
+                cborService,
+                cwtService,
+                coseService,
+                contextIdentifierService,
+                compressorService,
+                base45Service,
+                schemaValidationService
+            )
 
         fun with(contextIdentifierService: ContextIdentifierService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
+            Chain(
+                cborService,
+                cwtService,
+                coseService,
+                contextIdentifierService,
+                compressorService,
+                base45Service,
+                schemaValidationService
+            )
 
         fun build() =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
+            Chain(
+                cborService,
+                cwtService,
+                coseService,
+                contextIdentifierService,
+                compressorService,
+                base45Service,
+                schemaValidationService
+            )
 
         fun with(cryptoService: CryptoService) = Chain(
             cborService,
@@ -858,13 +891,37 @@ class ExtendedTestGenerator {
         )
 
         fun with(coseService: CoseService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
+            Chain(
+                cborService,
+                cwtService,
+                coseService,
+                contextIdentifierService,
+                compressorService,
+                base45Service,
+                schemaValidationService
+            )
 
         fun with(cwtService: CwtService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
+            Chain(
+                cborService,
+                cwtService,
+                coseService,
+                contextIdentifierService,
+                compressorService,
+                base45Service,
+                schemaValidationService
+            )
 
         fun with(cborService: CborService) =
-            Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service, schemaValidationService)
+            Chain(
+                cborService,
+                cwtService,
+                coseService,
+                contextIdentifierService,
+                compressorService,
+                base45Service,
+                schemaValidationService
+            )
 
     }
 

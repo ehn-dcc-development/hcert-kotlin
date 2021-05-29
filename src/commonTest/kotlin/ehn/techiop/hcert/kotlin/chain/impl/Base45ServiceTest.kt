@@ -3,52 +3,50 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 import ehn.techiop.hcert.kotlin.chain.toHexString
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.datatest.withData
+import io.kotest.matchers.shouldBe
 import kotlin.random.Random
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
-class Base45ServiceTest {
 
-    @Test
-    fun testString() {
-        testString("AB", "BB8")
-        testString("Hello!!", "%69 VD92EX0")
-        testString("base-45", "UJCLQE7W581")
-        testString("ietf!", "QED8WEX0")
-    }
+class Base45ServiceTest : FunSpec({
 
-    private fun testString(plain: String, encoded: String) {
+    withData(
+        nameFn = { "String ${it.first} should be ${it.second}" },
+        Pair("AB", "BB8"),
+        Pair("Hello!!", "%69 VD92EX0"),
+        Pair("base-45", "UJCLQE7W581"),
+        Pair("ietf!", "QED8WEX0")
+    ) { (plain, encoded) ->
         val implEncoded = Base45Encoder.encode(plain.encodeToByteArray())
-        assertEquals(implEncoded, encoded)
-        assertEquals(Base45Encoder.decode(implEncoded).asList(), plain.encodeToByteArray().asList())
+        implEncoded shouldBe encoded
+        Base45Encoder.decode(implEncoded).asList() shouldBe plain.encodeToByteArray().asList()
     }
 
-    @Test
-    fun testBytes() {
-        testBytes(byteArrayOf(0))
-        testBytes(byteArrayOf(0, 15))
-        testBytes(byteArrayOf(0, 0))
-        testBytes(byteArrayOf(0, 0, 0))
-    }
-
-    private fun testBytes(deflated: ByteArray) {
+    withData(
+        nameFn = { "Bytes encode+decode $it" },
+        (byteArrayOf(0)),
+        (byteArrayOf(0, 15)),
+        (byteArrayOf(0, 0)),
+        (byteArrayOf(0, 0, 0))
+    ) { deflated ->
         val encoded = Base45Encoder.encode(deflated)
         // transfer
         val decoded = Base45Encoder.decode(encoded)
-        assertEquals(decoded.asList(), deflated.asList())
+        (decoded.asList() shouldBe deflated.asList())
     }
 
-    @Test
-    fun testWithZlib() {
+
+    test("ZLib random compress+deflate") {
         val compressorService = DefaultCompressorService()
         val input = Random.nextBytes(32).toHexString()
         val deflated = compressorService.encode(input.encodeToByteArray())
         val encoded = Base45Encoder.encode(deflated)
         // transfer
         val decoded = Base45Encoder.decode(encoded)
-        assertEquals(decoded.asList(), deflated.asList())
+        decoded.asList() shouldBe deflated.asList()
         val inflated = compressorService.decode(decoded, VerificationResult())
-        assertEquals(inflated.decodeToString(), input)
+        inflated.decodeToString() shouldBe input
     }
 
-}
+})

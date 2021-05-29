@@ -97,8 +97,9 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
+                implementation("io.kotest:kotest-framework-engine:4.6.0")
+                implementation("io.kotest:kotest-assertions-core:4.6.0")
+                implementation("io.kotest:kotest-framework-datatest:4.6.0")
             }
         }
         val jvmMain by getting {
@@ -113,11 +114,7 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
-                implementation("org.junit.jupiter:junit-jupiter-params:5.7.1")
-                implementation("org.hamcrest:hamcrest:2.2")
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+                implementation("io.kotest:kotest-runner-junit5:4.6.0")
             }
         }
         val jsMain by getting {
@@ -147,9 +144,6 @@ kotlin {
         }
         val jsTest by getting {
             sourceSets { kotlin.srcDir("src/jsTest/generated") }
-            dependencies {
-                implementation(kotlin("test-js"))
-            }
         }
 
         /*  val nodeMain by getting {
