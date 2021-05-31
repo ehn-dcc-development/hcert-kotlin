@@ -73,9 +73,16 @@ class JsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
     }
 }
 
-class JsEcPrivKey(val da: ByteArray) : EcPrivKey<EcCosePrivateKey> {
+class JsEcPrivKey(val da: ArrayBuffer) : EcPrivKey<EcCosePrivateKey> {
     override fun toCoseRepresentation(): EcCosePrivateKey = object : EcCosePrivateKey {
-        override val d = Buffer(da.toUint8Array())
+        override val d = Buffer(da)
+    }
+}
+
+// TODO No RSA Key for cose-js?
+class JsRsaPrivKey(val p: ArrayBuffer) : RsaPrivKey<dynamic> {
+    override fun toCoseRepresentation(): EcCosePrivateKey = object : EcCosePrivateKey {
+        override val d = Buffer(p)
     }
 }
 

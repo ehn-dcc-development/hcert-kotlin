@@ -51,6 +51,7 @@ enum class CoseHeaderKeys(val value: Int) {
     //HKDF_SuppPriv_Other(-998);
 }
 
+
 enum class CwtHeaderKeys(val value: Int) {
     ISSUER(1),
     SUBJECT(2),
@@ -61,4 +62,10 @@ enum class CwtHeaderKeys(val value: Int) {
     CWT_ID(7),
     HCERT(-260),
     EUDGC_IN_HCERT(1),
+}
+
+
+enum class CwtAlgorithm(val value: Int) {
+    ECDSA_256(-7),
+    RSA_PSS_256(-37),
 }

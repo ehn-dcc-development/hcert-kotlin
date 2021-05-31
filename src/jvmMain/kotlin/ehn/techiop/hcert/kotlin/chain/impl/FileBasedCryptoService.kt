@@ -1,8 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import COSE.AlgorithmID
 import COSE.OneKey
-import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
@@ -10,6 +8,7 @@ import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
 import ehn.techiop.hcert.kotlin.crypto.CosePubKey
+import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -27,11 +26,12 @@ import java.security.cert.X509Certificate
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.RSAPrivateKey
 
-class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: String) : CryptoService {
+actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String, pemEncodedCertificate: String) :
+    CryptoService {
 
     private val privateKey: PrivateKey
     private val publicKey: PublicKey
-    private val algorithmID: AlgorithmID
+    private val algorithmID: CwtAlgorithm
     private val certificate: JvmCertificate
     private val keyId: ByteArray
 
@@ -40,8 +40,8 @@ class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: S
         val read = PEMParser(pemEncodedKeyPair.reader()).readObject() as PrivateKeyInfo
         privateKey = JcaPEMKeyConverter().getPrivateKey(read)
         algorithmID = when (privateKey) {
-            is ECPrivateKey -> AlgorithmID.ECDSA_256
-            is RSAPrivateKey -> AlgorithmID.RSA_PSS_256
+            is ECPrivateKey -> CwtAlgorithm.ECDSA_256
+            is RSAPrivateKey -> CwtAlgorithm.RSA_PSS_256
             else -> throw IllegalArgumentException("KeyType unknown")
         }
         val x509Certificate = CertificateFactory.getInstance("X.509")
@@ -52,8 +52,8 @@ class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: S
     }
 
     override fun getCborHeaders() = listOf(
-        Pair(CoseHeaderKeys.Algorithm, algorithmID.AsCBOR()),
-        Pair(CoseHeaderKeys.KID, CBORObject.FromObject(keyId))
+        Pair(CoseHeaderKeys.Algorithm, algorithmID.value),
+        Pair(CoseHeaderKeys.KID, keyId)
     )
 
     override fun getCborSigningKey() = CosePrivKey(OneKey(publicKey, privateKey))
