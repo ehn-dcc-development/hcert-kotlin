@@ -1,4 +1,4 @@
-# Notes for the JS port of the kotlin code base
+# JavaScript Notes
 
 ## Cose
 

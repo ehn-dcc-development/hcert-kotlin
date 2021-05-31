@@ -6,13 +6,16 @@ plugins {
 }
 
 group = "ehn.techiop.hcert"
-version = "0.3.0-SNAPSHOT"
+version = "1.0.0-SNAPSHOT"
 
 idea {
     module {
         isDownloadSources = true
         isDownloadJavadoc = true
     }
+}
+licenseReport {
+    allowedLicensesFile = File("$projectDir/allowed-licenses.json")
 }
 
 repositories {
@@ -90,10 +93,10 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 //cannot use 0.2.1 due to https://youtrack.jetbrains.com/issue/KT-43237 when also seeking to expose node module
-                //however, we only releasy bundles and can monkey-patch it (see webpack.config.d/patch.js)
+                //however, we only release bundles and can monkey-patch it (see webpack.config.d/patch.js)
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.2.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
             }
         }
         val commonTest by getting {
