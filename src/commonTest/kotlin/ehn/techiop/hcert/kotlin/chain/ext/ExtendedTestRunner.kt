@@ -3,6 +3,10 @@ package ehn.techiop.hcert.kotlin.chain.ext
 import ehn.techiop.hcert.kotlin.chain.DecisionService
 import ehn.techiop.hcert.kotlin.chain.DefaultChain
 import ehn.techiop.hcert.kotlin.chain.VerificationDecision
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.fromHexString
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.toHexString
 import io.kotest.assertions.withClue
@@ -38,20 +42,17 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("ES/2DCode/raw/1103") } // Wrong value set entry "94558-4"
     .filterNot { it.key.contains("IT/2DCode/raw/4") } // Wrong value set entry <empty>
     .filterNot { it.key.contains("LV/2DCode/raw/2") } // Wrong value set entry "1drop Inc"
-    .filterNot { it.key.contains("NL/") } // TODO Schema 1.2.1
-    .filterNot { it.key.contains("BE/2DCode/raw/3") } // TODO CBOR
-    .filterNot { it.key.contains("FR/2DCode/raw/test_pcr_ok") } // TODO CBOR
-    .filterNot { it.key.contains("IS/2DCode/raw/3") } // TODO Key Usage
-    .filterNot { it.key.contains("PL/2DCode/raw/6") } // TODO Key Usage
-    .filterNot { it.key.contains("PL/2DCode/raw/7") } // TODO Schema Validation
-    .filterNot { it.key.contains("PL/2DCode/raw/8") } // TODO Schema Validation
-    .filterNot { it.key.contains("PL/2DCode/raw/9") } // TODO Schema Validation
+    .filterNot { it.key.contains("BE/2DCode/raw/3") } // Schema not correct for 1.2.1
+    .filterNot { it.key.contains("FR/2DCode/raw/test_pcr_ok") } // Schema not correct for 1.2.1
+    .filterNot { it.key.contains("NL/") } // Schema not correct, wrong value set entries
+    .filterNot { it.key.contains("IS/2DCode/raw/3") } // Wrong test on key usage
+    .filterNot { it.key.contains("PL/2DCode/raw/7") } // TODO JVM Schema Validation
+    .filterNot { it.key.contains("PL/2DCode/raw/8") } // TODO JVM Schema Validation
+    .filterNot { it.key.contains("PL/2DCode/raw/9") } // TODO JVM Schema Validation
     .filterNot { it.key.contains("PT/") } // TODO Empty/null arrays
-    .filterNot { it.key.contains("SE/2DCode/raw/5") } // TODO COSE Tags
-    .filterNot { it.key.contains("SE/2DCode/raw/6") } // TODO CBOR
-    .filterNot { it.key.contains("SE/2DCode/raw/7") } // TODO CBOR
-    .filterNot { it.key.contains("SI/2DCode/raw/5") } // TODO COSE Tags
-    .filterNot { it.key.contains("SI/2DCode/raw/6") } // TODO CBOR
+    .filterNot { it.key.contains("SE/2DCode/raw/5") } // TODO JS COSE Tags CWT and Sign1
+    .filterNot { it.key.contains("SE/2DCode/raw/7") } // TODO CBOR Tag C0
+    .filterNot { it.key.contains("SI/2DCode/raw/5") } // TODO JS COSE Tags CWT and Sign1
     .filterNot { it.key.contains("BG/2DCode/raw/1") } // TODO JS COSE
     .filterNot { it.key.contains("ES/2DCode/raw/1501") } // TODO JS COSE
     .filterNot { it.key.contains("ES/2DCode/raw/1502") } // TODO JS COSE
@@ -67,6 +68,7 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("SE/2DCode/raw/4") } // TODO JS COSE
     .filterNot { it.key.contains("SI/2DCode/raw/3") } // TODO JS COSE
     .filterNot { it.key.contains("SI/2DCode/raw/4") } // TODO JS COSE
+    //.filter { it.key.contains("SE/2DCode/raw/6") }
     .workaroundKotestNamingBug())
 
 abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
@@ -130,8 +132,18 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         }
         case.expectedResult.cborDecode?.let {
             withClue("CBOR Decoding") {
-                verificationResult.cborDecoded shouldBe it
-                if (it) {
+                // Our implementation exits early with a COSE error
+                if (case.expectedResult.coseSignature == false) {
+                    verificationResult.cborDecoded shouldBe false
+                    if (case.cborHex != null) {
+                        val newResult = VerificationResult()
+                        DefaultCborService().decode(case.cborHex.fromHexString(), newResult)
+                        newResult.cborDecoded shouldBe it
+                    }
+                } else {
+                    verificationResult.cborDecoded shouldBe it
+                }
+                if (it && case.expectedResult.coseSignature != false) {
                     chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                     // doesn't make sense to compare exact CBOR hex encoding
                     //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
@@ -141,26 +153,48 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         }
         case.expectedResult.json?.let {
             withClue("Green Pass fully decoded") {
-                chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
+                // Our implementation exits early with a COSE error
+                if (case.expectedResult.coseSignature == false) {
+                    chainResult.chainDecodeResult.eudgc shouldBe null
+                    if (case.cborHex != null) {
+                        val dgc = DefaultCborService().decode(case.cborHex.fromHexString(), VerificationResult())
+                        dgc shouldBe case.eudgc
+                    }
+                } else {
+                    chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
+                }
                 if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
             }
         }
         case.expectedResult.schemaValidation?.let {
             withClue("Schema verification") {
-                verificationResult.schemaValidated shouldBe it
+                // Our implementation exits early with a COSE error
+                if (case.expectedResult.coseSignature == false) {
+                    if (case.cborHex != null) {
+                        val newResult = VerificationResult()
+                        DefaultSchemaValidationService().validate(case.cborHex.fromHexString(), newResult)
+                        newResult.schemaValidated shouldBe it
+                    }
+                } else {
+                    verificationResult.schemaValidated shouldBe it
+                }
                 if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
             }
         }
         case.expectedResult.expirationCheck?.let {
             withClue("Expiration Check") {
-                if (it) decision shouldBe VerificationDecision.GOOD
-                if (!it) decision shouldBe VerificationDecision.FAIL_VALIDITY
+                if (case.expectedResult.coseSignature != false) {
+                    if (it) decision shouldBe VerificationDecision.GOOD
+                    if (!it) decision shouldBe VerificationDecision.FAIL_VALIDITY
+                }
             }
         }
         case.expectedResult.keyUsage?.let {
             withClue("Key Usage") {
-                if (it) decision shouldBe VerificationDecision.GOOD
-                if (!it) decision shouldBe VerificationDecision.FAIL_SIGNATURE
+                if (case.expectedResult.coseSignature != false) {
+                    if (it) decision shouldBe VerificationDecision.GOOD
+                    if (!it) decision shouldBe VerificationDecision.FAIL_SIGNATURE
+                }
             }
         }
     }
