@@ -70,64 +70,69 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         }
         case.expectedResult.prefix?.let {
             withClue("Prefix") {
-                if (it) case.base45 shouldBe chainResult.chainDecodeResult.step4Encoded
-                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
+                if (it) chainResult.chainDecodeResult.step4Encoded shouldBe case.base45
+                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
             }
         }
         case.expectedResult.base45Decode?.let {
             withClue("Base45 Decoding") {
                 verificationResult.base45Decoded shouldBe it
-                if (it && case.compressedHex != null) case.compressedHex.lowercase() shouldBe chainResult.chainDecodeResult.step3Compressed?.toHexString()
-                    ?.lowercase()
-                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
+                if (it && case.compressedHex != null) {
+                    chainResult.chainDecodeResult.step3Compressed?.toHexString()
+                        ?.lowercase() shouldBe case.compressedHex.lowercase()
+                }
+                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
             }
         }
         case.expectedResult.compression?.let {
             withClue("ZLib Decompression") {
-                it shouldBe verificationResult.zlibDecoded
-                if (it) case.coseHex?.lowercase() shouldBe chainResult.chainDecodeResult.step2Cose?.toHexString()
-                    ?.lowercase()
+                verificationResult.zlibDecoded shouldBe it
+                if (it) {
+                    chainResult.chainDecodeResult.step2Cose?.toHexString()
+                        ?.lowercase() shouldBe case.coseHex?.lowercase()
+                }
+
             }
         }
         case.expectedResult.coseSignature?.let {
             withClue("COSE Verify") {
-                it shouldBe verificationResult.coseVerified
-                if (!it) VerificationDecision.FAIL_SIGNATURE shouldBe decision
+                verificationResult.coseVerified shouldBe it
+                if (!it) decision shouldBe VerificationDecision.FAIL_SIGNATURE
             }
         }
         case.expectedResult.cborDecode?.let {
             withClue("CBOR Decoding") {
-                it shouldBe verificationResult.cborDecoded
+                verificationResult.cborDecoded shouldBe it
                 if (it) {
-                    case.eudgc shouldBe chainResult.chainDecodeResult.eudgc
+                    chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                     // doesn't make sense to compare exact CBOR hex encoding
                     //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
                 }
-                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
+                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
             }
         }
         case.expectedResult.json?.let {
             withClue("Green Pass fully decoded") {
-                case.eudgc shouldBe chainResult.chainDecodeResult.eudgc
-                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
+                chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
+                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
             }
         }
         case.expectedResult.schemaValidation?.let {
             withClue("Schema verification") {
-                it shouldBe verificationResult.schemaValidated
-                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
+                verificationResult.schemaValidated shouldBe it
+                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
             }
         }
         case.expectedResult.expirationCheck?.let {
             withClue("Expiration Check") {
-                if (it) VerificationDecision.GOOD shouldBe decision
-                if (!it) VerificationDecision.FAIL_VALIDITY shouldBe decision
+                if (it) decision shouldBe VerificationDecision.GOOD
+                if (!it) decision shouldBe VerificationDecision.FAIL_VALIDITY
             }
         }
         case.expectedResult.keyUsage?.let {
             withClue("Key Usage") {
-                if (it) VerificationDecision.GOOD shouldBe decision
-                if (!it) VerificationDecision.FAIL_SIGNATURE shouldBe decision
+                if (it) decision shouldBe VerificationDecision.GOOD
+                if (!it) decision shouldBe VerificationDecision.FAIL_SIGNATURE
             }
         }
     }
