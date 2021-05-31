@@ -1,22 +1,18 @@
 package ehn.techiop.hcert.kotlin.trust
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 
+enum class ContentType(val oid: String) {
 
-const val oidTest = "1.3.6.1.4.1.0.1847.2021.1.1"
-const val oidVaccination = "1.3.6.1.4.1.0.1847.2021.1.2"
-const val oidRecovery = "1.3.6.1.4.1.0.1847.2021.1.3"
+    TEST("1.3.6.1.4.1.0.1847.2021.1.1"),
 
+    VACCINATION("1.3.6.1.4.1.0.1847.2021.1.2"),
 
-@Serializable
-enum class ContentType {
-    @SerialName("t")
-    TEST,
+    RECOVERY("1.3.6.1.4.1.0.1847.2021.1.3");
 
-    @SerialName("v")
-    VACCINATION,
+    companion object {
+        fun findByOid(oid: String): ContentType? {
+            return ContentType.values().firstOrNull { it.oid == oid }
+        }
+    }
 
-    @SerialName("r")
-    RECOVERY;
 }

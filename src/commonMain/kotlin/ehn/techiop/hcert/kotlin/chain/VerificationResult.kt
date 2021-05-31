@@ -74,8 +74,7 @@ class VerificationResult {
     /**
      * Indicates, which content may be signed with the certificate, defaults to all content types
      */
-    var certificateValidContent: List<ContentType> =
-        listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY)
+    var certificateValidContent: List<ContentType> = ContentType.values().toList()
 
     /**
      * Indicates, which content actually has been decoded

@@ -27,8 +27,8 @@ import java.security.Security
 
 
 class RandomRsaKeyCryptoService(
-     val keySize: Int = 2048,
-    contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
+    val keySize: Int = 2048,
+    contentType: List<ContentType> = ContentType.values().toList(),
     clock: Clock = Clock.System,
 ) : CryptoService {
 

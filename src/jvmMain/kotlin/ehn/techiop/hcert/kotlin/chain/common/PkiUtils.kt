@@ -2,9 +2,6 @@ package ehn.techiop.hcert.kotlin.chain.common
 
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import ehn.techiop.hcert.kotlin.trust.oidRecovery
-import ehn.techiop.hcert.kotlin.trust.oidTest
-import ehn.techiop.hcert.kotlin.trust.oidVaccination
 import kotlinx.datetime.Clock
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.ASN1Sequence
@@ -33,7 +30,7 @@ object PkiUtils {
     fun selfSignCertificate(
         subjectName: X500Name,
         keyPair: KeyPair,
-        contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
+        contentType: List<ContentType> = ContentType.values().toList(),
         clock: Clock = Clock.System
     ): X509Certificate {
         val subjectPublicKeyInfo =
@@ -60,32 +57,13 @@ object PkiUtils {
             .generateCertificate(ByteArrayInputStream(certificateHolder.encoded)) as X509Certificate
     }
 
-    private fun certTypeToKeyUsages(contentType: List<ContentType>): Array<KeyPurposeId> {
-        var result = arrayOf<KeyPurposeId>()
-        if (contentType.contains(ContentType.TEST))
-            result += KeyPurposeId.getInstance(ASN1ObjectIdentifier(oidTest))
-        if (contentType.contains(ContentType.VACCINATION))
-            result += KeyPurposeId.getInstance(ASN1ObjectIdentifier(oidVaccination))
-        if (contentType.contains(ContentType.RECOVERY))
-            result += KeyPurposeId.getInstance(ASN1ObjectIdentifier(oidRecovery))
-        return result
-    }
+    private fun certTypeToKeyUsages(contentType: List<ContentType>) = contentType.map {
+        KeyPurposeId.getInstance(ASN1ObjectIdentifier(it.oid))
+    }.toTypedArray()
 
-    fun getValidContentTypes(certificate: X509Certificate): List<ContentType> {
-        val result = mutableListOf<ContentType>()
-        if (hasOid(certificate, ASN1ObjectIdentifier(oidTest)))
-            result += ContentType.TEST
-        if (hasOid(certificate, ASN1ObjectIdentifier(oidVaccination)))
-            result += ContentType.VACCINATION
-        if (hasOid(certificate, ASN1ObjectIdentifier(oidRecovery)))
-            result += ContentType.RECOVERY
-        return if (result.isEmpty()) listOf(
-            ContentType.TEST,
-            ContentType.VACCINATION,
-            ContentType.RECOVERY
-        ) else result
-
-    }
+    fun getValidContentTypes(certificate: X509Certificate) =
+        ContentType.values().filter { hasOid(certificate, ASN1ObjectIdentifier(it.oid)) }
+            .ifEmpty { ContentType.values().toList() }
 
     private fun hasOid(certificate: X509Certificate, oid: ASN1ObjectIdentifier): Boolean {
         return certificate.extendedKeyUsage != null && certificate.extendedKeyUsage.any { oid.toString() == it }

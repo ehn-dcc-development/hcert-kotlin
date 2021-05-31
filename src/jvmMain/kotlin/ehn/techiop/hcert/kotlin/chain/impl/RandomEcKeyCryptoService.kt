@@ -25,8 +25,8 @@ import java.security.KeyPairGenerator
 
 
 class RandomEcKeyCryptoService(
-     val keySize: Int = 256,
-    contentType: List<ContentType> = listOf(ContentType.TEST, ContentType.VACCINATION, ContentType.RECOVERY),
+    val keySize: Int = 256,
+    contentType: List<ContentType> = ContentType.values().toList(),
     clock: Clock = Clock.System
 ) : CryptoService {
 

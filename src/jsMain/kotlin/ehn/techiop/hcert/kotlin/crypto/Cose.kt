@@ -17,9 +17,6 @@ import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
-import ehn.techiop.hcert.kotlin.trust.oidRecovery
-import ehn.techiop.hcert.kotlin.trust.oidTest
-import ehn.techiop.hcert.kotlin.trust.oidVaccination
 import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
@@ -107,17 +104,11 @@ class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
             val contentTypes = mutableSetOf<ContentType>()
             extKeyUsage?.let {
                 it.keyPurposes.forEach { oidStr ->
-                    when (oidStr) {
-                        oidRecovery -> contentTypes.add(ContentType.RECOVERY)
-                        oidTest -> contentTypes.add(ContentType.TEST)
-                        oidVaccination -> contentTypes.add(ContentType.VACCINATION)
-                    }
+                    ContentType.findByOid(oidStr)?.let { contentTypes.add(it) }
                 }
             }
             if (contentTypes.isEmpty()) {
-                contentTypes.add(ContentType.RECOVERY)
-                contentTypes.add(ContentType.TEST)
-                contentTypes.add(ContentType.VACCINATION)
+                contentTypes.addAll(ContentType.values())
             }
             return contentTypes.toList()
         }
