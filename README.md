@@ -2,14 +2,18 @@
 
 Implements a very basic validation and creation chain of electronic health certificates:
  - Encode in CBOR
+ - Wrap in a CWT structure
  - Sign and embed in COSE
  - Compress with ZLib
- - Prepend with context identifier
+ - Encode in Base45
+ - Prepend with Context Identifier
  - Encode as QR Code
 
 All services are implemented according to the [Specification 1.0.5](https://github.com/ehn-digital-green-development/hcert-spec), Version 1.0.5 from 2021-04-18.
 
 The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, Version 1.0.0, from 2021-04-30.
+
+The test resources are imported as a git submodule from <https://github.com/eu-digital-green-certificates/dgc-testdata/> into `src/commonTest/resources/dgc-testdata`. Please clone this repository with `git clone --recursive` or run `git submodule init && git submodule update` afterwards.
 
 ## Usage
 
