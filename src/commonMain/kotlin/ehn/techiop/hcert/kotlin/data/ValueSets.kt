@@ -20,9 +20,9 @@ data class ValueSetHolder(
     val valueSets: List<ValueSet>
 ) {
     fun find(valueSetId: String, key: String): ValueSetEntryAdapter {
-        return valueSets.firstOrNull { it.valueSetId == valueSetId }?.valueSetValues?.get(key)?.let {
-            ValueSetEntryAdapter(key, it)
-        } ?: ValueSetEntryAdapter(key, ValueSetEntry.UNKNOWN)
+        return valueSets.firstOrNull { it.valueSetId == valueSetId }
+            ?.valueSetValues?.get(key)?.let { ValueSetEntryAdapter(key, it) }
+            ?: throw IllegalArgumentException("ValueSet: $key")
     }
 
     fun find(key: String): ValueSetEntryAdapter {
@@ -30,7 +30,7 @@ data class ValueSetHolder(
             if (it.valueSetValues.containsKey(key))
                 return ValueSetEntryAdapter(key, it.valueSetValues[key]!!)
         }
-        return ValueSetEntryAdapter(key, ValueSetEntry.UNKNOWN)
+        throw IllegalArgumentException("ValueSet: $key")
     }
 
 }
@@ -54,11 +54,7 @@ data class ValueSetEntry(
     val system: String,
     val version: String,
     val valueSetId: String? = null
-) {
-    companion object {
-        val UNKNOWN = ValueSetEntry("", "", false, "", "", null)
-    }
-}
+)
 
 @Serializable(with = ValueSetEntryAdapterSerializer::class)
 data class ValueSetEntryAdapter(

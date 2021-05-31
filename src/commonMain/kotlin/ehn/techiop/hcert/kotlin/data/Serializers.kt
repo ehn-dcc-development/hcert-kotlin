@@ -8,10 +8,10 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializer(forClass = ValueSetEntryAdapter::class)
 object ValueSetEntryAdapterSerializer : KSerializer<ValueSetEntryAdapter> {
+
     override fun deserialize(decoder: Decoder): ValueSetEntryAdapter {
-        return ValueSetEntryAdapter(decoder.decodeString(), ValueSetEntry("foo", "de", true, "system", "version"))
-        //TODO Implement ValueSetEntryAdapterSerializer
-        //return ValueSetsInstanceHolder.INSTANCE.find(decoder.decodeString())
+        val key = decoder.decodeString()
+        return ValueSetsInstanceHolder.INSTANCE.find(key)
     }
 
     override fun serialize(encoder: Encoder, value: ValueSetEntryAdapter) {

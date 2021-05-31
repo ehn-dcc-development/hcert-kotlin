@@ -21,25 +21,6 @@ class TrustListV2EncodeService constructor(
     private val clock: Clock = Clock.System,
 ) {
 
-    fun encode(certificates: Set<X509Certificate>): ByteArray {
-        val trustList = TrustListV2(
-            certificates = certificates.map { it.toTrustedCertificate() }
-        )
-
-        return Sign1Message().also {
-            it.SetContent(Cbor.encodeToByteArray(trustList))
-            signingService.getCborHeaders().forEach { header ->
-                it.addAttribute(
-                    CBORObject.FromObject(header.first.value),
-                    CBORObject.FromObject(header.second),
-                    Attribute.PROTECTED
-                )
-            }
-            it.addAttribute(CBORObject.FromObject(42), CBORObject.FromObject(1), Attribute.PROTECTED)
-            it.sign(signingService.getCborSigningKey().toCoseRepresentation() as OneKey)
-        }.EncodeToBytes()
-    }
-
     fun encodeContent(certificates: Set<X509Certificate>): ByteArray {
         val trustList = TrustListV2(
             certificates = certificates.map { it.toTrustedCertificate() }

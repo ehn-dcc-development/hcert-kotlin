@@ -34,6 +34,10 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("recovery+vaccination") } // Certificate missing OID
     .filterNot { it.key.contains("test+vaccination") } // Certificate missing OID
     .filterNot { it.key.contains("+wrong") } // Certificate missing OID
+    .filterNot { it.key.contains("ES/2DCode/raw/1101") } // Wrong value set entry "729999"
+    .filterNot { it.key.contains("ES/2DCode/raw/1103") } // Wrong value set entry "94558-4"
+    .filterNot { it.key.contains("IT/2DCode/raw/4") } // Wrong value set entry <empty>
+    .filterNot { it.key.contains("LV/2DCode/raw/2") } // Wrong value set entry "1drop Inc"
     .filterNot { it.key.contains("NL/") } // TODO Schema 1.2.1
     .filterNot { it.key.contains("BE/2DCode/raw/3") } // TODO CBOR
     .filterNot { it.key.contains("FR/2DCode/raw/test_pcr_ok") } // TODO CBOR
