@@ -23,7 +23,7 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
         // field values against the allowed options from the linked value sets.
         ajv.addKeyword("valueset-uri")
 
-        val schemaString = MainResourceHolder.loadAsString("json/DGC.combined-schema.json")
+        val schemaString = MainResourceHolder.loadAsString("json/DCC.combined-schema.json")
         schema = JSON.parse<dynamic>(schemaString!!)
 
         if (!ajv.validateSchema(schema)) {

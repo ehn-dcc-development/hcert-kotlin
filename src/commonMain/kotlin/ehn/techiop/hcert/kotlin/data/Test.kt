@@ -6,13 +6,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-
 data class Test constructor(
     @SerialName("tg")
     val target: ValueSetEntryAdapter,
 
     @SerialName("tt")
-    val type: String,
+    val type: ValueSetEntryAdapter,
 
     @SerialName("nm")
     val nameNaa: String? = null,
@@ -23,10 +22,6 @@ data class Test constructor(
     @SerialName("sc")
     @Serializable(with = InstantIso8601Serializer::class)
     val dateTimeSample: Instant,
-
-    @SerialName("dr")
-    @Serializable(with = InstantIso8601Serializer::class)
-    val dateTimeResult: Instant? = null,
 
     @SerialName("tr")
     val resultPositive: ValueSetEntryAdapter,

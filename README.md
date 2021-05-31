@@ -1,6 +1,6 @@
 # Electronic Health Certificate Kotlin Library
 
-Implements a very basic validation and creation chain of electronic health certificates:
+Implements a very basic validation and creation chain for electronic health certificates:
  - Encode in CBOR
  - Wrap in a CWT structure
  - Sign and embed in COSE
@@ -11,13 +11,13 @@ Implements a very basic validation and creation chain of electronic health certi
 
 All services are implemented according to the [Specification 1.0.5](https://github.com/ehn-digital-green-development/hcert-spec), Version 1.0.5 from 2021-04-18.
 
-The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, Version 1.0.0, from 2021-04-30.
+The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, Version 1.2.1, from 2021-05-27.
 
-The test resources are imported as a git submodule from <https://github.com/eu-digital-green-certificates/dgc-testdata/> into `src/commonTest/resources/dgc-testdata`. Please clone this repository with `git clone --recursive` or run `git submodule init && git submodule update` afterwards.
+The resources for interop testing are imported as a git submodule from <https://github.com/eu-digital-green-certificates/dgc-testdata/> into `src/commonTest/resources/dgc-testdata`. Please clone this repository with `git clone --recursive` or run `git submodule init && git submodule update` afterwards.
 
 ## Usage
 
-`ehn.techiop.hcert.kotlin.chain.Chain` is the main class for encoding and decoding HCERT data. For encoding, pass an instance of a `Eudgc` (class generated from the JSON schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
+`ehn.techiop.hcert.kotlin.chain.Chain` is the main class for encoding and decoding HCERT data. For encoding, pass an instance of a `GreenCertificate` (data class conforming to the JSON schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
 
 The usage of interfaces for all services (CBOR, COSE, ZLib, Context) in the chain may seem over-engineered at first, but it allows us to create wrongly encoded results, by passing faulty implementations of the service. Those services reside in the namespace `ehn.techiop.hcert.kotlin.chain.faults` and should, obviously, not be used for production code.
 

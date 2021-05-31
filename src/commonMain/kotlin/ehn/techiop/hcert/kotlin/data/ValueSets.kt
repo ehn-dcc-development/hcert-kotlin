@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 val inputPaths = listOf(
     "/value-sets/disease-agent-targeted.json",
     "/value-sets/test-manf.json",
+    "/value-sets/test-type.json",
     "/value-sets/test-result.json",
     "/value-sets/vaccine-mah-manf.json",
     "/value-sets/vaccine-medicinal-product.json",

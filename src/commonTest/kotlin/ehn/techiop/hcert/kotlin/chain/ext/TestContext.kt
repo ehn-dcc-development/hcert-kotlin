@@ -25,7 +25,8 @@ data class TestContext(
     constructor(version: Int, schema: String, certificate: String?, validationClock: Instant, description: String?)
             : this(version, schema, certificate, validationClock.toString(), description)
 
-    val validationClock = Instant.parse(fixInstantString(_validationClock))
+    val validationClock
+        get() = Instant.parse(fixInstantString(_validationClock))
 
     /**
      * Some memberstate tests from dgc-testdata actually don't include the Zulu time zone marker ...

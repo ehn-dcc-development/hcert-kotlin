@@ -9,10 +9,10 @@ data class Person(
     val familyName: String? = null,
 
     @SerialName("fnt")
-    val familyNameTransliterated: String? = null,
+    val familyNameTransliterated: String,
 
     @SerialName("gn")
-    val givenName: String,
+    val givenName: String? = null,
 
     @SerialName("gnt")
     val givenNameTransliterated: String? = null,

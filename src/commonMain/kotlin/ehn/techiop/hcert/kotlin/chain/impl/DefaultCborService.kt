@@ -15,7 +15,8 @@ open class DefaultCborService : CborService {
     override fun decode(input: ByteArray, verificationResult: VerificationResult): GreenCertificate? {
         verificationResult.cborDecoded = false
         try {
-            val result = Cbor.decodeFromByteArray<GreenCertificate>(input)
+            // TODO Remove "ignoreUnknownKeys", once everything is up to date with schema 1.2.1
+            val result = Cbor { ignoreUnknownKeys = true }.decodeFromByteArray<GreenCertificate>(input)
             verificationResult.cborDecoded = true
             if (result.tests?.filterNotNull()?.isNotEmpty() == true)
                 verificationResult.content.add(ContentType.TEST)
