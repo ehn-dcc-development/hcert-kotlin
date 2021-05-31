@@ -60,4 +60,5 @@ enum class CwtHeaderKeys(val value: Int) {
     ISSUED_AT(6),
     CWT_ID(7),
     HCERT(-260),
+    EUDGC_IN_HCERT(1),
 }

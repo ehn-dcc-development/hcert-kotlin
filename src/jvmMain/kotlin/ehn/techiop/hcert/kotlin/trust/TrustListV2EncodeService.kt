@@ -5,7 +5,7 @@ import COSE.OneKey
 import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.impl.CwtHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import kotlinx.datetime.Clock
 import kotlinx.serialization.cbor.Cbor
@@ -33,9 +33,9 @@ class TrustListV2EncodeService constructor(
         val validUntil = validFrom + validity
         val hash = MessageDigest.getInstance("SHA-256").digest(content)
         val cwtClaims = CBORObject.NewMap().also {
-            it[CwtHeaderKeys.NOT_BEFORE.AsCBOR()] = CBORObject.FromObject(validFrom.epochSeconds)
-            it[CwtHeaderKeys.EXPIRATION.AsCBOR()] = CBORObject.FromObject(validUntil.epochSeconds)
-            it[CwtHeaderKeys.SUBJECT.AsCBOR()] = CBORObject.FromObject(hash)
+            it[CwtHeaderKeys.NOT_BEFORE.value] = CBORObject.FromObject(validFrom.epochSeconds)
+            it[CwtHeaderKeys.EXPIRATION.value] = CBORObject.FromObject(validUntil.epochSeconds)
+            it[CwtHeaderKeys.SUBJECT.value] = CBORObject.FromObject(hash)
         }
 
         val versionKey = CBORObject.FromObject(42)

@@ -7,8 +7,9 @@ import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.impl.CwtHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant.Companion.fromEpochSeconds
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import java.security.MessageDigest
@@ -36,17 +37,15 @@ actual class TrustListDecodeService actual constructor(
             val cwtMap = CBORObject.DecodeFromBytes(payload)
             val actualHash = MessageDigest.getInstance("SHA256").digest(optionalContent)
 
-            val expectedHash = cwtMap[CwtHeaderKeys.SUBJECT.AsCBOR()].GetByteString()
+            val expectedHash = cwtMap[CwtHeaderKeys.SUBJECT.value].GetByteString()
             if (!(expectedHash contentEquals actualHash))
                 throw IllegalArgumentException("Hash")
 
-            val validFrom =
-                kotlinx.datetime.Instant.fromEpochSeconds(cwtMap[CwtHeaderKeys.NOT_BEFORE.AsCBOR()].AsInt64())
+            val validFrom = fromEpochSeconds(cwtMap[CwtHeaderKeys.NOT_BEFORE.value].AsInt64())
             if (validFrom > clock.now().plus(Duration.seconds(300)))
                 throw IllegalArgumentException("ValidFrom")
 
-            val validUntil =
-                kotlinx.datetime.Instant.fromEpochSeconds(cwtMap[CwtHeaderKeys.EXPIRATION.AsCBOR()].AsInt64())
+            val validUntil = fromEpochSeconds(cwtMap[CwtHeaderKeys.EXPIRATION.value].AsInt64())
             if (validUntil < clock.now().minus(Duration.seconds(300)))
                 throw IllegalArgumentException("ValidUntil")
 
