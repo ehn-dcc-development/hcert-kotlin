@@ -71,7 +71,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.prefix?.let {
             withClue("Prefix") {
                 if (it) case.base45 shouldBe chainResult.chainDecodeResult.step4Encoded
-                if (!it) VerificationDecision.FAIL shouldBe decision
+                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
             }
         }
         case.expectedResult.base45Decode?.let {
@@ -79,7 +79,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 verificationResult.base45Decoded shouldBe it
                 if (it && case.compressedHex != null) case.compressedHex.lowercase() shouldBe chainResult.chainDecodeResult.step3Compressed?.toHexString()
                     ?.lowercase()
-                if (!it) VerificationDecision.FAIL shouldBe decision
+                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
             }
         }
         case.expectedResult.compression?.let {
@@ -92,7 +92,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.coseSignature?.let {
             withClue("COSE Verify") {
                 it shouldBe verificationResult.coseVerified
-                if (!it) VerificationDecision.FAIL shouldBe decision
+                if (!it) VerificationDecision.FAIL_SIGNATURE shouldBe decision
             }
         }
         case.expectedResult.cborDecode?.let {
@@ -103,31 +103,31 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     // doesn't make sense to compare exact CBOR hex encoding
                     //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
                 }
-                if (!it) VerificationDecision.FAIL shouldBe decision
+                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
             }
         }
         case.expectedResult.json?.let {
             withClue("Green Pass fully decoded") {
                 case.eudgc shouldBe chainResult.chainDecodeResult.eudgc
-                if (!it) VerificationDecision.FAIL shouldBe decision
+                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
             }
         }
         case.expectedResult.schemaValidation?.let {
             withClue("Schema verification") {
                 it shouldBe verificationResult.schemaValidated
-                if (!it) VerificationDecision.FAIL shouldBe decision
+                if (!it) VerificationDecision.FAIL_QRCODE shouldBe decision
             }
         }
         case.expectedResult.expirationCheck?.let {
             withClue("Expiration Check") {
                 if (it) VerificationDecision.GOOD shouldBe decision
-                if (!it) VerificationDecision.FAIL shouldBe decision
+                if (!it) VerificationDecision.FAIL_VALIDITY shouldBe decision
             }
         }
         case.expectedResult.keyUsage?.let {
             withClue("Key Usage") {
                 if (it) VerificationDecision.GOOD shouldBe decision
-                if (!it) VerificationDecision.FAIL shouldBe decision
+                if (!it) VerificationDecision.FAIL_SIGNATURE shouldBe decision
             }
         }
     }

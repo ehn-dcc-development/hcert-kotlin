@@ -39,6 +39,7 @@ kotlin {
             useExperimentalAnnotation("kotlin.time.ExperimentalTime")
             useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
             useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
+            useExperimentalAnnotation("io.kotest.common.ExperimentalKotest")
         }
     }
     jvm {

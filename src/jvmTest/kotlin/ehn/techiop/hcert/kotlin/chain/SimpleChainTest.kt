@@ -15,13 +15,13 @@ class SimpleChainTest : FunSpec({
 
     withData(
         TestInput(SampleData.testRat, ContentType.TEST, VerificationDecision.GOOD),
-        TestInput(SampleData.testRat, ContentType.VACCINATION, VerificationDecision.FAIL),
+        TestInput(SampleData.testRat, ContentType.VACCINATION, VerificationDecision.FAIL_SIGNATURE),
         TestInput(SampleData.testNaa, ContentType.TEST, VerificationDecision.GOOD),
-        TestInput(SampleData.testNaa, ContentType.RECOVERY, VerificationDecision.FAIL),
+        TestInput(SampleData.testNaa, ContentType.RECOVERY, VerificationDecision.FAIL_SIGNATURE),
         TestInput(SampleData.vaccination, ContentType.VACCINATION, VerificationDecision.GOOD),
-        TestInput(SampleData.vaccination, ContentType.TEST, VerificationDecision.FAIL),
+        TestInput(SampleData.vaccination, ContentType.TEST, VerificationDecision.FAIL_SIGNATURE),
         TestInput(SampleData.recovery, ContentType.RECOVERY, VerificationDecision.GOOD),
-        TestInput(SampleData.recovery, ContentType.VACCINATION, VerificationDecision.FAIL)
+        TestInput(SampleData.recovery, ContentType.VACCINATION, VerificationDecision.FAIL_SIGNATURE)
     ) { input ->
 
         withData(

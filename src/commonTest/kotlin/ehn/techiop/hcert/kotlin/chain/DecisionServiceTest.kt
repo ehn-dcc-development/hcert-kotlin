@@ -1,6 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.kotlin.chain.VerificationDecision.FAIL
+import ehn.techiop.hcert.kotlin.chain.VerificationDecision.FAIL_QRCODE
+import ehn.techiop.hcert.kotlin.chain.VerificationDecision.FAIL_SIGNATURE
+import ehn.techiop.hcert.kotlin.chain.VerificationDecision.FAIL_VALIDITY
 import ehn.techiop.hcert.kotlin.chain.VerificationDecision.GOOD
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import io.kotest.core.spec.style.StringSpec
@@ -54,7 +56,7 @@ class DecisionServiceTest : StringSpec({
             content = mutableListOf(ContentType.TEST)
             certificateValidContent = mutableListOf()
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_SIGNATURE
     }
 
     "failContentVaccination" {
@@ -62,7 +64,7 @@ class DecisionServiceTest : StringSpec({
             content = mutableListOf(ContentType.VACCINATION)
             certificateValidContent = mutableListOf(ContentType.RECOVERY, ContentType.TEST)
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_SIGNATURE
     }
 
     "failContentRecovery" {
@@ -70,42 +72,42 @@ class DecisionServiceTest : StringSpec({
             content = mutableListOf(ContentType.RECOVERY)
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_SIGNATURE
     }
 
     "failBase45" {
         val verificationResult = goodVerificationResult().apply {
             base45Decoded = false
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_QRCODE
     }
 
     "failCose" {
         val verificationResult = goodVerificationResult().apply {
             coseVerified = false
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_SIGNATURE
     }
 
     "failCbor" {
         val verificationResult = goodVerificationResult().apply {
             cborDecoded = false
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_QRCODE
     }
 
     "failCwt" {
         val verificationResult = goodVerificationResult().apply {
             cwtDecoded = false
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_SIGNATURE
     }
 
     "failContextIdentifier" {
         val verificationResult = goodVerificationResult().apply {
             contextIdentifier = null
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_QRCODE
     }
 
     "issuedAtPast" {
@@ -128,7 +130,7 @@ class DecisionServiceTest : StringSpec({
             issuedAt = Clock.System.now().minus(Duration.seconds(5))
             certificateValidFrom = Clock.System.now().minus(Duration.seconds(1))
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_VALIDITY
     }
 
     "issuedAtPastExpirationFuture" {
@@ -143,14 +145,14 @@ class DecisionServiceTest : StringSpec({
         val verificationResult = goodVerificationResult().apply {
             issuedAt = Clock.System.now().plus(Duration.seconds(5))
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_VALIDITY
     }
 
     "expirationPast" {
         val verificationResult = goodVerificationResult().apply {
             expirationTime = Clock.System.now().minus(Duration.seconds(5))
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_VALIDITY
     }
 
     "expirationFuture" {
@@ -173,7 +175,7 @@ class DecisionServiceTest : StringSpec({
             expirationTime = Clock.System.now().plus(Duration.seconds(5))
             certificateValidUntil = Clock.System.now().plus(Duration.seconds(1))
         }
-        decisionService.decide(verificationResult) shouldBe FAIL
+        decisionService.decide(verificationResult) shouldBe FAIL_VALIDITY
     }
 })
 
