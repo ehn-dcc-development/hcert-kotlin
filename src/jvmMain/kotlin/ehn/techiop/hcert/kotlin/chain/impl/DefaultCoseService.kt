@@ -1,6 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import COSE.*
+import COSE.Attribute
+import COSE.HeaderKeys
+import COSE.MessageTag
+import COSE.OneKey
+import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.CryptoService
@@ -24,19 +28,12 @@ actual open class DefaultCoseService actual constructor(private val cryptoServic
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.coseVerified = false
-        return try {
-            (Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message).also {
-                try {
-                    val kid = it.findAttribute(HeaderKeys.KID)?.GetByteString() ?: throw IllegalArgumentException("kid")
-                    val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
-                    verificationResult.coseVerified = it.validate(verificationKey.toCoseRepresentation() as OneKey)
-                } catch (e: Throwable) {
-                    it.GetContent()
-                }
-            }.GetContent()
-        } catch (e: Throwable) {
-            throw e
-        }
+        val msg = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
+        val kid = msg.findAttribute(HeaderKeys.KID)?.GetByteString() ?: throw IllegalArgumentException("kid")
+        val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
+        verificationResult.coseVerified = msg.validate(verificationKey.toCoseRepresentation() as OneKey)
+        return msg.GetContent()
+
     }
 
 }

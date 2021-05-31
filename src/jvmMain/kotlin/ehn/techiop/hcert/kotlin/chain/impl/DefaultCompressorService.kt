@@ -23,12 +23,8 @@ actual open class DefaultCompressorService actual constructor(private val level:
      */
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.zlibDecoded = false
-        return try {
-            InflaterInputStream(input.inputStream()).readBytes().also {
-                verificationResult.zlibDecoded = true
-            }
-        } catch (e: Throwable) {
-            throw e
+        return InflaterInputStream(input.inputStream()).readBytes().also {
+            verificationResult.zlibDecoded = true
         }
     }
 

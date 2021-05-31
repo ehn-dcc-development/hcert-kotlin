@@ -49,9 +49,7 @@ actual class DefaultCoseService actual constructor(private val cryptoService: Cr
             val result = Cose.verifySync(input, pubKey)
             verificationResult.coseVerified = true
             content.toByteArray()
-        }.catch {
-            throw it
-        }
+        }.catch { throw it }
     }
 
 }

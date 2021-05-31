@@ -68,9 +68,7 @@ actual open class DefaultCwtService actual constructor(
                 }
             }
             throw Throwable("could not decode CWT. hcert:$hcert, expiration: $expiration, issuedAt: $issuedAt, issuer: $issuer")
-        }.catch {
-            throw it
-        }
+        }.catch { throw it }
     }
 
 }

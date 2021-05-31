@@ -20,26 +20,19 @@ actual class VerificationCoseService actual constructor(private val repository: 
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.coseVerified = false
-        return try {
-            (Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message).also {
-                try {
-                    val kid = it.findAttribute(HeaderKeys.KID)?.GetByteString() ?: throw IllegalArgumentException("kid")
-                    repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
-                        verificationResult.certificateValidFrom = trustedCert.validFrom
-                        verificationResult.certificateValidUntil = trustedCert.validUntil
-                        verificationResult.certificateValidContent = trustedCert.validContentTypes
-                        if (it.validate(trustedCert.cosePublicKey.toCoseRepresentation() as OneKey)) {
-                            verificationResult.coseVerified = true
-                            return it.GetContent()
-                        }
-                    }
-                } catch (e: Throwable) {
-                    throw e
-                }
-            }.GetContent()
-        } catch (e: Throwable) {
-            throw e
+        val msg = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
+        val kid = msg.findAttribute(HeaderKeys.KID)?.GetByteString() ?: throw IllegalArgumentException("kid")
+        repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
+            verificationResult.certificateValidFrom = trustedCert.validFrom
+            verificationResult.certificateValidUntil = trustedCert.validUntil
+            verificationResult.certificateValidContent = trustedCert.validContentTypes
+            if (msg.validate(trustedCert.cosePublicKey.toCoseRepresentation() as OneKey)) {
+                verificationResult.coseVerified = true
+                return msg.GetContent()
+            }
         }
+        return msg.GetContent()
+
     }
 
 }

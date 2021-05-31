@@ -37,30 +37,26 @@ actual open class DefaultCwtService actual constructor(
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         verificationResult.cwtDecoded = false
-        try {
-            val map = CBORObject.DecodeFromBytes(input)
+        val map = CBORObject.DecodeFromBytes(input)
 
-            map[CwtHeaderKeys.ISSUER.AsCBOR()]?.let {
-                verificationResult.issuer = it.AsString()
-            }
-            map[CwtHeaderKeys.ISSUED_AT.AsCBOR()]?.let {
-                verificationResult.issuedAt = Instant.fromEpochSeconds(it.AsInt64())
-            }
-            map[CwtHeaderKeys.EXPIRATION.AsCBOR()]?.let {
-                verificationResult.expirationTime = Instant.fromEpochSeconds(it.AsInt64())
-            }
+        map[CwtHeaderKeys.ISSUER.AsCBOR()]?.let {
+            verificationResult.issuer = it.AsString()
+        }
+        map[CwtHeaderKeys.ISSUED_AT.AsCBOR()]?.let {
+            verificationResult.issuedAt = Instant.fromEpochSeconds(it.AsInt64())
+        }
+        map[CwtHeaderKeys.EXPIRATION.AsCBOR()]?.let {
+            verificationResult.expirationTime = Instant.fromEpochSeconds(it.AsInt64())
+        }
 
-            map[CwtHeaderKeys.HCERT.AsCBOR()]?.let { hcert -> // SPEC
-                hcert[keyEuDgcV1]?.let { eudgcV1 ->
-                    return getContents(eudgcV1).also {
-                        verificationResult.cwtDecoded = true
-                    }
+        map[CwtHeaderKeys.HCERT.AsCBOR()]?.let { hcert -> // SPEC
+            hcert[keyEuDgcV1]?.let { eudgcV1 ->
+                return getContents(eudgcV1).also {
+                    verificationResult.cwtDecoded = true
                 }
             }
-            throw Throwable("could not decode CWT")
-        } catch (e: Throwable) {
-            throw e
         }
+        throw Throwable("could not decode CWT")
     }
 
     private fun getContents(it: CBORObject) = try {

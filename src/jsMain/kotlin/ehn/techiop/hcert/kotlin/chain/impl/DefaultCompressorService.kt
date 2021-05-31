@@ -25,9 +25,7 @@ actual open class DefaultCompressorService actual constructor(private val level:
             Pako.inflate(input.toUint8Array()).toByteArray().also {
                 verificationResult.zlibDecoded = true
             }
-        }.catch {
-            throw it
-        }
+        }.catch { throw it }
     }
 
 }

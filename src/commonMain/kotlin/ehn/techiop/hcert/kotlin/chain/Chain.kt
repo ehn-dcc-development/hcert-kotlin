@@ -107,7 +107,7 @@ class Chain(
             schemaValidationService.validate(cbor, verificationResult)
             eudgc = cborService.decode(cbor, verificationResult)
         } catch (t: Throwable) {
-            // ignore it on purpose,
+            // ignore it on purpose, the verificationResult shall show that the result is not complete
         }
         return DecodeExtendedResult(verificationResult, ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded))
     }

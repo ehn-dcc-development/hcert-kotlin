@@ -16,12 +16,8 @@ open class DefaultBase45Service : Base45Service {
 
     override fun decode(input: String, verificationResult: VerificationResult): ByteArray {
         verificationResult.base45Decoded = false
-        return try {
-            encoder.decode(input).also {
-                verificationResult.base45Decoded = true
-            }
-        } catch (e: Throwable) {
-            input.encodeToByteArray()
+        return encoder.decode(input).also {
+            verificationResult.base45Decoded = true
         }
     }
 

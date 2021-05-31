@@ -44,8 +44,6 @@ actual class VerificationCoseService actual constructor(private val repository: 
             }
 
             content.toByteArray()
-        }.catch {
-            throw it
-        }
+        }.catch { throw it }
     }
 }
