@@ -15,7 +15,6 @@ import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.crypto.kid
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator
@@ -32,8 +31,9 @@ class RandomEcKeyCryptoService(
 
     private val keyPair = KeyPairGenerator.getInstance("EC")
         .apply { initialize(keySize) }.genKeyPair()
-    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=EC-Me"), keyPair, contentType, clock)
-    private val keyId = certificate.kid
+    private val x509Certificate = PkiUtils.selfSignCertificate(X500Name("CN=EC-Me"), keyPair, contentType, clock)
+    private val certificate = JvmCertificate(x509Certificate)
+    private val keyId = x509Certificate.kid
     private val algorithmId = when (keySize) {
         384 -> AlgorithmID.ECDSA_384
         256 -> AlgorithmID.ECDSA_256
@@ -49,15 +49,13 @@ class RandomEcKeyCryptoService(
 
     override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
-        verificationResult.certificateValidFrom =
-            Instant.fromEpochSeconds(certificate.notBefore.toInstant().epochSecond)
-        verificationResult.certificateValidUntil =
-            Instant.fromEpochSeconds(certificate.notAfter.toInstant().epochSecond)
-        verificationResult.certificateValidContent = PkiUtils.getValidContentTypes(certificate)
+        verificationResult.certificateValidFrom = certificate.validFrom
+        verificationResult.certificateValidUntil = certificate.validUntil
+        verificationResult.certificateValidContent = certificate.validContentTypes
         return CosePubKey(OneKey(keyPair.public, keyPair.private))
     }
 
-    override fun getCertificate(): Certificate<*> = JvmCertificate(certificate)
+    override fun getCertificate(): Certificate<*> = certificate
 
     override fun exportPrivateKeyAsPem() = StringWriter().apply {
         PemWriter(this).use {
@@ -66,7 +64,7 @@ class RandomEcKeyCryptoService(
     }.toString()
 
     override fun exportCertificateAsPem() = StringWriter().apply {
-        JcaPEMWriter(this).use { it.writeObject(certificate) }
+        JcaPEMWriter(this).use { it.writeObject(x509Certificate) }
     }.toString()
 
 }

@@ -5,8 +5,8 @@ import COSE.OneKey
 import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.common.PkiUtils.toTrustedCertificate
 import ehn.techiop.hcert.kotlin.chain.impl.CwtHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import kotlinx.datetime.Clock
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
@@ -23,7 +23,7 @@ class TrustListV2EncodeService constructor(
 
     fun encodeContent(certificates: Set<X509Certificate>): ByteArray {
         val trustList = TrustListV2(
-            certificates = certificates.map { it.toTrustedCertificate() }
+            certificates = certificates.map { JvmCertificate(it).toTrustedCertificate() }
         )
         return Cbor.encodeToByteArray(trustList)
     }

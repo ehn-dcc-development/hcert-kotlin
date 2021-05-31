@@ -38,8 +38,9 @@ class RandomRsaKeyCryptoService(
 
     private val keyPair = KeyPairGenerator.getInstance("RSA")
         .apply { initialize(keySize) }.genKeyPair()
-    private val certificate = PkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair, contentType, clock)
-    private val keyId = certificate.kid
+    private val x509Certificate = PkiUtils.selfSignCertificate(X500Name("CN=RSA-Me"), keyPair, contentType, clock)
+    private val certificate = JvmCertificate(x509Certificate)
+    private val keyId = x509Certificate.kid
 
     override fun getCborHeaders() = listOf(
         Pair(CoseHeaderKeys.Algorithm, AlgorithmID.RSA_PSS_256.AsCBOR()),
@@ -50,15 +51,13 @@ class RandomRsaKeyCryptoService(
 
     override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
-        verificationResult.certificateValidFrom =
-            Instant.fromEpochSeconds(certificate.notBefore.toInstant().epochSecond)
-        verificationResult.certificateValidUntil =
-            Instant.fromEpochSeconds(certificate.notAfter.toInstant().epochSecond)
-        verificationResult.certificateValidContent = PkiUtils.getValidContentTypes(certificate)
+        verificationResult.certificateValidFrom = certificate.validFrom
+        verificationResult.certificateValidUntil = certificate.validUntil
+        verificationResult.certificateValidContent = certificate.validContentTypes
         return CosePubKey(OneKey(keyPair.public, keyPair.private))
     }
 
-    override fun getCertificate(): Certificate<*> = JvmCertificate(certificate)
+    override fun getCertificate(): Certificate<*> = certificate
 
     override fun exportPrivateKeyAsPem() = StringWriter().apply {
         PemWriter(this).use {
@@ -67,7 +66,7 @@ class RandomRsaKeyCryptoService(
     }.toString()
 
     override fun exportCertificateAsPem() = StringWriter().apply {
-        JcaPEMWriter(this).use { it.writeObject(certificate) }
+        JcaPEMWriter(this).use { it.writeObject(x509Certificate) }
     }.toString()
 
 }

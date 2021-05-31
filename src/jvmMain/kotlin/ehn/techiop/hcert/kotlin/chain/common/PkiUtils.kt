@@ -1,6 +1,5 @@
 package ehn.techiop.hcert.kotlin.chain.common
 
-import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
@@ -61,22 +60,11 @@ object PkiUtils {
         KeyPurposeId.getInstance(ASN1ObjectIdentifier(it.oid))
     }.toTypedArray()
 
-    fun getValidContentTypes(certificate: X509Certificate) =
-        ContentType.values().filter { hasOid(certificate, ASN1ObjectIdentifier(it.oid)) }
-            .ifEmpty { ContentType.values().toList() }
-
-    private fun hasOid(certificate: X509Certificate, oid: ASN1ObjectIdentifier): Boolean {
-        return certificate.extendedKeyUsage != null && certificate.extendedKeyUsage.any { oid.toString() == it }
-    }
 
     private fun getAlgorithm(private: PrivateKey) = when (private) {
         is ECPrivateKey -> "SHA256withECDSA"
         else -> "SHA256withRSA"
     }
-
-
-    fun X509Certificate.toTrustedCertificate() = JvmCertificate(this).toTrustedCertificate()
-
 
 }
 
