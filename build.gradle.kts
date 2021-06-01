@@ -143,7 +143,6 @@ kotlin {
                 implementation(npm("fast-sha256", "1.3.0", generateExternals = true))
                 implementation(npm("url", "0.11.0"))
                 implementation(npm("elliptic", "6.5.4", generateExternals = false))
-                implementation(npm("@types/elliptic", "6.4.12", generateExternals = false))
                 implementation(npm("node-rsa", "1.1.1"))
                 implementation(npm("constants-browserify", "1.0.0"))
                 implementation(npm("assert", "2.0.0"))
@@ -177,10 +176,6 @@ kotlin {
 
           }*/
     }
-}
-
-configure<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension> {
-    versions.dukat.version = "0.5.8-rc.2"
 }
 
 

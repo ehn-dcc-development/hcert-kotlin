@@ -67,7 +67,8 @@ actual fun selfSignCertificate(
     certificate.signatureAlgorithm = algorithmIdentifier
     certificate.tbs=certificate.encodeTBS().toBER(js("false"))
     val sha256= hash(Uint8Array( certificate.tbs))
-    val signatureValue= (privateKey as JsEcPrivKey).keyPair.sign(sha256).toDER()
+    val keyPair = (privateKey as JsEcPrivKey).keyPair
+    val signatureValue= js("keyPair.sign(sha256).toDER()")
 
 
     certificate.signatureValue = BitString(js("({valueHex: signatureValue})"))
