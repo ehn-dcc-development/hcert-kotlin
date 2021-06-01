@@ -23,17 +23,18 @@ class TrustListDecodeService(private val repository: CertificateRepository, priv
         } else if (version == 2 && optionalContent != null) {
             val actualHash = Hash(optionalContent).calc()
 
-            val expectedHash = coseAdapter.getMapEntryByteArray(CwtHeaderKeys.SUBJECT.value)
+            val map = coseAdapter.getContentMap()
+            val expectedHash = map.getMapEntryByteArray(CwtHeaderKeys.SUBJECT.value)
             if (!(expectedHash contentEquals actualHash))
                 throw IllegalArgumentException("Hash")
 
-            val notBefore = coseAdapter.getMapEntryNumber(CwtHeaderKeys.NOT_BEFORE.value)
+            val notBefore = map.getMapEntryNumber(CwtHeaderKeys.NOT_BEFORE.value)
                 ?: throw IllegalArgumentException("ValidFrom")
             val validFrom = Instant.fromEpochSeconds(notBefore.toLong())
             if (validFrom > clock.now().plus(Duration.seconds(300)))
                 throw IllegalArgumentException("ValidFrom")
 
-            val expiration = coseAdapter.getMapEntryNumber(CwtHeaderKeys.EXPIRATION.value)
+            val expiration = map.getMapEntryNumber(CwtHeaderKeys.EXPIRATION.value)
                 ?: throw IllegalArgumentException("ValidUntil")
             val validUntil = Instant.fromEpochSeconds(expiration.toLong())
             if (validUntil < clock.now().minus(Duration.seconds(300)))

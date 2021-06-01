@@ -3,7 +3,6 @@ package ehn.techiop.hcert.kotlin.trust
 import COSE.MessageTag
 import COSE.OneKey
 import COSE.Sign1Message
-import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
@@ -11,8 +10,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 
 actual class CoseAdapter actual constructor(private val input: ByteArray) {
+
     val sign1Message = Sign1Message.DecodeFromBytes(input, MessageTag.Sign1) as Sign1Message
-    val cwtMap = CBORObject.DecodeFromBytes(sign1Message.GetContent())
 
     init {
         Security.addProvider(BouncyCastleProvider()) // for SHA256withRSA/PSS
@@ -69,7 +68,6 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
     actual fun getContent() = sign1Message.GetContent()
 
-    actual fun getMapEntryByteArray(value: Int) = cwtMap[value]?.GetByteString()
+    actual fun getContentMap() = CwtAdapter(sign1Message.GetContent())
 
-    actual fun getMapEntryNumber(value: Int) = cwtMap[value]?.AsInt64() as Number?
 }

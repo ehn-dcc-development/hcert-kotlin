@@ -12,6 +12,7 @@ import ehn.techiop.hcert.kotlin.crypto.Cose
 import org.khronos.webgl.Uint8Array
 
 actual class CoseAdapter actual constructor(private val input: ByteArray) {
+
     val cborJson = Cbor.Decoder.decodeAllSync(Buffer(input.toUint8Array()))
     val cose = cborJson[0] as Cbor.Tagged
     val coseValue = cose.value as Array<Buffer>
@@ -20,7 +21,6 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
     val unprotectedHeader = coseValue[1].asDynamic()
     val content = coseValue[2]
     val signature = coseValue[3]
-    val cwtMap = Cbor.Decoder.decodeAllSync(Buffer.Companion.from(content.toByteArray().toUint8Array()))[0].asDynamic()
 
     actual fun getProtectedAttributeByteArray(key: Int) =
         (protectedHeaderCbor?.get(key) as Uint8Array?)?.toByteArray()
@@ -81,7 +81,6 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
     actual fun getContent() = content.toByteArray()
 
-    actual fun getMapEntryByteArray(value: Int) = (cwtMap?.get(value) as Uint8Array?)?.toByteArray()
+    actual fun getContentMap() = CwtAdapter(content.toByteArray())
 
-    actual fun getMapEntryNumber(value: Int) = cwtMap?.get(value) as Number?
 }
