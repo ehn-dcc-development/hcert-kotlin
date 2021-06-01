@@ -48,7 +48,9 @@ class RandomEcKeyCryptoService(
     override fun getCborSigningKey() = CosePrivKey(OneKey(keyPair.public, keyPair.private))
 
     override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey<*> {
-        if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
+        if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
+            verificationResult.error = VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+        }
         verificationResult.certificateValidFrom = certificate.validFrom
         verificationResult.certificateValidUntil = certificate.validUntil
         verificationResult.certificateValidContent = certificate.validContentTypes

@@ -134,7 +134,6 @@ class FaultyImplementationsTest : StringSpec({
 
 
     "correct" {
-        println(chainCorrect.encode(decodedFromInput).step1Cwt.toHexString())
         assertVerification(
             chainCorrect.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
@@ -245,8 +244,8 @@ private fun assertVerification(
     expectDataToMatch: Boolean,
     expectedResult: VerificationResult,
 ) {
-    val vaccinationData = chainCorrect.decode(chainOutput)
-    val verificationResult = vaccinationData.verificationResult
+    val result = chainCorrect.decode(chainOutput)
+    val verificationResult = result.verificationResult
     verificationResult.base45Decoded shouldBe expectedResult.base45Decoded
     verificationResult.cwtDecoded shouldBe expectedResult.cwtDecoded
     verificationResult.cborDecoded shouldBe expectedResult.cborDecoded
@@ -254,9 +253,9 @@ private fun assertVerification(
     verificationResult.zlibDecoded shouldBe expectedResult.zlibDecoded
     verificationResult.contextIdentifier shouldBe expectedResult.contextIdentifier
 
-    println(chainOutput)
-
-    if (expectDataToMatch) vaccinationData.greenCertificate shouldBe input
-    else vaccinationData.greenCertificate shouldNotBe input
-
+    if (expectDataToMatch) {
+        result.greenCertificate shouldBe input
+    } else {
+        result.greenCertificate shouldNotBe input
+    }
 }

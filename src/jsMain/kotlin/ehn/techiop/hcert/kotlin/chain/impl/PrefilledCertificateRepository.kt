@@ -32,9 +32,10 @@ actual class PrefilledCertificateRepository : CertificateRepository {
         verificationResult: VerificationResult
     ): List<TrustedCertificate> {
         val certList = list.filter { it.kid contentEquals kid }
-        if (certList.isEmpty()) throw IllegalArgumentException("kid")
-        // TODO return all trusted certificates
-        return listOf(list[0].toTrustedCertificate())
+        if (certList.isEmpty()) throw IllegalArgumentException("kid").also {
+            verificationResult.error = VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+        }
+        return certList.map { it.toTrustedCertificate() }
     }
 
 }

@@ -22,7 +22,9 @@ class TrustListCertificateRepository(
         verificationResult: VerificationResult
     ): List<TrustedCertificate> {
         val certList = list.filter { it.kid contentEquals kid }
-        if (certList.isEmpty()) throw IllegalArgumentException("kid")
+        if (certList.isEmpty()) throw IllegalArgumentException("kid").also {
+            verificationResult.error = VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+        }
         return certList
     }
 

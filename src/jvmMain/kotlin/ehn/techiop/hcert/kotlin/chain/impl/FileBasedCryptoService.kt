@@ -61,7 +61,9 @@ class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: S
         kid: ByteArray,
         verificationResult: VerificationResult
     ): ehn.techiop.hcert.kotlin.crypto.PubKey<*> {
-        if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
+        if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
+            verificationResult.error = VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+        }
         verificationResult.certificateValidFrom = certificate.validFrom
         verificationResult.certificateValidUntil = certificate.validUntil
         verificationResult.certificateValidContent = certificate.validContentTypes

@@ -2,19 +2,29 @@ package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlin.js.JsName
 
 
 @Serializable
-data class DecodeExtendedResult(val verificationResult: VerificationResult, val chainDecodeResult: ChainDecodeResult) {
-    fun toJson() = Json.encodeToString(this)
-}
+data class DecodeExtendedResult(
+    val verificationResult: VerificationResult,
+    val chainDecodeResult: ChainDecodeResult,
+    val decision: VerificationDecision
+)
 
 @Serializable
-data class DecodeResult(val verificationResult: VerificationResult, val greenCertificate: GreenCertificate?) {
-    fun toJson() = Json.encodeToString(this)
+data class DecodeResult(
+    val isValid: Boolean,
+    val error: VerificationResult.Error?,
+    val metaInformation: MetaInformation,
+    val greenCertificate: GreenCertificate?,
+) {
+    constructor(extResult: DecodeExtendedResult) : this(
+        extResult.decision == VerificationDecision.GOOD,
+        extResult.verificationResult.error,
+        MetaInformation.from(extResult.verificationResult),
+        extResult.chainDecodeResult.eudgc,
+    )
 }
 
 /**
@@ -69,8 +79,7 @@ class Chain(
      */
     @JsName("decode")
     fun decode(input: String): DecodeResult {
-        val decodeExtended = decodeExtended(input)
-        return DecodeResult(decodeExtended.verificationResult, decodeExtended.chainDecodeResult.eudgc)
+        return DecodeResult(decodeExtended(input))
     }
 
     /**
@@ -108,8 +117,12 @@ class Chain(
             eudgc = cborService.decode(cbor, verificationResult)
         } catch (t: Throwable) {
             // ignore it on purpose, the verificationResult shall show that the result is not complete
+            t.printStackTrace()
         }
-        return DecodeExtendedResult(verificationResult, ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded))
+
+        val chainDecodeResult = ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded)
+        val decision = DecisionService().decide(verificationResult)
+        return DecodeExtendedResult(verificationResult, chainDecodeResult, decision)
     }
 }
 

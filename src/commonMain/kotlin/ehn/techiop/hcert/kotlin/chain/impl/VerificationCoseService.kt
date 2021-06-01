@@ -15,13 +15,16 @@ class VerificationCoseService constructor(private val repository: CertificateRep
         val coseAdapter = CoseAdapter(strippedInput(input))
         val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.value)
             ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.value)
-            ?: throw IllegalArgumentException("KID not found")
+            ?: throw IllegalArgumentException("KID not found").also {
+                verificationResult.error = VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+            }
         val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
         // TODO is the algorithm relevant?
-        val validate = coseAdapter.validate(kid, repository, verificationResult)
-        if (!validate) {
-            throw IllegalArgumentException("Not validated")
-        }
+        if (!coseAdapter.validate(kid, repository, verificationResult))
+            throw IllegalArgumentException("Not validated").also {
+                verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+            }
+
         return coseAdapter.getContent()
     }
 

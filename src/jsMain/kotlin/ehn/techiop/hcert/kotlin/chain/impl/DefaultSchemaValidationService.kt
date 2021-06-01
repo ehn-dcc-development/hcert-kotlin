@@ -37,7 +37,9 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
             val json = Cbor.Decoder.decodeFirstSync(input = cbor.toBuffer(), options = object : DecodeOptions {})
 
             if (!ajv.validate(schema, json)) {
-                throw Throwable("Data does not follow schema: ${JSON.stringify(ajv.errors)}")
+                throw Throwable("Data does not follow schema: ${JSON.stringify(ajv.errors)}").also {
+                    verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                }
                 /*.let {
                      if (!it) {
                          console.log("Data does not follow schema:")
@@ -46,7 +48,11 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
                  }*/
             }
             verificationResult.schemaValidated = true
-        }.catch { throw it }
+        }.catch {
+            throw it.also {
+                verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+            }
+        }
 
     }
 }

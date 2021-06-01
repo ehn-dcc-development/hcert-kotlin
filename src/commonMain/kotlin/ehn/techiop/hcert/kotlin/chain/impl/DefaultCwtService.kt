@@ -50,7 +50,9 @@ open class DefaultCwtService constructor(
                 }
             }
         }
-        throw Throwable("Decode CWT")
+        throw Throwable("Decode CWT").also {
+            verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+        }
     }
 
 }

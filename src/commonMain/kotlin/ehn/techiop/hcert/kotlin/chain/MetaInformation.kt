@@ -5,7 +5,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
-class VerificationResult {
+class MetaInformation {
 
     /**
      * `exp` claim SHALL hold a timestamp.
@@ -23,41 +23,6 @@ class VerificationResult {
      * `iss` claim MAY hold ISO 3166-1 alpha-2 country code
      */
     var issuer: String? = null
-
-    /**
-     * The compressed CWT is encoded as ASCII using Base45
-     */
-    var base45Decoded = false
-
-    /**
-     * `HC1:` SHALL be used as a prefix in the Base45 encoded data
-     */
-    var contextIdentifier: String? = null
-
-    /**
-     * CWT SHALL be compressed using ZLIB
-     */
-    var zlibDecoded = false
-
-    /**
-     * COSE signature MUST be verifiable
-     */
-    var coseVerified = false
-
-    /**
-     * The payload is structured and encoded as a CWT structure
-     */
-    var cwtDecoded = false
-
-    /**
-     * The payload is CBOR encoded
-     */
-    var cborDecoded = false
-
-    /**
-     * Schema validation succeeded
-     */
-    var schemaValidated = false
 
     /**
      * Lifetime of certificate used for verification of COSE
@@ -79,19 +44,12 @@ class VerificationResult {
      */
     var content: MutableList<ContentType> = mutableListOf()
 
-    var error: Error? = null;
 
     override fun toString(): String {
         return "VerificationResult(" +
                 "expirationTime=$expirationTime, " +
                 "issuedAt=$issuedAt, " +
                 "issuer=$issuer, " +
-                "base45Decoded=$base45Decoded, " +
-                "contextIdentifier=$contextIdentifier, " +
-                "zlibDecoded=$zlibDecoded, " +
-                "coseVerified=$coseVerified, " +
-                "cwtDecoded=$cwtDecoded, " +
-                "cborDecoded=$cborDecoded, " +
                 "certificateValidFrom=$certificateValidFrom, " +
                 "certificateValidUntil=$certificateValidUntil, " +
                 "certificateValidContent=$certificateValidContent, " +
@@ -99,27 +57,16 @@ class VerificationResult {
                 ")"
     }
 
-    /**
-     * From Swift ValidationCore
-     */
-    enum class Error {
-        GENERAL_ERROR,
-        INVALID_SCHEME_PREFIX,
-        DECOMPRESSION_FAILED,
-        BASE_45_DECODING_FAILED,
-        COSE_DESERIALIZATION_FAILED,
-        CBOR_DESERIALIZATION_FAILED,
-        CWT_EXPIRED,
-        QR_CODE_ERROR,
-        CERTIFICATE_QUERY_FAILED,
-        USER_CANCELLED,
-        TRUST_SERVICE_ERROR,
-        KEY_NOT_IN_TRUST_LIST,
-        PUBLIC_KEY_EXPIRED,
-        UNSUITABLE_PUBLIC_KEY_TYPE,
-        KEY_CREATION_ERROR,
-        KEYSTORE_ERROR,
-        SIGNATURE_INVALID,
+    companion object {
+        fun from(verificationResult: VerificationResult) = MetaInformation().also {
+            it.expirationTime = verificationResult.expirationTime
+            it.issuedAt = verificationResult.issuedAt
+            it.issuer = verificationResult.issuer
+            it.certificateValidFrom = verificationResult.certificateValidFrom
+            it.certificateValidUntil = verificationResult.certificateValidUntil
+            it.certificateValidContent = verificationResult.certificateValidContent
+            it.content = verificationResult.content
+        }
     }
 
 }

@@ -57,5 +57,5 @@ private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: Ver
     val verificationResult = vaccinationData.verificationResult
     vaccinationData.greenCertificate shouldBe input
     verificationResult.cborDecoded shouldBe true
-    DecisionService().decide(verificationResult) shouldBe outcome
+    vaccinationData.decision shouldBe outcome
 }
