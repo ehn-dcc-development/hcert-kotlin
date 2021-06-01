@@ -9,8 +9,19 @@ actual class CwtAdapter actual constructor(private val input: ByteArray) {
 
     val map = Cbor.Decoder.decodeAllSync(Buffer.Companion.from(input.toUint8Array()))[0].asDynamic()
 
-    actual fun getMapEntryByteArray(value: Int) = (map?.get(value) as Uint8Array?)?.toByteArray()
+    actual fun getByteArray(key: Int) = (map?.get(key) as Uint8Array?)?.toByteArray()
 
-    actual fun getMapEntryNumber(value: Int) = map?.get(value) as Number?
+    actual fun getString(key: Int) = map?.get(key) as String?
+
+    actual fun getNumber(key: Int) = map?.get(key) as Number?
+
+    actual fun getMap(key: Int): CwtAdapter? {
+        val value = map?.get(key)
+        if (value == null || value == undefined) return null
+        return CwtAdapter(Cbor.Encoder.encode(value).toByteArray())
+    }
+
+    actual fun encoded() = input
+
 
 }

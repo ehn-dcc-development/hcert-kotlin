@@ -134,6 +134,7 @@ class FaultyImplementationsTest : StringSpec({
 
 
     "correct" {
+        println(chainCorrect.encode(decodedFromInput).step1Cwt.toHexString())
         assertVerification(
             chainCorrect.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
@@ -251,8 +252,9 @@ private fun assertVerification(
     verificationResult.cborDecoded shouldBe expectedResult.cborDecoded
     verificationResult.coseVerified shouldBe expectedResult.coseVerified
     verificationResult.zlibDecoded shouldBe expectedResult.zlibDecoded
-
     verificationResult.contextIdentifier shouldBe expectedResult.contextIdentifier
+
+    println(chainOutput)
 
     if (expectDataToMatch) vaccinationData.greenCertificate shouldBe input
     else vaccinationData.greenCertificate shouldNotBe input
