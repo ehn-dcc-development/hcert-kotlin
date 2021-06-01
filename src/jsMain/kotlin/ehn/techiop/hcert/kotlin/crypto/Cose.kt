@@ -74,9 +74,9 @@ class JsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
     }
 }
 
-class JsEcPrivKey(val da: ArrayBuffer) : EcPrivKey<EcCosePrivateKey> {
+class JsEcPrivKey(val da: Buffer) : EcPrivKey<EcCosePrivateKey> {
     override fun toCoseRepresentation(): EcCosePrivateKey = object : EcCosePrivateKey {
-        override val d = Buffer(da)
+        override val d = da
     }
 }
 

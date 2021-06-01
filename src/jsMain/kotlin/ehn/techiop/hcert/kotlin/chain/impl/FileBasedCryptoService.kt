@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import Asn1js.Sequence
 import Asn1js.fromBER
 import Buffer
+import ec
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
@@ -39,7 +40,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
         }
         val oid = (privateKeyInfo.privateKeyAlgorithm as AlgorithmIdentifier).algorithmId
         if (oid == "1.2.840.10045.2.1") {
-            privateKey = JsEcPrivKey(privateKeyInfo.privateKey.toBER())
+            privateKey = JsEcPrivKey(ec("p256").keyFromPrivate(Buffer(privateKeyInfo.privateKey.toBER())))
             algorithmID = CwtAlgorithm.ECDSA_256
         } else if (oid == "1.2.840.113549.1.1.1") {
             privateKey = JsRsaPrivKey(privateKeyInfo.privateKey.toBER())

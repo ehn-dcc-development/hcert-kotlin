@@ -2,21 +2,23 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import Asn1js.Sequence
 import Buffer
+import ec
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.JsCertificate
 import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JsEcPubKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
 import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
-import pkijs.src.ECPrivateKey.ECPrivateKey
-import kotlin.random.Random
+import pkijs.src.PrivateKeyInfo.PrivateKeyInfo
 
 
 actual class RandomEcKeyCryptoService actual constructor(
@@ -25,7 +27,7 @@ actual class RandomEcKeyCryptoService actual constructor(
     clock: Clock
 ) : CryptoService {
 
-    private val privateKeyInfo: ECPrivateKey
+    private val privateKeyInfo: PrivateKeyInfo
     private val privateKey: PrivKey<*>
     private val publicKey: PubKey<*>
     private val algorithmID: CwtAlgorithm
@@ -33,14 +35,16 @@ actual class RandomEcKeyCryptoService actual constructor(
     private val keyId: ByteArray
 
     init {
-        privateKeyInfo = ECPrivateKey(params = {})
-        @Suppress("UNUSED_VARIABLE") val d = Random.nextBytes(32).asBase64()
-        privateKeyInfo.fromJSON(js("({'crv':'P-256', 'd': d})"))
-        privateKey = JsEcPrivKey(privateKeyInfo.privateKey.toBER())
+        val keyPair = ec("p256").genKeyPair()
+        privateKey = JsEcPrivKey(keyPair.getPrivate().toArrayLike(Buffer))
+        publicKey =
+            JsEcPubKey(keyPair.getPublic().getX().toArrayLike(Buffer), keyPair.getPublic().getY().toArrayLike(Buffer))
         algorithmID = CwtAlgorithm.ECDSA_256
-        certificate = JsCertificate("foo")
-        publicKey = certificate.publicKey
+        certificate = selfSignCertificate("EC-Me", privateKey, publicKey, contentType, clock) as JsCertificate
         keyId = certificate.kid
+        privateKeyInfo = PrivateKeyInfo()
+        @Suppress("UNUSED_VARIABLE") val d = keyPair.getPrivate().toArrayLike(Buffer).toByteArray().asBase64()
+        privateKeyInfo.fromJSON(js("({'crv':'P-256', 'd': d})"))
     }
 
     override fun getCborHeaders() = listOf(
@@ -53,7 +57,7 @@ actual class RandomEcKeyCryptoService actual constructor(
     override fun getCborVerificationKey(
         kid: ByteArray,
         verificationResult: VerificationResult
-    ): ehn.techiop.hcert.kotlin.crypto.PubKey<*> {
+    ): PubKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
         verificationResult.certificateValidFrom = certificate.validFrom
         verificationResult.certificateValidUntil = certificate.validUntil
