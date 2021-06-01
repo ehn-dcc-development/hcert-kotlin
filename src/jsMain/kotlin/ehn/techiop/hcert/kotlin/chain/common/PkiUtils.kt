@@ -2,6 +2,9 @@ package ehn.techiop.hcert.kotlin.chain.common
 
 import Asn1js.BitString
 import Asn1js.Integer
+import Asn1js.IntegerParams
+import Asn1js.LocalBitStringValueBlockParams
+import Asn1js.LocalSimpleStringBlockParams
 import Asn1js.PrintableString
 import Asn1js.Sequence
 import Buffer
@@ -14,8 +17,10 @@ import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
 import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import elliptic.EC
 import hash
 import kotlinx.datetime.Clock
+import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import pkijs.src.AlgorithmIdentifier.AlgorithmIdentifier
 import pkijs.src.AttributeTypeAndValue.AttributeTypeAndValue
@@ -39,12 +44,22 @@ actual fun selfSignCertificate(
     val certificate = pkijs.src.Certificate.Certificate()
     certificate.version = 2
     val serialNumber = Random.nextInt()
-    certificate.serialNumber = Integer(js("({'value': serialNumber})"))
-    val cn = PrintableString(js("({'value': commonName})"))
+    certificate.serialNumber = Integer(object : IntegerParams {
+        override var value: Number? = serialNumber
+    })
+    val cn = PrintableString(object : LocalSimpleStringBlockParams {
+        override var value: String? = commonName
+    })
     (certificate.subject as RelativeDistinguishedNames).typesAndValues +=
-        AttributeTypeAndValue(js("({ 'type': '2.5.4.3', 'value': cn})"))
+        AttributeTypeAndValue(object {
+            val type = "2.5.4.3"
+            val value = cn
+        })
     (certificate.issuer as RelativeDistinguishedNames).typesAndValues +=
-        AttributeTypeAndValue(js("({ 'type': '2.5.4.3', 'value': cn})"))
+        AttributeTypeAndValue(object {
+            val type = "2.5.4.3"
+            val value = cn
+        })
     (certificate.notBefore as Time).value = Date(clock.now().toEpochMilliseconds())
     (certificate.notAfter as Time).value = Date(clock.now().plus(Duration.days(30)).toEpochMilliseconds())
     //certificate.extensions = arrayOf<Extension>()
@@ -62,11 +77,15 @@ actual fun selfSignCertificate(
     certificate.signature = algorithmIdentifier
     certificate.signatureAlgorithm = algorithmIdentifier
     val sha256 = hash(Uint8Array(certificate.encodeTBS().toBER()))
-    val keyPair = (privateKey as JsEcPrivKey).keyPair
-    val signatureValue = Uint8Array(js("keyPair.sign(sha256).toDER()") as Array<Byte>).buffer
-    certificate.signatureValue = BitString(js("({'valueHex': signatureValue})"))
+    val priv = (privateKey as JsEcPrivKey).ecPrivateKey
+    val signatureValue = Uint8Array(privateKey.ec.sign(sha256, priv).toDER()).buffer
+
+    certificate.signatureValue = BitString(
+        object : LocalBitStringValueBlockParams {
+            override var valueHex: ArrayBuffer? = signatureValue
+        })
     certificate.tbs = certificate.encodeTBS().toBER()
-    val encoded = Buffer((certificate.toSchema(js("(true)")) as Sequence).toBER()).toByteArray()
-    return JsCertificate(encoded.asBase64().chunked(64).joinToString(separator = "\n"))
+    val encoded = Buffer((certificate.toSchema(true) as Sequence).toBER()).toByteArray()
+    return JsCertificate(encoded.asBase64())
 }
 

@@ -16,6 +16,7 @@ import ehn.techiop.hcert.kotlin.crypto.JsEcPubKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
 import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import elliptic.EC
 import kotlinx.datetime.Clock
 import pkijs.src.PrivateKeyInfo.PrivateKeyInfo
 
@@ -34,15 +35,14 @@ actual class RandomEcKeyCryptoService actual constructor(
     private val keyId: ByteArray
 
     init {
-        val keyPair = js("var EC = require('elliptic').ec; new EC('p256').genKeyPair()")
+        val keyPair = EC("p256").genKeyPair()
         privateKey = JsEcPrivKey(keyPair)
-        publicKey =
-            JsEcPubKey(js("keyPair.getPublic().getX().toArrayLike(Buffer)") as Buffer, js("keyPair.getPublic().getY().toArrayLike(Buffer)") as Buffer)
+        publicKey = JsEcPubKey(keyPair)
         algorithmID = CwtAlgorithm.ECDSA_256
         certificate = selfSignCertificate("EC-Me", privateKey, publicKey, contentType, clock) as JsCertificate
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
-        @Suppress("UNUSED_VARIABLE") val d = (js("keyPair.getPrivate().toArrayLike(Buffer)") as Buffer).toByteArray().asBase64()
+        @Suppress("UNUSED_VARIABLE") val d = privateKey.toCoseRepresentation().d
         privateKeyInfo.fromJSON(js("({'crv':'P-256', 'd': d})"))
     }
 

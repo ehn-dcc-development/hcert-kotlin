@@ -28,7 +28,6 @@ class FileBasedCryptoServiceTest : StringSpec({
 
         val encoded = DefaultCoseService(service).encode("foo".encodeToByteArray())
         encoded shouldNotBe null
-        println(encoded.toHexString())
     }
 
     "newEcKey" {

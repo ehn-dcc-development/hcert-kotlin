@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.crypto
 
 import Asn1js.fromBER
+import BN
 import Buffer
 import cose.CosePrivateKey
 import cose.CosePublicKey
@@ -17,6 +18,9 @@ import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.Hash
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
+import elliptic.EC
+import elliptic.EcKeyPair
+import elliptic.EcPublicKey
 import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
@@ -53,6 +57,13 @@ class JsEcPubKey(val xCoord: Buffer, val yCoord: Buffer) :
         yCoord = Buffer.from(y.toUint8Array()),
     )
 
+    constructor(ecPublicKey: EcPublicKey) : this(
+        ecPublicKey.getX().toArrayLike(Buffer),
+        ecPublicKey.getX().toArrayLike(Buffer)
+    )
+
+    constructor(ecKeyPair: EcKeyPair) : this(ecKeyPair.getPublic())
+
     constructor(x: Uint8Array, y: Uint8Array) : this(
         xCoord = Buffer.from(x),
         yCoord = Buffer.from(y),
@@ -74,15 +85,13 @@ class JsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
     }
 }
 
-class JsEcPrivKey(val keyPair: dynamic) : EcPrivKey<EcCosePrivateKey> {
+class JsEcPrivKey(val ecPrivateKey: BN, val ec: EC) : EcPrivKey<EcCosePrivateKey> {
+
+    constructor(ecKeyPair: EcKeyPair) : this(ecKeyPair.getPrivate(), ecKeyPair.ec)
 
     override fun toCoseRepresentation(): EcCosePrivateKey = object : EcCosePrivateKey {
 
-        override val d: Buffer
-            get() {
-                val kp = keyPair
-                return js("kp.getPrivate().toArrayLike(Buffer)") as Buffer
-            }
+        override val d: Buffer = ecPrivateKey.toArrayLike(Buffer)
     }
 }
 
@@ -111,7 +120,13 @@ class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
     constructor(encoded: ByteArray) : this(encoded.asBase64())
 
     internal val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->
-        fromBER(bytes.buffer).result.let { pkijs.src.Certificate.Certificate(js("({'schema':it})")) }
+        fromBER(bytes.buffer).result.let {
+            pkijs.src.Certificate.Certificate(
+                object {
+                    @Suppress("unused")
+                    val schema = it
+                })
+        }
     }
 
 
@@ -145,10 +160,13 @@ class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
 
     override val publicKey: PubKey<*>
         get() {
+            @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
             val publicKeyOID = ((cert.subjectPublicKeyInfo as Json)["algorithm"] as Json)["algorithmId"] as String
             //TODO investigate asn1 lib to use proper OID objects
             val isEC = publicKeyOID == "1.2.840.10045.2.1"
             val isRSA = publicKeyOID.startsWith("1.2.840.113549")
+
+            @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
             val keyInfo = (cert.subjectPublicKeyInfo as Json)["parsedKey"] as Json
             return when {
                 isEC -> {
@@ -157,6 +175,7 @@ class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
                     JsEcPubKey(Uint8Array(x), Uint8Array(y))
                 }
                 isRSA -> {
+                    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
                     val kValue = (keyInfo["modulus"] as Json)["valueBlock"] as Json
                     val rsaKey = keyInfo as RSAPublicKey
                     val mod = kValue["valueHex"] as ArrayBuffer
