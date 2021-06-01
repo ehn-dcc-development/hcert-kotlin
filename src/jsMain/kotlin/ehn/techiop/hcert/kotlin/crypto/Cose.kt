@@ -74,9 +74,11 @@ class JsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
     }
 }
 
-class JsEcPrivKey(val da: Buffer) : EcPrivKey<EcCosePrivateKey> {
+class JsEcPrivKey(val keyPair: dynamic) : EcPrivKey<EcCosePrivateKey> {
+
     override fun toCoseRepresentation(): EcCosePrivateKey = object : EcCosePrivateKey {
-        override val d = da
+        val kp = keyPair
+        override val d = js("kp.getPrivate().toArrayLike(Buffer)") as Buffer
     }
 }
 

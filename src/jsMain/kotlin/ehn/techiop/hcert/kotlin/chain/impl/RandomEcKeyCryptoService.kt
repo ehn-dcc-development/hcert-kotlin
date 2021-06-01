@@ -2,7 +2,6 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import Asn1js.Sequence
 import Buffer
-import ec
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
@@ -35,10 +34,10 @@ actual class RandomEcKeyCryptoService actual constructor(
     private val keyId: ByteArray
 
     init {
-        val keyPair = ec("p256").genKeyPair()
-        privateKey = JsEcPrivKey(keyPair.getPrivate().toArrayLike(Buffer))
+        val keyPair = js("require('elliptic').ec('p256').genKeyPair()")
+        privateKey = JsEcPrivKey(keyPair)
         publicKey =
-            JsEcPubKey(keyPair.getPublic().getX().toArrayLike(Buffer), keyPair.getPublic().getY().toArrayLike(Buffer))
+            JsEcPubKey(js("keyPair.getPublic().getX().toArrayLike(Buffer)") as Buffer, js("keyPair.getPublic().getY().toArrayLike(Buffer)") as Buffer)
         algorithmID = CwtAlgorithm.ECDSA_256
         certificate = selfSignCertificate("EC-Me", privateKey, publicKey, contentType, clock) as JsCertificate
         keyId = certificate.kid

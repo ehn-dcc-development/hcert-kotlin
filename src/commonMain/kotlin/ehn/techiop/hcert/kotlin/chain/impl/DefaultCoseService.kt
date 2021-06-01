@@ -31,7 +31,7 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
                 ?: throw IllegalArgumentException("KID not found").also {
                     verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
                 }
-            val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
+            //val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
             // TODO is the algorithm relevant?
             if (!coseAdapter.validate(kid, cryptoService, verificationResult))
                 throw IllegalArgumentException("Not validated").also {
