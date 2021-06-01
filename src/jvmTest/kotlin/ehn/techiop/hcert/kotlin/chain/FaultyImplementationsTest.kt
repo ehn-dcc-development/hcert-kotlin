@@ -1,8 +1,23 @@
 package ehn.techiop.hcert.kotlin.chain
 
 
-import ehn.techiop.hcert.kotlin.chain.faults.*
-import ehn.techiop.hcert.kotlin.chain.impl.*
+import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
+import ehn.techiop.hcert.kotlin.chain.faults.FaultyCborService
+import ehn.techiop.hcert.kotlin.chain.faults.FaultyCompressorService
+import ehn.techiop.hcert.kotlin.chain.faults.FaultyCoseService
+import ehn.techiop.hcert.kotlin.chain.faults.FaultyCwtService
+import ehn.techiop.hcert.kotlin.chain.faults.NonVerifiableCoseService
+import ehn.techiop.hcert.kotlin.chain.faults.NoopCompressorService
+import ehn.techiop.hcert.kotlin.chain.faults.NoopContextIdentifierService
+import ehn.techiop.hcert.kotlin.chain.faults.UnprotectedCoseService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
+import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -172,10 +187,9 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainUnverifiableCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            true,
+            false,
             VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; cwtDecoded = true; cborDecoded =
-                true
+                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true
             })
     }
 

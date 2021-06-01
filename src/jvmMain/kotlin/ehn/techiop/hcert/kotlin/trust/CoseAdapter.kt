@@ -5,6 +5,7 @@ import COSE.OneKey
 import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
@@ -50,6 +51,20 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
             }
         }
         return false
+    }
+
+    actual fun validate(
+        kid: ByteArray,
+        cryptoService: CryptoService,
+        verificationResult: VerificationResult
+    ): Boolean {
+        val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
+        verificationResult.coseVerified = sign1Message.validate(verificationKey.toCoseRepresentation() as OneKey)
+        val trustedCert = cryptoService.getCertificate()
+        verificationResult.certificateValidFrom = trustedCert.validFrom
+        verificationResult.certificateValidUntil = trustedCert.validUntil
+        verificationResult.certificateValidContent = trustedCert.validContentTypes
+        return verificationResult.coseVerified
     }
 
     actual fun getContent() = sign1Message.GetContent()

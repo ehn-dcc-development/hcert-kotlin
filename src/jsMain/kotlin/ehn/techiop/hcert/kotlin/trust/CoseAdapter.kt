@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.trust
 
 import Buffer
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.catch
 import ehn.techiop.hcert.kotlin.chain.jsTry
@@ -51,15 +52,31 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
             verificationResult.certificateValidUntil = trustedCert.validUntil
             verificationResult.certificateValidContent = trustedCert.validContentTypes
             val result = jsTry {
-                val result = Cose.verifySync(input, trustedCert.cosePublicKey)
-                verificationResult.coseVerified = true
-                return@jsTry true
+                val result = Cose.verifySync(input, trustedCert.cosePublicKey) !== undefined
+                verificationResult.coseVerified = result
+                return@jsTry result
             }.catch {
                 false
             }
             if (result) return true // else try next
         }
         return false
+    }
+
+    actual fun validate(
+        kid: ByteArray,
+        cryptoService: CryptoService,
+        verificationResult: VerificationResult
+    ): Boolean {
+        val pubKey = cryptoService.getCborVerificationKey(kid, verificationResult)
+        val result = Cose.verifySync(input, pubKey)
+        return jsTry {
+            val result = Cose.verifySync(input, pubKey) !== undefined
+            verificationResult.coseVerified = result
+            return@jsTry result
+        }.catch {
+            false
+        }
     }
 
     actual fun getContent() = content.toByteArray()
