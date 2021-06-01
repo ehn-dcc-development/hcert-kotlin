@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 
 class FileBasedCryptoServiceTest : StringSpec({
 
@@ -26,6 +27,12 @@ class FileBasedCryptoServiceTest : StringSpec({
 
         // TODO Sign something
         //  DefaultCoseService(service).encode("foo".encodeToByteArray())
+    }
+
+    "newEcKey" {
+        val service = RandomEcKeyCryptoService()
+        service.exportPrivateKeyAsPem() shouldNotBe null
+        service.exportCertificateAsPem() shouldNotBe null
     }
 
     "goodRsaKey" {

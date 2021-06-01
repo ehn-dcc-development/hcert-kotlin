@@ -24,10 +24,10 @@ import java.io.StringWriter
 import java.security.KeyPairGenerator
 
 
-class RandomEcKeyCryptoService(
-    val keySize: Int = 256,
-    contentType: List<ContentType> = ContentType.values().toList(),
-    clock: Clock = Clock.System
+actual class RandomEcKeyCryptoService actual constructor(
+    val keySize: Int,
+    contentType: List<ContentType>,
+    clock: Clock
 ) : CryptoService {
 
     private val keyPair = KeyPairGenerator.getInstance("EC")
