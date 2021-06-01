@@ -14,6 +14,7 @@ class TrustListDecodeService(private val repository: CertificateRepository, priv
     fun decode(input: ByteArray, optionalContent: ByteArray? = null): List<TrustedCertificate> {
         val coseAdapter = CoseAdapter(input)
         val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.value)
+            ?: throw IllegalArgumentException("KID")
         val validated = coseAdapter.validate(kid, repository)
         if (!validated) throw IllegalArgumentException("signature")
         val version = coseAdapter.getProtectedAttributeInt(42)
@@ -26,13 +27,15 @@ class TrustListDecodeService(private val repository: CertificateRepository, priv
             if (!(expectedHash contentEquals actualHash))
                 throw IllegalArgumentException("Hash")
 
-            val validFrom =
-                Instant.fromEpochSeconds(coseAdapter.getMapEntryNumber(CwtHeaderKeys.NOT_BEFORE.value).toLong())
+            val notBefore = coseAdapter.getMapEntryNumber(CwtHeaderKeys.NOT_BEFORE.value)
+                ?: throw IllegalArgumentException("ValidFrom")
+            val validFrom = Instant.fromEpochSeconds(notBefore.toLong())
             if (validFrom > clock.now().plus(Duration.seconds(300)))
                 throw IllegalArgumentException("ValidFrom")
 
-            val validUntil =
-                Instant.fromEpochSeconds(coseAdapter.getMapEntryNumber(CwtHeaderKeys.EXPIRATION.value).toLong())
+            val expiration = coseAdapter.getMapEntryNumber(CwtHeaderKeys.EXPIRATION.value)
+                ?: throw IllegalArgumentException("ValidUntil")
+            val validUntil = Instant.fromEpochSeconds(expiration.toLong())
             if (validUntil < clock.now().minus(Duration.seconds(300)))
                 throw IllegalArgumentException("ValidUntil")
 

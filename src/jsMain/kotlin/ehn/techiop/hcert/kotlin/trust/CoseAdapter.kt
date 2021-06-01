@@ -3,6 +3,8 @@ package ehn.techiop.hcert.kotlin.trust
 import Buffer
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.catch
+import ehn.techiop.hcert.kotlin.chain.jsTry
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.crypto.Cose
@@ -21,10 +23,12 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
     actual fun getProtectedAttributeByteArray(key: Int) =
         (protectedHeaderCbor?.get(key) as Uint8Array?)?.toByteArray()
-            ?: throw IllegalArgumentException("Key: $key")
+
+    actual fun getUnprotectedAttributeByteArray(key: Int) =
+        (unprotectedHeader?.get(key) as Uint8Array?)?.toByteArray()
 
     actual fun getProtectedAttributeInt(key: Int) =
-        protectedHeaderCbor?.get(key) as Int? ?: throw IllegalArgumentException("Key: $key")
+        protectedHeaderCbor?.get(key) as Int?
 
     actual fun validate(kid: ByteArray, repository: CertificateRepository): Boolean {
         repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
@@ -37,9 +41,30 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         return false
     }
 
+    actual fun validate(
+        kid: ByteArray,
+        repository: CertificateRepository,
+        verificationResult: VerificationResult
+    ): Boolean {
+        repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
+            verificationResult.certificateValidFrom = trustedCert.validFrom
+            verificationResult.certificateValidUntil = trustedCert.validUntil
+            verificationResult.certificateValidContent = trustedCert.validContentTypes
+            val result = jsTry {
+                val result = Cose.verifySync(input, trustedCert.cosePublicKey)
+                verificationResult.coseVerified = true
+                return@jsTry true
+            }.catch {
+                false
+            }
+            if (result) return true // else try next
+        }
+        return false
+    }
+
     actual fun getContent() = content.toByteArray()
 
-    actual fun getMapEntryByteArray(value: Int) = (cwtMap.get(value) as Uint8Array).toByteArray()
+    actual fun getMapEntryByteArray(value: Int) = (cwtMap?.get(value) as Uint8Array?)?.toByteArray()
 
-    actual fun getMapEntryNumber(value: Int) = cwtMap.get(value) as Number
+    actual fun getMapEntryNumber(value: Int) = cwtMap?.get(value) as Number?
 }
