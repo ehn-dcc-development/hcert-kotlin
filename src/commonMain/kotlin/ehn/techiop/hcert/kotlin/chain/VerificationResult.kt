@@ -25,11 +25,6 @@ class VerificationResult {
     var issuer: String? = null
 
     /**
-     * `HC1:` SHALL be used as a prefix in the Base45 encoded data
-     */
-    var contextIdentifier: String? = null
-
-    /**
      * CWT SHALL be compressed using ZLIB
      */
     var zlibDecoded = false
@@ -81,7 +76,6 @@ class VerificationResult {
                 "expirationTime=$expirationTime, " +
                 "issuedAt=$issuedAt, " +
                 "issuer=$issuer, " +
-                "contextIdentifier=$contextIdentifier, " +
                 "zlibDecoded=$zlibDecoded, " +
                 "coseVerified=$coseVerified, " +
                 "cwtDecoded=$cwtDecoded, " +

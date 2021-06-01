@@ -13,8 +13,8 @@ open class DefaultContextIdentifierService(private val prefix: String = "HC1:") 
     }
 
     override fun decode(input: String, verificationResult: VerificationResult): String = when {
-        input.startsWith(prefix) -> input.drop(prefix.length).also { verificationResult.contextIdentifier = prefix }
-        else -> input.also { verificationResult.contextIdentifier = null }
+        input.startsWith(prefix) -> input.drop(prefix.length)
+        else -> input.also { verificationResult.error = VerificationResult.Error.CONTEXT_IDENTIFIER_INVALID }
     }
 
 }

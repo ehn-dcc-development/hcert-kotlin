@@ -10,11 +10,6 @@ import kotlinx.datetime.Clock
 class DecisionService(private val clock: Clock = Clock.System) {
 
     fun decide(verificationResult: VerificationResult): VerificationDecision {
-        if (verificationResult.contextIdentifier == null)
-            return VerificationDecision.FAIL.also {
-                verificationResult.error = VerificationResult.Error.CONTEXT_IDENTIFIER_INVALID
-            }
-
         if (!verificationResult.coseVerified)
             return VerificationDecision.FAIL.also {
                 verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
