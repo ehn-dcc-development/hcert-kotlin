@@ -83,7 +83,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
             "\n-----END PRIVATE KEY-----\n"
 
     override fun exportCertificateAsPem() = "-----BEGIN CERTIFICATE-----\n" +
-            base64forPem(certificate.encoded) +
+            base64forPem(Buffer((certificate.cert.toSchema() as Sequence).toBER()).toByteArray()) +
             "\n-----END CERTIFICATE-----\n"
 
     private fun base64forPem(encoded: ByteArray) =

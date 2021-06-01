@@ -34,7 +34,7 @@ actual class RandomEcKeyCryptoService actual constructor(
     private val keyId: ByteArray
 
     init {
-        val keyPair = js("require('elliptic').ec('p256').genKeyPair()")
+        val keyPair = js("var EC = require('elliptic').ec; new EC('p256').genKeyPair()")
         privateKey = JsEcPrivKey(keyPair)
         publicKey =
             JsEcPubKey(js("keyPair.getPublic().getX().toArrayLike(Buffer)") as Buffer, js("keyPair.getPublic().getY().toArrayLike(Buffer)") as Buffer)
@@ -42,7 +42,7 @@ actual class RandomEcKeyCryptoService actual constructor(
         certificate = selfSignCertificate("EC-Me", privateKey, publicKey, contentType, clock) as JsCertificate
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
-        @Suppress("UNUSED_VARIABLE") val d = keyPair.getPrivate().toArrayLike(Buffer).toByteArray().asBase64()
+        @Suppress("UNUSED_VARIABLE") val d = (js("keyPair.getPrivate().toArrayLike(Buffer)") as Buffer).toByteArray().asBase64()
         privateKeyInfo.fromJSON(js("({'crv':'P-256', 'd': d})"))
     }
 

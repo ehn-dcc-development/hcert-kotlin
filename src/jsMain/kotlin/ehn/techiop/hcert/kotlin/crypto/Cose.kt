@@ -105,7 +105,7 @@ class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
     @JsName("fromPem")
     constructor(encoded: ByteArray) : this(encoded.asBase64())
 
-    private val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->
+     internal val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->
         fromBER(bytes.buffer).result.let { pkijs.src.Certificate.Certificate(js("({'schema':it})")) }
     }
 
