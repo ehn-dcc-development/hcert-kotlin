@@ -2,19 +2,23 @@ package ehn.techiop.hcert.kotlin.trust
 
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.Cose
+import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
 import kotlin.js.json
 
 actual class CoseCreationAdapter actual constructor(private val content: ByteArray) {
 
-    private val header = json()
+    private val protectedHeader = json()
     private var encoded: ByteArray = byteArrayOf()
 
-    actual fun addProtectedAttributeByteArray(key: Int, value: Any) {
-        header.set(key.toString(), value)
+    actual fun addProtectedAttribute(key: CoseHeaderKeys, value: Any) {
+        val content = if (value is CwtAlgorithm) value.value else value
+        protectedHeader.set(key.value.toString(), content)
     }
 
     actual fun sign(key: PrivKey<*>) {
+        val header = json("p" to protectedHeader)
         encoded = Cose.sign(header, content, key).toByteArray()
     }
 

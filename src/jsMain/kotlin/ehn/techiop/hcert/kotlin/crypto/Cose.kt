@@ -77,10 +77,15 @@ class JsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
 class JsEcPrivKey(val keyPair: dynamic) : EcPrivKey<EcCosePrivateKey> {
 
     override fun toCoseRepresentation(): EcCosePrivateKey = object : EcCosePrivateKey {
-        val kp = keyPair
-        override val d = js("kp.getPrivate().toArrayLike(Buffer)") as Buffer
+
+        override val d: Buffer
+            get() {
+                val kp = keyPair
+                return js("kp.getPrivate().toArrayLike(Buffer)") as Buffer
+            }
     }
 }
+
 
 // TODO No RSA Key for cose-js?
 class JsRsaPrivKey(val p: ArrayBuffer) : RsaPrivKey<dynamic> {
@@ -105,7 +110,7 @@ class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
     @JsName("fromPem")
     constructor(encoded: ByteArray) : this(encoded.asBase64())
 
-     internal val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->
+    internal val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->
         fromBER(bytes.buffer).result.let { pkijs.src.Certificate.Certificate(js("({'schema':it})")) }
     }
 

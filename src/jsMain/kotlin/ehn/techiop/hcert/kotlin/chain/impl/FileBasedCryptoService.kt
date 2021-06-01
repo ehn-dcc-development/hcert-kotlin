@@ -40,7 +40,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
         val oid = (privateKeyInfo.privateKeyAlgorithm as AlgorithmIdentifier).algorithmId
         if (oid == "1.2.840.10045.2.1") {
             val buffer = Buffer(privateKeyInfo.privateKey.toBER())
-            privateKey = JsEcPrivKey(js("require('elliptic').ec('p256').keyFromPrivate(buffer)"))
+            privateKey = JsEcPrivKey(js("var EC = require('elliptic').ec; new EC('p256').keyFromPrivate(buffer)"))
             algorithmID = CwtAlgorithm.ECDSA_256
         } else if (oid == "1.2.840.113549.1.1.1") {
             privateKey = JsRsaPrivKey(privateKeyInfo.privateKey.toBER())

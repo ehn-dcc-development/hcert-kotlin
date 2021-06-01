@@ -17,7 +17,7 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
     override fun encode(input: ByteArray): ByteArray {
         val coseAdapter = CoseCreationAdapter(input)
         cryptoService.getCborHeaders().forEach {
-            coseAdapter.addProtectedAttributeByteArray(it.first.value, it.second)
+            coseAdapter.addProtectedAttribute(it.first, it.second)
         }
         coseAdapter.sign(cryptoService.getCborSigningKey())
         return coseAdapter.encode()
