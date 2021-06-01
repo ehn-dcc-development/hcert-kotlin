@@ -35,7 +35,7 @@ actual class TrustListDecodeService actual constructor(
             throw IllegalArgumentException("V1")
         } else if (version == 2 && optionalContent != null) {
             val cwtMap = CBORObject.DecodeFromBytes(payload)
-            val actualHash = MessageDigest.getInstance("SHA256").digest(optionalContent)
+            val actualHash = MessageDigest.getInstance("SHA-256").digest(optionalContent)
 
             val expectedHash = cwtMap[CwtHeaderKeys.SUBJECT.value].GetByteString()
             if (!(expectedHash contentEquals actualHash))

@@ -18,15 +18,19 @@ import kotlinx.datetime.Instant
 import java.security.cert.X509Certificate
 
 
-class TrustListTest : StringSpec({
+class TrustListJvmTest : StringSpec({
 
-    "V2 Client-Server Excahnge"{
+    "V2 Client-Server Exchange"{
         val clock = FixedClock(Instant.fromEpochMilliseconds(0))
         val cryptoService = RandomEcKeyCryptoService(clock = clock)
         val certificate = cryptoService.getCertificate()
         val encodeService = TrustListV2EncodeService(cryptoService, clock = clock)
         val trustListEncoded = encodeService.encodeContent(randomCertificates(clock))
         val trustListSignature = encodeService.encodeSignature(trustListEncoded)
+
+        //println((certificate as JvmCertificate).certificate.encoded.asBase64())
+        //println(trustListEncoded.toHexString())
+        //println(trustListSignature.toHexString())
 
         verifyClientOperations(certificate, clock, trustListSignature, trustListEncoded)
     }
@@ -48,17 +52,17 @@ private fun verifyClientOperations(
     val clientTrustListAdapter =
         TrustListCertificateRepository(trustListSignature, trustListEncoded, clientTrustRoot, clock)
 
-    (clientTrustList.size shouldBe (2))
+    clientTrustList.size shouldBe 2
     for (cert in clientTrustList) {
-        (cert.validFrom.epochSeconds shouldBeLessThanOrEqual (clock.now().epochSeconds))
-        (cert.validUntil.epochSeconds shouldBeGreaterThanOrEqual (clock.now().epochSeconds))
-        (cert.kid.size shouldBe (8))
-        (cert.validContentTypes.size shouldBe (3))
+        cert.validFrom.epochSeconds shouldBeLessThanOrEqual clock.now().epochSeconds
+        cert.validUntil.epochSeconds shouldBeGreaterThanOrEqual clock.now().epochSeconds
+        cert.kid.size shouldBe 8
+        cert.validContentTypes.size shouldBe 3
 
         clientTrustListAdapter.loadTrustedCertificates(cert.kid, VerificationResult()).forEach {
-            (
-                    (it.cosePublicKey.toCoseRepresentation() as OneKey).EncodeToBytes() shouldBe ((cert.cosePublicKey.toCoseRepresentation() as OneKey).EncodeToBytes())
-                    )
+            val loadedEncoding = (it.cosePublicKey.toCoseRepresentation() as OneKey).EncodeToBytes()
+            val certEncoding = (cert.cosePublicKey.toCoseRepresentation() as OneKey).EncodeToBytes()
+            loadedEncoding shouldBe certEncoding
         }
     }
 }

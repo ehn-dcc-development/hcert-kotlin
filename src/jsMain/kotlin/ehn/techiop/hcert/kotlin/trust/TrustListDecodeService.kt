@@ -9,6 +9,7 @@ import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant.Companion.fromEpochSeconds
 import kotlinx.serialization.decodeFromByteArray
 import org.khronos.webgl.Uint8Array
 import kotlin.time.Duration
@@ -38,20 +39,19 @@ actual class TrustListDecodeService actual constructor(
         if (version == 1) {
             throw IllegalArgumentException("V1")
         } else if (version == 2 && optionalContent != null) {
-            val cwtMap = Cbor.Decoder.decodeAllSync(Buffer.from(input.toUint8Array()))[0].asDynamic()
             val actualHash = calcHash(optionalContent)
-            val expectedHash = (cwtMap[CwtHeaderKeys.SUBJECT] as Buffer).toByteArray()
+            val cwtMap = Cbor.Decoder.decodeAllSync(Buffer.from(content.toByteArray().toUint8Array()))[0].asDynamic()
+            console.info(content)
+            val expectedHash = (cwtMap.get(CwtHeaderKeys.SUBJECT.value) as Uint8Array).toByteArray()
             if (!(expectedHash.contentEquals(actualHash))) {
                 throw IllegalArgumentException("Hash")
             }
 
-            val validFrom =
-                kotlinx.datetime.Instant.fromEpochSeconds(cwtMap[CwtHeaderKeys.NOT_BEFORE] as Long)
+            val validFrom = fromEpochSeconds((cwtMap.get(CwtHeaderKeys.NOT_BEFORE.value) as Number).toLong())
             if (validFrom > clock.now().plus(Duration.seconds(300)))
                 throw IllegalArgumentException("ValidFrom")
 
-            val validUntil =
-                kotlinx.datetime.Instant.fromEpochSeconds(cwtMap[CwtHeaderKeys.EXPIRATION] as Long)
+            val validUntil = fromEpochSeconds((cwtMap.get(CwtHeaderKeys.EXPIRATION.value) as Number).toLong())
             if (validUntil < clock.now().minus(Duration.seconds(300)))
                 throw IllegalArgumentException("ValidUntil")
 
