@@ -15,11 +15,6 @@ class DecisionService(private val clock: Clock = Clock.System) {
                 verificationResult.error = VerificationResult.Error.CONTEXT_IDENTIFIER_INVALID
             }
 
-        if (!verificationResult.base45Decoded)
-            return VerificationDecision.FAIL.also {
-                verificationResult.error = VerificationResult.Error.BASE_45_DECODING_FAILED
-            }
-
         if (!verificationResult.coseVerified)
             return VerificationDecision.FAIL.also {
                 verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID

@@ -25,11 +25,6 @@ class VerificationResult {
     var issuer: String? = null
 
     /**
-     * The compressed CWT is encoded as ASCII using Base45
-     */
-    var base45Decoded = false
-
-    /**
      * `HC1:` SHALL be used as a prefix in the Base45 encoded data
      */
     var contextIdentifier: String? = null
@@ -86,7 +81,6 @@ class VerificationResult {
                 "expirationTime=$expirationTime, " +
                 "issuedAt=$issuedAt, " +
                 "issuer=$issuer, " +
-                "base45Decoded=$base45Decoded, " +
                 "contextIdentifier=$contextIdentifier, " +
                 "zlibDecoded=$zlibDecoded, " +
                 "coseVerified=$coseVerified, " +

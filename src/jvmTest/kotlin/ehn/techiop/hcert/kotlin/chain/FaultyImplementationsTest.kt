@@ -138,10 +138,7 @@ class FaultyImplementationsTest : StringSpec({
             chainCorrect.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
-            VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true; cwtDecoded =
-                true; cborDecoded = true
-            })
+        )
     }
 
     "Faulty Base45"{
@@ -149,7 +146,8 @@ class FaultyImplementationsTest : StringSpec({
             chainFaultyBase45.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
-            VerificationResult().apply { contextIdentifier = "HC1:" })
+            VerificationResult.Error.BASE_45_DECODING_FAILED
+        )
     }
 
     "NOOP Context"{
@@ -157,10 +155,8 @@ class FaultyImplementationsTest : StringSpec({
             chainNoopContextIdentifier.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
-            VerificationResult().apply {
-                contextIdentifier = null; base45Decoded = true; zlibDecoded = true; coseVerified = true; cwtDecoded =
-                true; cborDecoded = true
-            })
+            VerificationResult.Error.CONTEXT_IDENTIFIER_INVALID
+        )
     }
 
     "NOOP Compressor" {
@@ -168,9 +164,8 @@ class FaultyImplementationsTest : StringSpec({
             chainNoopCompressor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
-            VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true;
-            })
+            VerificationResult.Error.DECOMPRESSION_FAILED
+        )
     }
 
     "Faulty Compressor"{
@@ -178,9 +173,8 @@ class FaultyImplementationsTest : StringSpec({
             chainFaultyCompressor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
-            VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = false
-            })
+            VerificationResult.Error.DECOMPRESSION_FAILED
+        )
     }
 
     "Unverifiable COSE" {
@@ -188,9 +182,8 @@ class FaultyImplementationsTest : StringSpec({
             chainUnverifiableCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
-            VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true
-            })
+            VerificationResult.Error.SIGNATURE_INVALID
+        )
     }
 
     "Unprotected COSE" {
@@ -198,10 +191,8 @@ class FaultyImplementationsTest : StringSpec({
             chainUnprotectedCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
-            VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true; cwtDecoded =
-                true; cborDecoded = true
-            })
+            VerificationResult.Error.SIGNATURE_INVALID
+        )
     }
 
     "Faulty COSE" {
@@ -209,9 +200,8 @@ class FaultyImplementationsTest : StringSpec({
             chainFaultyCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
-            VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true
-            })
+            VerificationResult.Error.SIGNATURE_INVALID
+        )
     }
 
     "Faulty CWT"{
@@ -219,9 +209,8 @@ class FaultyImplementationsTest : StringSpec({
             chainFaultyCwt.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
-            VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true
-            })
+            VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+        )
     }
 
     "Faulty CBOR"{
@@ -229,10 +218,8 @@ class FaultyImplementationsTest : StringSpec({
             chainFaultyCbor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             false,
-            VerificationResult().apply {
-                contextIdentifier = "HC1:"; base45Decoded = true; zlibDecoded = true; coseVerified = true; cwtDecoded =
-                true
-            })
+            VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+        )
     }
 
 
@@ -242,20 +229,17 @@ private fun assertVerification(
     chainOutput: String,
     input: GreenCertificate,
     expectDataToMatch: Boolean,
-    expectedResult: VerificationResult,
+    error: VerificationResult.Error? = null
 ) {
-    val result = chainCorrect.decode(chainOutput)
+    val result = chainCorrect.decodeExtended(chainOutput)
     val verificationResult = result.verificationResult
-    verificationResult.base45Decoded shouldBe expectedResult.base45Decoded
-    verificationResult.cwtDecoded shouldBe expectedResult.cwtDecoded
-    verificationResult.cborDecoded shouldBe expectedResult.cborDecoded
-    verificationResult.coseVerified shouldBe expectedResult.coseVerified
-    verificationResult.zlibDecoded shouldBe expectedResult.zlibDecoded
-    verificationResult.contextIdentifier shouldBe expectedResult.contextIdentifier
+    error?.let {
+        verificationResult.error shouldBe it
+    }
 
     if (expectDataToMatch) {
-        result.greenCertificate shouldBe input
+        result.chainDecodeResult.eudgc shouldBe input
     } else {
-        result.greenCertificate shouldNotBe input
+        result.chainDecodeResult.eudgc shouldNotBe input
     }
 }

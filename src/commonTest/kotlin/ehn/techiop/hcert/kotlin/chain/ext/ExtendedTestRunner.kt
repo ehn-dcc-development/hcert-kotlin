@@ -106,12 +106,11 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         }
         case.expectedResult.base45Decode?.let {
             withClue("Base45 Decoding") {
-                verificationResult.base45Decoded shouldBe it
                 if (it && case.compressedHex != null) {
                     chainResult.chainDecodeResult.step3Compressed?.toHexString()
                         ?.lowercase() shouldBe case.compressedHex.lowercase()
                 }
-                if (!it) decision shouldBe VerificationDecision.FAIL
+                if (!it) verificationResult.error shouldBe VerificationResult.Error.BASE_45_DECODING_FAILED
             }
         }
         case.expectedResult.compression?.let {

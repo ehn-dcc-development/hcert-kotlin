@@ -11,8 +11,7 @@ import kotlin.time.Duration
 private val decisionService = DecisionService()
 
 private fun goodVerificationResult() = VerificationResult().apply {
-    base45Decoded = true
-    coseVerified = true
+        coseVerified = true
     cwtDecoded = true
     cborDecoded = true
     contextIdentifier = "HC1:"
@@ -69,13 +68,6 @@ class DecisionServiceTest : StringSpec({
         val verificationResult = goodVerificationResult().apply {
             content = mutableListOf(ContentType.RECOVERY)
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
-        }
-        decisionService.decide(verificationResult) shouldBe FAIL
-    }
-
-    "failBase45" {
-        val verificationResult = goodVerificationResult().apply {
-            base45Decoded = false
         }
         decisionService.decide(verificationResult) shouldBe FAIL
     }
