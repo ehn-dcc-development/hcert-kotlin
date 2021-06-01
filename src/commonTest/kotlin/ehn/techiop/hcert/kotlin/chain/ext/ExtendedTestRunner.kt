@@ -101,7 +101,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.prefix?.let {
             withClue("Prefix") {
                 if (it) chainResult.chainDecodeResult.step4Encoded shouldBe case.base45
-                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
+                if (!it) decision shouldBe VerificationDecision.FAIL
             }
         }
         case.expectedResult.base45Decode?.let {
@@ -111,7 +111,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     chainResult.chainDecodeResult.step3Compressed?.toHexString()
                         ?.lowercase() shouldBe case.compressedHex.lowercase()
                 }
-                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
+                if (!it) decision shouldBe VerificationDecision.FAIL
             }
         }
         case.expectedResult.compression?.let {
@@ -127,7 +127,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.coseSignature?.let {
             withClue("COSE Verify") {
                 verificationResult.coseVerified shouldBe it
-                if (!it) decision shouldBe VerificationDecision.FAIL_SIGNATURE
+                if (!it) decision shouldBe VerificationDecision.FAIL
             }
         }
         case.expectedResult.cborDecode?.let {
@@ -148,7 +148,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     // doesn't make sense to compare exact CBOR hex encoding
                     //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
                 }
-                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
+                if (!it) decision shouldBe VerificationDecision.FAIL
             }
         }
         case.expectedResult.json?.let {
@@ -163,7 +163,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 } else {
                     chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                 }
-                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
+                if (!it) decision shouldBe VerificationDecision.FAIL
             }
         }
         case.expectedResult.schemaValidation?.let {
@@ -178,14 +178,14 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 } else {
                     verificationResult.schemaValidated shouldBe it
                 }
-                if (!it) decision shouldBe VerificationDecision.FAIL_QRCODE
+                if (!it) decision shouldBe VerificationDecision.FAIL
             }
         }
         case.expectedResult.expirationCheck?.let {
             withClue("Expiration Check") {
                 if (case.expectedResult.coseSignature != false) {
                     if (it) decision shouldBe VerificationDecision.GOOD
-                    if (!it) decision shouldBe VerificationDecision.FAIL_VALIDITY
+                    if (!it) decision shouldBe VerificationDecision.FAIL
                 }
             }
         }
@@ -193,7 +193,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
             withClue("Key Usage") {
                 if (case.expectedResult.coseSignature != false) {
                     if (it) decision shouldBe VerificationDecision.GOOD
-                    if (!it) decision shouldBe VerificationDecision.FAIL_SIGNATURE
+                    if (!it) decision shouldBe VerificationDecision.FAIL
                 }
             }
         }

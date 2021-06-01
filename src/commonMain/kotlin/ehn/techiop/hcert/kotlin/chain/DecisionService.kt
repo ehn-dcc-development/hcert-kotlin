@@ -11,41 +11,41 @@ class DecisionService(private val clock: Clock = Clock.System) {
 
     fun decide(verificationResult: VerificationResult): VerificationDecision {
         if (verificationResult.contextIdentifier == null)
-            return VerificationDecision.FAIL_QRCODE
+            return VerificationDecision.FAIL
 
         if (!verificationResult.base45Decoded)
-            return VerificationDecision.FAIL_QRCODE
+            return VerificationDecision.FAIL
 
         if (!verificationResult.coseVerified)
-            return VerificationDecision.FAIL_SIGNATURE
+            return VerificationDecision.FAIL
 
         for (content in verificationResult.content) {
             if (!verificationResult.certificateValidContent.contains(content))
-                return VerificationDecision.FAIL_SIGNATURE
+                return VerificationDecision.FAIL
         }
 
         if (!verificationResult.cwtDecoded)
-            return VerificationDecision.FAIL_SIGNATURE
+            return VerificationDecision.FAIL
 
         if (!verificationResult.cborDecoded)
-            return VerificationDecision.FAIL_QRCODE
+            return VerificationDecision.FAIL
 
         verificationResult.issuedAt?.let { issuedAt ->
             verificationResult.certificateValidFrom?.let { certValidFrom ->
                 if (issuedAt < certValidFrom)
-                    return VerificationDecision.FAIL_VALIDITY
+                    return VerificationDecision.FAIL
             }
             if (issuedAt > clock.now())
-                return VerificationDecision.FAIL_VALIDITY
+                return VerificationDecision.FAIL
         }
 
         verificationResult.expirationTime?.let { expirationTime ->
             verificationResult.certificateValidUntil?.let { certValidUntil ->
                 if (expirationTime > certValidUntil)
-                    return VerificationDecision.FAIL_VALIDITY
+                    return VerificationDecision.FAIL
             }
             if (expirationTime < clock.now())
-                return VerificationDecision.FAIL_VALIDITY
+                return VerificationDecision.FAIL
         }
 
         return VerificationDecision.GOOD
