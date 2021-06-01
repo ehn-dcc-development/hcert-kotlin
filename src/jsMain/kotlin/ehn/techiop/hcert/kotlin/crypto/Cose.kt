@@ -2,7 +2,6 @@ package ehn.techiop.hcert.kotlin.crypto
 
 import Asn1js.fromBER
 import Buffer
-import Hash
 import cose.CosePrivateKey
 import cose.CosePublicKey
 import cose.EcCosePrivateKey
@@ -16,6 +15,7 @@ import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import ehn.techiop.hcert.kotlin.trust.Hash
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
 import kotlinx.datetime.Instant
 import org.khronos.webgl.ArrayBuffer
@@ -154,9 +154,5 @@ class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
     }
 
     override val kid: ByteArray
-        get() {
-            val hash = Hash()
-            hash.update(encoded.toUint8Array())
-            return hash.digest().toByteArray().copyOf(8)
-        }
+        get() = Hash(encoded).calc().copyOf(8)
 }
