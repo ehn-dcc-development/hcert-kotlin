@@ -62,6 +62,7 @@ class JsEcPubKey(val xCoord: Buffer, val yCoord: Buffer) :
         override val x = xCoord
         override val y = yCoord
     }
+
 }
 
 class JsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
