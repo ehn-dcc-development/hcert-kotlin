@@ -4,6 +4,7 @@ import COSE.AlgorithmID
 import COSE.OneKey
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
@@ -62,7 +63,7 @@ class FileBasedCryptoService(pemEncodedKeyPair: String, pemEncodedCertificate: S
         verificationResult: VerificationResult
     ): ehn.techiop.hcert.kotlin.crypto.PubKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
-            verificationResult.error = VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+            verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
         }
         verificationResult.certificateValidFrom = certificate.validFrom
         verificationResult.certificateValidUntil = certificate.validUntil

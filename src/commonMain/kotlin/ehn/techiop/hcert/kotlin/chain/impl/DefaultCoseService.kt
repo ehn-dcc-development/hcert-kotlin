@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CoseService
 import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.trust.CoseAdapter
@@ -28,19 +29,19 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
             val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.value)
                 ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.value)
                 ?: throw IllegalArgumentException("KID not found").also {
-                    verificationResult.error = VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+                    verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
                 }
             val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
             // TODO is the algorithm relevant?
             if (!coseAdapter.validate(kid, cryptoService, verificationResult))
                 throw IllegalArgumentException("Not validated").also {
-                    verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+                    verificationResult.error = Error.SIGNATURE_INVALID
                 }
             return coseAdapter.getContent()
         } catch (e: Throwable) {
             throw e.also {
                 if (verificationResult.error == null)
-                    verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+                    verificationResult.error = Error.SIGNATURE_INVALID
             }
         }
     }

@@ -5,6 +5,7 @@ import COSE.OneKey
 import COSE.Sign1Message
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
@@ -49,7 +50,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
             }
         }
         return false.also {
-            verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+            verificationResult.error = Error.SIGNATURE_INVALID
         }
     }
 
@@ -61,7 +62,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
         val result = sign1Message.validate(verificationKey.toCoseRepresentation() as OneKey)
         if (!result)
-            verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+            verificationResult.error = Error.SIGNATURE_INVALID
         val trustedCert = cryptoService.getCertificate()
         verificationResult.certificateValidFrom = trustedCert.validFrom
         verificationResult.certificateValidUntil = trustedCert.validUntil

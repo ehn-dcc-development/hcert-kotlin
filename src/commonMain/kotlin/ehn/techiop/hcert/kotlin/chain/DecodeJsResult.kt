@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DecodeJsResult(
     val isValid: Boolean,
-    val error: VerificationResult.Error?,
+    val error: Error?,
     val metaInformation: VerificationResult,
     val greenCertificate: GreenCertificate?,
 ) {

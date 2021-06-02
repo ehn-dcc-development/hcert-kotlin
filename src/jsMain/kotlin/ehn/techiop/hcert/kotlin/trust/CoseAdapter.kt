@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.trust
 import Buffer
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.catch
 import ehn.techiop.hcert.kotlin.chain.jsTry
@@ -60,7 +61,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
             if (result) return true // else try next
         }
         return false.also {
-            verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+            verificationResult.error = Error.SIGNATURE_INVALID
         }
     }
 
@@ -74,7 +75,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
             Cose.verifySync(input, pubKey) !== undefined
         }.catch {
             false.also {
-                verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+                verificationResult.error = Error.SIGNATURE_INVALID
             }
         }
     }

@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CwtService
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import ehn.techiop.hcert.kotlin.trust.CwtAdapter
@@ -42,13 +43,13 @@ open class DefaultCwtService constructor(
                 verificationResult.certificateValidFrom?.let { certValidFrom ->
                     if (issuedAt < certValidFrom) {
                         throw Throwable("issuedAt<certValidFrom").also {
-                            verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                            verificationResult.error = Error.CWT_EXPIRED
                         }
                     }
                 }
                 if (issuedAt > clock.now()) {
                     throw Throwable("issuedAt>clock.now()").also {
-                        verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                        verificationResult.error = Error.CWT_EXPIRED
                     }
                 }
             }
@@ -58,13 +59,13 @@ open class DefaultCwtService constructor(
                 verificationResult.certificateValidUntil?.let { certValidUntil ->
                     if (expirationTime > certValidUntil) {
                         throw Throwable("expirationTime>certValidUntil").also {
-                            verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                            verificationResult.error = Error.CWT_EXPIRED
                         }
                     }
                 }
                 if (expirationTime < clock.now()) {
                     throw Throwable("expirationTime<clock.now()").also {
-                        verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                        verificationResult.error = Error.CWT_EXPIRED
                     }
                 }
             }
@@ -78,7 +79,7 @@ open class DefaultCwtService constructor(
         } catch (e: Throwable) {
             throw e.also {
                 if (verificationResult.error == null)
-                    verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                    verificationResult.error = Error.CBOR_DESERIALIZATION_FAILED
             }
         }
     }

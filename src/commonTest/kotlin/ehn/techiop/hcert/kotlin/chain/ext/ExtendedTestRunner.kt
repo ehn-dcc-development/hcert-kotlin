@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
 import ehn.techiop.hcert.kotlin.chain.DefaultChain
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.fromHexString
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
@@ -108,7 +109,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     chainResult.chainDecodeResult.step4Encoded shouldBe case.base45
                 }
                 if (!it) {
-                    verificationResult.error shouldBe VerificationResult.Error.INVALID_SCHEME_PREFIX
+                    verificationResult.error shouldBe Error.INVALID_SCHEME_PREFIX
                     errorExpected = true
                 }
             }
@@ -120,7 +121,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                         ?.lowercase() shouldBe case.compressedHex.lowercase()
                 }
                 if (!it) {
-                    verificationResult.error shouldBe VerificationResult.Error.BASE_45_DECODING_FAILED
+                    verificationResult.error shouldBe Error.BASE_45_DECODING_FAILED
                     errorExpected = true
                 }
             }
@@ -132,7 +133,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                         ?.lowercase() shouldBe case.coseHex?.lowercase()
                 }
                 if (!it) {
-                    verificationResult.error shouldBe VerificationResult.Error.DECOMPRESSION_FAILED
+                    verificationResult.error shouldBe Error.DECOMPRESSION_FAILED
                     errorExpected = true
                 }
             }
@@ -152,8 +153,8 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 }
                 if (!it) {
                     verificationResult.error shouldBeIn listOf(
-                        VerificationResult.Error.SIGNATURE_INVALID,
-                        VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+                        Error.SIGNATURE_INVALID,
+                        Error.KEY_NOT_IN_TRUST_LIST
                     )
                     errorExpected = true
                 }
@@ -173,7 +174,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                         chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                     }
                     if (!it) {
-                        verificationResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                        verificationResult.error shouldBe Error.CBOR_DESERIALIZATION_FAILED
                         errorExpected = true
                     }
                 }
@@ -192,7 +193,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                 }
                 if (!it) {
-                    verificationResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                    verificationResult.error shouldBe Error.CBOR_DESERIALIZATION_FAILED
                     errorExpected = true
                 }
             }
@@ -204,10 +205,10 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     val newResult = VerificationResult()
                     DefaultSchemaValidationService().validate(case.cborHex.fromHexString(), newResult)
                     if (it) newResult.error shouldBe null
-                    if (!it) newResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                    if (!it) newResult.error shouldBe Error.CBOR_DESERIALIZATION_FAILED
                 }
                 if (!it) {
-                    verificationResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                    verificationResult.error shouldBe Error.CBOR_DESERIALIZATION_FAILED
                     errorExpected = true
                 }
             }
@@ -215,7 +216,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.expirationCheck?.let {
             withClue("Expiration Check") {
                 if (!errorExpected && !it) {
-                    verificationResult.error shouldBe VerificationResult.Error.CWT_EXPIRED
+                    verificationResult.error shouldBe Error.CWT_EXPIRED
                     errorExpected = true
                 }
             }
@@ -223,7 +224,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.keyUsage?.let {
             withClue("Key Usage") {
                 if (!errorExpected && !it) {
-                    verificationResult.error shouldBe VerificationResult.Error.UNSUITABLE_PUBLIC_KEY_TYPE
+                    verificationResult.error shouldBe Error.UNSUITABLE_PUBLIC_KEY_TYPE
                     errorExpected = true
                 }
             }

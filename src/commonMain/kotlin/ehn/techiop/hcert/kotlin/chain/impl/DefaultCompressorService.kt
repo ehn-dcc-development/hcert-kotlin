@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CompressorService
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
 /**
@@ -25,7 +26,7 @@ open class DefaultCompressorService(private val level: Int = 9) : CompressorServ
             return adapter.decode(input)
         } catch (e: Throwable) {
             throw e.also {
-                verificationResult.error = VerificationResult.Error.DECOMPRESSION_FAILED
+                verificationResult.error = Error.DECOMPRESSION_FAILED
             }
         }
     }

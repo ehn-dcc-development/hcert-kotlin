@@ -4,6 +4,7 @@ import AJV2020
 import Cbor.DecodeOptions
 import MainResourceHolder
 import addFormats
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.catch
@@ -37,7 +38,7 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
             }
         }.catch {
             throw it.also {
-                verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                verificationResult.error = Error.CBOR_DESERIALIZATION_FAILED
             }
         }
 

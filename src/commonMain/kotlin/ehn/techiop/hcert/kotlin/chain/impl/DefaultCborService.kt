@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CborService
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
@@ -20,7 +21,7 @@ open class DefaultCborService : CborService {
                 verificationResult.content.add(ContentType.TEST)
                 if (!verificationResult.certificateValidContent.contains(ContentType.TEST)) {
                     throw Throwable("Type Test not valid").also {
-                        verificationResult.error = VerificationResult.Error.UNSUITABLE_PUBLIC_KEY_TYPE
+                        verificationResult.error = Error.UNSUITABLE_PUBLIC_KEY_TYPE
                     }
                 }
             }
@@ -28,7 +29,7 @@ open class DefaultCborService : CborService {
                 verificationResult.content.add(ContentType.VACCINATION)
                 if (!verificationResult.certificateValidContent.contains(ContentType.VACCINATION)) {
                     throw Throwable("Type Vaccination not valid").also {
-                        verificationResult.error = VerificationResult.Error.UNSUITABLE_PUBLIC_KEY_TYPE
+                        verificationResult.error = Error.UNSUITABLE_PUBLIC_KEY_TYPE
                     }
                 }
             }
@@ -36,7 +37,7 @@ open class DefaultCborService : CborService {
                 verificationResult.content.add(ContentType.RECOVERY)
                 if (!verificationResult.certificateValidContent.contains(ContentType.RECOVERY)) {
                     throw Throwable("Type Recovery not valid").also {
-                        verificationResult.error = VerificationResult.Error.UNSUITABLE_PUBLIC_KEY_TYPE
+                        verificationResult.error = Error.UNSUITABLE_PUBLIC_KEY_TYPE
                     }
                 }
             }
@@ -44,7 +45,7 @@ open class DefaultCborService : CborService {
         } catch (e: Throwable) {
             throw e.also {
                 if (verificationResult.error == null)
-                    verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                    verificationResult.error = Error.CBOR_DESERIALIZATION_FAILED
             }
         }
     }
