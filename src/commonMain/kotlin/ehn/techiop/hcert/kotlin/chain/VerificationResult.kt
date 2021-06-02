@@ -70,7 +70,6 @@ class VerificationResult {
         KEY_CREATION_ERROR,
         KEYSTORE_ERROR,
         SIGNATURE_INVALID,
-        CONTEXT_IDENTIFIER_INVALID, // new
     }
 
     override fun toString(): String {

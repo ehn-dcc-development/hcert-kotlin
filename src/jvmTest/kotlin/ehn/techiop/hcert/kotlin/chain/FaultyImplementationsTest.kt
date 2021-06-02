@@ -154,8 +154,8 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainNoopContextIdentifier.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            true,
-            VerificationResult.Error.CONTEXT_IDENTIFIER_INVALID
+            false,
+            VerificationResult.Error.INVALID_SCHEME_PREFIX
         )
     }
 
@@ -191,7 +191,7 @@ class FaultyImplementationsTest : StringSpec({
             chainUnprotectedCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
             true,
-            VerificationResult.Error.SIGNATURE_INVALID
+            null
         )
     }
 

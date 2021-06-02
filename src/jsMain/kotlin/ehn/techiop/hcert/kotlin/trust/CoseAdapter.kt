@@ -33,11 +33,12 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
     actual fun validate(kid: ByteArray, repository: CertificateRepository): Boolean {
         repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
-            try {
-                val result = Cose.verifySync(input, it.cosePublicKey)
-                if (result !== undefined) return true
-            } catch (ignored: dynamic) {
+            val result = jsTry {
+                Cose.verifySync(input, it.cosePublicKey) !== undefined
+            }.catch {
+                false
             }
+            if (result) return true // else try next
         }
         return false
     }
@@ -52,8 +53,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
             verificationResult.certificateValidUntil = trustedCert.validUntil
             verificationResult.certificateValidContent = trustedCert.validContentTypes
             val result = jsTry {
-                val result = Cose.verifySync(input, trustedCert.cosePublicKey) !== undefined
-                return@jsTry result
+                Cose.verifySync(input, trustedCert.cosePublicKey) !== undefined
             }.catch {
                 false
             }
@@ -70,15 +70,20 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         verificationResult: VerificationResult
     ): Boolean {
         val pubKey = cryptoService.getCborVerificationKey(kid, verificationResult)
-        val result = Cose.verifySync(input, pubKey)
         return jsTry {
-            val result = Cose.verifySync(input, pubKey) !== undefined
-            return@jsTry result
+            Cose.verifySync(input, pubKey) !== undefined
         }.catch {
             false.also {
                 verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
             }
         }
+    }
+
+    private fun strippedInput(input: ByteArray): ByteArray {
+        if (input.size >= 2 && input[0] == 0x84.toByte()) {
+            return byteArrayOf(0xD4.toByte()) + input
+        }
+        return input
     }
 
     actual fun getContent() = content.toByteArray()

@@ -41,13 +41,13 @@ open class DefaultCwtService constructor(
                 verificationResult.issuedAt = issuedAt
                 verificationResult.certificateValidFrom?.let { certValidFrom ->
                     if (issuedAt < certValidFrom) {
-                        throw Throwable("Decode CWT").also {
+                        throw Throwable("issuedAt<certValidFrom").also {
                             verificationResult.error = VerificationResult.Error.CWT_EXPIRED
                         }
                     }
                 }
                 if (issuedAt > clock.now()) {
-                    throw Throwable("Decode CWT").also {
+                    throw Throwable("issuedAt>clock.now()").also {
                         verificationResult.error = VerificationResult.Error.CWT_EXPIRED
                     }
                 }
@@ -57,13 +57,13 @@ open class DefaultCwtService constructor(
                 verificationResult.expirationTime = expirationTime
                 verificationResult.certificateValidUntil?.let { certValidUntil ->
                     if (expirationTime > certValidUntil) {
-                        throw Throwable("Decode CWT").also {
+                        throw Throwable("expirationTime>certValidUntil").also {
                             verificationResult.error = VerificationResult.Error.CWT_EXPIRED
                         }
                     }
                 }
                 if (expirationTime < clock.now()) {
-                    throw Throwable("Decode CWT").also {
+                    throw Throwable("expirationTime<clock.now()").also {
                         verificationResult.error = VerificationResult.Error.CWT_EXPIRED
                     }
                 }
@@ -74,7 +74,7 @@ open class DefaultCwtService constructor(
                     return eudgcV1.encoded()
                 }
             }
-            throw Throwable("Decode CWT")
+            throw Throwable("CWT contains no HCERT or EUDGC")
         } catch (e: Throwable) {
             throw e.also {
                 if (verificationResult.error == null)

@@ -11,20 +11,27 @@ class VerificationCoseService constructor(private val repository: CertificateRep
     override fun encode(input: ByteArray) = throw NotImplementedError()
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
-        val coseAdapter = CoseAdapter(strippedInput(input))
-        val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.value)
-            ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.value)
-            ?: throw IllegalArgumentException("KID not found").also {
-                verificationResult.error = VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
-            }
-        val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
-        // TODO is the algorithm relevant?
-        if (!coseAdapter.validate(kid, repository, verificationResult))
-            throw IllegalArgumentException("Not validated").also {
-                verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
-            }
+        try {
+            val coseAdapter = CoseAdapter(strippedInput(input))
+            val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.value)
+                ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.value)
+                ?: throw IllegalArgumentException("KID not found").also {
+                    verificationResult.error = VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+                }
+            val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
+            // TODO is the algorithm relevant?
+            if (!coseAdapter.validate(kid, repository, verificationResult))
+                throw IllegalArgumentException("Not validated").also {
+                    verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+                }
 
-        return coseAdapter.getContent()
+            return coseAdapter.getContent()
+        } catch (e: Throwable) {
+            throw e.also {
+                if (verificationResult.error == null)
+                    verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+            }
+        }
     }
 
     // Input may be tagged as a CWT and a Sign1

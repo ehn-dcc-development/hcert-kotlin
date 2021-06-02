@@ -19,7 +19,7 @@ open class DefaultCborService : CborService {
             if (result.tests?.filterNotNull()?.isNotEmpty() == true) {
                 verificationResult.content.add(ContentType.TEST)
                 if (!verificationResult.certificateValidContent.contains(ContentType.TEST)) {
-                    throw Throwable("Decode CBOR").also {
+                    throw Throwable("Type Test not valid").also {
                         verificationResult.error = VerificationResult.Error.UNSUITABLE_PUBLIC_KEY_TYPE
                     }
                 }
@@ -27,7 +27,7 @@ open class DefaultCborService : CborService {
             if (result.vaccinations?.filterNotNull()?.isNotEmpty() == true) {
                 verificationResult.content.add(ContentType.VACCINATION)
                 if (!verificationResult.certificateValidContent.contains(ContentType.VACCINATION)) {
-                    throw Throwable("Decode CBOR").also {
+                    throw Throwable("Type Vaccination not valid").also {
                         verificationResult.error = VerificationResult.Error.UNSUITABLE_PUBLIC_KEY_TYPE
                     }
                 }
@@ -35,7 +35,7 @@ open class DefaultCborService : CborService {
             if (result.recoveryStatements?.filterNotNull()?.isNotEmpty() == true) {
                 verificationResult.content.add(ContentType.RECOVERY)
                 if (!verificationResult.certificateValidContent.contains(ContentType.RECOVERY)) {
-                    throw Throwable("Decode CBOR").also {
+                    throw Throwable("Type Recovery not valid").also {
                         verificationResult.error = VerificationResult.Error.UNSUITABLE_PUBLIC_KEY_TYPE
                     }
                 }
