@@ -25,11 +25,6 @@ class VerificationResult {
     var issuer: String? = null
 
     /**
-     * The payload is structured and encoded as a CWT structure
-     */
-    var cwtDecoded = false
-
-    /**
      * The payload is CBOR encoded
      */
     var cborDecoded = false
@@ -66,7 +61,6 @@ class VerificationResult {
                 "expirationTime=$expirationTime, " +
                 "issuedAt=$issuedAt, " +
                 "issuer=$issuer, " +
-                "cwtDecoded=$cwtDecoded, " +
                 "cborDecoded=$cborDecoded, " +
                 "certificateValidFrom=$certificateValidFrom, " +
                 "certificateValidUntil=$certificateValidUntil, " +

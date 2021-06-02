@@ -17,11 +17,6 @@ class DecisionService(private val clock: Clock = Clock.System) {
                 }
         }
 
-        if (!verificationResult.cwtDecoded)
-            return VerificationDecision.FAIL.also {
-                verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
-            }
-
         if (!verificationResult.cborDecoded)
             return VerificationDecision.FAIL.also {
                 verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED

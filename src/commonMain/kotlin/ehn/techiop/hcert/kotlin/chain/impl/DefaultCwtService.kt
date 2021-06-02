@@ -30,7 +30,6 @@ open class DefaultCwtService constructor(
     }
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
-        verificationResult.cwtDecoded = false
         val map = CwtAdapter(input)
 
         map.getString(CwtHeaderKeys.ISSUER.value)?.let {
@@ -45,9 +44,7 @@ open class DefaultCwtService constructor(
 
         map.getMap(CwtHeaderKeys.HCERT.value)?.let { hcert ->
             hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.value)?.let { eudgcV1 ->
-                return eudgcV1.encoded().also {
-                    verificationResult.cwtDecoded = true
-                }
+                return eudgcV1.encoded()
             }
         }
         throw Throwable("Decode CWT").also {
