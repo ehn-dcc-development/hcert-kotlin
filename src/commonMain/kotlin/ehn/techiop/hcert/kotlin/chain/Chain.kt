@@ -16,13 +16,13 @@ data class DecodeExtendedResult(
 data class DecodeResult(
     val isValid: Boolean,
     val error: VerificationResult.Error?,
-    val metaInformation: MetaInformation,
+    val metaInformation: VerificationResult,
     val greenCertificate: GreenCertificate?,
 ) {
     constructor(extResult: DecodeExtendedResult) : this(
         extResult.decision == VerificationDecision.GOOD,
         extResult.verificationResult.error,
-        MetaInformation.from(extResult.verificationResult),
+        extResult.verificationResult,
         extResult.chainDecodeResult.eudgc,
     )
 }

@@ -49,18 +49,6 @@ class VerificationResult {
      */
     var error: Error? = null;
 
-    override fun toString(): String {
-        return "VerificationResult(" +
-                "expirationTime=$expirationTime, " +
-                "issuedAt=$issuedAt, " +
-                "issuer=$issuer, " +
-                "certificateValidFrom=$certificateValidFrom, " +
-                "certificateValidUntil=$certificateValidUntil, " +
-                "certificateValidContent=$certificateValidContent, " +
-                "content=$content" +
-                ")"
-    }
-
     /**
      * From Swift ValidationCore
      */
@@ -83,6 +71,19 @@ class VerificationResult {
         KEYSTORE_ERROR,
         SIGNATURE_INVALID,
         CONTEXT_IDENTIFIER_INVALID, // new
+    }
+
+    override fun toString(): String {
+        return "VerificationResult(" +
+                "expirationTime=$expirationTime, " +
+                "issuedAt=$issuedAt, " +
+                "issuer=$issuer, " +
+                "certificateValidFrom=$certificateValidFrom, " +
+                "certificateValidUntil=$certificateValidUntil, " +
+                "certificateValidContent=$certificateValidContent, " +
+                "content=$content, " +
+                "error=$error" +
+                ")"
     }
 
 }
