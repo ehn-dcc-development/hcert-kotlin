@@ -21,9 +21,12 @@ open class DefaultCompressorService(private val level: Int = 9) : CompressorServ
      * Decompresses input with ZLIB = inflating.
      */
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
-        verificationResult.zlibDecoded = false
-        return adapter.decode(input).also {
-            verificationResult.zlibDecoded = true
+        try {
+            return adapter.decode(input)
+        } catch (e: Throwable) {
+            throw e.also {
+                verificationResult.error = VerificationResult.Error.DECOMPRESSION_FAILED
+            }
         }
     }
 

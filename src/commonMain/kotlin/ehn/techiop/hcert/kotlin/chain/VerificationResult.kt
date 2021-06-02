@@ -25,11 +25,6 @@ class VerificationResult {
     var issuer: String? = null
 
     /**
-     * CWT SHALL be compressed using ZLIB
-     */
-    var zlibDecoded = false
-
-    /**
      * COSE signature MUST be verifiable
      */
     var coseVerified = false
@@ -76,7 +71,6 @@ class VerificationResult {
                 "expirationTime=$expirationTime, " +
                 "issuedAt=$issuedAt, " +
                 "issuer=$issuer, " +
-                "zlibDecoded=$zlibDecoded, " +
                 "coseVerified=$coseVerified, " +
                 "cwtDecoded=$cwtDecoded, " +
                 "cborDecoded=$cborDecoded, " +

@@ -115,12 +115,13 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         }
         case.expectedResult.compression?.let {
             withClue("ZLib Decompression") {
-                verificationResult.zlibDecoded shouldBe it
                 if (it) {
                     chainResult.chainDecodeResult.step2Cose?.toHexString()
                         ?.lowercase() shouldBe case.coseHex?.lowercase()
                 }
-
+                if (!it) {
+                    verificationResult.error shouldBe VerificationResult.Error.DECOMPRESSION_FAILED
+                }
             }
         }
         case.expectedResult.coseSignature?.let {
