@@ -1,0 +1,47 @@
+{
+    "allowedLicenses": [
+        {
+            "moduleLicense": "Apache License, Version 2.0"
+        },
+        {
+            "moduleLicense": "The Apache License, Version 2.0"
+        },
+        {
+            "moduleLicense": "The Apache Software License, Version 2.0"
+        },
+        {
+            "moduleLicense": "Bouncy Castle Licence"
+        },
+        {
+            "moduleLicense": "BSD3"
+        },
+        {
+            "moduleLicense": "BSD 3-clause License w/nuclear disclaimer"
+        },
+        {
+            "moduleLicense": "CC0 Universal"
+        },
+        {
+            "moduleLicense": "CC0 1.0 Universal"
+        },
+        {
+            "moduleLicense": "MIT License"
+        },
+        {
+            // is Apache 2
+            "moduleName": "org.jetbrains.kotlinx:kotlinx-serialization-core"
+        },
+        {
+            // is Apache 2
+            "moduleName": "org.jetbrains.kotlinx:kotlinx-serialization-cbor"
+        },
+        {
+            // is Apache 2
+            "moduleName": "org.jetbrains.kotlinx:kotlinx-serialization-json"
+        },
+        {
+            // is Apache 2
+            "moduleName": "org.jetbrains.kotlinx:kotlinx-datetime"
+        }
+    ]
+}
