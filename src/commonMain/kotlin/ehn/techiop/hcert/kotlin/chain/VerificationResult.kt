@@ -25,11 +25,6 @@ class VerificationResult {
     var issuer: String? = null
 
     /**
-     * Schema validation succeeded
-     */
-    var schemaValidated = false
-
-    /**
      * Lifetime of certificate used for verification of COSE
      */
     var certificateValidFrom: Instant? = null
@@ -49,6 +44,9 @@ class VerificationResult {
      */
     var content: MutableList<ContentType> = mutableListOf()
 
+    /**
+     * Holds the error, if any occurred
+     */
     var error: Error? = null;
 
     override fun toString(): String {

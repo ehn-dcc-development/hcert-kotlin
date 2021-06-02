@@ -17,15 +17,11 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
 
     init {
         addFormats(ajv)
-
         // Warning: AJV does not support the valueset-uri keyword used in the schema.
         // We configure AJV to ignore the keyword, but that still means we are not checking
         // field values against the allowed options from the linked value sets.
         ajv.addKeyword("valueset-uri")
-
-        val schemaString = MainResourceHolder.loadAsString("json/DCC.combined-schema.json")
-        schema = JSON.parse<dynamic>(schemaString!!)
-
+        schema = JSON.parse<dynamic>(MainResourceHolder.loadAsString("json/DCC.combined-schema.json")!!)
         if (!ajv.validateSchema(schema)) {
             throw Throwable("JSON schema invalid: ${JSON.stringify(ajv.errors)}")
         }
@@ -35,19 +31,10 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
     override fun validate(cbor: ByteArray, verificationResult: VerificationResult) {
         jsTry {
             val json = Cbor.Decoder.decodeFirstSync(input = cbor.toBuffer(), options = object : DecodeOptions {})
-
             if (!ajv.validate(schema, json)) {
-                throw Throwable("Data does not follow schema: ${JSON.stringify(ajv.errors)}").also {
-                    verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
-                }
-                /*.let {
-                     if (!it) {
-                         console.log("Data does not follow schema:")
-                         console.log(JSON.stringify(ajv.errors))
-                     }
-                 }*/
+                throw Throwable("Data does not follow schema: ${JSON.stringify(ajv.errors)}")
+                // console.log(JSON.stringify(ajv.errors))
             }
-            verificationResult.schemaValidated = true
         }.catch {
             throw it.also {
                 verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED

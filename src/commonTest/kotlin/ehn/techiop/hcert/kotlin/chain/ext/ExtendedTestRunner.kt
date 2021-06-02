@@ -152,7 +152,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     // doesn't make sense to compare exact CBOR hex encoding
                     //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
                 }
-                if (!it){
+                if (!it) {
                     verificationResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
                 }
             }
@@ -179,12 +179,13 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     if (case.cborHex != null) {
                         val newResult = VerificationResult()
                         DefaultSchemaValidationService().validate(case.cborHex.fromHexString(), newResult)
-                        newResult.schemaValidated shouldBe it
+                        if (!it)
+                            newResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
                     }
-                } else {
-                    verificationResult.schemaValidated shouldBe it
                 }
-                if (!it) decision shouldBe VerificationDecision.FAIL
+                if (!it) {
+                    verificationResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                }
             }
         }
         case.expectedResult.expirationCheck?.let {
