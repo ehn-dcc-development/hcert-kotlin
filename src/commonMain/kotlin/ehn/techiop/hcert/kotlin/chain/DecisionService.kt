@@ -17,32 +17,6 @@ class DecisionService(private val clock: Clock = Clock.System) {
                 }
         }
 
-        verificationResult.issuedAt?.let { issuedAt ->
-            verificationResult.certificateValidFrom?.let { certValidFrom ->
-                if (issuedAt < certValidFrom)
-                    return VerificationDecision.FAIL.also {
-                        verificationResult.error = VerificationResult.Error.CWT_EXPIRED
-                    }
-            }
-            if (issuedAt > clock.now())
-                return VerificationDecision.FAIL.also {
-                    verificationResult.error = VerificationResult.Error.CWT_EXPIRED
-                }
-        }
-
-        verificationResult.expirationTime?.let { expirationTime ->
-            verificationResult.certificateValidUntil?.let { certValidUntil ->
-                if (expirationTime > certValidUntil)
-                    return VerificationDecision.FAIL.also {
-                        verificationResult.error = VerificationResult.Error.CWT_EXPIRED
-                    }
-            }
-            if (expirationTime < clock.now())
-                return VerificationDecision.FAIL.also {
-                    verificationResult.error = VerificationResult.Error.CWT_EXPIRED
-                }
-        }
-
         return VerificationDecision.GOOD
     }
 

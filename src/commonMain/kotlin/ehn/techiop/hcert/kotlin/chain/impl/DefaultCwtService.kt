@@ -36,10 +36,36 @@ open class DefaultCwtService constructor(
             verificationResult.issuer = it
         }
         map.getNumber(CwtHeaderKeys.ISSUED_AT.value)?.let {
-            verificationResult.issuedAt = Instant.fromEpochSeconds(it.toLong())
+            val issuedAt = Instant.fromEpochSeconds(it.toLong())
+            verificationResult.issuedAt = issuedAt
+            verificationResult.certificateValidFrom?.let { certValidFrom ->
+                if (issuedAt < certValidFrom) {
+                    throw Throwable("Decode CWT").also {
+                        verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                    }
+                }
+            }
+            if (issuedAt > clock.now()) {
+                throw Throwable("Decode CWT").also {
+                    verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                }
+            }
         }
         map.getNumber(CwtHeaderKeys.EXPIRATION.value)?.let {
-            verificationResult.expirationTime = Instant.fromEpochSeconds(it.toLong())
+            val expirationTime = Instant.fromEpochSeconds(it.toLong())
+            verificationResult.expirationTime = expirationTime
+            verificationResult.certificateValidUntil?.let { certValidUntil ->
+                if (expirationTime > certValidUntil) {
+                    throw Throwable("Decode CWT").also {
+                        verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                    }
+                }
+            }
+            if (expirationTime < clock.now()) {
+                throw Throwable("Decode CWT").also {
+                    verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                }
+            }
         }
 
         map.getMap(CwtHeaderKeys.HCERT.value)?.let { hcert ->
