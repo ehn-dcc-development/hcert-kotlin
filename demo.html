@@ -14,12 +14,14 @@
             let tQR = document.getElementById("tQR");
             let tCert = document.getElementById("tCert");
             let tRes = document.getElementById("tRes");
-            let tVer = document.getElementById("tVer");
-            let tDec = document.getElementById("tDec");
+            let tValid = document.getElementById("tValid");
+            let tError = document.getElementById("tError");
+            let tMeta = document.getElementById("tMeta");
             let tEgc = document.getElementById("tEgc");
             tRes.value = ""
-            tVer.value = ""
-            tDec.value = ""
+            tValid.value = ""
+            tError.value = ""
+            tMeta.value = ""
             tEgc.value = ""
         }
 
@@ -30,8 +32,9 @@
             let result = verifier.verify(qr);
             console.info(result);
             tRes.value = JSON.stringify(result, null, 2);
-            tVer.value = JSON.stringify(result.verificationResult, null, 2);
-            tDec.value = JSON.stringify(result.decision, null, 2);
+            tValid.value = JSON.stringify(result.isValid, null, 2);
+            tError.value = JSON.stringify(result.error, null, 2);
+            tMeta.value = JSON.stringify(result.metaInformation, null, 2);
             tEgc.value = JSON.stringify(result.greenCertificate, null, 2);
         }
     </script>
@@ -51,13 +54,16 @@
     <label for="tRes">Overall Structure</label><textarea rows="60" cols="100" id="tRes" disabled></textarea>
 </p>
 <p>
-    <label for="tVer">Verification Result Structure</label><textarea rows="30" cols="100" id="tVer" disabled></textarea>
+    <label for="tValid">IsValid</label><textarea rows="5" cols="100" id="tValid" disabled></textarea>
 </p>
 <p>
-    <label for="tDec">Static Decision Result</label><textarea rows="5" cols="100" id="tDec" disabled></textarea>
+    <label for="tError">Error</label><textarea rows="5" cols="100" id="tError" disabled></textarea>
 </p>
 <p>
-    <label for="tEgc">Green Pass Structure</label><textarea rows="30" cols="100" id="tEgc" disabled></textarea>
+    <label for="tMeta">Meta Information</label><textarea rows="30" cols="100" id="tMeta" disabled></textarea>
+</p>
+<p>
+    <label for="tEgc">Green Certificate</label><textarea rows="30" cols="100" id="tEgc" disabled></textarea>
 </p>
 
 

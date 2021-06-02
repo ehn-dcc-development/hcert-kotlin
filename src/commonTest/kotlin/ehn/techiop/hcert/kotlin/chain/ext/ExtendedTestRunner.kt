@@ -93,7 +93,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
             }
         } else throw IllegalArgumentException("Input")
 
-        val chainResult = decodingChain.decodeExtended(qrCodeContent)
+        val chainResult = decodingChain.decode(qrCodeContent)
         val verificationResult = chainResult.verificationResult
         var errorExpected = false
 

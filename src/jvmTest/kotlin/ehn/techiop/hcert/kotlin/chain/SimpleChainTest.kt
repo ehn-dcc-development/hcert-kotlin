@@ -53,8 +53,8 @@ private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: Boo
 
     val output = encodingChain.encode(input)
 
-    val result = decodingChain.decodeExtended(output.step5Prefixed)
-    result.isValid shouldBe outcome
+    val result = decodingChain.decode(output.step5Prefixed)
+    (result.verificationResult.error == null) shouldBe outcome
     if (outcome) // our chain exits early on an error
         result.chainDecodeResult.eudgc shouldBe input
 }

@@ -1,3 +1,4 @@
+import ehn.techiop.hcert.kotlin.chain.DecodeJsResult
 import ehn.techiop.hcert.kotlin.chain.DefaultChain
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import kotlinx.serialization.encodeToString
@@ -12,7 +13,7 @@ class Verifier(vararg val pemEncodedCertCertificates: String) {
     private val chain = DefaultChain.buildVerificationChain(repo)
 
     fun verify(qrContent: String): jsJson {
-        val decodeResult = chain.decode(qrContent)
+        val decodeResult = DecodeJsResult(chain.decode(qrContent))
         return JSON.parse(Json { encodeDefaults = true }.encodeToString(decodeResult))
     }
 

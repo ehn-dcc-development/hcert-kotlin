@@ -1,31 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
-import kotlinx.serialization.Serializable
 import kotlin.js.JsName
 
-
-@Serializable
-data class DecodeExtendedResult(
-    val verificationResult: VerificationResult,
-    val chainDecodeResult: ChainDecodeResult,
-    val isValid: Boolean
-)
-
-@Serializable
-data class DecodeResult(
-    val isValid: Boolean,
-    val error: VerificationResult.Error?,
-    val metaInformation: VerificationResult,
-    val greenCertificate: GreenCertificate?,
-) {
-    constructor(extResult: DecodeExtendedResult) : this(
-        extResult.isValid,
-        extResult.verificationResult.error,
-        extResult.verificationResult,
-        extResult.chainDecodeResult.eudgc,
-    )
-}
 
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes
@@ -72,26 +49,11 @@ class Chain(
      * - [CoseService]
      * - [CwtService]
      * - [CborService]
-     * The result ([GreenCertificate]) will contain the parsed data.
-     */
-    @JsName("decode")
-    fun decode(input: String): DecodeResult {
-        return DecodeResult(decodeExtended(input))
-    }
-
-    /**
-     * Process the [input], apply decoding in this order:
-     * - [ContextIdentifierService]
-     * - [Base45Service]
-     * - [CompressorService]
-     * - [CoseService]
-     * - [CwtService]
-     * - [CborService]
      * - [SchemaValidationService]
      * The result ([ChainDecodeResult]) will contain the parsed data, as well as intermediate results.
      */
-    @JsName("decodeExtended")
-    fun decodeExtended(input: String): DecodeExtendedResult {
+    @JsName("decode")
+    fun decode(input: String): DecodeResult {
         val verificationResult = VerificationResult()
 
         var eudgc: GreenCertificate? = null
@@ -110,12 +72,11 @@ class Chain(
             schemaValidationService.validate(cbor, verificationResult)
             eudgc = cborService.decode(cbor, verificationResult)
         } catch (t: Throwable) {
-            // ignore it on purpose, the verificationResult shall show that the result is not complete
-            t.printStackTrace()
+            // ignore it on purpose, the verificationResult will contain an error
         }
 
         val chainDecodeResult = ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded)
-        return DecodeExtendedResult(verificationResult, chainDecodeResult, verificationResult.error == null)
+        return DecodeResult(verificationResult, chainDecodeResult)
     }
 }
 

@@ -137,7 +137,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainCorrect.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            true,
         )
     }
 
@@ -145,7 +144,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainFaultyBase45.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            false,
             VerificationResult.Error.BASE_45_DECODING_FAILED
         )
     }
@@ -154,7 +152,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainNoopContextIdentifier.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            false,
             VerificationResult.Error.INVALID_SCHEME_PREFIX
         )
     }
@@ -163,7 +160,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainNoopCompressor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            false,
             VerificationResult.Error.DECOMPRESSION_FAILED
         )
     }
@@ -172,7 +168,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainFaultyCompressor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            false,
             VerificationResult.Error.DECOMPRESSION_FAILED
         )
     }
@@ -181,7 +176,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainUnverifiableCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            false,
             VerificationResult.Error.SIGNATURE_INVALID
         )
     }
@@ -190,7 +184,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainUnprotectedCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            true,
             null
         )
     }
@@ -199,7 +192,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainFaultyCose.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            false,
             VerificationResult.Error.SIGNATURE_INVALID
         )
     }
@@ -208,7 +200,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainFaultyCwt.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            false,
             VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
         )
     }
@@ -217,7 +208,6 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainFaultyCbor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            false,
             VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
         )
     }
@@ -228,18 +218,14 @@ class FaultyImplementationsTest : StringSpec({
 private fun assertVerification(
     chainOutput: String,
     input: GreenCertificate,
-    expectDataToMatch: Boolean,
     error: VerificationResult.Error? = null
 ) {
-    val result = chainCorrect.decodeExtended(chainOutput)
+    val result = chainCorrect.decode(chainOutput)
     val verificationResult = result.verificationResult
-    error?.let {
-        verificationResult.error shouldBe it
-    }
-
-    if (expectDataToMatch) {
-        result.chainDecodeResult.eudgc shouldBe input
-    } else {
+    if (error != null) {
         result.chainDecodeResult.eudgc shouldNotBe input
+        verificationResult.error shouldBe error
+    } else {
+        result.chainDecodeResult.eudgc shouldBe input
     }
 }

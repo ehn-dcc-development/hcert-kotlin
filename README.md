@@ -60,10 +60,10 @@ Chain chain = DefaultChain.buildVerificationChain(repository);
 String input = "HC1:NCFC:MVIMAP2SQ20MU...";
 
 DecodeResult result = chain.decode(input);
-VerificationResult verificationResult = result.getVerificationResult();
-GreenCertificate greenCertificate = result.getGreenCertificate();
-VerificationDecision decision = new DecisionService().decide(verificationResult);
-// is either VerificationDecision.GOOD, or FAIL_QRCODE, or FAIL_VALIDITY, or FAIL_SIGNATURE
+VerificationResult verificationResult = result.getVerificationResult(); // contains metaInformation
+boolean isValid = verificationResult.getError() == null; // true or false
+Error error = verificationResult.getError(); // may be null, see list below
+GreenCertificate greenCertificate = result.getChainDecodeResult().getEudgc(); // may be null
 ```
 
 ## Usage (JS)
@@ -72,17 +72,56 @@ The build result (`./gradlew jsBrowserDistribution`) of this library for JS is a
 
 ```JavaScript
 let qr = "HC1:NCFC:MVIMAP2SQ20MU..."; // scan from somewhere
-let pemCert = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq..."; // PEM encoded DSC 
+let pemCert = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq..."; // PEM encoded DSC
 let verifier = new hcert.Verifier([pemCert]);
-    
+
 let result = verifier.verify(qr);
-let decision = verifier.decide(result.verificationResult);
-let greenCertificate = result.greenCertificate;
+let isValid = result.isValid; // true or false
+let metaInformation = result.metaInformation // see below
+let error = result.error; // may be null, or contain an error, see below
+let greenCertificate = result.greenCertificate; // may be null, or contain the decoded HCERT
 
 console.info(result);
-console.info(decision);
-console.info(greenCertificate);
 ```
+
+The meta information contains extracted data from the QR code contents, e.g.:
+```JSON
+{
+  "expirationTime": "2021-11-02T18:00:00Z",
+  "issuedAt": "2021-05-06T18:00:00Z",
+  "issuer": "AT",
+  "certificateValidFrom": "2021-05-05T12:41:06Z",
+  "certificateValidUntil": "2023-05-05T12:41:06Z",
+  "certificateValidContent": [
+    "TEST",
+    "VACCINATION",
+    "RECOVERY"
+  ],
+  "content": [
+    "VACCINATION"
+  ],
+  "error": null
+}
+```
+
+The resulting `error` may be one of the following (the list is identical to ValidationCore for Swift, therefore there may be some unused entries):
+ - `GENERAL_ERROR`:
+ - `INVALID_SCHEME_PREFIX`: The prefix does not conform to the expected one, e.g. `HC1:`
+ - `DECOMPRESSION_FAILED`: Error in decompressing the input
+ - `BASE_45_DECODING_FAILED`: Error in Base45 decoding
+ - `COSE_DESERIALIZATION_FAILED`: not used
+ - `CBOR_DESERIALIZATION_FAILED`: Error in decoding CBOR or CWT structures
+ - `CWT_EXPIRED`: Timestamps in CWT are not correct, e.g. expired before issuing timestamp
+ - `QR_CODE_ERROR`: not used
+ - `CERTIFICATE_QUERY_FAILED`: not used
+ - `USER_CANCELLED`: not used
+ - `TRUST_SERVICE_ERROR`: not used
+ - `KEY_NOT_IN_TRUST_LIST`: Certificate with `KID` not found
+ - `PUBLIC_KEY_EXPIRED`: Certificate used to sign the COSE structure has expired
+ - `UNSUITABLE_PUBLIC_KEY_TYPE`: Certificate has not the correct extension for signing that content type, e.g. Vaccination entries
+ - `KEY_CREATION_ERROR`: not used
+ - `KEYSTORE_ERROR`: not used
+ - `SIGNATURE_INVALID`: Signature on COSE structure could not be verified
 
 Emphasis of the JS target is the validation of QR codes, i.e. do not expect to be able to create a valid QR code.
 
@@ -181,7 +220,7 @@ This library uses the following dependencies:
  - [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization), under the Apache-2.0 License
  - [Kotlinx Datetime](https://github.com/Kotlin/kotlinx-datetime), under the Apache-2.0 License
  - [Kotest](https://github.com/kotest/kotest), under the Apache-2.0 License
- 
+
 For the JVM target:
  - [COSE-JAVA](https://github.com/cose-wg/cose-java), under the BSD-3-Clause License
  - [ZXing](https://github.com/zxing/zxing), under the Apache-2.0 License
