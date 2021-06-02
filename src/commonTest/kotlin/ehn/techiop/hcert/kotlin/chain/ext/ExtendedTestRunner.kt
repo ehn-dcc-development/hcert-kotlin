@@ -1,8 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.kotlin.chain.DecisionService
 import ehn.techiop.hcert.kotlin.chain.DefaultChain
-import ehn.techiop.hcert.kotlin.chain.VerificationDecision
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.fromHexString
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
@@ -76,10 +74,9 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
     withData(cases.workaroundKotestNamingBug()) {
         val case = json.decodeFromString<TestCase>(it)
         val clock = FixedClock(case.context.validationClock)
-        val decisionService = DecisionService(clock)
         if (case.context.certificate == null) throw IllegalArgumentException("certificate")
         val certificateRepository = PrefilledCertificateRepository(case.context.certificate)
-        val decodingChain = DefaultChain.buildVerificationChain(certificateRepository)
+        val decodingChain = DefaultChain.buildVerificationChain(certificateRepository, clock)
         val qrCodeContent = case.base45WithPrefix ?: if (case.qrCodePng != null) {
             try {
                 // TODO decode QRCode?
@@ -92,7 +89,6 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
 
         val chainResult = decodingChain.decodeExtended(qrCodeContent)
         val verificationResult = chainResult.verificationResult
-        val decision = decisionService.decide(verificationResult)
 
         case.expectedResult.qrDecode?.let {
             // TODO QRCode in Common and JS?
@@ -101,13 +97,17 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         }
         case.expectedResult.prefix?.let {
             withClue("Prefix") {
-                if (it) chainResult.chainDecodeResult.step4Encoded shouldBe case.base45
-                if (!it) decision shouldBe VerificationDecision.FAIL
+                if (it) {
+                    verificationResult.error shouldBe null
+                    chainResult.chainDecodeResult.step4Encoded shouldBe case.base45
+                }
+                if (!it) verificationResult.error shouldBe VerificationResult.Error.INVALID_SCHEME_PREFIX
             }
         }
         case.expectedResult.base45Decode?.let {
             withClue("Base45 Decoding") {
                 if (it && case.compressedHex != null) {
+                    verificationResult.error shouldBe null
                     chainResult.chainDecodeResult.step3Compressed?.toHexString()
                         ?.lowercase() shouldBe case.compressedHex.lowercase()
                 }
@@ -117,6 +117,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.compression?.let {
             withClue("ZLib Decompression") {
                 if (it) {
+                    verificationResult.error shouldBe null
                     chainResult.chainDecodeResult.step2Cose?.toHexString()
                         ?.lowercase() shouldBe case.coseHex?.lowercase()
                 }
@@ -127,6 +128,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         }
         case.expectedResult.coseSignature?.let {
             withClue("COSE Verify") {
+                if (it) verificationResult.error shouldBe null
                 if (!it) {
                     verificationResult.error shouldBeIn listOf(
                         VerificationResult.Error.SIGNATURE_INVALID,
@@ -144,10 +146,9 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                         DefaultCborService().decode(case.cborHex.fromHexString(), newResult)
                         newResult.error shouldBe null
                     }
-                } else {
-                    // TODO verify?
                 }
                 if (it && case.expectedResult.coseSignature != false) {
+                    verificationResult.error shouldBe null
                     chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                     // doesn't make sense to compare exact CBOR hex encoding
                     //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
@@ -167,9 +168,10 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                         dgc shouldBe case.eudgc
                     }
                 } else {
+                    verificationResult.error shouldBe null
                     chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                 }
-                if (!it) decision shouldBe VerificationDecision.FAIL
+                if (!it) verificationResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
             }
         }
         case.expectedResult.schemaValidation?.let {
@@ -179,8 +181,8 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     if (case.cborHex != null) {
                         val newResult = VerificationResult()
                         DefaultSchemaValidationService().validate(case.cborHex.fromHexString(), newResult)
-                        if (!it)
-                            newResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                        if (it) newResult.error shouldBe null
+                        if (!it) newResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
                     }
                 }
                 if (!it) {
@@ -191,16 +193,16 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.expirationCheck?.let {
             withClue("Expiration Check") {
                 if (case.expectedResult.coseSignature != false) {
-                    if (it) decision shouldBe VerificationDecision.GOOD
-                    if (!it) decision shouldBe VerificationDecision.FAIL
+                    if (it) verificationResult.error shouldBe null
+                    if (!it) verificationResult.error shouldBe VerificationResult.Error.CWT_EXPIRED
                 }
             }
         }
         case.expectedResult.keyUsage?.let {
             withClue("Key Usage") {
                 if (case.expectedResult.coseSignature != false) {
-                    if (it) decision shouldBe VerificationDecision.GOOD
-                    if (!it) decision shouldBe VerificationDecision.FAIL
+                    if (it) verificationResult.error shouldBe null
+                    if (!it) verificationResult.error shouldBe VerificationResult.Error.UNSUITABLE_PUBLIC_KEY_TYPE
                 }
             }
         }

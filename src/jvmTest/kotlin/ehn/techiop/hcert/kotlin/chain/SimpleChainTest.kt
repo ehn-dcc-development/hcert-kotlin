@@ -14,14 +14,14 @@ import kotlinx.serialization.json.Json
 class SimpleChainTest : FunSpec({
 
     withData(
-        TestInput(SampleData.testRat, ContentType.TEST, VerificationDecision.GOOD),
-        TestInput(SampleData.testRat, ContentType.VACCINATION, VerificationDecision.FAIL),
-        TestInput(SampleData.testNaa, ContentType.TEST, VerificationDecision.GOOD),
-        TestInput(SampleData.testNaa, ContentType.RECOVERY, VerificationDecision.FAIL),
-        TestInput(SampleData.vaccination, ContentType.VACCINATION, VerificationDecision.GOOD),
-        TestInput(SampleData.vaccination, ContentType.TEST, VerificationDecision.FAIL),
-        TestInput(SampleData.recovery, ContentType.RECOVERY, VerificationDecision.GOOD),
-        TestInput(SampleData.recovery, ContentType.VACCINATION, VerificationDecision.FAIL)
+        TestInput(SampleData.testRat, ContentType.TEST, true),
+        TestInput(SampleData.testRat, ContentType.VACCINATION, false),
+        TestInput(SampleData.testNaa, ContentType.TEST, true),
+        TestInput(SampleData.testNaa, ContentType.RECOVERY, false),
+        TestInput(SampleData.vaccination, ContentType.VACCINATION, true),
+        TestInput(SampleData.vaccination, ContentType.TEST, false),
+        TestInput(SampleData.recovery, ContentType.RECOVERY, true),
+        TestInput(SampleData.recovery, ContentType.VACCINATION, false)
     ) { input ->
 
         withData(
@@ -42,9 +42,9 @@ class SimpleChainTest : FunSpec({
     }
 })
 
-data class TestInput(val data: String, val contentType: ContentType, val outcome: VerificationDecision)
+data class TestInput(val data: String, val contentType: ContentType, val outcome: Boolean)
 
-private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: VerificationDecision) {
+private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: Boolean) {
     val input = Json.decodeFromString<GreenCertificate>(jsonInput)
 
     val encodingChain = DefaultChain.buildCreationChain(cryptoService)
@@ -55,5 +55,5 @@ private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: Ver
 
     val result = decodingChain.decodeExtended(output.step5Prefixed)
     result.chainDecodeResult.eudgc shouldBe input
-    result.decision shouldBe outcome
+    result.isValid shouldBe outcome
 }

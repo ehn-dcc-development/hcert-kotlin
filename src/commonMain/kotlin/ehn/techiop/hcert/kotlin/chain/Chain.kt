@@ -9,7 +9,7 @@ import kotlin.js.JsName
 data class DecodeExtendedResult(
     val verificationResult: VerificationResult,
     val chainDecodeResult: ChainDecodeResult,
-    val decision: VerificationDecision
+    val isValid: Boolean
 )
 
 @Serializable
@@ -20,7 +20,7 @@ data class DecodeResult(
     val greenCertificate: GreenCertificate?,
 ) {
     constructor(extResult: DecodeExtendedResult) : this(
-        extResult.decision == VerificationDecision.GOOD,
+        extResult.isValid,
         extResult.verificationResult.error,
         extResult.verificationResult,
         extResult.chainDecodeResult.eudgc,
@@ -73,9 +73,6 @@ class Chain(
      * - [CwtService]
      * - [CborService]
      * The result ([GreenCertificate]) will contain the parsed data.
-     *
-     * Beware that [verificationResult] will be filled with detailed information about the decoding,
-     * which shall be passed to an instance of [DecisionService] to decide on a final verdict.
      */
     @JsName("decode")
     fun decode(input: String): DecodeResult {
@@ -92,9 +89,6 @@ class Chain(
      * - [CborService]
      * - [SchemaValidationService]
      * The result ([ChainDecodeResult]) will contain the parsed data, as well as intermediate results.
-     *
-     * Beware that [verificationResult] will be filled with detailed information about the decoding,
-     * which shall be passed to an instance of [DecisionService] to decide on a final verdict.
      */
     @JsName("decodeExtended")
     fun decodeExtended(input: String): DecodeExtendedResult {
@@ -121,8 +115,7 @@ class Chain(
         }
 
         val chainDecodeResult = ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded)
-        val decision = DecisionService().decide(verificationResult)
-        return DecodeExtendedResult(verificationResult, chainDecodeResult, decision)
+        return DecodeExtendedResult(verificationResult, chainDecodeResult, verificationResult.error == null)
     }
 }
 

@@ -8,6 +8,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
+import kotlinx.datetime.Clock
 import kotlin.js.JsName
 
 
@@ -27,9 +28,9 @@ object DefaultChain {
      * Builds a "default" chain for verifying, i.e. one with the implementation according to spec.
      */
     @JsName("buildVerificationChain")
-    fun buildVerificationChain(repository: CertificateRepository) = Chain(
+    fun buildVerificationChain(repository: CertificateRepository, clock: Clock = Clock.System) = Chain(
         DefaultCborService(),
-        DefaultCwtService(),
+        DefaultCwtService(clock = clock),
         VerificationCoseService(repository),
         DefaultContextIdentifierService(),
         DefaultCompressorService(),

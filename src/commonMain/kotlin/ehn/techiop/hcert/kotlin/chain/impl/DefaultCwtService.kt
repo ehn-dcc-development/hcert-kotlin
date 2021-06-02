@@ -30,51 +30,56 @@ open class DefaultCwtService constructor(
     }
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
-        val map = CwtAdapter(input)
+        try {
+            val map = CwtAdapter(input)
 
-        map.getString(CwtHeaderKeys.ISSUER.value)?.let {
-            verificationResult.issuer = it
-        }
-        map.getNumber(CwtHeaderKeys.ISSUED_AT.value)?.let {
-            val issuedAt = Instant.fromEpochSeconds(it.toLong())
-            verificationResult.issuedAt = issuedAt
-            verificationResult.certificateValidFrom?.let { certValidFrom ->
-                if (issuedAt < certValidFrom) {
+            map.getString(CwtHeaderKeys.ISSUER.value)?.let {
+                verificationResult.issuer = it
+            }
+            map.getNumber(CwtHeaderKeys.ISSUED_AT.value)?.let {
+                val issuedAt = Instant.fromEpochSeconds(it.toLong())
+                verificationResult.issuedAt = issuedAt
+                verificationResult.certificateValidFrom?.let { certValidFrom ->
+                    if (issuedAt < certValidFrom) {
+                        throw Throwable("Decode CWT").also {
+                            verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                        }
+                    }
+                }
+                if (issuedAt > clock.now()) {
                     throw Throwable("Decode CWT").also {
                         verificationResult.error = VerificationResult.Error.CWT_EXPIRED
                     }
                 }
             }
-            if (issuedAt > clock.now()) {
-                throw Throwable("Decode CWT").also {
-                    verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+            map.getNumber(CwtHeaderKeys.EXPIRATION.value)?.let {
+                val expirationTime = Instant.fromEpochSeconds(it.toLong())
+                verificationResult.expirationTime = expirationTime
+                verificationResult.certificateValidUntil?.let { certValidUntil ->
+                    if (expirationTime > certValidUntil) {
+                        throw Throwable("Decode CWT").also {
+                            verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+                        }
+                    }
                 }
-            }
-        }
-        map.getNumber(CwtHeaderKeys.EXPIRATION.value)?.let {
-            val expirationTime = Instant.fromEpochSeconds(it.toLong())
-            verificationResult.expirationTime = expirationTime
-            verificationResult.certificateValidUntil?.let { certValidUntil ->
-                if (expirationTime > certValidUntil) {
+                if (expirationTime < clock.now()) {
                     throw Throwable("Decode CWT").also {
                         verificationResult.error = VerificationResult.Error.CWT_EXPIRED
                     }
                 }
             }
-            if (expirationTime < clock.now()) {
-                throw Throwable("Decode CWT").also {
-                    verificationResult.error = VerificationResult.Error.CWT_EXPIRED
+
+            map.getMap(CwtHeaderKeys.HCERT.value)?.let { hcert ->
+                hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.value)?.let { eudgcV1 ->
+                    return eudgcV1.encoded()
                 }
             }
-        }
-
-        map.getMap(CwtHeaderKeys.HCERT.value)?.let { hcert ->
-            hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.value)?.let { eudgcV1 ->
-                return eudgcV1.encoded()
+            throw Throwable("Decode CWT")
+        } catch (e: Throwable) {
+            throw e.also {
+                if (verificationResult.error == null)
+                    verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
             }
-        }
-        throw Throwable("Decode CWT").also {
-            verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
         }
     }
 
