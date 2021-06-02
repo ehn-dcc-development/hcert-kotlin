@@ -25,11 +25,6 @@ class VerificationResult {
     var issuer: String? = null
 
     /**
-     * The payload is CBOR encoded
-     */
-    var cborDecoded = false
-
-    /**
      * Schema validation succeeded
      */
     var schemaValidated = false
@@ -61,7 +56,6 @@ class VerificationResult {
                 "expirationTime=$expirationTime, " +
                 "issuedAt=$issuedAt, " +
                 "issuer=$issuer, " +
-                "cborDecoded=$cborDecoded, " +
                 "certificateValidFrom=$certificateValidFrom, " +
                 "certificateValidUntil=$certificateValidUntil, " +
                 "certificateValidContent=$certificateValidContent, " +

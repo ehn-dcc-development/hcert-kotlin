@@ -55,6 +55,5 @@ private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: Ver
 
     val result = decodingChain.decodeExtended(output.step5Prefixed)
     result.chainDecodeResult.eudgc shouldBe input
-    result.verificationResult.cborDecoded shouldBe true
     result.decision shouldBe outcome
 }

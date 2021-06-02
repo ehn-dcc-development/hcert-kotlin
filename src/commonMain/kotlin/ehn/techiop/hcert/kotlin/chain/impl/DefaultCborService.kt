@@ -13,16 +13,20 @@ open class DefaultCborService : CborService {
     override fun encode(input: GreenCertificate) = Cbor.encodeToByteArray(input)
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): GreenCertificate? {
-        verificationResult.cborDecoded = false
         // TODO Remove "ignoreUnknownKeys", once everything is up to date with schema 1.2.1
-        val result = Cbor { ignoreUnknownKeys = true }.decodeFromByteArray<GreenCertificate>(input)
-        verificationResult.cborDecoded = true
-        if (result.tests?.filterNotNull()?.isNotEmpty() == true)
-            verificationResult.content.add(ContentType.TEST)
-        if (result.vaccinations?.filterNotNull()?.isNotEmpty() == true)
-            verificationResult.content.add(ContentType.VACCINATION)
-        if (result.recoveryStatements?.filterNotNull()?.isNotEmpty() == true)
-            verificationResult.content.add(ContentType.RECOVERY)
-        return result
+        try {
+            val result = Cbor { ignoreUnknownKeys = true }.decodeFromByteArray<GreenCertificate>(input)
+            if (result.tests?.filterNotNull()?.isNotEmpty() == true)
+                verificationResult.content.add(ContentType.TEST)
+            if (result.vaccinations?.filterNotNull()?.isNotEmpty() == true)
+                verificationResult.content.add(ContentType.VACCINATION)
+            if (result.recoveryStatements?.filterNotNull()?.isNotEmpty() == true)
+                verificationResult.content.add(ContentType.RECOVERY)
+            return result
+        } catch (e: Throwable) {
+            throw e.also {
+                verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+            }
+        }
     }
 }

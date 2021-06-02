@@ -17,11 +17,6 @@ class DecisionService(private val clock: Clock = Clock.System) {
                 }
         }
 
-        if (!verificationResult.cborDecoded)
-            return VerificationDecision.FAIL.also {
-                verificationResult.error = VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
-            }
-
         verificationResult.issuedAt?.let { issuedAt ->
             verificationResult.certificateValidFrom?.let { certValidFrom ->
                 if (issuedAt < certValidFrom)

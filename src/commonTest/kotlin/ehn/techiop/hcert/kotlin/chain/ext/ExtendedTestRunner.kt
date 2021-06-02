@@ -139,21 +139,22 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
             withClue("CBOR Decoding") {
                 // Our implementation exits early with a COSE error
                 if (case.expectedResult.coseSignature == false) {
-                    verificationResult.cborDecoded shouldBe false
                     if (case.cborHex != null) {
                         val newResult = VerificationResult()
                         DefaultCborService().decode(case.cborHex.fromHexString(), newResult)
-                        newResult.cborDecoded shouldBe it
+                        newResult.error shouldBe null
                     }
                 } else {
-                    verificationResult.cborDecoded shouldBe it
+                    // TODO verify?
                 }
                 if (it && case.expectedResult.coseSignature != false) {
                     chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                     // doesn't make sense to compare exact CBOR hex encoding
                     //assertThat(chainResult.step1Cbor.toHexString(), equalToIgnoringCase(case.cborHex))
                 }
-                if (!it) decision shouldBe VerificationDecision.FAIL
+                if (!it){
+                    verificationResult.error shouldBe VerificationResult.Error.CBOR_DESERIALIZATION_FAILED
+                }
             }
         }
         case.expectedResult.json?.let {

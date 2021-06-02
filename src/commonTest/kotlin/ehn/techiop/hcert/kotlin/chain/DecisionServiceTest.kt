@@ -10,19 +10,15 @@ import kotlin.time.Duration
 
 private val decisionService = DecisionService()
 
-private fun goodVerificationResult() = VerificationResult().apply {
-    cborDecoded = true
-}
-
 class DecisionServiceTest : StringSpec({
 
     "good" {
-        val verificationResult = goodVerificationResult()
+        val verificationResult = VerificationResult()
         decisionService.decide(verificationResult) shouldBe GOOD
     }
 
     "goodContentTest" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             content = mutableListOf(ContentType.TEST)
             certificateValidContent = mutableListOf(ContentType.TEST)
         }
@@ -30,7 +26,7 @@ class DecisionServiceTest : StringSpec({
     }
 
     "goodContentVaccination" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             content = mutableListOf(ContentType.VACCINATION)
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
@@ -38,7 +34,7 @@ class DecisionServiceTest : StringSpec({
     }
 
     "goodContentRecovery" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             content = mutableListOf(ContentType.RECOVERY)
             certificateValidContent = mutableListOf(ContentType.RECOVERY)
         }
@@ -46,7 +42,7 @@ class DecisionServiceTest : StringSpec({
     }
 
     "failContentTest" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             content = mutableListOf(ContentType.TEST)
             certificateValidContent = mutableListOf()
         }
@@ -54,7 +50,7 @@ class DecisionServiceTest : StringSpec({
     }
 
     "failContentVaccination" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             content = mutableListOf(ContentType.VACCINATION)
             certificateValidContent = mutableListOf(ContentType.RECOVERY, ContentType.TEST)
         }
@@ -62,29 +58,22 @@ class DecisionServiceTest : StringSpec({
     }
 
     "failContentRecovery" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             content = mutableListOf(ContentType.RECOVERY)
             certificateValidContent = mutableListOf(ContentType.VACCINATION)
         }
         decisionService.decide(verificationResult) shouldBe FAIL
     }
 
-    "failCbor" {
-        val verificationResult = goodVerificationResult().apply {
-            cborDecoded = false
-        }
-        decisionService.decide(verificationResult) shouldBe FAIL
-    }
-
     "issuedAtPast" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             issuedAt = Clock.System.now().minus(Duration.seconds(5))
         }
         decisionService.decide(verificationResult) shouldBe GOOD
     }
 
     "issuedAtPastValidFromBeforeThat" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             issuedAt = Clock.System.now().minus(Duration.seconds(5))
             certificateValidFrom = Clock.System.now().minus(Duration.seconds(10))
         }
@@ -92,7 +81,7 @@ class DecisionServiceTest : StringSpec({
     }
 
     "issuedAtPastValidFromAfterThat" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             issuedAt = Clock.System.now().minus(Duration.seconds(5))
             certificateValidFrom = Clock.System.now().minus(Duration.seconds(1))
         }
@@ -100,7 +89,7 @@ class DecisionServiceTest : StringSpec({
     }
 
     "issuedAtPastExpirationFuture" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             issuedAt = Clock.System.now().minus(Duration.seconds(5))
             expirationTime = Clock.System.now().plus(Duration.seconds(5))
         }
@@ -108,28 +97,28 @@ class DecisionServiceTest : StringSpec({
     }
 
     "issuedAtFuture" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             issuedAt = Clock.System.now().plus(Duration.seconds(5))
         }
         decisionService.decide(verificationResult) shouldBe FAIL
     }
 
     "expirationPast" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             expirationTime = Clock.System.now().minus(Duration.seconds(5))
         }
         decisionService.decide(verificationResult) shouldBe FAIL
     }
 
     "expirationFuture" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             expirationTime = Clock.System.now().plus(Duration.seconds(5))
         }
         decisionService.decide(verificationResult) shouldBe GOOD
     }
 
     "expirationFutureValidUntilAfterThat" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             expirationTime = Clock.System.now().plus(Duration.seconds(5))
             certificateValidUntil = Clock.System.now().plus(Duration.seconds(10))
         }
@@ -137,7 +126,7 @@ class DecisionServiceTest : StringSpec({
     }
 
     "expirationFutureValidUntilBeforeThat" {
-        val verificationResult = goodVerificationResult().apply {
+        val verificationResult = VerificationResult().apply {
             expirationTime = Clock.System.now().plus(Duration.seconds(5))
             certificateValidUntil = Clock.System.now().plus(Duration.seconds(1))
         }
