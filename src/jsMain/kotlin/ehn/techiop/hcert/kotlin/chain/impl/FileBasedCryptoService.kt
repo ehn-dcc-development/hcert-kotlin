@@ -8,6 +8,7 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
@@ -19,7 +20,9 @@ import ehn.techiop.hcert.kotlin.crypto.PubKey
 import elliptic.EC
 import org.khronos.webgl.Uint8Array
 import pkijs.src.AlgorithmIdentifier.AlgorithmIdentifier
+import pkijs.src.ECPrivateKey.ECPrivateKey
 import pkijs.src.PrivateKeyInfo.PrivateKeyInfo
+import pkijs.src.RSAPrivateKey.RSAPrivateKey
 
 actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String, pemEncodedCertificate: String) :
     CryptoService {
@@ -40,11 +43,20 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
         }
         val oid = (privateKeyInfo.privateKeyAlgorithm as AlgorithmIdentifier).algorithmId
         if (oid == "1.2.840.10045.2.1") {
-            val buffer = Buffer(privateKeyInfo.privateKey.toBER())
-            privateKey = JsEcPrivKey(EC("p256").keyFromPrivate(buffer))
+            val buffer = Buffer(privateKeyInfo.privateKey.valueBlock.valueHex)
+            val ecPrivateKey = fromBER(buffer.buffer).result.let {
+                ECPrivateKey(js("({'schema':it})"))
+            }
+            val content = Buffer(ecPrivateKey.privateKey.valueBlock.valueHex)
+            privateKey = JsEcPrivKey(EC("p256").keyFromPrivate(content))
             algorithmID = CwtAlgorithm.ECDSA_256
         } else if (oid == "1.2.840.113549.1.1.1") {
-            privateKey = JsRsaPrivKey(privateKeyInfo.privateKey.toBER())
+            // TODO untested
+            val buffer = Buffer(privateKeyInfo.privateKey.valueBlock.valueHex)
+            val rsaPrivateKey = fromBER(buffer.buffer).result.let {
+                RSAPrivateKey(js("({'schema':it})"))
+            }
+            privateKey = JsRsaPrivKey(buffer.buffer)
             algorithmID = CwtAlgorithm.RSA_PSS_256
         } else throw IllegalArgumentException("KeyType")
         certificate = JsCertificate(cleanPem(pemEncodedCertificate))

@@ -8,26 +8,15 @@ import org.khronos.webgl.get
 
 actual fun ByteArray.asBase64() = Buffer.from(this.toUint8Array()).toString("base64")
 
-actual fun ByteArray.asBase64Url() = base64url.toBase64(Buffer.from(this.toUint8Array()))
-
 actual fun ByteArray.toHexString() = joinToString("") { ('0' + (it.toUByte()).toString(16)).takeLast(2) }
 
 actual fun String.fromBase64() = Buffer.from(this, "base64").toByteArray()
-
-actual fun String.fromBase64Url() = base64url.toBuffer(this).toByteArray()
 
 fun ArrayBuffer.toByteArray() = org.khronos.webgl.Int8Array(this).unsafeCast<ByteArray>()
 
 fun ArrayBuffer.Companion.from(array: ByteArray) = Buffer.from(array).buffer
 
-//See https://stackoverflow.com/a/66614516
-actual fun String.fromHexString(): ByteArray {
-    require(length % 2 == 0) { "Must have an even length" }
-
-    return chunked(2)
-        .map { it.toInt(16).toByte() }
-        .toByteArray()
-}
+actual fun String.fromHexString() = Buffer.from(this, "hex").toByteArray()
 
 fun ByteArray.toUint8Array(): Uint8Array {
     return Uint8Array(toTypedArray())

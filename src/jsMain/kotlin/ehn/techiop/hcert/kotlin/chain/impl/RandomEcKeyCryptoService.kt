@@ -42,8 +42,8 @@ actual class RandomEcKeyCryptoService actual constructor(
         certificate = selfSignCertificate("EC-Me", privateKey, publicKey, contentType, clock) as JsCertificate
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
-        @Suppress("UNUSED_VARIABLE") val d = privateKey.toCoseRepresentation().d
-        privateKeyInfo.fromJSON(js("({'crv':'P-256', 'd': d})"))
+        @Suppress("UNUSED_VARIABLE") val d = keyPair.getPrivate().toArrayLike(Buffer).toString("base64")
+        privateKeyInfo.fromJSON(js("({'kty': 'EC', 'crv':'P-256', 'd': d})"))
     }
 
     override fun getCborHeaders() = listOf(

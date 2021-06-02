@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.crypto
 
 import Asn1js.fromBER
-import BN
 import Buffer
 import cose.CosePrivateKey
 import cose.CosePublicKey
@@ -36,7 +35,6 @@ internal object Cose {
         val verifier = object : Verifier {
             override val key = key
         }
-
         return sign.verifySync(Buffer.from(signedBitString.toUint8Array()), verifier).toByteArray()
     }
 
@@ -50,16 +48,11 @@ internal object Cose {
     }
 }
 
-class JsEcPubKey(val xCoord: Buffer, val yCoord: Buffer) :
-    EcPubKey<dynamic> {
-    constructor(x: ByteArray, y: ByteArray) : this(
-        xCoord = Buffer.from(x.toUint8Array()),
-        yCoord = Buffer.from(y.toUint8Array()),
-    )
+class JsEcPubKey(val xCoord: Buffer, val yCoord: Buffer) : EcPubKey<dynamic> {
 
     constructor(ecPublicKey: EcPublicKey) : this(
         ecPublicKey.getX().toArrayLike(Buffer),
-        ecPublicKey.getX().toArrayLike(Buffer)
+        ecPublicKey.getY().toArrayLike(Buffer),
     )
 
     constructor(ecKeyPair: EcKeyPair) : this(ecKeyPair.getPublic())
@@ -69,9 +62,11 @@ class JsEcPubKey(val xCoord: Buffer, val yCoord: Buffer) :
         yCoord = Buffer.from(y),
     )
 
-    override fun toCoseRepresentation(): EcCosePublicKey = object : EcCosePublicKey {
-        override val x = xCoord
-        override val y = yCoord
+    override fun toCoseRepresentation(): EcCosePublicKey {
+        return object : EcCosePublicKey {
+            override val x = xCoord
+            override val y = yCoord
+        }
     }
 
 }
@@ -85,13 +80,12 @@ class JsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
     }
 }
 
-class JsEcPrivKey(val ecPrivateKey: BN, val ec: EC) : EcPrivKey<EcCosePrivateKey> {
+class JsEcPrivKey(val dValue: Buffer, val ec: EC) : EcPrivKey<EcCosePrivateKey> {
 
-    constructor(ecKeyPair: EcKeyPair) : this(ecKeyPair.getPrivate(), ecKeyPair.ec)
+    constructor(keyPair: EcKeyPair) : this(keyPair.getPrivate().toArrayLike(Buffer), keyPair.ec)
 
     override fun toCoseRepresentation(): EcCosePrivateKey = object : EcCosePrivateKey {
-
-        override val d: Buffer = ecPrivateKey.toArrayLike(Buffer)
+        override val d: Buffer = dValue
     }
 }
 

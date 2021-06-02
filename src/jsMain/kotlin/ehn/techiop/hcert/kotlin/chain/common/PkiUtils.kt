@@ -7,17 +7,17 @@ import Asn1js.LocalBitStringValueBlockParams
 import Asn1js.LocalSimpleStringBlockParams
 import Asn1js.PrintableString
 import Asn1js.Sequence
+import BN
 import Buffer
-import cose.EcCosePublicKey
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.JsCertificate
 import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JsEcPubKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
 import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import elliptic.EC
 import hash
 import kotlinx.datetime.Clock
 import org.khronos.webgl.ArrayBuffer
@@ -64,12 +64,13 @@ actual fun selfSignCertificate(
     (certificate.notAfter as Time).value = Date(clock.now().plus(Duration.days(30)).toEpochMilliseconds())
     //certificate.extensions = arrayOf<Extension>()
     // TODO Extensions, see JVM implementation
+
     val jwk = object : JsonWebKey {
         override var alg: String? = "EC"
         override var crv: String? = "P-256"
         override var kty: String? = "EC"
-        override var x: String? = (publicKey.toCoseRepresentation() as EcCosePublicKey).x.toByteArray().asBase64()
-        override var y: String? = (publicKey.toCoseRepresentation() as EcCosePublicKey).y.toByteArray().asBase64()
+        override var x: String? = urlSafe((publicKey as JsEcPubKey).xCoord.toString("base64"))
+        override var y: String? = urlSafe((publicKey as JsEcPubKey).yCoord.toString("base64"))
     }
     (certificate.subjectPublicKeyInfo as PublicKeyInfo).fromJSON(jwk)
     val algorithmIdentifier = AlgorithmIdentifier()
@@ -77,8 +78,8 @@ actual fun selfSignCertificate(
     certificate.signature = algorithmIdentifier
     certificate.signatureAlgorithm = algorithmIdentifier
     val sha256 = hash(Uint8Array(certificate.encodeTBS().toBER()))
-    val priv = (privateKey as JsEcPrivKey).ecPrivateKey
-    val signatureValue = Uint8Array(privateKey.ec.sign(sha256, priv).toDER()).buffer
+    val priv = (privateKey as JsEcPrivKey).dValue
+    val signatureValue = Uint8Array(privateKey.ec.sign(sha256, BN(priv)).toDER()).buffer
 
     certificate.signatureValue = BitString(
         object : LocalBitStringValueBlockParams {
@@ -89,3 +90,6 @@ actual fun selfSignCertificate(
     return JsCertificate(encoded.asBase64())
 }
 
+
+private fun urlSafe(input: String): String =
+    input.replace("+", "-").replace("/", "_").replace("=", "")
