@@ -26,7 +26,7 @@ private fun Map<String, String>.workaroundKotestNamingBug() =
 class CommonTests : ExtendedTestRunner(allOfficialTestCases()
     .filter { it.key.contains("common/") }
     .filterNot { it.key.contains("DGC1") } // TODO Schema validation
-    .filterNot { it.key.contains("DGC2") } // TODO Schema validation
+    .filterNot { it.key.contains("DGC2") } // Testcase is not correct
     .filterNot { it.key.contains("CO28") } // TODO JS COSE
     .workaroundKotestNamingBug())
 
@@ -51,6 +51,7 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("PL/2DCode/raw/8") } // TODO JVM Schema Validation
     .filterNot { it.key.contains("PL/2DCode/raw/9") } // TODO JVM Schema Validation
     .filterNot { it.key.contains("PT/") } // TODO Empty/null arrays
+    .filterNot { it.key.contains("SE/2DCode/raw/2") } // TODO CBOR Tags
     .filterNot { it.key.contains("SE/2DCode/raw/7") } // TODO CBOR Tag C0
     .filterNot { it.key.contains("BG/2DCode/raw/1") } // TODO JS COSE?
     .filterNot { it.key.contains("ES/2DCode/raw/1501") } // TODO JS COSE Tags

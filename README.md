@@ -188,6 +188,16 @@ Implementers may load values for constructor parameters from a configuration fil
 
 To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`
 
+## Known Issues
+
+There are several known issues with this library:
+ - The JS target implementation is not complete, i.e. one can not encode HCERT data
+ - The JS target does not offer an interface to load a TrustList
+ - The JVM target does not implement Schema validation
+ - Several test cases from `dgc-testdata` fail, e.g. when using special COSE tags
+
+If you are planning to use this library, please fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
+
 ## Changelog
 
 Version 1.0.0:
