@@ -53,9 +53,8 @@ private fun verify(jsonInput: String, cryptoService: CryptoService, outcome: Ver
 
     val output = encodingChain.encode(input)
 
-    val vaccinationData = decodingChain.decode(output.step5Prefixed)
-    val verificationResult = vaccinationData.verificationResult
-    vaccinationData.greenCertificate shouldBe input
-    verificationResult.cborDecoded shouldBe true
-    vaccinationData.decision shouldBe outcome
+    val result = decodingChain.decodeExtended(output.step5Prefixed)
+    result.chainDecodeResult.eudgc shouldBe input
+    result.verificationResult.cborDecoded shouldBe true
+    result.decision shouldBe outcome
 }

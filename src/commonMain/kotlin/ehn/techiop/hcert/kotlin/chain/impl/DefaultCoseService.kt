@@ -23,7 +23,6 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
     }
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
-        verificationResult.coseVerified = false
         val coseAdapter = CoseAdapter(strippedInput(input))
         val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.value)
             ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.value)

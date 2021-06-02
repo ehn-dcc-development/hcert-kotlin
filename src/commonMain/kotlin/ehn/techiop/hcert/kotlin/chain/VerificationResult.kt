@@ -25,11 +25,6 @@ class VerificationResult {
     var issuer: String? = null
 
     /**
-     * COSE signature MUST be verifiable
-     */
-    var coseVerified = false
-
-    /**
      * The payload is structured and encoded as a CWT structure
      */
     var cwtDecoded = false
@@ -71,7 +66,6 @@ class VerificationResult {
                 "expirationTime=$expirationTime, " +
                 "issuedAt=$issuedAt, " +
                 "issuer=$issuer, " +
-                "coseVerified=$coseVerified, " +
                 "cwtDecoded=$cwtDecoded, " +
                 "cborDecoded=$cborDecoded, " +
                 "certificateValidFrom=$certificateValidFrom, " +

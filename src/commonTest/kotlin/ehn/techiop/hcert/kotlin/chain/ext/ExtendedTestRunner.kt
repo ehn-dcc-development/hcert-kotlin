@@ -12,6 +12,7 @@ import ehn.techiop.hcert.kotlin.chain.toHexString
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.withData
+import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -126,8 +127,12 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         }
         case.expectedResult.coseSignature?.let {
             withClue("COSE Verify") {
-                verificationResult.coseVerified shouldBe it
-                if (!it) decision shouldBe VerificationDecision.FAIL
+                if (!it) {
+                    verificationResult.error shouldBeIn listOf(
+                        VerificationResult.Error.SIGNATURE_INVALID,
+                        VerificationResult.Error.KEY_NOT_IN_TRUST_LIST
+                    )
+                }
             }
         }
         case.expectedResult.cborDecode?.let {

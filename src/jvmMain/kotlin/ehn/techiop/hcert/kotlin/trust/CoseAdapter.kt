@@ -45,11 +45,12 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
             verificationResult.certificateValidUntil = trustedCert.validUntil
             verificationResult.certificateValidContent = trustedCert.validContentTypes
             if (sign1Message.validate(trustedCert.cosePublicKey.toCoseRepresentation() as OneKey)) {
-                verificationResult.coseVerified = true
                 return true
             }
         }
-        return false
+        return false.also {
+            verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
+        }
     }
 
     actual fun validate(
@@ -58,12 +59,14 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         verificationResult: VerificationResult
     ): Boolean {
         val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
-        verificationResult.coseVerified = sign1Message.validate(verificationKey.toCoseRepresentation() as OneKey)
+        val result = sign1Message.validate(verificationKey.toCoseRepresentation() as OneKey)
+        if (!result)
+            verificationResult.error = VerificationResult.Error.SIGNATURE_INVALID
         val trustedCert = cryptoService.getCertificate()
         verificationResult.certificateValidFrom = trustedCert.validFrom
         verificationResult.certificateValidUntil = trustedCert.validUntil
         verificationResult.certificateValidContent = trustedCert.validContentTypes
-        return verificationResult.coseVerified
+        return result
     }
 
     actual fun getContent() = sign1Message.GetContent()
