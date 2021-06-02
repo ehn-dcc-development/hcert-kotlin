@@ -23,10 +23,10 @@ open class DefaultCwtService constructor(
         val issueTime = clock.now()
         val expirationTime = issueTime + validity
         val cwtAdapter = CwtCreationAdapter()
-        cwtAdapter.add(CwtHeaderKeys.ISSUER.value, countryCode)
-        cwtAdapter.add(CwtHeaderKeys.ISSUED_AT.value, issueTime.epochSeconds)
-        cwtAdapter.add(CwtHeaderKeys.EXPIRATION.value, expirationTime.epochSeconds)
-        cwtAdapter.addDgc(CwtHeaderKeys.HCERT.value, CwtHeaderKeys.EUDGC_IN_HCERT.value, input)
+        cwtAdapter.add(CwtHeaderKeys.ISSUER.intVal, countryCode)
+        cwtAdapter.add(CwtHeaderKeys.ISSUED_AT.intVal, issueTime.epochSeconds)
+        cwtAdapter.add(CwtHeaderKeys.EXPIRATION.intVal, expirationTime.epochSeconds)
+        cwtAdapter.addDgc(CwtHeaderKeys.HCERT.intVal, CwtHeaderKeys.EUDGC_IN_HCERT.intVal, input)
         return cwtAdapter.encode()
     }
 
@@ -34,10 +34,10 @@ open class DefaultCwtService constructor(
         try {
             val map = CwtAdapter(input)
 
-            map.getString(CwtHeaderKeys.ISSUER.value)?.let {
+            map.getString(CwtHeaderKeys.ISSUER.intVal)?.let {
                 verificationResult.issuer = it
             }
-            map.getNumber(CwtHeaderKeys.ISSUED_AT.value)?.let {
+            map.getNumber(CwtHeaderKeys.ISSUED_AT.intVal)?.let {
                 val issuedAt = Instant.fromEpochSeconds(it.toLong())
                 verificationResult.issuedAt = issuedAt
                 verificationResult.certificateValidFrom?.let { certValidFrom ->
@@ -53,7 +53,7 @@ open class DefaultCwtService constructor(
                     }
                 }
             }
-            map.getNumber(CwtHeaderKeys.EXPIRATION.value)?.let {
+            map.getNumber(CwtHeaderKeys.EXPIRATION.intVal)?.let {
                 val expirationTime = Instant.fromEpochSeconds(it.toLong())
                 verificationResult.expirationTime = expirationTime
                 verificationResult.certificateValidUntil?.let { certValidUntil ->
@@ -70,8 +70,8 @@ open class DefaultCwtService constructor(
                 }
             }
 
-            map.getMap(CwtHeaderKeys.HCERT.value)?.let { hcert ->
-                hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.value)?.let { eudgcV1 ->
+            map.getMap(CwtHeaderKeys.HCERT.intVal)?.let { hcert ->
+                hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.intVal)?.let { eudgcV1 ->
                     return eudgcV1.encoded()
                 }
             }

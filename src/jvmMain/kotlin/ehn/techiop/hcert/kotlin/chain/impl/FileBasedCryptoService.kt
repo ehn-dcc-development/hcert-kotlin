@@ -40,7 +40,13 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
         val read = PEMParser(pemEncodedKeyPair.reader()).readObject() as PrivateKeyInfo
         privateKey = JcaPEMKeyConverter().getPrivateKey(read)
         algorithmID = when (privateKey) {
-            is ECPrivateKey -> CwtAlgorithm.ECDSA_256
+            is ECPrivateKey -> {
+                when (privateKey.params.curve.field.fieldSize) {
+                    256 -> CwtAlgorithm.ECDSA_256
+                    384 -> CwtAlgorithm.ECDSA_384
+                    else -> throw IllegalArgumentException("KeyType unknown")
+                }
+            }
             is RSAPrivateKey -> CwtAlgorithm.RSA_PSS_256
             else -> throw IllegalArgumentException("KeyType unknown")
         }
@@ -52,7 +58,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
     }
 
     override fun getCborHeaders() = listOf(
-        Pair(CoseHeaderKeys.Algorithm, algorithmID.value),
+        Pair(CoseHeaderKeys.ALGORITHM, algorithmID),
         Pair(CoseHeaderKeys.KID, keyId)
     )
 

@@ -47,7 +47,7 @@ actual class RandomEcKeyCryptoService actual constructor(
     }
 
     override fun getCborHeaders() = listOf(
-        Pair(CoseHeaderKeys.Algorithm, algorithmID.value),
+        Pair(CoseHeaderKeys.ALGORITHM, algorithmID),
         Pair(CoseHeaderKeys.KID, keyId)
     )
 

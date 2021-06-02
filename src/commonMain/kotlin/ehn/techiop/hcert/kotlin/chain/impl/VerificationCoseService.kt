@@ -14,8 +14,8 @@ class VerificationCoseService constructor(private val repository: CertificateRep
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         try {
             val coseAdapter = CoseAdapter(strippedInput(input))
-            val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.value)
-                ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.value)
+            val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
+                ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
                 ?: throw IllegalArgumentException("KID not found").also {
                     verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
                 }

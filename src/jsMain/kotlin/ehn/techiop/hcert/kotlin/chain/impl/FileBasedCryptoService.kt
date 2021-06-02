@@ -60,7 +60,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
         .lines().joinToString(separator = "")
 
     override fun getCborHeaders() = listOf(
-        Pair(CoseHeaderKeys.Algorithm, algorithmID.value),
+        Pair(CoseHeaderKeys.ALGORITHM, algorithmID),
         Pair(CoseHeaderKeys.KID, keyId)
     )
 

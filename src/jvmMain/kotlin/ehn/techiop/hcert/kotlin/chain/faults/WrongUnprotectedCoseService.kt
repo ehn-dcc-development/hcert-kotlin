@@ -21,13 +21,13 @@ class WrongUnprotectedCoseService(private val cryptoService: CryptoService) : De
             for (header in cryptoService.getCborHeaders()) {
                 if (header.first == CoseHeaderKeys.KID) {
                     it.addAttribute(
-                        CBORObject.FromObject(header.first.value),
+                        CBORObject.FromObject(header.first.intVal),
                         CBORObject.FromObject("foo".toByteArray()),
                         Attribute.UNPROTECTED
                     )
                 } else {
                     it.addAttribute(
-                        CBORObject.FromObject(header.first.value),
+                        CBORObject.FromObject(header.first.intVal),
                         CBORObject.FromObject(header.second),
                         Attribute.UNPROTECTED
                     )

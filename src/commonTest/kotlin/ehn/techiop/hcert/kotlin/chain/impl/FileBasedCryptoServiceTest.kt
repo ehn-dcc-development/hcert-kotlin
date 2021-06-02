@@ -1,9 +1,12 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.toHexString
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlin.random.Random
 
 class FileBasedCryptoServiceTest : StringSpec({
 
@@ -26,8 +29,7 @@ class FileBasedCryptoServiceTest : StringSpec({
         service.exportCertificateAsPem() shouldBe pemEncodedCertificate
         service.exportPrivateKeyAsPem() shouldBe pemEncodedPrivateKey
 
-        val encoded = DefaultCoseService(service).encode("foo".encodeToByteArray())
-        encoded shouldNotBe null
+        verify(service)
     }
 
     "newEcKey" {
@@ -35,9 +37,7 @@ class FileBasedCryptoServiceTest : StringSpec({
         service.exportPrivateKeyAsPem() shouldNotBe null
         service.exportCertificateAsPem() shouldNotBe null
 
-        val encoded = DefaultCoseService(service).encode("foo".encodeToByteArray())
-        encoded shouldNotBe null
-        println(encoded.toHexString())
+        verify(service)
     }
 
     "goodRsaKey" {
@@ -96,3 +96,19 @@ class FileBasedCryptoServiceTest : StringSpec({
     }
 
 })
+
+private fun verify(service: CryptoService) {
+    val plaintext = Random.nextBytes(32)
+    val encoded = DefaultCoseService(service).encode(plaintext)
+    encoded shouldNotBe null
+
+    val verificationResult = VerificationResult()
+    val repo = PrefilledCertificateRepository(stripPemHeader(service.exportCertificateAsPem()))
+    val decoded = VerificationCoseService(repo).decode(encoded, verificationResult)
+    decoded shouldBe plaintext
+}
+
+private fun stripPemHeader(pemEncoded: String) =
+    pemEncoded.replace("\n", "")
+        .replace("-----BEGIN CERTIFICATE-----", "")
+        .replace("-----END CERTIFICATE-----", "")

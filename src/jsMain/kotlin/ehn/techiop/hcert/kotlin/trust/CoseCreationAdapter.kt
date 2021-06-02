@@ -13,8 +13,8 @@ actual class CoseCreationAdapter actual constructor(private val content: ByteArr
     private var encoded: ByteArray = byteArrayOf()
 
     actual fun addProtectedAttribute(key: CoseHeaderKeys, value: Any) {
-        val content = if (value is CwtAlgorithm) value.value else value
-        protectedHeader.set(key.value.toString(), content)
+        val content = if (value is CwtAlgorithm) value.stringVal else value
+        protectedHeader.set(key.stringVal, content)
     }
 
     actual fun sign(key: PrivKey<*>) {

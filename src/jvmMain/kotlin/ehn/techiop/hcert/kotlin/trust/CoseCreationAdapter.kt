@@ -19,8 +19,12 @@ actual class CoseCreationAdapter actual constructor(private val content: ByteArr
     }
 
     actual fun addProtectedAttribute(key: CoseHeaderKeys, value: Any) {
-        val content = if (value is CwtAlgorithm) value.value else value
-        sign1Message.addAttribute(CBORObject.FromObject(key.value), CBORObject.FromObject(content), Attribute.PROTECTED)
+        val content = if (value is CwtAlgorithm) value.intVal else value
+        sign1Message.addAttribute(
+            CBORObject.FromObject(key.intVal),
+            CBORObject.FromObject(content),
+            Attribute.PROTECTED
+        )
     }
 
     actual fun sign(key: PrivKey<*>) {

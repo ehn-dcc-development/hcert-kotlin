@@ -27,45 +27,30 @@ interface PubKey<T> {
 
 interface EcPubKey<T> : PubKey<T>
 
-enum class CoseHeaderKeys(val value: Int) {
-    Algorithm(1),
+enum class CoseHeaderKeys(val intVal: Int, val stringVal: String) {
+    ALGORITHM(1, "alg"),
+    CRITICAL_HEADERS(2, "crit"),
+    CONTENT_TYPE(3, "content type"),
+    KID(4, "kid"),
+    IV(5, "IV"),
+    PARTIAL_IV(6, "Partial IV"),
+}
 
-    //CONTENT_TYPE(3),
-    KID(4),
-    IV(5),
-    //CriticalHeaders(2),
-    //CounterSignature(7),
-    //PARTIAL_IV(6),
-    //CounterSignature0(9),
-    //ECDH_EPK(-1),
-    //ECDH_SPK(-2),
-    //ECDH_SKID(-3),
-    //HKDF_Salt(-20),
-    //HKDF_Context_PartyU_ID(-21),
-    //HKDF_Context_PartyU_nonce(-22),
-    //HKDF_Context_PartyU_Other(-23),
-    //HKDF_Context_PartyV_ID(-24),
-    //HKDF_Context_PartyV_nonce(-25),
-    //HKDF_Context_PartyV_Other(-26),
-    //HKDF_SuppPub_Other(-999),
-    //HKDF_SuppPriv_Other(-998);
+enum class CwtHeaderKeys(val intVal: Int, val stringVal: String) {
+    ISSUER(1, "iss"),
+    SUBJECT(2, "sub"),
+    AUDIENCE(3, "aud"),
+    EXPIRATION(4, "exp"),
+    NOT_BEFORE(5, "nbf"),
+    ISSUED_AT(6, "iat"),
+    CWT_ID(7, "cti"),
+    HCERT(-260, "hcert"),
+    EUDGC_IN_HCERT(1, "eu_dgc_v1"),
 }
 
 
-enum class CwtHeaderKeys(val value: Int) {
-    ISSUER(1),
-    SUBJECT(2),
-    AUDIENCE(3),
-    EXPIRATION(4),
-    NOT_BEFORE(5),
-    ISSUED_AT(6),
-    CWT_ID(7),
-    HCERT(-260),
-    EUDGC_IN_HCERT(1),
-}
-
-
-enum class CwtAlgorithm(val value: Int) {
-    ECDSA_256(-7),
-    RSA_PSS_256(-37),
+enum class CwtAlgorithm(val intVal: Int, val stringVal: String) {
+    ECDSA_256(-7, "ES256"),
+    ECDSA_384(-35, "ES384"),
+    RSA_PSS_256(-37, "PS256"),
 }

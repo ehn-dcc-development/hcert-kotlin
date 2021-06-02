@@ -19,7 +19,7 @@ class NonVerifiableCoseService(private val cryptoService: CryptoService) : Defau
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
                 it.addAttribute(
-                    CBORObject.FromObject(header.first.value),
+                    CBORObject.FromObject(header.first.intVal),
                     CBORObject.FromObject(header.second),
                     Attribute.PROTECTED
                 )

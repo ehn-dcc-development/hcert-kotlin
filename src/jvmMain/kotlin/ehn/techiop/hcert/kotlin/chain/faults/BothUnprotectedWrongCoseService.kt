@@ -20,7 +20,7 @@ class BothUnprotectedWrongCoseService(private val cryptoService: CryptoService) 
             it.SetContent(input)
             for (header in cryptoService.getCborHeaders()) {
                 it.addAttribute(
-                    CBORObject.FromObject(header.first.value),
+                    CBORObject.FromObject(header.first.intVal),
                     CBORObject.FromObject(header.second),
                     Attribute.PROTECTED
                 )

@@ -1,8 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import COSE.AlgorithmID
 import COSE.OneKey
-import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
@@ -11,6 +9,7 @@ import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
 import ehn.techiop.hcert.kotlin.crypto.CosePubKey
+import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.crypto.JvmPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
@@ -41,15 +40,15 @@ actual class RandomEcKeyCryptoService actual constructor(
         clock
     ) as JvmCertificate
     private val keyId = certificate.certificate.kid
-    private val algorithmId = when (keySize) {
-        384 -> AlgorithmID.ECDSA_384
-        256 -> AlgorithmID.ECDSA_256
-        else -> throw IllegalArgumentException("keySize")
+    private val algorithm = when(keySize) {
+        256 -> CwtAlgorithm.ECDSA_256
+        384 -> CwtAlgorithm.ECDSA_384
+        else -> throw IllegalArgumentException("keySize: $keySize")
     }
 
     override fun getCborHeaders() = listOf(
-        Pair(CoseHeaderKeys.Algorithm, algorithmId.AsCBOR()),
-        Pair(CoseHeaderKeys.KID, CBORObject.FromObject(keyId))
+        Pair(CoseHeaderKeys.ALGORITHM, algorithm),
+        Pair(CoseHeaderKeys.KID, keyId)
     )
 
     override fun getCborSigningKey() = CosePrivKey(OneKey(keyPair.public, keyPair.private))

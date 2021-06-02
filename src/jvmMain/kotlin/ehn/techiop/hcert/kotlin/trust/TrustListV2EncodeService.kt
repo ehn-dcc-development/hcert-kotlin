@@ -33,9 +33,9 @@ class TrustListV2EncodeService constructor(
         val validUntil = validFrom + validity
         val hash = MessageDigest.getInstance("SHA-256").digest(content)
         val cwtClaims = CBORObject.NewMap().also {
-            it[CwtHeaderKeys.NOT_BEFORE.value] = CBORObject.FromObject(validFrom.epochSeconds)
-            it[CwtHeaderKeys.EXPIRATION.value] = CBORObject.FromObject(validUntil.epochSeconds)
-            it[CwtHeaderKeys.SUBJECT.value] = CBORObject.FromObject(hash)
+            it[CwtHeaderKeys.NOT_BEFORE.intVal] = CBORObject.FromObject(validFrom.epochSeconds)
+            it[CwtHeaderKeys.EXPIRATION.intVal] = CBORObject.FromObject(validUntil.epochSeconds)
+            it[CwtHeaderKeys.SUBJECT.intVal] = CBORObject.FromObject(hash)
         }
 
         val versionKey = CBORObject.FromObject(42)
@@ -44,7 +44,7 @@ class TrustListV2EncodeService constructor(
             it.SetContent(cwtClaims.EncodeToBytes())
             signingService.getCborHeaders().forEach { header ->
                 it.addAttribute(
-                    CBORObject.FromObject(header.first.value),
+                    CBORObject.FromObject(header.first.intVal),
                     CBORObject.FromObject(header.second),
                     Attribute.PROTECTED
                 )
