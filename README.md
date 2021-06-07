@@ -73,7 +73,7 @@ The build result (`./gradlew jsBrowserDistribution`) of this library for JS is a
 ```JavaScript
 let qr = "HC1:NCFC:MVIMAP2SQ20MU..."; // scan from somewhere
 let pemCert = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq..."; // PEM encoded DSC
-let verifier = new hcert.Verifier([pemCert]);
+let verifier = new hcert.VerifierDirect([pemCert]); // would also accept more than one DSC
 
 let result = verifier.verify(qr);
 let isValid = result.isValid; // true or false
@@ -82,6 +82,29 @@ let error = result.error; // may be null, or contain an error, see below
 let greenCertificate = result.greenCertificate; // may be null, or contain the decoded HCERT
 
 console.info(result);
+```
+
+An alternative way of initializing the Verifier is by loading a TrustList, containing several DSC:
+
+```JavaScript
+let qr = "HC1:NCFC:MVIMAP2SQ20MU..."; // scan from somewhere
+let pemCert = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq..."; // PEM encoded signer certificate from the TrustList
+let trustListContent = new ArrayBuffer(8); // download it, e.g. from https://dgc.a-sit.at/ehn/cert/listv2
+let trustListSignature = new ArrayBuffer(8); // download it, e.g. from https://dgc.a-sit.at/ehn/cert/sigv2
+let verifier = new hcert.VerifierTrustList(pemCert, trustListContent, trustListSignature);
+
+let result = verifier.verify(qr);
+// same as above ...
+```
+
+If you want to save the instance of `verifier` across several decodings, you can update the TrustList afterwards, too:
+```JavaScript
+let pemCert = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq..."; // PEM encoded signer certificate from the TrustList
+let trustListContent = new ArrayBuffer(8); // download it, e.g. from https://dgc.a-sit.at/ehn/cert/listv2
+let trustListSignature = new ArrayBuffer(8); // download it, e.g. from https://dgc.a-sit.at/ehn/cert/sigv2
+verifier.updateTrustList(pemCert, trustListContent, trustListSignature);
+
+// go on with verifier.verify("...");
 ```
 
 The meta information contains extracted data from the QR code contents, e.g.:
@@ -192,7 +215,6 @@ To publish this package to GitHub, create a personal access token (read <https:/
 
 There are several known issues with this library:
  - The JS target implementation is not complete, i.e. one can not encode HCERT data
- - The JS target does not offer an interface to load a TrustList
  - The JVM target does not implement Schema validation
  - Several test cases from `dgc-testdata` fail, e.g. when using special COSE tags
 

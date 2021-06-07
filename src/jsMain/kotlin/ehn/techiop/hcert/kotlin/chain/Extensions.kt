@@ -2,9 +2,9 @@ package ehn.techiop.hcert.kotlin.chain
 
 import Buffer
 import base64url
+import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
-import org.w3c.fetch.Request
 
 actual fun ByteArray.asBase64() = Buffer.from(this.toUint8Array()).toString("base64")
 
@@ -15,6 +15,10 @@ actual fun ByteArray.toHexString() = joinToString("") { ('0' + (it.toUByte()).to
 actual fun String.fromBase64() = Buffer.from(this, "base64").toByteArray()
 
 actual fun String.fromBase64Url() = base64url.toBuffer(this).toByteArray()
+
+fun ArrayBuffer.toByteArray() = org.khronos.webgl.Int8Array(this).unsafeCast<ByteArray>()
+
+fun ArrayBuffer.Companion.from(array: ByteArray) = Buffer.from(array).buffer
 
 //See https://stackoverflow.com/a/66614516
 actual fun String.fromHexString(): ByteArray {
@@ -29,7 +33,7 @@ fun ByteArray.toUint8Array(): Uint8Array {
     return Uint8Array(toTypedArray())
 }
 
-fun ByteArray.toBuffer():Buffer = Buffer.from(toUint8Array())
+fun ByteArray.toBuffer(): Buffer = Buffer.from(toUint8Array())
 
 fun Uint8Array.toByteArray(): ByteArray {
     return ByteArray(this.length) { this[it] }

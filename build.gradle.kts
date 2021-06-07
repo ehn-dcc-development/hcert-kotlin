@@ -33,7 +33,8 @@ kotlin {
                     "-Xopt-in=kotlin.RequiresOptIn",
                     "-Xopt-in=kotlin.ExperimentalUnsignedTypes",
                     "-Xopt-in=kotlin.time.ExperimentalTime",
-                    "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
+                    "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi",
+                    "-Xopt-in=kotlin.js.ExperimentalJsExport"
                 )
             }
         }
@@ -44,6 +45,7 @@ kotlin {
             useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
             useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
             useExperimentalAnnotation("io.kotest.common.ExperimentalKotest")
+            useExperimentalAnnotation("kotlin.js.ExperimentalJsExport")
         }
     }
     jvm {

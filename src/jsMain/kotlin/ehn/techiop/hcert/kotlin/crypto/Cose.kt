@@ -86,7 +86,11 @@ class JsEcPrivKey(val da: ByteArray) : EcPrivKey<EcCosePrivateKey> {
  */
 class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
 
-    val encoded: ByteArray = pemEncodedCertificate.lines().joinToString(separator = "").fromBase64()
+    val encoded: ByteArray = pemEncodedCertificate
+        .replace("-----BEGIN CERTIFICATE-----", "")
+        .replace("-----END CERTIFICATE-----", "")
+        .replace("\n", "")
+        .fromBase64()
 
     @JsName("fromPem")
     constructor(encoded: ByteArray) : this(encoded.asBase64())
@@ -98,6 +102,8 @@ class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
 
     override val validContentTypes: List<ContentType>
         get() {
+            if (cert.extensions == undefined)
+                return ContentType.values().toList()
             val extKeyUsage = cert.extensions.firstOrNull {
                 it.extnID == "2.5.29.37"
             }?.parsedValue as ExtKeyUsage?
@@ -107,10 +113,7 @@ class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
                     ContentType.findByOid(oidStr)?.let { contentTypes.add(it) }
                 }
             }
-            if (contentTypes.isEmpty()) {
-                contentTypes.addAll(ContentType.values())
-            }
-            return contentTypes.toList()
+            return contentTypes.ifEmpty { ContentType.values().toList() }.toList()
         }
 
     override val validFrom: Instant
