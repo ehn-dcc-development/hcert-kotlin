@@ -188,9 +188,9 @@ kotlin {
 tasks.named("clean") { dependsOn(tasks.named("jsCleanResources")) }
 tasks.named("compileKotlinJs") { dependsOn(tasks.named("jsWrapMainResources")) }
 tasks.named("compileTestKotlinJs") { dependsOn(tasks.named("jsWrapTestResources")) }
+
 tasks.register("jsWrapTestResources") { doFirst { wrapJsResources(test = true) } }
 tasks.register("jsWrapMainResources") { doFirst { wrapJsResources() } }
-
 tasks.register("jsCleanResources") {
     File("${projectDir.absolutePath}/src/jsTest/generated").deleteRecursively()
     File("${projectDir.absolutePath}/src/jsMain/generated").deleteRecursively()
@@ -227,8 +227,9 @@ fun wrapJsResources(test: Boolean = false) {
             val encodeBase64 =
                 de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
             val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
+            val safeKey = key.replace("\$", "\\\$").replace("\\", "/")
             w.write(
-                "m[\"${key.replace("\$", "\\\$")}\"]=\"" + String(encodeBase64) + "\"\n"
+                "m[\"$safeKey\"]=\"" + String(encodeBase64) + "\"\n"
             )
         }
         w.write("}override fun get(key:String)=m[key];")
