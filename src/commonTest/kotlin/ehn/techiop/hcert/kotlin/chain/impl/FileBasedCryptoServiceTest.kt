@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.random.Random
@@ -10,7 +11,7 @@ import kotlin.time.Duration
 
 class FileBasedCryptoServiceTest : StringSpec({
 
-    "goodEcKey" {
+    "importEc256Key" {
         val pemEncodedPrivateKey = "-----BEGIN PRIVATE KEY-----\n" +
                 "ME0CAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEMzAxAgEBBCCOpgFH1YNIU9vzJWH0\n" +
                 "DkR7lDM2LZWvzlfsTi3t5yjXA6AKBggqhkjOPQMBBw==\n" +
@@ -32,7 +33,7 @@ class FileBasedCryptoServiceTest : StringSpec({
         assertEncodeDecode(service)
     }
 
-    "goodRsaKey" {
+    "importRsa2048Key" {
         val pemEncodedPrivateKey = "-----BEGIN PRIVATE KEY-----\n" +
                 "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCEoba3OQUobgqB\n" +
                 "4bTBnlYgqBP2kxjfmLfyaScYBYDSrEyFE7hIZr1WipyNg5QT2g7KJmdY5EbF8s0M\n" +
@@ -86,13 +87,13 @@ class FileBasedCryptoServiceTest : StringSpec({
         assertEncodeDecode(service)
     }
 
-    "newEcKey" {
-        val service = RandomEcKeyCryptoService()
+    withData(256, 384) { keySize ->
+        val service = RandomEcKeyCryptoService(keySize)
 
         assertEncodeDecode(service)
     }
 
-    "newRsaKey".config(timeout = Duration.Companion.seconds(5)) {
+    "newRsaKey" {
         val service = RandomRsaKeyCryptoService()
 
         assertEncodeDecode(service)

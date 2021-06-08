@@ -34,6 +34,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
             "RSA-Me",
             JvmPrivKey(keyPair.private),
             JvmPubKey(keyPair.public),
+            keySize,
             contentType,
             clock
         ) as JvmCertificate

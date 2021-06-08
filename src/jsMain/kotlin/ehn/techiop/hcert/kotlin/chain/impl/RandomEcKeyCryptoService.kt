@@ -28,15 +28,23 @@ actual class RandomEcKeyCryptoService actual constructor(
     private val keyId: ByteArray
 
     init {
-        val keyPair = EC("p256").genKeyPair()
+        algorithmID = when (keySize) {
+            256 -> CwtAlgorithm.ECDSA_256
+            384 -> CwtAlgorithm.ECDSA_384
+            else -> throw IllegalArgumentException("KeySize: $keySize")
+        }
+        val ellipticName = if (algorithmID == CwtAlgorithm.ECDSA_384) "p384" else "p256"
+        val keyPair = EC(ellipticName).genKeyPair()
         privateKey = JsEcPrivKey(keyPair)
         publicKey = JsEcPubKey(keyPair)
-        algorithmID = CwtAlgorithm.ECDSA_256
-        certificate = selfSignCertificate("EC-Me", privateKey, publicKey, contentType, clock) as JsCertificate
+        certificate = selfSignCertificate("EC-Me", privateKey, publicKey, keySize, contentType, clock) as JsCertificate
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
         @Suppress("UNUSED_VARIABLE") val d = keyPair.getPrivate().toArrayLike(Buffer).toString("base64")
-        privateKeyInfo.fromJSON(js("({'kty': 'EC', 'crv':'P-256', 'd': d})"))
+        if (algorithmID == CwtAlgorithm.ECDSA_384)
+            privateKeyInfo.fromJSON(js("({'kty': 'EC', 'crv':'P-384', 'd': d})"))
+        else
+            privateKeyInfo.fromJSON(js("({'kty': 'EC', 'crv':'P-256', 'd': d})"))
     }
 
     override fun getCborHeaders() = listOf(

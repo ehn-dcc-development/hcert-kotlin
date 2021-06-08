@@ -1,12 +1,26 @@
 package ehn.techiop.hcert.kotlin.chain.common
 
-import Asn1js.*
+import Asn1js.BitString
+import Asn1js.Integer
+import Asn1js.IntegerParams
+import Asn1js.LocalBitStringValueBlockParams
+import Asn1js.LocalSimpleStringBlockParams
+import Asn1js.PrintableString
+import Asn1js.Sequence
 import BN
 import Buffer
 import NodeRSA
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.crypto.*
+import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.EcPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JsCertificate
+import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JsEcPubKey
+import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JsRsaPubKey
+import ehn.techiop.hcert.kotlin.crypto.PrivKey
+import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import hash
 import kotlinx.datetime.Clock
@@ -32,6 +46,7 @@ actual fun selfSignCertificate(
     commonName: String,
     privateKey: PrivKey<*>,
     publicKey: PubKey<*>,
+    keySize: Int,
     contentType: List<ContentType>,
     clock: Clock
 ): Certificate<*> {
@@ -60,7 +75,7 @@ actual fun selfSignCertificate(
     val extKeyUsage = ExtKeyUsage().also {
         it.keyPurposes = contentType.map { it.oid }.toTypedArray()
     }
-    
+
     certificate.extensions = arrayOf(
         Extension(object {
             val extnID = "2.5.29.37"
@@ -72,7 +87,7 @@ actual fun selfSignCertificate(
 
     val jwk = object : JsonWebKey {
         override var alg: String? = if (privateKey is EcPrivKey) "EC" else "RS256"
-        override var crv: String? = if (privateKey is EcPrivKey) "P-256" else null
+        override var crv: String? = if (privateKey is EcPrivKey) (if (keySize == 384) "P-384" else "P-256") else null
         override var kty: String? = if (privateKey is EcPrivKey) "EC" else "RSA"
         override var x: String? =
             if (privateKey is EcPrivKey) urlSafe((publicKey as JsEcPubKey).xCoord.toString("base64")) else null

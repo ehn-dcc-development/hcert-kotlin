@@ -31,6 +31,7 @@ actual fun selfSignCertificate(
     commonName: String,
     privateKey: PrivKey<*>,
     publicKey: PubKey<*>,
+    keySize: Int,
     contentType: List<ContentType>,
     clock: Clock
 ): Certificate<*> {

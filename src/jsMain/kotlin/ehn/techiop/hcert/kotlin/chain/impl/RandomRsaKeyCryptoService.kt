@@ -3,10 +3,21 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import Asn1js.Sequence
 import Buffer
 import NodeRSA
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
 import ehn.techiop.hcert.kotlin.chain.common.urlSafe
-import ehn.techiop.hcert.kotlin.crypto.*
+import ehn.techiop.hcert.kotlin.chain.from
+import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
+import ehn.techiop.hcert.kotlin.crypto.JsCertificate
+import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JsRsaPubKey
+import ehn.techiop.hcert.kotlin.crypto.PrivKey
+import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
 import org.khronos.webgl.ArrayBuffer
@@ -37,7 +48,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
         publicKey = JsRsaPubKey(ArrayBuffer.from(modulus.toByteArray()), exp)
         privateKey = JsRsaPrivKey(keyPair.exportKey("components-private") as Json)
         algorithmID = CwtAlgorithm.RSA_PSS_256
-        certificate = selfSignCertificate("RSA-Me", privateKey, publicKey, contentType, clock) as JsCertificate
+        certificate = selfSignCertificate("RSA-Me", privateKey, publicKey, keySize, contentType, clock) as JsCertificate
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
 

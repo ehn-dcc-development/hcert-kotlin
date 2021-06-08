@@ -30,21 +30,22 @@ actual class RandomEcKeyCryptoService actual constructor(
     clock: Clock
 ) : CryptoService {
 
+    private val algorithm = when(keySize) {
+        256 -> CwtAlgorithm.ECDSA_256
+        384 -> CwtAlgorithm.ECDSA_384
+        else -> throw IllegalArgumentException("keySize: $keySize")
+    }
     private val keyPair = KeyPairGenerator.getInstance("EC")
         .apply { initialize(keySize) }.genKeyPair()
     private val certificate = selfSignCertificate(
         "EC-Me",
         JvmPrivKey(keyPair.private),
         JvmPubKey(keyPair.public),
+        keySize,
         contentType,
         clock
     ) as JvmCertificate
     private val keyId = certificate.certificate.kid
-    private val algorithm = when(keySize) {
-        256 -> CwtAlgorithm.ECDSA_256
-        384 -> CwtAlgorithm.ECDSA_384
-        else -> throw IllegalArgumentException("keySize: $keySize")
-    }
 
     override fun getCborHeaders() = listOf(
         Pair(CoseHeaderKeys.ALGORITHM, algorithm),
