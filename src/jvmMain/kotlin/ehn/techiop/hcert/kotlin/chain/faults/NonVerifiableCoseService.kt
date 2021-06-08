@@ -6,6 +6,7 @@ import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
+import ehn.techiop.hcert.kotlin.trust.CoseCreationAdapter
 
 /**
  * Signs the input with a random key, i.e. it is never verifiable.
@@ -15,17 +16,12 @@ import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 class NonVerifiableCoseService(private val cryptoService: CryptoService) : DefaultCoseService(cryptoService) {
 
     override fun encode(input: ByteArray): ByteArray {
-        return Sign1Message().also {
-            it.SetContent(input)
-            for (header in cryptoService.getCborHeaders()) {
-                it.addAttribute(
-                    CBORObject.FromObject(header.first.intVal),
-                    CBORObject.FromObject(header.second),
-                    Attribute.PROTECTED
-                )
-            }
-            it.sign(RandomEcKeyCryptoService().getCborSigningKey().oneKey)
-        }.EncodeToBytes()
+        val coseAdapter = CoseCreationAdapter(input)
+        cryptoService.getCborHeaders().forEach {
+            coseAdapter.addProtectedAttribute(it.first, it.second)
+        }
+        coseAdapter.sign(RandomEcKeyCryptoService().getCborSigningKey())
+        return coseAdapter.encode()
     }
 
 }

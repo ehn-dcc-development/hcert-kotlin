@@ -5,6 +5,7 @@ import ehn.techiop.hcert.kotlin.crypto.PrivKey
 
 expect class CoseCreationAdapter constructor(content: ByteArray) {
     fun addProtectedAttribute(key: CoseHeaderKeys, value: Any)
+    fun addUnprotectedAttribute(key: CoseHeaderKeys, value: Any)
     fun sign(key: PrivKey<*>)
     fun encode(): ByteArray
 }
