@@ -4,7 +4,7 @@ import com.upokecenter.cbor.CBORObject
 
 actual class CwtCreationAdapter actual constructor() {
 
-    val map = mutableMapOf<CBORObject, CBORObject>()
+    private val map = mutableMapOf<CBORObject, CBORObject>()
 
     actual fun add(key: Int, value: Any) {
         map[CBORObject.FromObject(key)] = CBORObject.FromObject(value)

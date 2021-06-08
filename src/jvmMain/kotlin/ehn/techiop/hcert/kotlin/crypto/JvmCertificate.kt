@@ -51,4 +51,7 @@ class JvmCertificate(val certificate: X509Certificate) : Certificate<X509Certifi
     override fun toTrustedCertificate() = TrustedCertificateV2(kid, certificate.encoded)
 
     override val kid = certificate.kid
+
+    override val encoded = certificate.encoded
+
 }

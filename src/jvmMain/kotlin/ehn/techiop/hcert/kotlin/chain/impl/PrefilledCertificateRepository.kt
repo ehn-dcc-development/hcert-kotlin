@@ -15,7 +15,7 @@ actual class PrefilledCertificateRepository : CertificateRepository {
 
     private val list = mutableListOf<X509Certificate>()
 
-    constructor(vararg certificates: Certificate<*>) {
+    actual constructor(vararg certificates: Certificate<*>) {
         certificates.filterIsInstance(JvmCertificate::class.java).forEach { list += it.certificate }
     }
 

@@ -8,19 +8,17 @@ import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
 import ehn.techiop.hcert.kotlin.crypto.Certificate
-import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import java.security.cert.X509Certificate
 
 
 class TrustListJvmTest : StringSpec({
 
-    "V2 Client-Server Exchange"{
+    "V2 Client-Server Exchange" {
         val clock = FixedClock(Instant.fromEpochMilliseconds(0))
         val cryptoService = RandomEcKeyCryptoService(clock = clock)
         val certificate = cryptoService.getCertificate()
@@ -64,7 +62,7 @@ private fun verifyClientOperations(
 }
 
 
-private fun randomCertificates(clock: Clock): Set<X509Certificate> =
+private fun randomCertificates(clock: Clock): Set<Certificate<*>> =
     listOf(RandomEcKeyCryptoService(clock = clock), RandomRsaKeyCryptoService(clock = clock))
-        .map { (it.getCertificate() as JvmCertificate).certificate }
+        .map { it.getCertificate() }
         .toSet()

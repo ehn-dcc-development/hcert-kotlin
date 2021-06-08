@@ -1,15 +1,23 @@
-@file:Suppress("INTERFACE_WITH_SUPERCLASS", "OVERRIDING_FINAL_MEMBER", "RETURN_TYPE_MISMATCH_ON_OVERRIDE", "CONFLICTING_OVERLOADS")
+@file:Suppress(
+    "INTERFACE_WITH_SUPERCLASS",
+    "OVERRIDING_FINAL_MEMBER",
+    "RETURN_TYPE_MISMATCH_ON_OVERRIDE",
+    "CONFLICTING_OVERLOADS"
+)
 @file:JsModule("cbor")
 @file:JsNonModule
+
 package Cbor
 
 import Buffer
 import org.khronos.webgl.ArrayBufferView
+import tsstdlib.Iterable
 import kotlin.js.Promise
 
 external interface `T$1` {
     @nativeGetter
     operator fun get(tag: Number): ((v: Any) -> Any)?
+
     @nativeSetter
     operator fun set(tag: Number, value: (v: Any) -> Any)
 }
@@ -32,7 +40,13 @@ external interface DecodeOptions {
         set(value) = definedExternally
 }
 
-external open class Decoder(options: DecoderOptions = definedExternally) {
+open external class Map (iterable: Iterable<Any> = definedExternally) {
+
+    fun get(key: dynamic): dynamic
+    fun set(key: dynamic, `val`: dynamic): dynamic
+}
+
+open external class Decoder(options: DecoderOptions = definedExternally) {
     companion object {
         fun nullcheck(param_val: Any): Any
         fun decodeFirstSync(input: String, options: DecodeOptions = definedExternally): Any
@@ -44,6 +58,7 @@ external open class Decoder(options: DecoderOptions = definedExternally) {
         fun decodeAllSync(input: String, options: DecodeOptions = definedExternally): Array<Any>
         fun decodeAllSync(input: String, options: String = definedExternally): Array<Any>
         fun decodeAllSync(input: Buffer, options: DecodeOptions = definedExternally): Array<Any>
+
         /*fun decodeAllSync(input: Buffer, options: String = definedExternally): Array<Any>
         fun decodeAllSync(input: ArrayBufferView, options: DecodeOptions = definedExternally): Array<Any>
         fun decodeAllSync(input: ArrayBufferView, options: String = definedExternally): Array<Any>*/
@@ -102,7 +117,11 @@ external interface EncoderOptions {
 }
 
 external open class Encoder(options: EncoderOptions = definedExternally) {
-    open fun <T> addSemanticType(type: Any, encodeFunction: (encoder: Encoder, t: T) -> Boolean): (encoder: Encoder, t: T) -> Boolean?
+    open fun <T> addSemanticType(
+        type: Any,
+        encodeFunction: (encoder: Encoder, t: T) -> Boolean
+    ): (encoder: Encoder, t: T) -> Boolean?
+
     open fun pushAny(input: Any): Boolean
     open fun removeLoopDetectors(obj: Any): Boolean
 
@@ -110,7 +129,10 @@ external open class Encoder(options: EncoderOptions = definedExternally) {
         fun encode(vararg objs: Any): Buffer /* Buffer | ArrayBufferView */
         fun encodeCanonical(vararg objs: Any): Buffer /* Buffer | ArrayBufferView */
         fun encodeOne(obj: Any, options: EncoderOptions = definedExternally): Buffer /* Buffer | ArrayBufferView */
-        fun encodeAsync(obj: Any, options: EncoderOptions = definedExternally): Promise<dynamic /* Buffer | ArrayBufferView */>
+        fun encodeAsync(
+            obj: Any,
+            options: EncoderOptions = definedExternally
+        ): Promise<dynamic /* Buffer | ArrayBufferView */>
     }
 }
 
@@ -120,7 +142,11 @@ external open class Simple(value: Number) {
 
     companion object {
         fun isSimple(obj: Any): Boolean
-        fun decode(param_val: Number, has_parent: Boolean = definedExternally, parent_indefinite: Boolean = definedExternally): dynamic /* Boolean? | Any? | Simple? */
+        fun decode(
+            param_val: Number,
+            has_parent: Boolean = definedExternally,
+            parent_indefinite: Boolean = definedExternally
+        ): dynamic /* Boolean? | Any? | Simple? */
     }
 }
 

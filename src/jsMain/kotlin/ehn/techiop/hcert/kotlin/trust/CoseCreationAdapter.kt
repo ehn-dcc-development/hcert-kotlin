@@ -15,6 +15,8 @@ actual class CoseCreationAdapter actual constructor(private val content: ByteArr
 
     actual fun addProtectedAttribute(key: CoseHeaderKeys, value: Any) {
         val content = if (value is CwtAlgorithm) value.stringVal else value
+        //TODO Use CborMap
+        // val key = if (key == CoseHeaderKeys.TRUSTLIST_VERSION) key.intVal else key.stringVal
         protectedHeader.set(key.stringVal, content)
     }
 
@@ -31,9 +33,5 @@ actual class CoseCreationAdapter actual constructor(private val content: ByteArr
     actual fun encode(): ByteArray {
         return encoded
     }
-
-    //    suspend fun <T> Promise<T>.await(): T = suspendCoroutine { cont ->
-    //        then({ cont.resume(it) }, { cont.resumeWithException(it) })
-    //    }
 
 }

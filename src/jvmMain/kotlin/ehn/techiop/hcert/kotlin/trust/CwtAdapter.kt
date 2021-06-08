@@ -4,7 +4,7 @@ import com.upokecenter.cbor.CBORObject
 
 actual class CwtAdapter actual constructor(private val input: ByteArray) {
 
-    val map = CBORObject.DecodeFromBytes(input)
+    private val map = CBORObject.DecodeFromBytes(input)
 
     actual fun getByteArray(key: Int) = try {
         map[key]?.GetByteString()

@@ -1,30 +1,35 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import Cbor.DecodeOptions
-import ehn.techiop.hcert.kotlin.chain.mapToJson
+import Cbor.Encoder
+import Cbor.Map
 import ehn.techiop.hcert.kotlin.chain.toBuffer
 import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toUint8Array
 
 actual class CwtCreationAdapter actual constructor() {
 
-    val map = mutableMapOf<Any, Any>()
+    private val map = Map(js("([])"))
 
     actual fun add(key: Int, value: Any) {
-        map[key] = value
+        if (value is ByteArray) {
+            map.set(key, value.toUint8Array())
+        } else if (value is Long) {
+            map.set(key, value.toInt())
+        } else {
+            map.set(key, value)
+        }
     }
 
     actual fun addDgc(key: Int, innerKey: Int, input: ByteArray) {
-        // TODO Verify if this is correct, see JVM implementation
-        map[key] = mapOf(
-            innerKey to Cbor.Decoder.decodeFirstSync(input = input.toBuffer(), options = object : DecodeOptions {})
-        )
+        val innerMap = Map(js("([])"))
+        val value = Cbor.Decoder.decodeFirstSync(input = input.toBuffer(), options = object : DecodeOptions {})
+        innerMap.set(innerKey, value)
+        map.set(key, innerMap)
     }
 
     actual fun encode(): ByteArray {
-        val export = map.mapToJson()
-        val buffer = Cbor.Encoder.encode(export)
-        return buffer.toByteArray()
+        return Encoder.encode(map).toByteArray()
     }
-
 
 }

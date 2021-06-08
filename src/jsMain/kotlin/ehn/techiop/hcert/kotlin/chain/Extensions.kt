@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import Buffer
-import base64url
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
@@ -28,8 +27,16 @@ fun Uint8Array.toByteArray(): ByteArray {
     return ByteArray(this.length) { this[it] }
 }
 
-fun Map<Any, Any>.mapToJson() = js("{}").also { json ->
-    forEach { json[it.key] = it.value }
+fun Map<*, *>.mapToJson(): dynamic {
+    val json = js("{}")
+    this.forEach {
+        val value = it.value
+        if (value is Map<*, *>)
+            json[it.key] = value.mapToJson()
+        else
+            json[it.key] = value
+    }
+    return json
 }
 
 fun toMap(container: dynamic): HashMap<String, Any> {

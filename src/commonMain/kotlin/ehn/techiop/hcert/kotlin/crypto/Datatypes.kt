@@ -12,6 +12,7 @@ interface Certificate<T> {
     val publicKey: PubKey<*>
     fun toTrustedCertificate(): TrustedCertificateV2
     val kid: ByteArray
+    val encoded: ByteArray
 }
 
 interface PrivKey<T> {

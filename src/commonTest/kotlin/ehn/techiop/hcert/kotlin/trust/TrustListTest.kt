@@ -1,10 +1,14 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.ext.FixedClock
 import ehn.techiop.hcert.kotlin.chain.fromHexString
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.toHexString
+import ehn.techiop.hcert.kotlin.crypto.Certificate
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
@@ -14,7 +18,18 @@ import kotlinx.datetime.Instant
 
 class TrustListTest : io.kotest.core.spec.style.StringSpec({
 
-    "f:V2 Client Loading"{
+    "V2 Client-Server Exchange" {
+        val clock = FixedClock(Instant.fromEpochMilliseconds(0))
+        val cryptoService = RandomEcKeyCryptoService(clock = clock)
+        val certificate = cryptoService.getCertificate().encoded.asBase64()
+        val encodeService = TrustListV2EncodeService(cryptoService, clock = clock)
+        val trustListEncoded = encodeService.encodeContent(randomCertificates(clock))
+        val trustListSignature = encodeService.encodeSignature(trustListEncoded)
+
+        verifyClientOperations(certificate, clock, trustListSignature, trustListEncoded)
+    }
+
+    "V2 Client Loading" {
         val certificate =
             "MIIBWzCCAQCgAwIBAgIFAN9xteowCgYIKoZIzj0EAwIwEDEOMAwGA1UEAwwFRUMtTWUwHhcNNzAwMTAxMDAwMDAwWhcNNzAwMTMxMDAwMDAwWjAQMQ4wDAYDVQQDDAVFQy1NZTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJBORxfDtK/ajXOa08zXn5mCKfLXPr5IFhB6PDUfGnjIuUbBigVA1ksVFGyORgSt8dwnT7rOSJXcs2Rlkx8nQ9SjRzBFMA4GA1UdDwEB/wQEAwIFoDAzBgNVHSUELDAqBgwrBgEEAQCON49lAQEGDCsGAQQBAI43j2UBAgYMKwYBBAEAjjePZQEDMAoGCCqGSM49BAMCA0kAMEYCIQDV+bG2GM4NCNCMRcDCiOAKU0U8crilqkmypalSu4ciRgIhAJ480iC1krl87fY0EWTC7v0UJpxxmoHCuqQOLB81Ew7f"
         val trustListEncoded =
@@ -30,13 +45,13 @@ class TrustListTest : io.kotest.core.spec.style.StringSpec({
 })
 
 private fun verifyClientOperations(
-    certificate: String,
+    certificateBase64: String,
     clock: Clock,
     trustListSignature: ByteArray,
     trustListEncoded: ByteArray? = null
 ) {
     // might never happen on the client, that the trust list is loaded in this way
-    val clientTrustRoot = PrefilledCertificateRepository(certificate)
+    val clientTrustRoot = PrefilledCertificateRepository(certificateBase64)
     val decodeService = TrustListDecodeService(clientTrustRoot, clock = clock)
     val clientTrustList = decodeService.decode(trustListSignature, trustListEncoded)
     // that's the way to go: Trust list used for verification of QR codes
@@ -60,3 +75,9 @@ private fun verifyClientOperations(
         }
     }
 }
+
+
+private fun randomCertificates(clock: Clock): Set<Certificate<*>> =
+    listOf(RandomEcKeyCryptoService(clock = clock), RandomEcKeyCryptoService(clock = clock))
+        .map { it.getCertificate() }
+        .toSet()

@@ -1,13 +1,12 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import kotlinx.datetime.Clock
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
-import java.security.cert.X509Certificate
 import kotlin.time.Duration
 
 
@@ -17,9 +16,9 @@ class TrustListV2EncodeService constructor(
     private val clock: Clock = Clock.System,
 ) {
 
-    fun encodeContent(certificates: Set<X509Certificate>): ByteArray {
+    fun encodeContent(certificates: Set<Certificate<*>>): ByteArray {
         val trustList = TrustListV2(
-            certificates = certificates.map { JvmCertificate(it).toTrustedCertificate() }
+            certificates = certificates.map { it.toTrustedCertificate() }
         )
         return Cbor.encodeToByteArray(trustList)
     }
