@@ -12,18 +12,18 @@ import kotlin.time.Duration
 class TrustListDecodeService(private val repository: CertificateRepository, private val clock: Clock = Clock.System) {
 
     fun decode(input: ByteArray, optionalContent: ByteArray? = null): List<TrustedCertificate> {
-        val coseAdapter = CoseAdapter(input)
-        val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
+        val cose = CoseAdapter(input)
+        val kid = cose.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
             ?: throw IllegalArgumentException("KID")
-        val validated = coseAdapter.validate(kid, repository)
+        val validated = cose.validate(kid, repository)
         if (!validated) throw IllegalArgumentException("signature")
-        val version = coseAdapter.getProtectedAttributeInt(42)
+        val version = cose.getProtectedAttributeInt(42)
         if (version == 1) {
             throw IllegalArgumentException("V1")
         } else if (version == 2 && optionalContent != null) {
             val actualHash = Hash(optionalContent).calc()
 
-            val map = coseAdapter.getContentMap()
+            val map = cose.getContentMap()
             val expectedHash = map.getByteArray(CwtHeaderKeys.SUBJECT.intVal)
             if (!(expectedHash contentEquals actualHash))
                 throw IllegalArgumentException("Hash")

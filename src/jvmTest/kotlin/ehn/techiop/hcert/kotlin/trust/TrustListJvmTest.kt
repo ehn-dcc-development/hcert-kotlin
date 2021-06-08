@@ -28,10 +28,6 @@ class TrustListJvmTest : StringSpec({
         val trustListEncoded = encodeService.encodeContent(randomCertificates(clock))
         val trustListSignature = encodeService.encodeSignature(trustListEncoded)
 
-        //println((certificate as JvmCertificate).certificate.encoded.asBase64())
-        //println(trustListEncoded.toHexString())
-        //println(trustListSignature.toHexString())
-
         verifyClientOperations(certificate, clock, trustListSignature, trustListEncoded)
     }
 

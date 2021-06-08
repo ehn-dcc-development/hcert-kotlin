@@ -34,6 +34,7 @@ enum class CoseHeaderKeys(val intVal: Int, val stringVal: String) {
     KID(4, "kid"),
     IV(5, "IV"),
     PARTIAL_IV(6, "Partial IV"),
+    TRUSTLIST_VERSION(42, "tlv"),
 }
 
 enum class CwtHeaderKeys(val intVal: Int, val stringVal: String) {
