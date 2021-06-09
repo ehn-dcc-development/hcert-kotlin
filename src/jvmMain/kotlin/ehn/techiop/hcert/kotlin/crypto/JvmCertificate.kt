@@ -31,13 +31,16 @@ class JvmPrivKey(val privateKey: PrivateKey) : PrivKey<PrivateKey> {
 
 class JvmCertificate(val certificate: X509Certificate) : Certificate<X509Certificate> {
 
-    override val validContentTypes =
-        ContentType.values().filter { hasOid(certificate, ASN1ObjectIdentifier(it.oid)) }
-            .ifEmpty { ContentType.values().toList() }
-
-    private fun hasOid(certificate: X509Certificate, oid: ASN1ObjectIdentifier): Boolean {
-        return certificate.extendedKeyUsage != null && certificate.extendedKeyUsage.any { oid.toString() == it }
-    }
+    override val validContentTypes: List<ContentType>
+        get() {
+            val contentTypes = mutableSetOf<ContentType>()
+            certificate.extendedKeyUsage?.let {
+                it.forEach { oid ->
+                    ContentType.findByOid(oid)?.let { contentTypes.add(it) }
+                }
+            }
+            return contentTypes.ifEmpty { ContentType.values().toList() }.toList()
+        }
 
     override val validFrom = Instant.fromEpochMilliseconds(certificate.notBefore.time)
 
