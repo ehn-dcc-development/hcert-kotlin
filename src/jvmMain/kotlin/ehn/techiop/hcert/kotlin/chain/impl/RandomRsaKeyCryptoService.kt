@@ -51,9 +51,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
             verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
         }
-        verificationResult.certificateValidFrom = certificate.validFrom
-        verificationResult.certificateValidUntil = certificate.validUntil
-        verificationResult.certificateValidContent = certificate.validContentTypes
+        verificationResult.setCertificateData(certificate)
         return CosePubKey(OneKey(keyPair.public, keyPair.private))
     }
 

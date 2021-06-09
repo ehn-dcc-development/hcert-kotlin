@@ -42,9 +42,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         verificationResult: VerificationResult
     ): Boolean {
         repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
-            verificationResult.certificateValidFrom = trustedCert.validFrom
-            verificationResult.certificateValidUntil = trustedCert.validUntil
-            verificationResult.certificateValidContent = trustedCert.validContentTypes
+            verificationResult.setCertificateData(trustedCert)
             if (sign1Message.validate(trustedCert.cosePublicKey.toCoseRepresentation() as OneKey)) {
                 return true
             }
@@ -64,9 +62,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         if (!result)
             verificationResult.error = Error.SIGNATURE_INVALID
         val trustedCert = cryptoService.getCertificate()
-        verificationResult.certificateValidFrom = trustedCert.validFrom
-        verificationResult.certificateValidUntil = trustedCert.validUntil
-        verificationResult.certificateValidContent = trustedCert.validContentTypes
+        verificationResult.setCertificateData(trustedCert)
         return result
     }
 

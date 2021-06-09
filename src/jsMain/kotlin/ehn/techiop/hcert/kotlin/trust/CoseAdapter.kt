@@ -50,9 +50,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         verificationResult: VerificationResult
     ): Boolean {
         repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
-            verificationResult.certificateValidFrom = trustedCert.validFrom
-            verificationResult.certificateValidUntil = trustedCert.validUntil
-            verificationResult.certificateValidContent = trustedCert.validContentTypes
+            verificationResult.setCertificateData(trustedCert)
             val result = jsTry {
                 Cose.verifySync(input, trustedCert.cosePublicKey) !== undefined
             }.catch {

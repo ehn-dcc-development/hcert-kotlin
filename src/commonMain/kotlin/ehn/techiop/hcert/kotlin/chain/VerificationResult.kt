@@ -1,6 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import ehn.techiop.hcert.kotlin.crypto.Certificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
@@ -60,6 +62,18 @@ class VerificationResult {
                 "content=$content, " +
                 "error=$error" +
                 ")"
+    }
+
+    fun setCertificateData(certificate: TrustedCertificate) {
+        certificateValidFrom = certificate.validFrom
+        certificateValidUntil = certificate.validUntil
+        certificateValidContent = certificate.validContentTypes
+    }
+
+    fun setCertificateData(certificate: Certificate<*>) {
+        certificateValidFrom = certificate.validFrom
+        certificateValidUntil = certificate.validUntil
+        certificateValidContent = certificate.validContentTypes
     }
 
 }

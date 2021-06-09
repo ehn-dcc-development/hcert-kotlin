@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import Asn1js.Sequence
 import Buffer
 import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
@@ -58,10 +59,10 @@ actual class RandomEcKeyCryptoService actual constructor(
         kid: ByteArray,
         verificationResult: VerificationResult
     ): PubKey<*> {
-        if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
-        verificationResult.certificateValidFrom = certificate.validFrom
-        verificationResult.certificateValidUntil = certificate.validUntil
-        verificationResult.certificateValidContent = certificate.validContentTypes
+        if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
+            verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
+        }
+        verificationResult.setCertificateData(certificate)
         return publicKey
     }
 

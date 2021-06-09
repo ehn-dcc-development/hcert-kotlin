@@ -80,11 +80,11 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
     override fun getCborVerificationKey(
         kid: ByteArray,
         verificationResult: VerificationResult
-    ): ehn.techiop.hcert.kotlin.crypto.PubKey<*> {
-        if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid")
-        verificationResult.certificateValidFrom = certificate.validFrom
-        verificationResult.certificateValidUntil = certificate.validUntil
-        verificationResult.certificateValidContent = certificate.validContentTypes
+    ): PubKey<*> {
+        if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
+            verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
+        }
+        verificationResult.setCertificateData(certificate)
         return publicKey
     }
 
