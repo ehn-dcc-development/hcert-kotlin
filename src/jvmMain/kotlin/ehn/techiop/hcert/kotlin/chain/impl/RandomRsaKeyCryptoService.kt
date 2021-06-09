@@ -5,16 +5,7 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
-import ehn.techiop.hcert.kotlin.crypto.Certificate
-import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
-import ehn.techiop.hcert.kotlin.crypto.CosePubKey
-import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
-import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
-import ehn.techiop.hcert.kotlin.crypto.JvmPrivKey
-import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
-import ehn.techiop.hcert.kotlin.crypto.PubKey
-import ehn.techiop.hcert.kotlin.crypto.kid
+import ehn.techiop.hcert.kotlin.crypto.*
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -26,10 +17,10 @@ import java.security.KeyPairGenerator
 import java.security.Security
 
 
-class RandomRsaKeyCryptoService(
-    val keySize: Int = 2048,
-    contentType: List<ContentType> = ContentType.values().toList(),
-    clock: Clock = Clock.System,
+actual class RandomRsaKeyCryptoService actual constructor(
+    val keySize: Int,
+    contentType: List<ContentType>,
+    clock: Clock,
 ) : CryptoService {
 
     init {

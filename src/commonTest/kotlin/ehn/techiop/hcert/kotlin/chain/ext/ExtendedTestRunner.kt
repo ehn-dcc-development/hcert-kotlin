@@ -30,6 +30,7 @@ class CommonTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("CO28") } // TODO JS COSE
     .workaroundKotestNamingBug())
 
+
 class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("common/") }
     .filterNot { it.key.contains("CY/") } // com.google.zxing.ChecksumException

@@ -2,41 +2,60 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import Asn1js.Sequence
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.asBase64
+import NodeRSA
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
-import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.common.urlSafe
 import ehn.techiop.hcert.kotlin.crypto.*
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import elliptic.EC
 import kotlinx.datetime.Clock
+import org.khronos.webgl.ArrayBuffer
+import org.khronos.webgl.Int32Array
 import pkijs.src.PrivateKeyInfo.PrivateKeyInfo
+import tsstdlib.JsonWebKey
+import kotlin.js.Json
 
-
-actual class RandomEcKeyCryptoService actual constructor(
-    val keySize: Int,
+actual class RandomRsaKeyCryptoService actual constructor(
+    keySize: Int,
     contentType: List<ContentType>,
     clock: Clock
 ) : CryptoService {
 
     private val privateKeyInfo: PrivateKeyInfo
-    private val privateKey: EcPrivKey<*>
-    private val publicKey: EcPubKey<*>
+    private val privateKey: PrivKey<*>
+    private val publicKey: PubKey<*>
     private val algorithmID: CwtAlgorithm
     private val certificate: JsCertificate
     private val keyId: ByteArray
 
     init {
-        val keyPair = EC("p256").genKeyPair()
-        privateKey = JsEcPrivKey(keyPair)
-        publicKey = JsEcPubKey(keyPair)
-        algorithmID = CwtAlgorithm.ECDSA_256
-        certificate = selfSignCertificate("EC-Me", privateKey, publicKey, contentType, clock) as JsCertificate
+        val keyPair = NodeRSA().generateKeyPair(keySize)
+        val pub = keyPair.exportKey("components-public") as Json
+        val modulus = pub["n"] as Buffer
+        val exp = pub["e"] as Number
+
+        publicKey = JsRsaPubKey(ArrayBuffer.from(modulus.toByteArray()), exp)
+        privateKey = JsRsaPrivKey(keyPair.exportKey("components-private") as Json)
+        algorithmID = CwtAlgorithm.RSA_PSS_256
+        certificate = selfSignCertificate("RSA-Me", privateKey, publicKey, contentType, clock) as JsCertificate
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
-        @Suppress("UNUSED_VARIABLE") val d = keyPair.getPrivate().toArrayLike(Buffer).toString("base64")
-        privateKeyInfo.fromJSON(js("({'kty': 'EC', 'crv':'P-256', 'd': d})"))
+
+        val cr = privateKey.toCoseRepresentation()
+        val jwk = object : JsonWebKey {
+            override var alg: String? = "PS256"
+            override var kty: String? = "RSA"
+            override var p: String? = urlSafe(cr.p.toString("base64"))
+            override var q: String? = urlSafe(cr.q.toString("base64"))
+            override var qi: String? = urlSafe(cr.qi.toString("base64"))
+            override var dp: String? = urlSafe(cr.dp.toString("base64"))
+            override var dq: String? = urlSafe(cr.dq.toString("base64"))
+            override var e: String? = urlSafe(Buffer(Int32Array(arrayOf(cr.e.toInt())).buffer).toString("base64"))
+            override var n: String? = urlSafe(cr.n.toString("base64"))
+            override var d: String? = urlSafe(cr.d.toString("base64"))
+        }
+
+        privateKeyInfo.fromJSON(jwk as JsonWebKey)
     }
 
     override fun getCborHeaders() = listOf(
@@ -71,5 +90,3 @@ actual class RandomEcKeyCryptoService actual constructor(
         encoded.asBase64().chunked(64).joinToString(separator = "\n")
 
 }
-
-
