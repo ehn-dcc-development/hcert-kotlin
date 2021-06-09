@@ -21,11 +21,11 @@ class VerificationCoseService constructor(private val repository: CertificateRep
                 }
             //val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
             // TODO is the algorithm relevant?
-            if (!coseAdapter.validate(kid, repository, verificationResult))
+            if (!coseAdapter.validate(kid, repository, verificationResult)) {
                 throw IllegalArgumentException("Not validated").also {
                     verificationResult.error = Error.SIGNATURE_INVALID
                 }
-
+            }
             return coseAdapter.getContent()
         } catch (e: Throwable) {
             throw e.also {

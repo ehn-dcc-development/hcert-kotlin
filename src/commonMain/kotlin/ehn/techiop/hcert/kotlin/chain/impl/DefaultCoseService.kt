@@ -33,10 +33,11 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
                 }
             //val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
             // TODO is the algorithm relevant?
-            if (!coseAdapter.validate(kid, cryptoService, verificationResult))
+            if (!coseAdapter.validate(kid, cryptoService, verificationResult)) {
                 throw IllegalArgumentException("Not validated").also {
                     verificationResult.error = Error.SIGNATURE_INVALID
                 }
+            }
             return coseAdapter.getContent()
         } catch (e: Throwable) {
             throw e.also {

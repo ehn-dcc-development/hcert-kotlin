@@ -58,9 +58,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
             }
             if (result) return true // else try next
         }
-        return false.also {
-            verificationResult.error = Error.SIGNATURE_INVALID
-        }
+        return false
     }
 
     actual fun validate(
@@ -68,13 +66,12 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         cryptoService: CryptoService,
         verificationResult: VerificationResult
     ): Boolean {
+        verificationResult.setCertificateData(cryptoService.getCertificate())
         val pubKey = cryptoService.getCborVerificationKey(kid, verificationResult)
         return jsTry {
             Cose.verifySync(input, pubKey) !== undefined
         }.catch {
-            false.also {
-                verificationResult.error = Error.SIGNATURE_INVALID
-            }
+            false
         }
     }
 

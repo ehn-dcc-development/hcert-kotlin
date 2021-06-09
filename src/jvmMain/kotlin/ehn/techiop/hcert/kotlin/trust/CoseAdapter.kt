@@ -47,9 +47,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
                 return true
             }
         }
-        return false.also {
-            verificationResult.error = Error.SIGNATURE_INVALID
-        }
+        return false
     }
 
     actual fun validate(
@@ -58,12 +56,8 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         verificationResult: VerificationResult
     ): Boolean {
         val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
-        val result = sign1Message.validate(verificationKey.toCoseRepresentation() as OneKey)
-        if (!result)
-            verificationResult.error = Error.SIGNATURE_INVALID
-        val trustedCert = cryptoService.getCertificate()
-        verificationResult.setCertificateData(trustedCert)
-        return result
+        verificationResult.setCertificateData(cryptoService.getCertificate())
+        return sign1Message.validate(verificationKey.toCoseRepresentation() as OneKey)
     }
 
     actual fun getContent() = sign1Message.GetContent()
