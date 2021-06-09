@@ -24,6 +24,8 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import pkijs.src.AlgorithmIdentifier.AlgorithmIdentifier
 import pkijs.src.AttributeTypeAndValue.AttributeTypeAndValue
+import pkijs.src.ExtKeyUsage.ExtKeyUsage
+import pkijs.src.Extension.Extension
 import pkijs.src.PublicKeyInfo.PublicKeyInfo
 import pkijs.src.RelativeDistinguishedNames.RelativeDistinguishedNames
 import pkijs.src.Time.Time
@@ -62,8 +64,19 @@ actual fun selfSignCertificate(
         })
     (certificate.notBefore as Time).value = Date(clock.now().toEpochMilliseconds())
     (certificate.notAfter as Time).value = Date(clock.now().plus(Duration.days(30)).toEpochMilliseconds())
-    //certificate.extensions = arrayOf<Extension>()
-    // TODO Extensions, see JVM implementation
+
+    val extKeyUsage = ExtKeyUsage().also {
+        it.keyPurposes = contentType.map { it.oid }.toTypedArray()
+    }
+    
+    certificate.extensions = arrayOf(
+        Extension(object {
+            val extnID = "2.5.29.37"
+            val critical = false
+            val extnValue = (extKeyUsage.toSchema() as Sequence).toBER()
+            val parsedValue = extKeyUsage
+        })
+    )
 
     val jwk = object : JsonWebKey {
         override var alg: String? = "EC"
