@@ -7,7 +7,7 @@ import org.khronos.webgl.Int32Array
 import tsstdlib.JsonWebKey
 import kotlin.js.Json
 
-class JsRsaPrivKey(val raw: Json) : RsaPrivKey<dynamic> {
+class JsRsaPrivKey(val raw: Json) : PrivKey<dynamic> {
 
     override fun toCoseRepresentation(): RsaCosePrivateKey = object : RsaCosePrivateKey {
         override val p: Buffer = raw["p"] as Buffer

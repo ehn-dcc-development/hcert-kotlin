@@ -7,7 +7,7 @@ import elliptic.EC
 import elliptic.EcKeyPair
 import tsstdlib.JsonWebKey
 
-class JsEcPrivKey(val dValue: Buffer, val ec: EC, private val keySizeBits: Int) : EcPrivKey<EcCosePrivateKey> {
+class JsEcPrivKey(val dValue: Buffer, val ec: EC, private val keySizeBits: Int) : PrivKey<EcCosePrivateKey> {
 
     constructor(keyPair: EcKeyPair, keySizeBits: Int) : this(keyPair.getPrivate().toArrayLike(Buffer), keyPair.ec, keySizeBits)
 

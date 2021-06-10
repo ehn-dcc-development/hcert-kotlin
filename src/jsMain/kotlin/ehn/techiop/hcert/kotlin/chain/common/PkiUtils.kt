@@ -13,7 +13,6 @@ import NodeRSA
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.crypto.EcPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
@@ -38,7 +37,7 @@ import kotlin.time.Duration
 
 
 actual class PkiUtils {
-    @Suppress("UNUSED_VARIABLE")
+    @Suppress("UNUSED_VARIABLE", "unused")
     actual fun selfSignCertificate(
         commonName: String,
         privateKey: PrivKey<*>,
@@ -85,17 +84,18 @@ actual class PkiUtils {
         (certificate.subjectPublicKeyInfo as PublicKeyInfo).fromJSON(jwk)
         val algorithmIdentifier = AlgorithmIdentifier()
         algorithmIdentifier.algorithmId =
-            if (privateKey is EcPrivKey) "1.2.840.10045.4.3.2" else "1.2.840.113549.1.1.11"
+            if (privateKey is JsEcPrivKey) "1.2.840.10045.4.3.2" else "1.2.840.113549.1.1.11"
         certificate.signature = algorithmIdentifier
         certificate.signatureAlgorithm = algorithmIdentifier
         val data = Uint8Array(certificate.encodeTBS().toBER())
-        val signatureValue = if (privateKey is EcPrivKey) {
+        val signatureValue = if (privateKey is JsEcPrivKey) {
             val sha256 = hash(data)
-            val priv = (privateKey as JsEcPrivKey).dValue
+            val priv = privateKey.dValue
             Uint8Array(privateKey.ec.sign(sha256, BN(priv)).toDER()).buffer
-        } else {
-            privateKey as JsRsaPrivKey
+        } else if (privateKey is JsRsaPrivKey) {
             Uint8Array(NodeRSA().importKey(privateKey.raw as NodeRSA.KeyComponentsPrivate).sign(Buffer(data))).buffer
+        } else {
+            throw IllegalArgumentException("KeyType")
         }
         certificate.signatureValue = BitString(
             object : LocalBitStringValueBlockParams {

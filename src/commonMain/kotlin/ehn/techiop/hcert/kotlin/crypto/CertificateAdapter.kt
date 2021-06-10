@@ -19,13 +19,7 @@ interface PrivKey<T> {
     fun toPlatformPrivateKey(): T
 }
 
-interface EcPrivKey<T> : PrivKey<T>
-
-interface RsaPrivKey<T> : PrivKey<T>
-
 interface PubKey<T> {
     fun toCoseRepresentation(): Any
     fun toPlatformPublicKey(): T
 }
-
-interface EcPubKey<T> : PubKey<T>
