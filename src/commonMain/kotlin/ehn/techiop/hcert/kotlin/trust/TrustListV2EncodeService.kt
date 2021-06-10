@@ -16,7 +16,7 @@ class TrustListV2EncodeService constructor(
     private val clock: Clock = Clock.System,
 ) {
 
-    fun encodeContent(certificates: Set<CertificateAdapter<*>>): ByteArray {
+    fun encodeContent(certificates: Set<CertificateAdapter>): ByteArray {
         val trustList = TrustListV2(
             certificates = certificates.map { it.toTrustedCertificate() }
         )

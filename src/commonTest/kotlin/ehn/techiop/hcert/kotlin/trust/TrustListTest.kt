@@ -76,7 +76,7 @@ private fun verifyClientOperations(
 }
 
 
-private fun randomCertificates(clock: Clock): Set<CertificateAdapter<*>> =
+private fun randomCertificates(clock: Clock): Set<CertificateAdapter> =
     listOf(RandomEcKeyCryptoService(clock = clock), RandomEcKeyCryptoService(clock = clock))
         .map { it.getCertificate() }
         .toSet()

@@ -9,7 +9,6 @@ import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
 import ehn.techiop.hcert.kotlin.crypto.CosePubKey
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
-import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.PEMParser
@@ -32,7 +31,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
     private val privateKey: PrivateKey
     private val publicKey: PublicKey
     private val algorithmID: CwtAlgorithm
-    private val certificate: JvmCertificate
+    private val certificate: CertificateAdapter
     private val keyId: ByteArray
 
     init {
@@ -52,7 +51,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
         }
         val x509Certificate = CertificateFactory.getInstance("X.509")
             .generateCertificate(pemEncodedCertificate.byteInputStream()) as X509Certificate
-        certificate = JvmCertificate(x509Certificate)
+        certificate = CertificateAdapter(x509Certificate)
         publicKey = x509Certificate.publicKey
         keyId = certificate.kid
     }
@@ -75,7 +74,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
         return CosePubKey(OneKey(publicKey, privateKey))
     }
 
-    override fun getCertificate(): CertificateAdapter<*> = certificate
+    override fun getCertificate(): CertificateAdapter = certificate
 
     override fun exportPrivateKeyAsPem() = StringWriter().apply {
         PemWriter(this).use {

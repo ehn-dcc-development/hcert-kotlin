@@ -3,8 +3,21 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import Asn1js.Sequence
 import Asn1js.fromBER
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.*
-import ehn.techiop.hcert.kotlin.crypto.*
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.fromBase64
+import ehn.techiop.hcert.kotlin.chain.toBuffer
+import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toHexString
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
+import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
+import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
+import ehn.techiop.hcert.kotlin.crypto.PrivKey
+import ehn.techiop.hcert.kotlin.crypto.PubKey
 import elliptic.EC
 import org.khronos.webgl.Uint8Array
 import pkijs.src.AlgorithmIdentifier.AlgorithmIdentifier
@@ -20,7 +33,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
     private val privateKey: PrivKey<*>
     private val publicKey: PubKey<*>
     private val algorithmID: CwtAlgorithm
-    private val certificate: JsCertificate
+    private val certificate: CertificateAdapter
     private val keyId: ByteArray
 
     init {
@@ -58,7 +71,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
             privateKey = JsRsaPrivKey(interalRepresentation)
             algorithmID = CwtAlgorithm.RSA_PSS_256
         } else throw IllegalArgumentException("KeyType")
-        certificate = JsCertificate(cleanPem(pemEncodedCertificate))
+        certificate = CertificateAdapter(cleanPem(pemEncodedCertificate))
         publicKey = certificate.publicKey
         keyId = certificate.kid
     }
@@ -88,7 +101,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
         return publicKey
     }
 
-    override fun getCertificate(): CertificateAdapter<*> = certificate
+    override fun getCertificate(): CertificateAdapter = certificate
 
     override fun exportPrivateKeyAsPem() = "-----BEGIN PRIVATE KEY-----\n" +
             base64forPem(Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()) +

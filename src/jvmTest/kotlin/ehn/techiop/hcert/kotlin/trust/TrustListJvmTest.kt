@@ -33,7 +33,7 @@ class TrustListJvmTest : StringSpec({
 })
 
 private fun verifyClientOperations(
-    certificate: CertificateAdapter<*>,
+    certificate: CertificateAdapter,
     clock: Clock,
     trustListSignature: ByteArray,
     trustListEncoded: ByteArray? = null
@@ -62,7 +62,7 @@ private fun verifyClientOperations(
 }
 
 
-private fun randomCertificates(clock: Clock): Set<CertificateAdapter<*>> =
+private fun randomCertificates(clock: Clock): Set<CertificateAdapter> =
     listOf(RandomEcKeyCryptoService(clock = clock), RandomRsaKeyCryptoService(clock = clock))
         .map { it.getCertificate() }
         .toSet()

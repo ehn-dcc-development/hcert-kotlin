@@ -14,7 +14,6 @@ import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
-import ehn.techiop.hcert.kotlin.crypto.JsCertificate
 import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JsRsaPubKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
@@ -37,7 +36,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
     private val privateKey: PrivKey<*>
     private val publicKey: PubKey<*>
     private val algorithmID: CwtAlgorithm
-    private val certificate: JsCertificate
+    private val certificate: CertificateAdapter
     private val keyId: ByteArray
 
     init {
@@ -49,7 +48,8 @@ actual class RandomRsaKeyCryptoService actual constructor(
         publicKey = JsRsaPubKey(ArrayBuffer.from(modulus.toByteArray()), exp)
         privateKey = JsRsaPrivKey(keyPair.exportKey("components-private") as Json)
         algorithmID = CwtAlgorithm.RSA_PSS_256
-        certificate = selfSignCertificate("RSA-Me", privateKey, publicKey, keySize, contentType, clock) as JsCertificate
+        certificate =
+            selfSignCertificate("RSA-Me", privateKey, publicKey, keySize, contentType, clock)
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
 
@@ -88,7 +88,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
         return publicKey
     }
 
-    override fun getCertificate(): CertificateAdapter<*> = certificate
+    override fun getCertificate(): CertificateAdapter = certificate
 
     override fun exportPrivateKeyAsPem() = "-----BEGIN PRIVATE KEY-----\n" +
             base64forPem(Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()) +

@@ -14,7 +14,7 @@ expect fun selfSignCertificate(
     keySize: Int,
     contentType: List<ContentType> = ContentType.values().toList(),
     clock: Clock = Clock.System
-): CertificateAdapter<*>
+): CertificateAdapter
 
 
 

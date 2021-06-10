@@ -5,7 +5,15 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
-import ehn.techiop.hcert.kotlin.crypto.*
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
+import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
+import ehn.techiop.hcert.kotlin.crypto.CosePubKey
+import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
+import ehn.techiop.hcert.kotlin.crypto.JvmPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
+import ehn.techiop.hcert.kotlin.crypto.PubKey
+import ehn.techiop.hcert.kotlin.crypto.kid
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -37,7 +45,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
             keySize,
             contentType,
             clock
-        ) as JvmCertificate
+        )
     private val keyId = certificate.certificate.kid
 
     override fun getCborHeaders() = listOf(
@@ -55,7 +63,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
         return CosePubKey(OneKey(keyPair.public, keyPair.private))
     }
 
-    override fun getCertificate(): CertificateAdapter<*> = certificate
+    override fun getCertificate(): CertificateAdapter = certificate
 
     override fun exportPrivateKeyAsPem() = StringWriter().apply {
         PemWriter(this).use {

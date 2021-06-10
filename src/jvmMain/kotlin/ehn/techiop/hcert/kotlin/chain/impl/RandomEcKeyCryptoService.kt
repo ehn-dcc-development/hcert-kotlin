@@ -10,7 +10,6 @@ import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
 import ehn.techiop.hcert.kotlin.crypto.CosePubKey
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
-import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.crypto.JvmPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
 import ehn.techiop.hcert.kotlin.crypto.PubKey
@@ -30,7 +29,7 @@ actual class RandomEcKeyCryptoService actual constructor(
     clock: Clock
 ) : CryptoService {
 
-    private val algorithm = when(keySize) {
+    private val algorithm = when (keySize) {
         256 -> CwtAlgorithm.ECDSA_256
         384 -> CwtAlgorithm.ECDSA_384
         else -> throw IllegalArgumentException("keySize: $keySize")
@@ -44,7 +43,7 @@ actual class RandomEcKeyCryptoService actual constructor(
         keySize,
         contentType,
         clock
-    ) as JvmCertificate
+    )
     private val keyId = certificate.certificate.kid
 
     override fun getCborHeaders() = listOf(
@@ -62,7 +61,7 @@ actual class RandomEcKeyCryptoService actual constructor(
         return CosePubKey(OneKey(keyPair.public, keyPair.private))
     }
 
-    override fun getCertificate(): CertificateAdapter<*> = certificate
+    override fun getCertificate(): CertificateAdapter = certificate
 
     override fun exportPrivateKeyAsPem() = StringWriter().apply {
         PemWriter(this).use {

@@ -8,7 +8,14 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.crypto.*
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
+import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
+import ehn.techiop.hcert.kotlin.crypto.EcPrivKey
+import ehn.techiop.hcert.kotlin.crypto.EcPubKey
+import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JsEcPubKey
+import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import elliptic.EC
 import kotlinx.datetime.Clock
@@ -25,7 +32,7 @@ actual class RandomEcKeyCryptoService actual constructor(
     private val privateKey: EcPrivKey<*>
     private val publicKey: EcPubKey<*>
     private val algorithmID: CwtAlgorithm
-    private val certificate: JsCertificate
+    private val certificate: CertificateAdapter
     private val keyId: ByteArray
 
     init {
@@ -38,7 +45,8 @@ actual class RandomEcKeyCryptoService actual constructor(
         val keyPair = EC(ellipticName).genKeyPair()
         privateKey = JsEcPrivKey(keyPair)
         publicKey = JsEcPubKey(keyPair)
-        certificate = selfSignCertificate("EC-Me", privateKey, publicKey, keySize, contentType, clock) as JsCertificate
+        certificate =
+            selfSignCertificate("EC-Me", privateKey, publicKey, keySize, contentType, clock)
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
         @Suppress("UNUSED_VARIABLE") val d = keyPair.getPrivate().toArrayLike(Buffer).toString("base64")
@@ -66,7 +74,7 @@ actual class RandomEcKeyCryptoService actual constructor(
         return publicKey
     }
 
-    override fun getCertificate(): CertificateAdapter<*> = certificate
+    override fun getCertificate(): CertificateAdapter = certificate
 
     override fun exportPrivateKeyAsPem() = "-----BEGIN PRIVATE KEY-----\n" +
             base64forPem(Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()) +

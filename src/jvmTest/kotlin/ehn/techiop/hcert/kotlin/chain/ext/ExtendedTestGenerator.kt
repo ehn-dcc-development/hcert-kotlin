@@ -36,7 +36,6 @@ import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
@@ -982,7 +981,7 @@ class ExtendedTestGenerator {
 
     private fun createVerificationTestCaseJson(
         clock: Clock,
-        certificate: CertificateAdapter<*>,
+        certificate: CertificateAdapter,
         result: ChainResultAdapter,
         description: String,
         filename: String,
@@ -991,7 +990,7 @@ class ExtendedTestGenerator {
         val context = TestContext(
             version = 1,
             schema = "1.0.0",
-            certificate = (certificate as JvmCertificate).certificate.encoded.asBase64(),
+            certificate = certificate.encoded.asBase64(),
             validationClock = clock.now(),
             description = description
         )

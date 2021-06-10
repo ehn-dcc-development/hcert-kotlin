@@ -4,27 +4,22 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.crypto.JsCertificate
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 
 actual class PrefilledCertificateRepository : CertificateRepository {
 
-    private val list = mutableListOf<JsCertificate>()
+    private val list = mutableListOf<CertificateAdapter>()
 
-    actual constructor(vararg certificates: CertificateAdapter<*>) {
-        certificates.filterIsInstance<JsCertificate>().forEach { list += it }
+    actual constructor(vararg certificates: CertificateAdapter) {
+        certificates.toList().forEach { list += it }
     }
 
     constructor(vararg pemEncodedCertificates: String) {
-        pemEncodedCertificates.forEach { list += JsCertificate(it) }
-    }
-
-    actual constructor(input: ByteArray) {
-        list += JsCertificate(input)
+        pemEncodedCertificates.forEach { list += CertificateAdapter(it) }
     }
 
     actual constructor(base64Encoded: String) {
-        list += JsCertificate(base64Encoded)
+        list += CertificateAdapter(base64Encoded)
     }
 
     override fun loadTrustedCertificates(

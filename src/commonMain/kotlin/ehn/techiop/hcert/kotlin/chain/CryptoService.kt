@@ -17,7 +17,7 @@ interface CryptoService {
 
     fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult = VerificationResult()): PubKey<*>
 
-    fun getCertificate(): CertificateAdapter<*>
+    fun getCertificate(): CertificateAdapter
 
     fun exportPrivateKeyAsPem(): String
 

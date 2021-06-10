@@ -14,7 +14,6 @@ import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.EcPrivKey
-import ehn.techiop.hcert.kotlin.crypto.JsCertificate
 import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JsEcPubKey
 import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
@@ -49,7 +48,7 @@ actual fun selfSignCertificate(
     keySize: Int,
     contentType: List<ContentType>,
     clock: Clock
-): CertificateAdapter<*> {
+): CertificateAdapter {
     val certificate = pkijs.src.Certificate.Certificate()
     certificate.version = 2
     val serialNumber = Random.nextInt().absoluteValue
@@ -123,7 +122,7 @@ actual fun selfSignCertificate(
         })
     certificate.tbs = certificate.encodeTBS().toBER()
     val encoded = Buffer((certificate.toSchema(true) as Sequence).toBER()).toByteArray()
-    return JsCertificate(encoded.asBase64())
+    return CertificateAdapter(encoded.asBase64())
 }
 
 // We'll need to strip the leading zero from the Buffer

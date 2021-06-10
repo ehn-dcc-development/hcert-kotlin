@@ -55,4 +55,4 @@ data class TrustedCertificateV2(
 }
 
 
-expect fun TrustedCertificateV2.decodeCertificate(): CertificateAdapter<*>
+expect fun TrustedCertificateV2.decodeCertificate(): CertificateAdapter

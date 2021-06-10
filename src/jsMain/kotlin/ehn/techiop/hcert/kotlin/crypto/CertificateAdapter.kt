@@ -19,9 +19,9 @@ import kotlin.js.Json
  * secondary constructors not without any custom annotations;
  * so we make the pem-parsing constructor the default one
  */
-class JsCertificate(val pemEncodedCertificate: String) : CertificateAdapter<dynamic> {
+actual class CertificateAdapter actual constructor(pemEncoded: String) {
 
-    override val encoded: ByteArray = pemEncodedCertificate
+    actual val encoded: ByteArray = pemEncoded
         .replace("-----BEGIN CERTIFICATE-----", "")
         .replace("-----END CERTIFICATE-----", "")
         .replace("\n", "")
@@ -40,8 +40,7 @@ class JsCertificate(val pemEncodedCertificate: String) : CertificateAdapter<dyna
         }
     }
 
-
-    override val validContentTypes: List<ContentType>
+    actual val validContentTypes: List<ContentType>
         get() {
             if (cert.extensions == undefined)
                 return ContentType.values().toList()
@@ -57,19 +56,19 @@ class JsCertificate(val pemEncodedCertificate: String) : CertificateAdapter<dyna
             return contentTypes.ifEmpty { ContentType.values().toList() }.toList()
         }
 
-    override val validFrom: Instant
+    actual val validFrom: Instant
         get() {
             val date = (cert.notBefore as Time).value
             return Instant.parse(date.toISOString())
         }
 
-    override val validUntil: Instant
+    actual val validUntil: Instant
         get() {
             val date = (cert.notAfter as Time).value
             return Instant.parse(date.toISOString())
         }
 
-    override val publicKey: PubKey<*>
+    actual val publicKey: PubKey<*>
         get() {
             @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
             val publicKeyOID = ((cert.subjectPublicKeyInfo as Json)["algorithm"] as Json)["algorithmId"] as String
@@ -97,10 +96,11 @@ class JsCertificate(val pemEncodedCertificate: String) : CertificateAdapter<dyna
             }
         }
 
-    override fun toTrustedCertificate(): TrustedCertificateV2 {
+    actual fun toTrustedCertificate(): TrustedCertificateV2 {
         return TrustedCertificateV2(kid, encoded)
     }
 
-    override val kid: ByteArray
+    actual val kid: ByteArray
         get() = Hash(encoded).calc().copyOf(8)
+
 }

@@ -91,6 +91,7 @@ class FileBasedCryptoServiceTest : DescribeSpec({
     }
 
     withData(256, 384) { keySize ->
+
         val service = RandomEcKeyCryptoService(keySize)
 
         assertEncodeDecode(service)

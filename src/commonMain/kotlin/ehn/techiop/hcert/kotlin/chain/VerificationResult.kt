@@ -75,7 +75,7 @@ class VerificationResult {
         certificateValidContent = certificate.validContentTypes
     }
 
-    fun setCertificateData(certificate: CertificateAdapter<*>) {
+    fun setCertificateData(certificate: CertificateAdapter) {
         certificateValidFrom = certificate.validFrom
         certificateValidUntil = certificate.validUntil
         certificateValidContent = certificate.validContentTypes

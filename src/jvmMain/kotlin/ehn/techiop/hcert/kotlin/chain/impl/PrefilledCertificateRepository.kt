@@ -5,7 +5,6 @@ import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.crypto.kid
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import java.security.cert.CertificateFactory
@@ -15,24 +14,8 @@ actual class PrefilledCertificateRepository : CertificateRepository {
 
     private val list = mutableListOf<X509Certificate>()
 
-    actual constructor(vararg certificates: CertificateAdapter<*>) {
-        certificates.filterIsInstance(JvmCertificate::class.java).forEach { list += it.certificate }
-    }
-
-    actual constructor(input: ByteArray) {
-        val factory = CertificateFactory.getInstance("X.509")
-        list += factory.generateCertificate(input.inputStream()) as X509Certificate
-    }
-
-    constructor(vararg certificates: X509Certificate) {
-        certificates.forEach { list += it }
-    }
-
-    constructor(vararg pemEncodedCertificates: String) {
-        val factory = CertificateFactory.getInstance("X.509")
-        pemEncodedCertificates.forEach {
-            list += factory.generateCertificate(it.byteInputStream()) as X509Certificate
-        }
+    actual constructor(vararg certificates: CertificateAdapter) {
+        certificates.forEach { list += it.certificate }
     }
 
     actual constructor(base64Encoded: String) {
@@ -48,7 +31,7 @@ actual class PrefilledCertificateRepository : CertificateRepository {
         if (certList.isEmpty()) throw IllegalArgumentException("kid").also {
             verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
         }
-        return certList.map { JvmCertificate(it).toTrustedCertificate() }
+        return certList.map { CertificateAdapter(it).toTrustedCertificate() }
     }
 
 }
