@@ -11,7 +11,7 @@ actual class PrefilledCertificateRepository : CertificateRepository {
     private val list = mutableListOf<CertificateAdapter>()
 
     actual constructor(vararg certificates: CertificateAdapter) {
-        certificates.toList().forEach { list += it }
+        certificates.forEach { list += it }
     }
 
     constructor(vararg pemEncodedCertificates: String) {

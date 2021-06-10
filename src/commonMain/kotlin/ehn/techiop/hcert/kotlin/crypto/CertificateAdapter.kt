@@ -5,6 +5,9 @@ import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
 import kotlinx.datetime.Instant
 
 expect class CertificateAdapter(pemEncoded: String) {
+
+    constructor(_encoded: ByteArray)
+
     val validContentTypes: List<ContentType>
     val validFrom: Instant
     val validUntil: Instant

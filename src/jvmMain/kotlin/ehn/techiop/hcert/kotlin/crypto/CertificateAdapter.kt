@@ -20,6 +20,11 @@ actual class CertificateAdapter(val certificate: X509Certificate) {
         ) as X509Certificate
     )
 
+    actual constructor(_encoded: ByteArray) : this(
+        CertificateFactory.getInstance("X.509")
+            .generateCertificate(_encoded.inputStream()) as X509Certificate
+    )
+
     actual val validContentTypes: List<ContentType>
         get() {
             val contentTypes = mutableSetOf<ContentType>()

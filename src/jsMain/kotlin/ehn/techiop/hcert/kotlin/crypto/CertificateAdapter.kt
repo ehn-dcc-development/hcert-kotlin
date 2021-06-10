@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.crypto
 
 import Asn1js.fromBER
-import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.Hash
@@ -19,18 +18,20 @@ import kotlin.js.Json
  * secondary constructors not without any custom annotations;
  * so we make the pem-parsing constructor the default one
  */
-actual class CertificateAdapter actual constructor(pemEncoded: String) {
+actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
 
-    actual val encoded: ByteArray = pemEncoded
-        .replace("-----BEGIN CERTIFICATE-----", "")
-        .replace("-----END CERTIFICATE-----", "")
-        .replace("\n", "")
-        .fromBase64()
+    actual val encoded = _encoded
 
     @JsName("fromPem")
-    constructor(encoded: ByteArray) : this(encoded.asBase64())
+    actual constructor(pemEncoded: String) : this(
+        pemEncoded
+            .replace("-----BEGIN CERTIFICATE-----", "")
+            .replace("-----END CERTIFICATE-----", "")
+            .replace("\n", "")
+            .fromBase64()
+    )
 
-    internal val cert = Uint8Array(encoded.toTypedArray()).let { bytes ->
+    internal val cert = Uint8Array(_encoded.toTypedArray()).let { bytes ->
         fromBER(bytes.buffer).result.let {
             pkijs.src.Certificate.Certificate(
                 object {
@@ -102,5 +103,6 @@ actual class CertificateAdapter actual constructor(pemEncoded: String) {
 
     actual val kid: ByteArray
         get() = Hash(encoded).calc().copyOf(8)
+
 
 }

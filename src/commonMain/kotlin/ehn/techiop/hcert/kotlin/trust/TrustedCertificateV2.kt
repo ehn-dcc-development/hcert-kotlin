@@ -21,7 +21,7 @@ data class TrustedCertificateV2(
     //**WARNING*** do not use lazy delegates! it *will* break!!!
 
     @Transient
-    val decodedCertificate = decodeCertificate()
+    private val decodedCertificate = CertificateAdapter(this.certificate)
 
     @Transient
     override val validContentTypes = decodedCertificate.validContentTypes
@@ -54,5 +54,3 @@ data class TrustedCertificateV2(
     }
 }
 
-
-expect fun TrustedCertificateV2.decodeCertificate(): CertificateAdapter
