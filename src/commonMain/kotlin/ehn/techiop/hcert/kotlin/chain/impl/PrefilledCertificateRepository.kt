@@ -5,7 +5,7 @@ import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 
 expect class PrefilledCertificateRepository : CertificateRepository {
 
-    constructor(base64Encoded: String)
+    constructor(pemEncoded: String)
 
     constructor(vararg certificates: CertificateAdapter)
 

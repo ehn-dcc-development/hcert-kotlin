@@ -3,24 +3,19 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.crypto.kid
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
-import java.security.cert.CertificateFactory
-import java.security.cert.X509Certificate
 
 actual class PrefilledCertificateRepository : CertificateRepository {
 
-    private val list = mutableListOf<X509Certificate>()
+    private val list = mutableListOf<CertificateAdapter>()
 
     actual constructor(vararg certificates: CertificateAdapter) {
-        certificates.forEach { list += it.certificate }
+        certificates.forEach { list += it }
     }
 
-    actual constructor(base64Encoded: String) {
-        val factory = CertificateFactory.getInstance("X.509")
-        list += factory.generateCertificate(base64Encoded.fromBase64().inputStream()) as X509Certificate
+    actual constructor(pemEncoded: String) {
+        list += CertificateAdapter(pemEncoded)
     }
 
     override fun loadTrustedCertificates(
@@ -31,7 +26,7 @@ actual class PrefilledCertificateRepository : CertificateRepository {
         if (certList.isEmpty()) throw IllegalArgumentException("kid").also {
             verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
         }
-        return certList.map { CertificateAdapter(it).toTrustedCertificate() }
+        return certList.map { it.toTrustedCertificate() }
     }
 
 }

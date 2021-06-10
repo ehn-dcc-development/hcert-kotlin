@@ -18,8 +18,8 @@ actual class PrefilledCertificateRepository : CertificateRepository {
         pemEncodedCertificates.forEach { list += CertificateAdapter(it) }
     }
 
-    actual constructor(base64Encoded: String) {
-        list += CertificateAdapter(base64Encoded)
+    actual constructor(pemEncoded: String) {
+        list += CertificateAdapter(pemEncoded)
     }
 
     override fun loadTrustedCertificates(

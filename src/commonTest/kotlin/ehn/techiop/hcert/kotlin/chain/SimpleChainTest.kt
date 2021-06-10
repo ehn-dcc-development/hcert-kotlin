@@ -30,6 +30,11 @@ class SimpleChainTest : DescribeSpec({
         SimpleChainTestInput(SampleData.testNaa, KeyType.RSA, 2048, true),
         SimpleChainTestInput(SampleData.vaccination, KeyType.RSA, 2048, true),
         SimpleChainTestInput(SampleData.recovery, KeyType.RSA, 2048, true),
+
+        SimpleChainTestInput(SampleData.testRat, KeyType.RSA, 3072, true),
+        SimpleChainTestInput(SampleData.testNaa, KeyType.RSA, 3072, true),
+        SimpleChainTestInput(SampleData.vaccination, KeyType.RSA, 3072, true),
+        SimpleChainTestInput(SampleData.recovery, KeyType.RSA, 3072, true),
     )
 
     withData(listOfInput) { input ->

@@ -97,8 +97,8 @@ class FileBasedCryptoServiceTest : DescribeSpec({
         assertEncodeDecode(service)
     }
 
-    it("newRsaKey") {
-        val service = RandomRsaKeyCryptoService()
+    withData(2048, 3072) { keySize ->
+        val service = RandomRsaKeyCryptoService(keySize)
 
         assertEncodeDecode(service)
     }
@@ -114,12 +114,8 @@ private fun assertEncodeDecode(service: CryptoService) {
     encoded shouldNotBe null
 
     val verificationResult = VerificationResult()
-    val repo = PrefilledCertificateRepository(stripPemHeader(service.exportCertificateAsPem()))
+    val repo = PrefilledCertificateRepository(service.exportCertificateAsPem())
     val decoded = VerificationCoseService(repo).decode(encoded, verificationResult)
     decoded shouldBe plaintext
 }
 
-private fun stripPemHeader(pemEncoded: String) =
-    pemEncoded.replace("\n", "")
-        .replace("-----BEGIN CERTIFICATE-----", "")
-        .replace("-----END CERTIFICATE-----", "")

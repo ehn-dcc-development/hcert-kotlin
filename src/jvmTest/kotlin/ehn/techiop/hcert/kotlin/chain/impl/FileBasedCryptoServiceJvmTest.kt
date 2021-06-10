@@ -14,6 +14,8 @@ class FileBasedCryptoServiceJvmTest : StringSpec({
 
         input.getCborSigningKey().oneKey.EncodeToBytes() shouldBe (parsed.getCborSigningKey().oneKey.EncodeToBytes())
         input.getCertificate().kid shouldBe (parsed.getCertificate().kid)
+
+        parsed.getCertificate().certificate.verify(parsed.getCertificate().certificate.publicKey)
     }
 
     withData(2048, 3072) { keySize ->
@@ -24,5 +26,7 @@ class FileBasedCryptoServiceJvmTest : StringSpec({
 
         input.getCborSigningKey().oneKey.EncodeToBytes() shouldBe (parsed.getCborSigningKey().oneKey.EncodeToBytes())
         input.getCertificate().kid shouldBe (parsed.getCertificate().kid)
+
+        parsed.getCertificate().certificate.verify(parsed.getCertificate().certificate.publicKey)
     }
 })
