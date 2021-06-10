@@ -76,7 +76,6 @@ actual class PkiUtils {
         val extKeyUsage = ExtKeyUsage().also {
             it.keyPurposes = contentType.map { it.oid }.toTypedArray()
         }
-
         certificate.extensions = arrayOf(
             Extension(object {
                 val extnID = "2.5.29.37"
@@ -86,20 +85,7 @@ actual class PkiUtils {
             })
         )
 
-        val jwk = object : JsonWebKey {
-            override var alg: String? = if (privateKey is EcPrivKey) "EC" else "RS256"
-            override var crv: String? =
-                if (privateKey is EcPrivKey) (if (keySize == 384) "P-384" else "P-256") else null
-            override var kty: String? = if (privateKey is EcPrivKey) "EC" else "RSA"
-            override var x: String? =
-                if (privateKey is EcPrivKey) (publicKey as JsEcPubKey).xCoord.toBase64UrlString() else null
-            override var y: String? =
-                if (privateKey is EcPrivKey) (publicKey as JsEcPubKey).yCoord.toBase64UrlString() else null
-            override var n: String? =
-                if (privateKey is EcPrivKey) null else stripLeadingZero((publicKey as JsRsaPubKey).toCoseRepresentation().n).toBase64UrlString()
-            override var e: String? =
-                if (privateKey is EcPrivKey) null else Buffer(Int32Array(arrayOf((publicKey as JsRsaPubKey).toCoseRepresentation().e.toInt())).buffer).toBase64UrlString()
-        }
+        val jwk = buildJsonWebKey(privateKey, publicKey, keySize)
         (certificate.subjectPublicKeyInfo as PublicKeyInfo).fromJSON(jwk)
         val algorithmIdentifier = AlgorithmIdentifier()
         algorithmIdentifier.algorithmId =
@@ -122,6 +108,28 @@ actual class PkiUtils {
         certificate.tbs = certificate.encodeTBS().toBER()
         val encoded = Buffer((certificate.toSchema(true) as Sequence).toBER()).toByteArray()
         return CertificateAdapter(encoded.asBase64())
+    }
+
+    private fun buildJsonWebKey(privateKey: PrivKey<*>, publicKey: PubKey<*>, keySize: Int) = when {
+        privateKey is JsEcPrivKey && publicKey is JsEcPubKey -> {
+            object : JsonWebKey {
+                override var alg: String? = "EC"
+                override var crv: String? = if (keySize == 384) "P-384" else "P-256"
+                override var kty: String? = "EC"
+                override var x: String? = publicKey.xCoord.toBase64UrlString()
+                override var y: String? = publicKey.yCoord.toBase64UrlString()
+            }
+        }
+        privateKey is JsRsaPrivKey && publicKey is JsRsaPubKey -> {
+            object : JsonWebKey {
+                override var alg: String? = "RS256"
+                override var kty: String? = "RSA"
+                override var n: String? = stripLeadingZero(publicKey.toCoseRepresentation().n).toBase64UrlString()
+                override var e: String? =
+                    Buffer(Int32Array(arrayOf(publicKey.toCoseRepresentation().e.toInt())).buffer).toBase64UrlString()
+            }
+        }
+        else -> throw IllegalArgumentException("KeyType")
     }
 
     // We'll need to strip the leading zero from the Buffer
