@@ -5,28 +5,7 @@ import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.Hash
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
 import kotlinx.datetime.Instant
-import java.security.PrivateKey
-import java.security.PublicKey
 import java.security.cert.X509Certificate
-
-val X509Certificate.kid: ByteArray
-    get() = Hash(encoded).calc().copyOf(8)
-
-class CosePubKey(val oneKey: OneKey) : PubKey<OneKey> {
-    override fun toCoseRepresentation() = oneKey
-}
-
-class JvmPubKey(val publicKey: PublicKey) : PubKey<PublicKey> {
-    override fun toCoseRepresentation() = publicKey
-}
-
-class CosePrivKey(val oneKey: OneKey) : PrivKey<OneKey> {
-    override fun toCoseRepresentation() = oneKey
-}
-
-class JvmPrivKey(val privateKey: PrivateKey) : PrivKey<PrivateKey> {
-    override fun toCoseRepresentation() = privateKey
-}
 
 class JvmCertificate(val certificate: X509Certificate) : CertificateAdapter<X509Certificate> {
 
@@ -54,3 +33,8 @@ class JvmCertificate(val certificate: X509Certificate) : CertificateAdapter<X509
     override val encoded = certificate.encoded
 
 }
+
+
+val X509Certificate.kid: ByteArray
+    get() = Hash(encoded).calc().copyOf(8)
+
