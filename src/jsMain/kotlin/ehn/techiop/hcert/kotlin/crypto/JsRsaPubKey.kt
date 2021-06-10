@@ -2,14 +2,22 @@ package ehn.techiop.hcert.kotlin.crypto
 
 import Buffer
 import cose.RsaCosePublicKey
+import ehn.techiop.hcert.kotlin.chain.from
 import ehn.techiop.hcert.kotlin.chain.toBase64UrlString
+import ehn.techiop.hcert.kotlin.chain.toByteArray
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int32Array
 import org.khronos.webgl.Uint8Array
 import tsstdlib.JsonWebKey
+import kotlin.js.Json
 
 class JsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
     PubKey<dynamic> {
+
+    constructor(publicKey: Json) : this(
+        ArrayBuffer.from((publicKey["n"] as Buffer).toByteArray()),
+        publicKey["e"] as Number
+    )
 
     override fun toCoseRepresentation(): RsaCosePublicKey = object : RsaCosePublicKey {
         override val n = Buffer.from(Uint8Array(modulus))

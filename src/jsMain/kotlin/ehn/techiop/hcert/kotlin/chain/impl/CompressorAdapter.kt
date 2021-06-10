@@ -12,7 +12,7 @@ actual class CompressorAdapter {
         object : Pako.DeflateFunctionOptions {
             override var level: dynamic
                 get() = level
-                set(value) {}
+                set(@Suppress("UNUSED_PARAMETER") value) {}
         }) as Uint8Array).toByteArray()
 
     actual fun decode(input: ByteArray) =

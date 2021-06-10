@@ -3,7 +3,6 @@ package ehn.techiop.hcert.kotlin.trust
 import Buffer
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.catch
 import ehn.techiop.hcert.kotlin.chain.jsTry
@@ -16,6 +15,8 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
     val cborJson = Cbor.Decoder.decodeAllSync(Buffer(input.toUint8Array()))
     val cose = cborJson[0] as Cbor.Tagged
+
+    @Suppress("UNCHECKED_CAST")
     val coseValue = cose.value as Array<Buffer>
     val protectedHeader = coseValue[0]
     val protectedHeaderCbor = Cbor.Decoder.decodeAllSync(protectedHeader)[0].asDynamic()

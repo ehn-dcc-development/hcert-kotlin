@@ -8,6 +8,7 @@ import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.JvmPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
+import ehn.techiop.hcert.kotlin.crypto.PubKey
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.PEMParser
@@ -62,10 +63,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
 
     override fun getCborSigningKey() = JvmPrivKey(privateKey)
 
-    override fun getCborVerificationKey(
-        kid: ByteArray,
-        verificationResult: VerificationResult
-    ): ehn.techiop.hcert.kotlin.crypto.PubKey<*> {
+    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey<*> {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
             verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
         }

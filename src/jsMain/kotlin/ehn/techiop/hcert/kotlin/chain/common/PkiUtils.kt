@@ -37,7 +37,8 @@ import kotlin.time.Duration
 
 
 actual class PkiUtils {
-    @Suppress("UNUSED_VARIABLE", "unused")
+
+    @Suppress("unused", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     actual fun selfSignCertificate(
         commonName: String,
         privateKey: PrivKey<*>,
@@ -100,7 +101,8 @@ actual class PkiUtils {
         certificate.signatureValue = BitString(
             object : LocalBitStringValueBlockParams {
                 override var valueHex: ArrayBuffer? = signatureValue
-            })
+            }
+        )
         certificate.tbs = certificate.encodeTBS().toBER()
         val encoded = Buffer((certificate.toSchema(true) as Sequence).toBER()).toByteArray()
         return CertificateAdapter(encoded.asBase64())

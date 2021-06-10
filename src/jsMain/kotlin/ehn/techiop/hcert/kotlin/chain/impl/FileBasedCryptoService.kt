@@ -8,9 +8,7 @@ import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.fromBase64
-import ehn.techiop.hcert.kotlin.chain.toBuffer
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
@@ -24,7 +22,6 @@ import pkijs.src.AlgorithmIdentifier.AlgorithmIdentifier
 import pkijs.src.ECPrivateKey.ECPrivateKey
 import pkijs.src.PrivateKeyInfo.PrivateKeyInfo
 import pkijs.src.RSAPrivateKey.RSAPrivateKey
-import kotlin.js.json
 
 actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String, pemEncodedCertificate: String) :
     CryptoService {
@@ -54,22 +51,11 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
             privateKey = JsEcPrivKey(EC("p256").keyFromPrivate(content), 256)
             algorithmID = CwtAlgorithm.ECDSA_256
         } else if (oid == "1.2.840.113549.1.1.1") {
-
             val buffer = Buffer(privateKeyInfo.privateKey.valueBlock.valueHex)
             val rsaPrivateKey = fromBER(buffer.buffer).result.let {
                 RSAPrivateKey(js("({'schema':it})"))
             }
-            val interalRepresentation = json(
-                "n" to rsaPrivateKey.modulus.valueBlock.valueHex.toByteArray().toBuffer(),
-                "e" to rsaPrivateKey.publicExponent.valueBlock.valueHex.toByteArray().toHexString().toInt(16) as Number,
-                "d" to rsaPrivateKey.privateExponent.valueBlock.valueHex.toByteArray().toBuffer(),
-                "p" to rsaPrivateKey.prime1.valueBlock.valueHex.toByteArray().toBuffer(),
-                "q" to rsaPrivateKey.prime2.valueBlock.valueHex.toByteArray().toBuffer(),
-                "dmp1" to rsaPrivateKey.exponent1.valueBlock.valueHex.toByteArray().toBuffer(),
-                "dmq1" to rsaPrivateKey.exponent2.valueBlock.valueHex.toByteArray().toBuffer(),
-                "coeff" to rsaPrivateKey.coefficient.valueBlock.valueHex.toByteArray().toBuffer(),
-            )
-            privateKey = JsRsaPrivKey(interalRepresentation)
+            privateKey = JsRsaPrivKey(rsaPrivateKey)
             algorithmID = CwtAlgorithm.RSA_PSS_256
         } else throw IllegalArgumentException("KeyType")
         certificate = CertificateAdapter(cleanPem(pemEncodedCertificate))

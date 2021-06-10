@@ -3,11 +3,29 @@ package ehn.techiop.hcert.kotlin.crypto
 import Buffer
 import cose.RsaCosePrivateKey
 import ehn.techiop.hcert.kotlin.chain.toBase64UrlString
+import ehn.techiop.hcert.kotlin.chain.toBuffer
+import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import org.khronos.webgl.Int32Array
+import pkijs.src.RSAPrivateKey.RSAPrivateKey
 import tsstdlib.JsonWebKey
 import kotlin.js.Json
+import kotlin.js.json
 
 class JsRsaPrivKey(val raw: Json) : PrivKey<dynamic> {
+
+    constructor(privateKey: RSAPrivateKey) : this(
+        json(
+            "n" to privateKey.modulus.valueBlock.valueHex.toByteArray().toBuffer(),
+            "e" to privateKey.publicExponent.valueBlock.valueHex.toByteArray().toHexString().toInt(16) as Number,
+            "d" to privateKey.privateExponent.valueBlock.valueHex.toByteArray().toBuffer(),
+            "p" to privateKey.prime1.valueBlock.valueHex.toByteArray().toBuffer(),
+            "q" to privateKey.prime2.valueBlock.valueHex.toByteArray().toBuffer(),
+            "dmp1" to privateKey.exponent1.valueBlock.valueHex.toByteArray().toBuffer(),
+            "dmq1" to privateKey.exponent2.valueBlock.valueHex.toByteArray().toBuffer(),
+            "coeff" to privateKey.coefficient.valueBlock.valueHex.toByteArray().toBuffer(),
+        )
+    )
 
     override fun toCoseRepresentation(): RsaCosePrivateKey = object : RsaCosePrivateKey {
         override val p: Buffer = raw["p"] as Buffer
