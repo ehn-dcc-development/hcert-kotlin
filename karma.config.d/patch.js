@@ -1,0 +1,1 @@
+browserNoActivityTimeout: 100000

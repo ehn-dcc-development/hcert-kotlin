@@ -2,11 +2,11 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.toHexString
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.random.Random
+import kotlin.time.Duration
 
 class FileBasedCryptoServiceTest : StringSpec({
 
@@ -29,15 +29,7 @@ class FileBasedCryptoServiceTest : StringSpec({
         service.exportCertificateAsPem() shouldBe pemEncodedCertificate
         service.exportPrivateKeyAsPem() shouldBe pemEncodedPrivateKey
 
-        verify(service)
-    }
-
-    "newEcKey" {
-        val service = RandomEcKeyCryptoService()
-        service.exportPrivateKeyAsPem() shouldNotBe null
-        service.exportCertificateAsPem() shouldNotBe null
-
-        verify(service)
+        assertEncodeDecode(service)
     }
 
     "goodRsaKey" {
@@ -91,13 +83,27 @@ class FileBasedCryptoServiceTest : StringSpec({
         service.exportCertificateAsPem() shouldBe pemEncodedCertificate
         service.exportPrivateKeyAsPem() shouldBe pemEncodedPrivateKey
 
-        // TODO Sign something
-        //  DefaultCoseService(service).encode("foo".encodeToByteArray())
+        assertEncodeDecode(service)
+    }
+
+    "newEcKey" {
+        val service = RandomEcKeyCryptoService()
+
+        assertEncodeDecode(service)
+    }
+
+    "newRsaKey".config(timeout = Duration.Companion.seconds(5)) {
+        val service = RandomRsaKeyCryptoService()
+
+        assertEncodeDecode(service)
     }
 
 })
 
-private fun verify(service: CryptoService) {
+private fun assertEncodeDecode(service: CryptoService) {
+    service.exportPrivateKeyAsPem() shouldNotBe null
+    service.exportCertificateAsPem() shouldNotBe null
+
     val plaintext = Random.nextBytes(32)
     val encoded = DefaultCoseService(service).encode(plaintext)
     encoded shouldNotBe null

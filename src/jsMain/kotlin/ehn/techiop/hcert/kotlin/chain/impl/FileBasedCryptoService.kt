@@ -3,26 +3,15 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import Asn1js.Sequence
 import Asn1js.fromBER
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.asBase64
-import ehn.techiop.hcert.kotlin.chain.fromBase64
-import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.chain.toUint8Array
-import ehn.techiop.hcert.kotlin.crypto.Certificate
-import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
-import ehn.techiop.hcert.kotlin.crypto.JsCertificate
-import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
-import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
-import ehn.techiop.hcert.kotlin.crypto.PrivKey
-import ehn.techiop.hcert.kotlin.crypto.PubKey
+import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.crypto.*
 import elliptic.EC
 import org.khronos.webgl.Uint8Array
 import pkijs.src.AlgorithmIdentifier.AlgorithmIdentifier
 import pkijs.src.ECPrivateKey.ECPrivateKey
 import pkijs.src.PrivateKeyInfo.PrivateKeyInfo
 import pkijs.src.RSAPrivateKey.RSAPrivateKey
+import kotlin.js.json
 
 actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String, pemEncodedCertificate: String) :
     CryptoService {
@@ -51,12 +40,22 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
             privateKey = JsEcPrivKey(EC("p256").keyFromPrivate(content))
             algorithmID = CwtAlgorithm.ECDSA_256
         } else if (oid == "1.2.840.113549.1.1.1") {
-            // TODO untested
+
             val buffer = Buffer(privateKeyInfo.privateKey.valueBlock.valueHex)
             val rsaPrivateKey = fromBER(buffer.buffer).result.let {
                 RSAPrivateKey(js("({'schema':it})"))
             }
-            privateKey = JsRsaPrivKey(buffer.buffer)
+            val interalRepresentation = json(
+                "n" to rsaPrivateKey.modulus.valueBlock.valueHex.toByteArray().toBuffer(),
+                "e" to rsaPrivateKey.publicExponent.valueBlock.valueHex.toByteArray().toHexString().toInt(16) as Number,
+                "d" to rsaPrivateKey.privateExponent.valueBlock.valueHex.toByteArray().toBuffer(),
+                "p" to rsaPrivateKey.prime1.valueBlock.valueHex.toByteArray().toBuffer(),
+                "q" to rsaPrivateKey.prime2.valueBlock.valueHex.toByteArray().toBuffer(),
+                "dmp1" to rsaPrivateKey.exponent1.valueBlock.valueHex.toByteArray().toBuffer(),
+                "dmq1" to rsaPrivateKey.exponent2.valueBlock.valueHex.toByteArray().toBuffer(),
+                "coeff" to rsaPrivateKey.coefficient.valueBlock.valueHex.toByteArray().toBuffer(),
+            )
+            privateKey = JsRsaPrivKey(interalRepresentation)
             algorithmID = CwtAlgorithm.RSA_PSS_256
         } else throw IllegalArgumentException("KeyType")
         certificate = JsCertificate(cleanPem(pemEncodedCertificate))

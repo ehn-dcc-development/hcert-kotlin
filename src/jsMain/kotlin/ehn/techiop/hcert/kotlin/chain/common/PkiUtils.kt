@@ -1,26 +1,17 @@
 package ehn.techiop.hcert.kotlin.chain.common
 
-import Asn1js.BitString
-import Asn1js.Integer
-import Asn1js.IntegerParams
-import Asn1js.LocalBitStringValueBlockParams
-import Asn1js.LocalSimpleStringBlockParams
-import Asn1js.PrintableString
-import Asn1js.Sequence
+import Asn1js.*
 import BN
 import Buffer
+import NodeRSA
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.crypto.Certificate
-import ehn.techiop.hcert.kotlin.crypto.JsCertificate
-import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
-import ehn.techiop.hcert.kotlin.crypto.JsEcPubKey
-import ehn.techiop.hcert.kotlin.crypto.PrivKey
-import ehn.techiop.hcert.kotlin.crypto.PubKey
+import ehn.techiop.hcert.kotlin.crypto.*
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import hash
 import kotlinx.datetime.Clock
 import org.khronos.webgl.ArrayBuffer
+import org.khronos.webgl.Int32Array
 import org.khronos.webgl.Uint8Array
 import pkijs.src.AlgorithmIdentifier.AlgorithmIdentifier
 import pkijs.src.AttributeTypeAndValue.AttributeTypeAndValue
@@ -31,6 +22,7 @@ import pkijs.src.RelativeDistinguishedNames.RelativeDistinguishedNames
 import pkijs.src.Time.Time
 import tsstdlib.JsonWebKey
 import kotlin.js.Date
+import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.time.Duration
 
@@ -45,7 +37,7 @@ actual fun selfSignCertificate(
 ): Certificate<*> {
     val certificate = pkijs.src.Certificate.Certificate()
     certificate.version = 2
-    val serialNumber = Random.nextInt()
+    val serialNumber = Random.nextInt().absoluteValue
     certificate.serialNumber = Integer(object : IntegerParams {
         override var value: Number? = serialNumber
     })
@@ -79,21 +71,37 @@ actual fun selfSignCertificate(
     )
 
     val jwk = object : JsonWebKey {
-        override var alg: String? = "EC"
-        override var crv: String? = "P-256"
-        override var kty: String? = "EC"
-        override var x: String? = urlSafe((publicKey as JsEcPubKey).xCoord.toString("base64"))
-        override var y: String? = urlSafe((publicKey as JsEcPubKey).yCoord.toString("base64"))
+        override var alg: String? = if (privateKey is EcPrivKey) "EC" else "RS256"
+        override var crv: String? = if (privateKey is EcPrivKey) "P-256" else null
+        override var kty: String? = if (privateKey is EcPrivKey) "EC" else "RSA"
+        override var x: String? =
+            if (privateKey is EcPrivKey) urlSafe((publicKey as JsEcPubKey).xCoord.toString("base64")) else null
+        override var y: String? =
+            if (privateKey is EcPrivKey) urlSafe((publicKey as JsEcPubKey).yCoord.toString("base64")) else null
+        override var n: String? =
+            if (privateKey is EcPrivKey) null else urlSafe(
+                stripLeadingZero((publicKey as JsRsaPubKey).toCoseRepresentation().n).toString("base64")
+            )
+        override var e: String? =
+            if (privateKey is EcPrivKey) null else urlSafe(
+                Buffer(Int32Array(arrayOf((publicKey as JsRsaPubKey).toCoseRepresentation().e.toInt())).buffer)
+                    .toString("base64")
+            )
     }
     (certificate.subjectPublicKeyInfo as PublicKeyInfo).fromJSON(jwk)
     val algorithmIdentifier = AlgorithmIdentifier()
-    algorithmIdentifier.algorithmId = "1.2.840.10045.4.3.2"
+    algorithmIdentifier.algorithmId = if (privateKey is EcPrivKey) "1.2.840.10045.4.3.2" else "1.2.840.113549.1.1.11"
     certificate.signature = algorithmIdentifier
     certificate.signatureAlgorithm = algorithmIdentifier
-    val sha256 = hash(Uint8Array(certificate.encodeTBS().toBER()))
-    val priv = (privateKey as JsEcPrivKey).dValue
-    val signatureValue = Uint8Array(privateKey.ec.sign(sha256, BN(priv)).toDER()).buffer
-
+    val data = Uint8Array(certificate.encodeTBS().toBER())
+    val signatureValue = if (privateKey is EcPrivKey) {
+        val sha256 = hash(data)
+        val priv = (privateKey as JsEcPrivKey).dValue
+        Uint8Array(privateKey.ec.sign(sha256, BN(priv)).toDER()).buffer
+    } else {
+        privateKey as JsRsaPrivKey
+        Uint8Array(NodeRSA().importKey(privateKey.raw as NodeRSA.KeyComponentsPrivate).sign(Buffer(data))).buffer
+    }
     certificate.signatureValue = BitString(
         object : LocalBitStringValueBlockParams {
             override var valueHex: ArrayBuffer? = signatureValue
@@ -103,6 +111,11 @@ actual fun selfSignCertificate(
     return JsCertificate(encoded.asBase64())
 }
 
+// We'll need to strip the leading zero from the Buffer
+// because ASN.1 will add it's own leading zero, if needed
+private fun stripLeadingZero(n: Buffer): Buffer {
+    return if (n.readUInt8(0) == 0) n.slice(1) else n
+}
 
-private fun urlSafe(input: String): String =
+internal fun urlSafe(input: String): String =
     input.replace("+", "-").replace("/", "_").replace("=", "")

@@ -2,14 +2,7 @@ package ehn.techiop.hcert.kotlin.crypto
 
 import Asn1js.fromBER
 import Buffer
-import cose.CosePrivateKey
-import cose.CosePublicKey
-import cose.EcCosePrivateKey
-import cose.EcCosePublicKey
-import cose.RsaCosePublicKey
-import cose.Signer
-import cose.Verifier
-import cose.sign
+import cose.*
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
@@ -90,10 +83,18 @@ class JsEcPrivKey(val dValue: Buffer, val ec: EC) : EcPrivKey<EcCosePrivateKey> 
 }
 
 
-// TODO No RSA Key for cose-js?
-class JsRsaPrivKey(val p: ArrayBuffer) : RsaPrivKey<dynamic> {
-    override fun toCoseRepresentation(): EcCosePrivateKey = object : EcCosePrivateKey {
-        override val d = Buffer(p)
+class JsRsaPrivKey(val raw: Json) : RsaPrivKey<dynamic> {
+
+    override fun toCoseRepresentation(): RsaCosePrivateKey = object : RsaCosePrivateKey {
+        override val p: Buffer = raw["p"] as Buffer
+        override val q: Buffer = raw["q"] as Buffer
+        override val dp: Buffer = raw["dmp1"] as Buffer
+        override val dq: Buffer = raw["dmq1"] as Buffer
+        override val qi: Buffer = raw["coeff"] as Buffer
+        override val d: Buffer = raw["d"] as Buffer
+        override val n: Buffer = raw["n"] as Buffer
+        override val e: Number = raw["e"] as Number
+
     }
 }
 
