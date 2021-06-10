@@ -7,10 +7,10 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
-import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
-import ehn.techiop.hcert.kotlin.chain.common.urlSafe
+import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.from
 import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.urlSafe
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
@@ -48,8 +48,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
         publicKey = JsRsaPubKey(ArrayBuffer.from(modulus.toByteArray()), exp)
         privateKey = JsRsaPrivKey(keyPair.exportKey("components-private") as Json)
         algorithmID = CwtAlgorithm.RSA_PSS_256
-        certificate =
-            selfSignCertificate("RSA-Me", privateKey, publicKey, keySize, contentType, clock)
+        certificate = PkiUtils().selfSignCertificate("RSA-Me", privateKey, publicKey, keySize, contentType, clock)
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
 

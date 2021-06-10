@@ -4,7 +4,7 @@ import COSE.OneKey
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
+import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
@@ -36,7 +36,7 @@ actual class RandomEcKeyCryptoService actual constructor(
     }
     private val keyPair = KeyPairGenerator.getInstance("EC")
         .apply { initialize(keySize) }.genKeyPair()
-    private val certificate = selfSignCertificate(
+    private val certificate = PkiUtils().selfSignCertificate(
         "EC-Me",
         JvmPrivKey(keyPair.private),
         JvmPubKey(keyPair.public),

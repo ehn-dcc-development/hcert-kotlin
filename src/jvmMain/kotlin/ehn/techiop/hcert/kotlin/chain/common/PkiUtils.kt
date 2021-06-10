@@ -26,48 +26,49 @@ import java.util.Date
 import java.util.Random
 import kotlin.time.Duration
 
-actual fun selfSignCertificate(
-    commonName: String,
-    privateKey: PrivKey<*>,
-    publicKey: PubKey<*>,
-    keySize: Int,
-    contentType: List<ContentType>,
-    clock: Clock
-): CertificateAdapter {
-    val publicKeyEncoded = (publicKey as JvmPubKey).toCoseRepresentation().encoded
-    val subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(ASN1Sequence.getInstance(publicKeyEncoded))
-    val keyUsage = KeyUsage(KeyUsage.digitalSignature or KeyUsage.keyEncipherment)
-    val keyUsageExt = Extension.create(Extension.keyUsage, true, keyUsage)
-    val extendedKeyUsage = ExtendedKeyUsage(certTypeToKeyUsages(contentType))
-    val testUsage = Extension.create(Extension.extendedKeyUsage, false, extendedKeyUsage)
-    val notBefore = clock.now()
-    val notAfter = notBefore.plus(Duration.days(30))
-    val serialNumber = BigInteger(32, Random()).abs()
-    val builder = X509v3CertificateBuilder(
-        X500Name("CN=$commonName"),
-        serialNumber,
-        Date(notBefore.toEpochMilliseconds()),
-        Date(notAfter.toEpochMilliseconds()),
-        X500Name("CN=$commonName"),
-        subjectPublicKeyInfo
-    )
-    listOf(keyUsageExt, testUsage).forEach<Extension> { builder.addExtension(it) }
-    val jvmPrivateKey = privateKey.toCoseRepresentation() as PrivateKey
-    val contentSigner = JcaContentSignerBuilder(getAlgorithm(jvmPrivateKey)).build(jvmPrivateKey)
-    val certificateHolder = builder.build(contentSigner)
-    return CertificateAdapter(
-        CertificateFactory.getInstance("X.509")
-            .generateCertificate(ByteArrayInputStream(certificateHolder.encoded)) as X509Certificate
-    )
+actual class PkiUtils {
+    actual fun selfSignCertificate(
+        commonName: String,
+        privateKey: PrivKey<*>,
+        publicKey: PubKey<*>,
+        keySize: Int,
+        contentType: List<ContentType>,
+        clock: Clock
+    ): CertificateAdapter {
+        val publicKeyEncoded = (publicKey as JvmPubKey).toCoseRepresentation().encoded
+        val subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(ASN1Sequence.getInstance(publicKeyEncoded))
+        val keyUsage = KeyUsage(KeyUsage.digitalSignature or KeyUsage.keyEncipherment)
+        val keyUsageExt = Extension.create(Extension.keyUsage, true, keyUsage)
+        val extendedKeyUsage = ExtendedKeyUsage(certTypeToKeyUsages(contentType))
+        val testUsage = Extension.create(Extension.extendedKeyUsage, false, extendedKeyUsage)
+        val notBefore = clock.now()
+        val notAfter = notBefore.plus(Duration.days(30))
+        val serialNumber = BigInteger(32, Random()).abs()
+        val builder = X509v3CertificateBuilder(
+            X500Name("CN=$commonName"),
+            serialNumber,
+            Date(notBefore.toEpochMilliseconds()),
+            Date(notAfter.toEpochMilliseconds()),
+            X500Name("CN=$commonName"),
+            subjectPublicKeyInfo
+        )
+        listOf(keyUsageExt, testUsage).forEach<Extension> { builder.addExtension(it) }
+        val jvmPrivateKey = privateKey.toCoseRepresentation() as PrivateKey
+        val contentSigner = JcaContentSignerBuilder(getAlgorithm(jvmPrivateKey)).build(jvmPrivateKey)
+        val certificateHolder = builder.build(contentSigner)
+        return CertificateAdapter(
+            CertificateFactory.getInstance("X.509")
+                .generateCertificate(ByteArrayInputStream(certificateHolder.encoded)) as X509Certificate
+        )
+    }
+
+    private fun certTypeToKeyUsages(contentType: List<ContentType>) = contentType.map {
+        KeyPurposeId.getInstance(ASN1ObjectIdentifier(it.oid))
+    }.toTypedArray()
+
+    private fun getAlgorithm(private: PrivateKey) = when (private) {
+        is ECPrivateKey -> "SHA256withECDSA"
+        else -> "SHA256withRSA"
+    }
+
 }
-
-private fun certTypeToKeyUsages(contentType: List<ContentType>) = contentType.map {
-    KeyPurposeId.getInstance(ASN1ObjectIdentifier(it.oid))
-}.toTypedArray()
-
-private fun getAlgorithm(private: PrivateKey) = when (private) {
-    is ECPrivateKey -> "SHA256withECDSA"
-    else -> "SHA256withRSA"
-}
-
-

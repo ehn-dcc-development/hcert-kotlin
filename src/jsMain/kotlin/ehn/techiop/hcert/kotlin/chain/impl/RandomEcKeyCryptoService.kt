@@ -6,7 +6,7 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
-import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
+import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
@@ -45,8 +45,7 @@ actual class RandomEcKeyCryptoService actual constructor(
         val keyPair = EC(ellipticName).genKeyPair()
         privateKey = JsEcPrivKey(keyPair)
         publicKey = JsEcPubKey(keyPair)
-        certificate =
-            selfSignCertificate("EC-Me", privateKey, publicKey, keySize, contentType, clock)
+        certificate = PkiUtils().selfSignCertificate("EC-Me", privateKey, publicKey, keySize, contentType, clock)
         keyId = certificate.kid
         privateKeyInfo = PrivateKeyInfo()
         @Suppress("UNUSED_VARIABLE") val d = keyPair.getPrivate().toArrayLike(Buffer).toString("base64")

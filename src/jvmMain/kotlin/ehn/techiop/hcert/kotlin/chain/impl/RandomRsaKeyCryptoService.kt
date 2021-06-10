@@ -4,7 +4,7 @@ import COSE.OneKey
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
+import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
@@ -37,15 +37,14 @@ actual class RandomRsaKeyCryptoService actual constructor(
 
     private val keyPair = KeyPairGenerator.getInstance("RSA")
         .apply { initialize(keySize) }.genKeyPair()
-    private val certificate =
-        selfSignCertificate(
-            "RSA-Me",
-            JvmPrivKey(keyPair.private),
-            JvmPubKey(keyPair.public),
-            keySize,
-            contentType,
-            clock
-        )
+    private val certificate = PkiUtils().selfSignCertificate(
+        "RSA-Me",
+        JvmPrivKey(keyPair.private),
+        JvmPubKey(keyPair.public),
+        keySize,
+        contentType,
+        clock
+    )
     private val keyId = certificate.certificate.kid
 
     override fun getCborHeaders() = listOf(

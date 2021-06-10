@@ -17,6 +17,9 @@ fun ArrayBuffer.Companion.from(array: ByteArray) = Buffer.from(array).buffer
 
 actual fun String.fromHexString() = Buffer.from(this, "hex").toByteArray()
 
+internal fun urlSafe(input: String): String =
+    input.replace("+", "-").replace("/", "_").replace("=", "")
+
 fun ByteArray.toUint8Array(): Uint8Array {
     return Uint8Array(toTypedArray())
 }
