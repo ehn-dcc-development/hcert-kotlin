@@ -103,7 +103,7 @@ class JsRsaPrivKey(val raw: Json) : RsaPrivKey<dynamic> {
  * secondary constructors not without any custom annotations;
  * so we make the pem-parsing constructor the default one
  */
-class JsCertificate(val pemEncodedCertificate: String) : Certificate<dynamic> {
+class JsCertificate(val pemEncodedCertificate: String) : CertificateAdapter<dynamic> {
 
     override val encoded: ByteArray = pemEncodedCertificate
         .replace("-----BEGIN CERTIFICATE-----", "")

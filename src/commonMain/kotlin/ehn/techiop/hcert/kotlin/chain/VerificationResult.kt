@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
 import kotlinx.datetime.Instant
@@ -75,7 +75,7 @@ class VerificationResult {
         certificateValidContent = certificate.validContentTypes
     }
 
-    fun setCertificateData(certificate: Certificate<*>) {
+    fun setCertificateData(certificate: CertificateAdapter<*>) {
         certificateValidFrom = certificate.validFrom
         certificateValidUntil = certificate.validUntil
         certificateValidContent = certificate.validContentTypes

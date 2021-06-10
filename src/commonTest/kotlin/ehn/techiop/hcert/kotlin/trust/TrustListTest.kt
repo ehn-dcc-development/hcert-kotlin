@@ -7,8 +7,7 @@ import ehn.techiop.hcert.kotlin.chain.fromHexString
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
-import ehn.techiop.hcert.kotlin.chain.toHexString
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
@@ -77,7 +76,7 @@ private fun verifyClientOperations(
 }
 
 
-private fun randomCertificates(clock: Clock): Set<Certificate<*>> =
+private fun randomCertificates(clock: Clock): Set<CertificateAdapter<*>> =
     listOf(RandomEcKeyCryptoService(clock = clock), RandomEcKeyCryptoService(clock = clock))
         .map { it.getCertificate() }
         .toSet()

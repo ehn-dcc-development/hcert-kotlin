@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.common
 
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
@@ -34,7 +34,7 @@ actual fun selfSignCertificate(
     keySize: Int,
     contentType: List<ContentType>,
     clock: Clock
-): Certificate<*> {
+): CertificateAdapter<*> {
     val publicKeyEncoded = (publicKey as JvmPubKey).toCoseRepresentation().encoded
     val subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(ASN1Sequence.getInstance(publicKeyEncoded))
     val keyUsage = KeyUsage(KeyUsage.digitalSignature or KeyUsage.keyEncipherment)

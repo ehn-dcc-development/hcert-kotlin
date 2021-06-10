@@ -4,7 +4,7 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.fromBase64
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.crypto.kid
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificate
@@ -15,7 +15,7 @@ actual class PrefilledCertificateRepository : CertificateRepository {
 
     private val list = mutableListOf<X509Certificate>()
 
-    actual constructor(vararg certificates: Certificate<*>) {
+    actual constructor(vararg certificates: CertificateAdapter<*>) {
         certificates.filterIsInstance(JvmCertificate::class.java).forEach { list += it.certificate }
     }
 

@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.trust
 
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -55,4 +55,4 @@ data class TrustedCertificateV2(
 }
 
 
-expect fun TrustedCertificateV2.decodeCertificate(): Certificate<*>
+expect fun TrustedCertificateV2.decodeCertificate(): CertificateAdapter<*>

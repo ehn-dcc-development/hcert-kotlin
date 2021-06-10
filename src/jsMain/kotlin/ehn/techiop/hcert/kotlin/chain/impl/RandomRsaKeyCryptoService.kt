@@ -11,7 +11,7 @@ import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
 import ehn.techiop.hcert.kotlin.chain.common.urlSafe
 import ehn.techiop.hcert.kotlin.chain.from
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.JsCertificate
@@ -88,7 +88,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
         return publicKey
     }
 
-    override fun getCertificate(): Certificate<*> = certificate
+    override fun getCertificate(): CertificateAdapter<*> = certificate
 
     override fun exportPrivateKeyAsPem() = "-----BEGIN PRIVATE KEY-----\n" +
             base64forPem(Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()) +

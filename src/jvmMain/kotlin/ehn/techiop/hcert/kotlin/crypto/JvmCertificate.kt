@@ -5,7 +5,6 @@ import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.Hash
 import ehn.techiop.hcert.kotlin.trust.TrustedCertificateV2
 import kotlinx.datetime.Instant
-import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.cert.X509Certificate
@@ -29,7 +28,7 @@ class JvmPrivKey(val privateKey: PrivateKey) : PrivKey<PrivateKey> {
     override fun toCoseRepresentation() = privateKey
 }
 
-class JvmCertificate(val certificate: X509Certificate) : Certificate<X509Certificate> {
+class JvmCertificate(val certificate: X509Certificate) : CertificateAdapter<X509Certificate> {
 
     override val validContentTypes: List<ContentType>
         get() {

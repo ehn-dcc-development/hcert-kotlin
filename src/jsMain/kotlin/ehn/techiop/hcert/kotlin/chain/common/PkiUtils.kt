@@ -12,7 +12,7 @@ import Buffer
 import NodeRSA
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.EcPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JsCertificate
 import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
@@ -49,7 +49,7 @@ actual fun selfSignCertificate(
     keySize: Int,
     contentType: List<ContentType>,
     clock: Clock
-): Certificate<*> {
+): CertificateAdapter<*> {
     val certificate = pkijs.src.Certificate.Certificate()
     certificate.version = 2
     val serialNumber = Random.nextInt().absoluteValue

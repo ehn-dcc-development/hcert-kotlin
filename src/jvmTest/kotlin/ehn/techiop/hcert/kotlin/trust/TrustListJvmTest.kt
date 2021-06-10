@@ -7,7 +7,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeLessThanOrEqual
@@ -33,7 +33,7 @@ class TrustListJvmTest : StringSpec({
 })
 
 private fun verifyClientOperations(
-    certificate: Certificate<*>,
+    certificate: CertificateAdapter<*>,
     clock: Clock,
     trustListSignature: ByteArray,
     trustListEncoded: ByteArray? = null
@@ -62,7 +62,7 @@ private fun verifyClientOperations(
 }
 
 
-private fun randomCertificates(clock: Clock): Set<Certificate<*>> =
+private fun randomCertificates(clock: Clock): Set<CertificateAdapter<*>> =
     listOf(RandomEcKeyCryptoService(clock = clock), RandomRsaKeyCryptoService(clock = clock))
         .map { it.getCertificate() }
         .toSet()

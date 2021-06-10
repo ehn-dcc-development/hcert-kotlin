@@ -35,7 +35,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.toHexString
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.JvmCertificate
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
@@ -982,7 +982,7 @@ class ExtendedTestGenerator {
 
     private fun createVerificationTestCaseJson(
         clock: Clock,
-        certificate: Certificate<*>,
+        certificate: CertificateAdapter<*>,
         result: ChainResultAdapter,
         description: String,
         filename: String,

@@ -55,7 +55,7 @@ actual class RandomRsaKeyCryptoService actual constructor(
         return CosePubKey(OneKey(keyPair.public, keyPair.private))
     }
 
-    override fun getCertificate(): Certificate<*> = certificate
+    override fun getCertificate(): CertificateAdapter<*> = certificate
 
     override fun exportPrivateKeyAsPem() = StringWriter().apply {
         PemWriter(this).use {

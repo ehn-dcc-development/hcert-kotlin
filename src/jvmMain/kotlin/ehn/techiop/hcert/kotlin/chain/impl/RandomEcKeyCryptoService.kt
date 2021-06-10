@@ -5,7 +5,7 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.selfSignCertificate
-import ehn.techiop.hcert.kotlin.crypto.Certificate
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
 import ehn.techiop.hcert.kotlin.crypto.CosePubKey
@@ -62,7 +62,7 @@ actual class RandomEcKeyCryptoService actual constructor(
         return CosePubKey(OneKey(keyPair.public, keyPair.private))
     }
 
-    override fun getCertificate(): Certificate<*> = certificate
+    override fun getCertificate(): CertificateAdapter<*> = certificate
 
     override fun exportPrivateKeyAsPem() = StringWriter().apply {
         PemWriter(this).use {
