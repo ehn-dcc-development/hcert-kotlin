@@ -38,6 +38,7 @@
             let result = generator.encode(input);
             console.info(result);
             tGenRes.value = result.step5Prefixed;
+            document.getElementById("tGenQr").src = generator.encodeToQrCode(input, 4, 2);
         }
 
         function generateFixed() {
@@ -49,6 +50,7 @@
             let result = generator.encode(input);
             console.info(result);
             tGenRes.value = result.step5Prefixed;
+            document.getElementById("tGenQr").src = generator.encodeToQrCode(input, 4, 2);
         }
 
         function validate() {
@@ -261,6 +263,12 @@ zT4F0Pw48h7dfUeW6A==
 <h2>Result</h2>
 <p>
     <label for="tGenRes">QR Code Contents</label><textarea rows="10" cols="100" id="tGenRes" disabled></textarea>
+</p>
+<p>
+    QR Code Picture:
+</p>
+<p>
+    <img id="tGenQr"/>
 </p>
 
 </body>

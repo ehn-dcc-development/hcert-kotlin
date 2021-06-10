@@ -4,7 +4,9 @@ import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.DecodeJsResult
 import ehn.techiop.hcert.kotlin.chain.DefaultChain
 import ehn.techiop.hcert.kotlin.chain.SampleData
+import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.from
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
 import ehn.techiop.hcert.kotlin.chain.impl.FileBasedCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
@@ -73,6 +75,12 @@ class Generator {
         val encodeResult = chain.encode(Json.decodeFromString(input))
         return JSON.parse(Json { encodeDefaults = true }.encodeToString(encodeResult))
     }
+
+    fun encodeToQrCode(input: String, moduleSize: Int, marginSize: Int): String {
+        val encodeResult = chain.encode(Json.decodeFromString(input))
+        val encode = DefaultTwoDimCodeService(moduleSize, marginSize).encode(encodeResult.step5Prefixed)
+        return "data:image/gif;base64,${encode.asBase64()}"
+    }
 }
 
 /**
@@ -99,9 +107,11 @@ fun main() {
 
         val generatorEcRandom = Generator(256)
         generatorEcRandom.encode(SampleData.vaccination)
+        generatorEcRandom.encodeToQrCode(SampleData.vaccination, 3, 2)
 
         val generatorFixed = Generator("foo", "bar")
         generatorFixed.encode(SampleData.recovery)
+        generatorFixed.encodeToQrCode(SampleData.recovery, 2, 1)
     }
     console.info("DCC Chain Loaded")
 }

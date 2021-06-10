@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.chain
 import Buffer
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
+import org.khronos.webgl.Uint8ClampedArray
 import org.khronos.webgl.get
 
 actual fun ByteArray.asBase64() = Buffer.from(this.toUint8Array()).toString("base64")
@@ -24,6 +25,10 @@ actual fun String.fromHexString() = Buffer.from(this, "hex").toByteArray()
 
 fun ByteArray.toUint8Array(): Uint8Array {
     return Uint8Array(toTypedArray())
+}
+
+fun ByteArray.toUint8ClampedArray(): Uint8ClampedArray {
+    return Uint8ClampedArray(toTypedArray())
 }
 
 fun ByteArray.toBuffer(): Buffer = Buffer.from(toUint8Array())

@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.random.Random
 
-class DefaultTwoDimCodeServiceTest : FunSpec({
+class DefaultTwoDimCodeServiceJvmTest : FunSpec({
     withData(
         TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.AZTEC, 300, 0),
         TestInput(Random.nextBytes(32).asBase64(), BarcodeFormat.AZTEC, 500, 2),

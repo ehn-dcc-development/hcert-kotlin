@@ -142,13 +142,13 @@ kotlin {
                 implementation(npm("node-inspect-extracted", "1.0.7"))
                 implementation(npm("fast-sha256", "1.3.0", generateExternals = true))
                 implementation(npm("url", "0.11.0"))
-                implementation(npm("elliptic", "6.5.4", generateExternals = false))
+                implementation(npm("elliptic", "6.5.4"))
                 implementation(npm("node-rsa", "1.1.1"))
                 implementation(npm("constants-browserify", "1.0.0"))
                 implementation(npm("assert", "2.0.0"))
-                implementation(npm("base64url", "3.0.1"))
                 implementation(npm("ajv", "8.5.0"))
                 implementation(npm("ajv-formats", "2.1.0"))
+                implementation(npm("@nuintun/qrcode", "3.0.1"))
             }
         }
         val jsTest by getting {

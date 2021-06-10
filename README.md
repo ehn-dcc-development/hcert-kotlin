@@ -68,7 +68,15 @@ GreenCertificate greenCertificate = result.getChainDecodeResult().getEudgc(); //
 
 ## Usage (JS)
 
-The build result (`./gradlew jsBrowserDistribution`) of this library for JS is a module in UMD format, under `build/distributions/hcert-kotlin.js`. This script runs in a web browser environment and can be used in the following way (see [demo.html](demo.html)):
+The build result of this library for JS is a module in UMD format, under `build/distributions/hcert-kotlin.js`. This script runs in a web browser environment and can be used in the following way (see [demo.html](demo.html)).
+
+Build the module either for development or distribution:
+```
+./gradlew jsBrowserDevelopmentWebpack
+./gradlew jsBrowserDistributionWebpack
+```
+
+To verify a single QR code content:
 
 ```JavaScript
 let qr = "HC1:NCFC:MVIMAP2SQ20MU..."; // scan from somewhere
@@ -98,6 +106,7 @@ let result = verifier.verify(qr);
 ```
 
 If you want to save the instance of `verifier` across several decodings, you can update the TrustList afterwards, too:
+
 ```JavaScript
 let pemCert = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq..."; // PEM encoded signer certificate from the TrustList
 let trustListContent = new ArrayBuffer(8); // download it, e.g. from https://dgc.a-sit.at/ehn/cert/listv2
@@ -108,6 +117,7 @@ verifier.updateTrustList(pemCert, trustListContent, trustListSignature);
 ```
 
 The meta information contains extracted data from the QR code contents, e.g.:
+
 ```JSON
 {
   "expirationTime": "2021-11-02T18:00:00Z",
@@ -147,12 +157,15 @@ The resulting `error` may be one of the following (the list is identical to Vali
  - `SIGNATURE_INVALID`: Signature on COSE structure could not be verified
 
 
-Encoding of HCERT data, i.e. generating the input for an QR Code:
+Encoding of HCERT data, i.e. generating the input for an QR Code, as well as the QR Code picture:
 ```JavaScript
 let generator = new hcert.GeneratorEcRandom(256); // creates a new EC key
 let input = JSON.stringify({"ver": "1.2.1", "nam": { ... }}); // valid HCERT data
 
 let result = generator.encode(input); // get a result with all intermediate steps
+
+let qrCode = generator.encodeToQrCode(input, 4, 2); // 4 is the module size of the QR code, 2 is the margin size
+// get a data URL of the encoded QR code picture, e.g. "data:image/gif;base64,AAA..."
 
 console.info(result.step5Prefixed); // the contents of the QR code
 ```
@@ -166,8 +179,12 @@ let input = JSON.stringify({"ver": "1.2.1", "nam": { ... }}); // valid HCERT dat
 
 let result = generator.encode(input); // get a result with all intermediate steps
 
+let qrCode = generator.encodeToQrCode(input, 4, 2); // 4 is the module size of the QR code, 2 is the margin size
+// get a data URL of the encoded QR code picture, e.g. "data:image/gif;base64,AAA..."
+
 console.info(result.step5Prefixed); // the contents of the QR code
 ```
+
 
 ## TrustList
 
