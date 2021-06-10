@@ -7,7 +7,7 @@ import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
 
 
-expect class PkiUtils {
+expect class PkiUtils() {
 
     fun selfSignCertificate(
         commonName: String,

@@ -35,7 +35,7 @@ actual class PkiUtils {
         contentType: List<ContentType>,
         clock: Clock
     ): CertificateAdapter {
-        val publicKeyEncoded = (publicKey as JvmPubKey).toCoseRepresentation().encoded
+        val publicKeyEncoded = (publicKey as JvmPubKey).toPlatformPublicKey().encoded
         val subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(ASN1Sequence.getInstance(publicKeyEncoded))
         val keyUsage = KeyUsage(KeyUsage.digitalSignature or KeyUsage.keyEncipherment)
         val keyUsageExt = Extension.create(Extension.keyUsage, true, keyUsage)
@@ -53,7 +53,7 @@ actual class PkiUtils {
             subjectPublicKeyInfo
         )
         listOf(keyUsageExt, testUsage).forEach<Extension> { builder.addExtension(it) }
-        val jvmPrivateKey = privateKey.toCoseRepresentation() as PrivateKey
+        val jvmPrivateKey = privateKey.toPlatformPrivateKey() as PrivateKey
         val contentSigner = JcaContentSignerBuilder(getAlgorithm(jvmPrivateKey)).build(jvmPrivateKey)
         val certificateHolder = builder.build(contentSigner)
         return CertificateAdapter(

@@ -1,6 +1,5 @@
 package ehn.techiop.hcert.kotlin.crypto
 
-import COSE.OneKey
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import ehn.techiop.hcert.kotlin.trust.Hash
@@ -36,7 +35,7 @@ actual class CertificateAdapter(val certificate: X509Certificate) {
 
     actual val validUntil = Instant.fromEpochMilliseconds(certificate.notAfter.time)
 
-    actual val publicKey: PubKey<*> = CosePubKey(OneKey(certificate.publicKey, null))
+    actual val publicKey: PubKey<*> = JvmPubKey(certificate.publicKey)
 
     actual fun toTrustedCertificate() = TrustedCertificateV2(kid, certificate.encoded)
 

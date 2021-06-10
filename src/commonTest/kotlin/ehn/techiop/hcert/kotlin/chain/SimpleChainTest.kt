@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import ehn.techiop.hcert.kotlin.crypto.KeyType
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
@@ -61,8 +62,4 @@ class SimpleChainTest : DescribeSpec({
 
 private data class SimpleChainTestInput(val data: String, val keyType: KeyType, val keySize: Int, val outcome: Boolean)
 
-enum class KeyType {
-    RSA,
-    EC
-}
 

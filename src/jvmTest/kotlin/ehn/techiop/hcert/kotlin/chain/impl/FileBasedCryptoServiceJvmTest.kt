@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
+import ehn.techiop.hcert.kotlin.crypto.JvmPrivKey
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
@@ -12,7 +13,8 @@ class FileBasedCryptoServiceJvmTest : DescribeSpec({
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        input.getCborSigningKey().oneKey.EncodeToBytes() shouldBe (parsed.getCborSigningKey().oneKey.EncodeToBytes())
+        (input.getCborSigningKey() as JvmPrivKey).toCoseRepresentation()
+            .EncodeToBytes() shouldBe parsed.getCborSigningKey().toCoseRepresentation().EncodeToBytes()
         input.getCertificate().kid shouldBe (parsed.getCertificate().kid)
 
         parsed.getCertificate().certificate.verify(parsed.getCertificate().certificate.publicKey)
@@ -24,7 +26,8 @@ class FileBasedCryptoServiceJvmTest : DescribeSpec({
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        input.getCborSigningKey().oneKey.EncodeToBytes() shouldBe (parsed.getCborSigningKey().oneKey.EncodeToBytes())
+        (input.getCborSigningKey() as JvmPrivKey).toCoseRepresentation()
+            .EncodeToBytes() shouldBe parsed.getCborSigningKey().toCoseRepresentation().EncodeToBytes()
         input.getCertificate().kid shouldBe (parsed.getCertificate().kid)
 
         parsed.getCertificate().certificate.verify(parsed.getCertificate().certificate.publicKey)

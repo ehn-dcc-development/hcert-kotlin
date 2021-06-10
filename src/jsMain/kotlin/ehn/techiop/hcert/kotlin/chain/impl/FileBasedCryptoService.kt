@@ -50,7 +50,8 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
                 ECPrivateKey(js("({'schema':it})"))
             }
             val content = Buffer(ecPrivateKey.privateKey.valueBlock.valueHex)
-            privateKey = JsEcPrivKey(EC("p256").keyFromPrivate(content))
+            // TODO keySize!
+            privateKey = JsEcPrivKey(EC("p256").keyFromPrivate(content), 256)
             algorithmID = CwtAlgorithm.ECDSA_256
         } else if (oid == "1.2.840.113549.1.1.1") {
 

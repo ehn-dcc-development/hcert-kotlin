@@ -1,14 +1,13 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import COSE.OneKey
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.CosePrivKey
-import ehn.techiop.hcert.kotlin.crypto.CosePubKey
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
+import ehn.techiop.hcert.kotlin.crypto.JvmPrivKey
+import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.PEMParser
@@ -61,7 +60,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
         Pair(CoseHeaderKeys.KID, keyId)
     )
 
-    override fun getCborSigningKey() = CosePrivKey(OneKey(publicKey, privateKey))
+    override fun getCborSigningKey() = JvmPrivKey(privateKey)
 
     override fun getCborVerificationKey(
         kid: ByteArray,
@@ -71,7 +70,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
             verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
         }
         verificationResult.setCertificateData(certificate)
-        return CosePubKey(OneKey(publicKey, privateKey))
+        return JvmPubKey(publicKey)
     }
 
     override fun getCertificate(): CertificateAdapter = certificate

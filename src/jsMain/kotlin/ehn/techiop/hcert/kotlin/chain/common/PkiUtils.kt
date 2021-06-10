@@ -11,21 +11,17 @@ import BN
 import Buffer
 import NodeRSA
 import ehn.techiop.hcert.kotlin.chain.asBase64
-import ehn.techiop.hcert.kotlin.chain.toBase64UrlString
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.EcPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
-import ehn.techiop.hcert.kotlin.crypto.JsEcPubKey
 import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
-import ehn.techiop.hcert.kotlin.crypto.JsRsaPubKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
 import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import hash
 import kotlinx.datetime.Clock
 import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Int32Array
 import org.khronos.webgl.Uint8Array
 import pkijs.src.AlgorithmIdentifier.AlgorithmIdentifier
 import pkijs.src.AttributeTypeAndValue.AttributeTypeAndValue
@@ -85,7 +81,7 @@ actual class PkiUtils {
             })
         )
 
-        val jwk = buildJsonWebKey(privateKey, publicKey, keySize)
+        val jwk = publicKey.toPlatformPublicKey() as JsonWebKey
         (certificate.subjectPublicKeyInfo as PublicKeyInfo).fromJSON(jwk)
         val algorithmIdentifier = AlgorithmIdentifier()
         algorithmIdentifier.algorithmId =
@@ -110,32 +106,5 @@ actual class PkiUtils {
         return CertificateAdapter(encoded.asBase64())
     }
 
-    private fun buildJsonWebKey(privateKey: PrivKey<*>, publicKey: PubKey<*>, keySize: Int) = when {
-        privateKey is JsEcPrivKey && publicKey is JsEcPubKey -> {
-            object : JsonWebKey {
-                override var alg: String? = "EC"
-                override var crv: String? = if (keySize == 384) "P-384" else "P-256"
-                override var kty: String? = "EC"
-                override var x: String? = publicKey.xCoord.toBase64UrlString()
-                override var y: String? = publicKey.yCoord.toBase64UrlString()
-            }
-        }
-        privateKey is JsRsaPrivKey && publicKey is JsRsaPubKey -> {
-            object : JsonWebKey {
-                override var alg: String? = "RS256"
-                override var kty: String? = "RSA"
-                override var n: String? = stripLeadingZero(publicKey.toCoseRepresentation().n).toBase64UrlString()
-                override var e: String? =
-                    Buffer(Int32Array(arrayOf(publicKey.toCoseRepresentation().e.toInt())).buffer).toBase64UrlString()
-            }
-        }
-        else -> throw IllegalArgumentException("KeyType")
-    }
-
-    // We'll need to strip the leading zero from the Buffer
-    // because ASN.1 will add it's own leading zero, if needed
-    private fun stripLeadingZero(n: Buffer): Buffer {
-        return if (n.readUInt8(0) == 0) n.slice(1) else n
-    }
 
 }
