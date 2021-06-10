@@ -1,5 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ChainResult(
     val step0Cbor: ByteArray,
     val step1Cwt: ByteArray,

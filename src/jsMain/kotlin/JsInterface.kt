@@ -1,11 +1,16 @@
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.Chain
+import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.DecodeJsResult
 import ehn.techiop.hcert.kotlin.chain.DefaultChain
+import ehn.techiop.hcert.kotlin.chain.SampleData
 import ehn.techiop.hcert.kotlin.chain.from
+import ehn.techiop.hcert.kotlin.chain.impl.FileBasedCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.toByteArray
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.khronos.webgl.ArrayBuffer
@@ -45,6 +50,31 @@ class Verifier {
 
 }
 
+@JsExport
+@JsName("Generator")
+class Generator {
+
+    private val cryptoService: CryptoService
+    private val chain: Chain
+
+    @JsName("GeneratorEcRandom")
+    constructor(keySize: Int = 256) {
+        cryptoService = RandomEcKeyCryptoService(keySize)
+        chain = DefaultChain.buildCreationChain(cryptoService)
+    }
+
+    @JsName("GeneratorFixed")
+    constructor(pemEncodedPrivateKey: String, pemEncodedCertificate: String) {
+        cryptoService = FileBasedCryptoService(pemEncodedPrivateKey, pemEncodedCertificate)
+        chain = DefaultChain.buildCreationChain(cryptoService)
+    }
+
+    fun encode(input: String): jsJson {
+        val encodeResult = chain.encode(Json.decodeFromString(input))
+        return JSON.parse(Json { encodeDefaults = true }.encodeToString(encodeResult))
+    }
+}
+
 /**
  * Expose some functions to be called from regular JavaScript
  *
@@ -67,6 +97,11 @@ fun main() {
             ArrayBuffer.from("signature".encodeToByteArray())
         )
 
+        val generatorEcRandom = Generator(256)
+        generatorEcRandom.encode(SampleData.vaccination)
+
+        val generatorFixed = Generator("foo", "bar")
+        generatorFixed.encode(SampleData.recovery)
     }
-    console.info("EGC Verifier Loaded")
+    console.info("DCC Chain Loaded")
 }

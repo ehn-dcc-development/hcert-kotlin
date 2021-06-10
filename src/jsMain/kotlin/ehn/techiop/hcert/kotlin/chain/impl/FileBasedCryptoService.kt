@@ -23,7 +23,7 @@ import pkijs.src.ECPrivateKey.ECPrivateKey
 import pkijs.src.PrivateKeyInfo.PrivateKeyInfo
 import pkijs.src.RSAPrivateKey.RSAPrivateKey
 
-actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String, pemEncodedCertificate: String) :
+actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: String, pemEncodedCertificate: String) :
     CryptoService {
 
     private val privateKeyInfo: PrivateKeyInfo
@@ -34,7 +34,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
     private val keyId: ByteArray
 
     init {
-        val array = cleanPem(pemEncodedKeyPair).fromBase64().toTypedArray()
+        val array = cleanPem(pemEncodedPrivateKey).fromBase64().toTypedArray()
         privateKeyInfo = Uint8Array(array).let { bytes ->
             fromBER(bytes.buffer).result.let {
                 PrivateKeyInfo(js("({'schema':it})"))

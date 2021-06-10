@@ -25,7 +25,7 @@ import java.security.cert.X509Certificate
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.RSAPrivateKey
 
-actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String, pemEncodedCertificate: String) :
+actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: String, pemEncodedCertificate: String) :
     CryptoService {
 
     private val privateKey: PrivateKey
@@ -36,7 +36,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedKeyPair: String
 
     init {
         Security.addProvider(BouncyCastleProvider())
-        val read = PEMParser(pemEncodedKeyPair.reader()).readObject() as PrivateKeyInfo
+        val read = PEMParser(pemEncodedPrivateKey.reader()).readObject() as PrivateKeyInfo
         privateKey = JcaPEMKeyConverter().getPrivateKey(read)
         algorithmID = when (privateKey) {
             is ECPrivateKey -> {

@@ -15,7 +15,7 @@ The schemata for data classes is imported from <https://github.com/ehn-digital-g
 
 The resources for interop testing are imported as a git submodule from <https://github.com/eu-digital-green-certificates/dgc-testdata> into `src/commonTest/resources/dgc-testdata`. Please clone this repository with `git clone --recursive` or run `git submodule init && git submodule update` afterwards.
 
-This Kotlin library is a [mulitplatform project](https://kotlinlang.org/docs/multiplatform.html), with targets for JVM and JavaScript. See [README-js.md](README-js.md) for details about the JavaScript target.
+This Kotlin library is a [mulitplatform project](https://kotlinlang.org/docs/multiplatform.html), with targets for JVM and JavaScript.
 
 ## Usage (JVM)
 
@@ -146,7 +146,28 @@ The resulting `error` may be one of the following (the list is identical to Vali
  - `KEYSTORE_ERROR`: not used
  - `SIGNATURE_INVALID`: Signature on COSE structure could not be verified
 
-Emphasis of the JS target is the validation of QR codes, i.e. do not expect to be able to create a valid QR code.
+
+Encoding of HCERT data, i.e. generating the input for an QR Code:
+```JavaScript
+let generator = new hcert.GeneratorEcRandom(256); // creates a new EC key
+let input = JSON.stringify({"ver": "1.2.1", "nam": { ... }}); // valid HCERT data
+
+let result = generator.encode(input); // get a result with all intermediate steps
+
+console.info(result.step5Prefixed); // the contents of the QR code
+```
+
+You may also load a fixed key pair with certificate:
+```JavaScript
+let pemKey = "-----BEGIN PRIVATE KEY-----\nME0CAQAwE..."; // PEM encoded private key info, i.e. PKCS#8
+let pemCert = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq..."; // PEM encoded signer certificate
+let generator = new hcert.GeneratorFixed(pemKey, pemCert); // creates a new EC key
+let input = JSON.stringify({"ver": "1.2.1", "nam": { ... }}); // valid HCERT data
+
+let result = generator.encode(input); // get a result with all intermediate steps
+
+console.info(result.step5Prefixed); // the contents of the QR code
+```
 
 ## TrustList
 
@@ -214,7 +235,6 @@ To publish this package to GitHub, create a personal access token (read <https:/
 ## Known Issues
 
 There are several known issues with this library:
- - The JS target implementation is not complete, i.e. one can not encode HCERT data
  - The JVM target does not implement Schema validation
  - Several test cases from `dgc-testdata` fail, e.g. when using special COSE tags
 
