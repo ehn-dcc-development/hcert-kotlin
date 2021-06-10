@@ -1,5 +1,12 @@
+//Increase timeouts
+// See https://discuss.kotlinlang.org/t/configuring-timeouts-when-running-mocha-based-tests-in-mpp-or-js-projects/16567/6
 config.set({
-    "browserNoActivityTimeout": 20000,
-    "browserDisconnectTimeout": 20000,
-    "processKillTimeout": 20000
+    client: {
+        mocha: {
+            timeout: 18000
+        }
+    },
+    browserNoActivityTimeout: 21337,
+    browserDisconnectTimeout: 22668,
+    processKillTimeout: 23995
 });
