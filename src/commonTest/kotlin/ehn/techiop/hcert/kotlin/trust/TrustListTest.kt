@@ -59,18 +59,13 @@ private fun verifyClientOperations(
 
     clientTrustList.size shouldBe 2
     for (cert in clientTrustList) {
-        cert.validFrom.epochSeconds shouldBeLessThanOrEqual clock.now().epochSeconds
-        cert.validUntil.epochSeconds shouldBeGreaterThanOrEqual clock.now().epochSeconds
+        cert.toCertificateAdapter().validFrom.epochSeconds shouldBeLessThanOrEqual clock.now().epochSeconds
+        cert.toCertificateAdapter().validUntil.epochSeconds shouldBeGreaterThanOrEqual clock.now().epochSeconds
         cert.kid.size shouldBe 8
-        cert.validContentTypes.size shouldBe 3
+        cert.toCertificateAdapter().validContentTypes.size shouldBe 3
 
         clientTrustListAdapter.loadTrustedCertificates(cert.kid, VerificationResult()).forEach {
-            val loadedEncoding = it.cosePublicKey.toCoseRepresentation()
-            val certEncoding = cert.cosePublicKey.toCoseRepresentation()
-            loadedEncoding shouldNotBe null
-            certEncoding shouldNotBe null
-            // TODO JVM OneKeys are not "the same"
-            //loadedEncoding shouldBe certEncoding
+            it.encoded shouldBe cert.toCertificateAdapter().encoded
         }
     }
 }

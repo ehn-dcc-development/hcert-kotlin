@@ -29,7 +29,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
     actual fun validate(kid: ByteArray, repository: CertificateRepository): Boolean {
         repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
-            if (sign1Message.validate(it.cosePublicKey.toCoseRepresentation() as OneKey)) {
+            if (sign1Message.validate(it.publicKey.toCoseRepresentation() as OneKey)) {
                 return true
             }
         }
@@ -43,7 +43,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
     ): Boolean {
         repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
             verificationResult.setCertificateData(trustedCert)
-            if (sign1Message.validate(trustedCert.cosePublicKey.toCoseRepresentation() as OneKey)) {
+            if (sign1Message.validate(trustedCert.publicKey.toCoseRepresentation() as OneKey)) {
                 return true
             }
         }

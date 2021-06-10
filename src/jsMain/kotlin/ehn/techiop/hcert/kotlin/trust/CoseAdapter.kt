@@ -36,7 +36,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
     actual fun validate(kid: ByteArray, repository: CertificateRepository): Boolean {
         repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
             val result = jsTry {
-                Cose.verifySync(input, it.cosePublicKey) !== undefined
+                Cose.verifySync(input, it.publicKey) !== undefined
             }.catch {
                 false
             }
@@ -53,7 +53,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
             verificationResult.setCertificateData(trustedCert)
             val result = jsTry {
-                Cose.verifySync(input, trustedCert.cosePublicKey) !== undefined
+                Cose.verifySync(input, trustedCert.publicKey) !== undefined
             }.catch {
                 false
             }

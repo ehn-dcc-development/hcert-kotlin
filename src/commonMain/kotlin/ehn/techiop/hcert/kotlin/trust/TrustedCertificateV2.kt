@@ -3,7 +3,6 @@ package ehn.techiop.hcert.kotlin.trust
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlinx.serialization.cbor.ByteString
 
 
@@ -20,20 +19,7 @@ data class TrustedCertificateV2(
 
     //**WARNING*** do not use lazy delegates! it *will* break!!!
 
-    @Transient
-    private val decodedCertificate = CertificateAdapter(this.certificate)
-
-    @Transient
-    override val validContentTypes = decodedCertificate.validContentTypes
-
-    @Transient
-    override val cosePublicKey = decodedCertificate.publicKey
-
-    @Transient
-    override val validUntil = decodedCertificate.validUntil
-
-    @Transient
-    override val validFrom = decodedCertificate.validFrom
+    override fun toCertificateAdapter() = CertificateAdapter(certificate)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
