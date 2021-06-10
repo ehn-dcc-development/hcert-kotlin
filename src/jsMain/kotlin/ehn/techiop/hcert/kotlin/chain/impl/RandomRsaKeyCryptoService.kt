@@ -9,8 +9,8 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.from
+import ehn.techiop.hcert.kotlin.chain.toBase64UrlString
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.chain.urlSafe
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
@@ -56,14 +56,15 @@ actual class RandomRsaKeyCryptoService actual constructor(
         val jwk = object : JsonWebKey {
             override var alg: String? = "PS256"
             override var kty: String? = "RSA"
-            override var p: String? = urlSafe(cr.p.toString("base64"))
-            override var q: String? = urlSafe(cr.q.toString("base64"))
-            override var qi: String? = urlSafe(cr.qi.toString("base64"))
-            override var dp: String? = urlSafe(cr.dp.toString("base64"))
-            override var dq: String? = urlSafe(cr.dq.toString("base64"))
-            override var e: String? = urlSafe(Buffer(Int32Array(arrayOf(cr.e.toInt())).buffer).toString("base64"))
-            override var n: String? = urlSafe(cr.n.toString("base64"))
-            override var d: String? = urlSafe(cr.d.toString("base64"))
+            override var p: String? = cr.p.toBase64UrlString()
+            override var q: String? = cr.q.toBase64UrlString()
+            override var qi: String? = cr.qi.toBase64UrlString()
+            override var dp: String? = cr.dp.toBase64UrlString()
+            override var dq: String? = cr.dq.toBase64UrlString()
+            override var e: String? =
+                Buffer(Int32Array(arrayOf(cr.e.toInt())).buffer).toBase64UrlString()
+            override var n: String? = cr.n.toBase64UrlString()
+            override var d: String? = cr.d.toBase64UrlString()
         }
 
         privateKeyInfo.fromJSON(jwk as JsonWebKey)

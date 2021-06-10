@@ -11,8 +11,8 @@ import BN
 import Buffer
 import NodeRSA
 import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.toBase64UrlString
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.chain.urlSafe
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.EcPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
@@ -92,18 +92,13 @@ actual class PkiUtils {
                 if (privateKey is EcPrivKey) (if (keySize == 384) "P-384" else "P-256") else null
             override var kty: String? = if (privateKey is EcPrivKey) "EC" else "RSA"
             override var x: String? =
-                if (privateKey is EcPrivKey) urlSafe((publicKey as JsEcPubKey).xCoord.toString("base64")) else null
+                if (privateKey is EcPrivKey) (publicKey as JsEcPubKey).xCoord.toBase64UrlString() else null
             override var y: String? =
-                if (privateKey is EcPrivKey) urlSafe((publicKey as JsEcPubKey).yCoord.toString("base64")) else null
+                if (privateKey is EcPrivKey) (publicKey as JsEcPubKey).yCoord.toBase64UrlString() else null
             override var n: String? =
-                if (privateKey is EcPrivKey) null else urlSafe(
-                    stripLeadingZero((publicKey as JsRsaPubKey).toCoseRepresentation().n).toString("base64")
-                )
+                if (privateKey is EcPrivKey) null else stripLeadingZero((publicKey as JsRsaPubKey).toCoseRepresentation().n).toBase64UrlString()
             override var e: String? =
-                if (privateKey is EcPrivKey) null else urlSafe(
-                    Buffer(Int32Array(arrayOf((publicKey as JsRsaPubKey).toCoseRepresentation().e.toInt())).buffer)
-                        .toString("base64")
-                )
+                if (privateKey is EcPrivKey) null else Buffer(Int32Array(arrayOf((publicKey as JsRsaPubKey).toCoseRepresentation().e.toInt())).buffer).toBase64UrlString()
         }
         (certificate.subjectPublicKeyInfo as PublicKeyInfo).fromJSON(jwk)
         val algorithmIdentifier = AlgorithmIdentifier()

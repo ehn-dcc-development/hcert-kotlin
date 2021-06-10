@@ -15,10 +15,12 @@ fun ArrayBuffer.toByteArray() = org.khronos.webgl.Int8Array(this).unsafeCast<Byt
 
 fun ArrayBuffer.Companion.from(array: ByteArray) = Buffer.from(array).buffer
 
-actual fun String.fromHexString() = Buffer.from(this, "hex").toByteArray()
+fun Buffer.toBase64UrlString() = this.toString("base64")
+    .replace("+", "-")
+    .replace("/", "_")
+    .replace("=", "")
 
-internal fun urlSafe(input: String): String =
-    input.replace("+", "-").replace("/", "_").replace("=", "")
+actual fun String.fromHexString() = Buffer.from(this, "hex").toByteArray()
 
 fun ByteArray.toUint8Array(): Uint8Array {
     return Uint8Array(toTypedArray())
