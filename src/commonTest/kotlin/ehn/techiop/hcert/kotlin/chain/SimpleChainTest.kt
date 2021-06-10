@@ -1,9 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.kotlin.crypto.KeyType
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
+import ehn.techiop.hcert.kotlin.crypto.KeyType
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
@@ -38,7 +38,7 @@ class SimpleChainTest : DescribeSpec({
         SimpleChainTestInput(SampleData.recovery, KeyType.RSA, 3072, true),
     )
 
-    withData(listOfInput) { input ->
+    withData(nameFn = { "${it.keyType}${it.keySize}" }, listOfInput) { input ->
         val service = if (input.keyType == KeyType.EC)
             RandomEcKeyCryptoService(input.keySize)
         else

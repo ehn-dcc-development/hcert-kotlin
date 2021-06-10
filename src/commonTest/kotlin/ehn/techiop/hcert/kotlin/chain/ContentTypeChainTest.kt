@@ -18,9 +18,9 @@ class ContentTypeChainTest : DescribeSpec({
     timeout = Duration.seconds(5).inWholeMilliseconds
 
     val listOfInput = listOf(
-        ContentTypeTestInput(SampleData.testRat, KeyType.EC, 256,  ContentType.TEST, true),
-        ContentTypeTestInput(SampleData.testRat, KeyType.EC, 256,  ContentType.VACCINATION, false),
-        ContentTypeTestInput(SampleData.testRat, KeyType.EC, 256,  ContentType.RECOVERY, false),
+        ContentTypeTestInput(SampleData.testRat, KeyType.EC, 256, ContentType.TEST, true),
+        ContentTypeTestInput(SampleData.testRat, KeyType.EC, 256, ContentType.VACCINATION, false),
+        ContentTypeTestInput(SampleData.testRat, KeyType.EC, 256, ContentType.RECOVERY, false),
         ContentTypeTestInput(SampleData.testNaa, KeyType.EC, 256, ContentType.TEST, true),
         ContentTypeTestInput(SampleData.testNaa, KeyType.EC, 256, ContentType.VACCINATION, false),
         ContentTypeTestInput(SampleData.testNaa, KeyType.EC, 256, ContentType.RECOVERY, false),
@@ -45,7 +45,7 @@ class ContentTypeChainTest : DescribeSpec({
         ContentTypeTestInput(SampleData.recovery, KeyType.RSA, 2048, ContentType.VACCINATION, false),
     )
 
-    withData(listOfInput) { input ->
+    withData(nameFn = { "${it.contentType} ${it.keyType}${it.keySize}" }, listOfInput) { input ->
         val service = if (input.keyType == KeyType.EC)
             RandomEcKeyCryptoService(input.keySize, listOf(input.contentType))
         else
