@@ -41,8 +41,7 @@ open class DefaultCoseService(private val cryptoService: CryptoService) : CoseSe
             return coseAdapter.getContent()
         } catch (e: Throwable) {
             throw e.also {
-                if (verificationResult.error == null)
-                    verificationResult.error = Error.SIGNATURE_INVALID
+                verificationResult.error = Error.SIGNATURE_INVALID
             }
         }
     }

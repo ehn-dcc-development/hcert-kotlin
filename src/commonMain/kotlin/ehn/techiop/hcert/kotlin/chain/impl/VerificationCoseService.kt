@@ -29,8 +29,7 @@ class VerificationCoseService constructor(private val repository: CertificateRep
             return coseAdapter.getContent()
         } catch (e: Throwable) {
             throw e.also {
-                if (verificationResult.error == null)
-                    verificationResult.error = Error.SIGNATURE_INVALID
+                verificationResult.error = Error.SIGNATURE_INVALID
             }
         }
     }

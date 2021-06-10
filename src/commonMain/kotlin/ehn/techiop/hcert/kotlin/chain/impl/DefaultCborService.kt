@@ -44,8 +44,7 @@ open class DefaultCborService : CborService {
             return result
         } catch (e: Throwable) {
             throw e.also {
-                if (verificationResult.error == null)
-                    verificationResult.error = Error.CBOR_DESERIALIZATION_FAILED
+                verificationResult.error = Error.CBOR_DESERIALIZATION_FAILED
             }
         }
     }
