@@ -152,7 +152,7 @@ publishing {
         mavenLocal()
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/ehn-dcc-development/hcert-kotlin")
+            url = uri("https://maven.pkg.github.com/section42/hcert-kotlin")
             credentials {
                 username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
