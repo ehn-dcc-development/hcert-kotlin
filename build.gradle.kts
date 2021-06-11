@@ -87,7 +87,7 @@ kotlin {
             dependencies {
                 //cannot use 0.2.1 due to https://youtrack.jetbrains.com/issue/KT-43237 when also seeking to expose node module
                 //however, we only release bundles and can monkey-patch it (see webpack.config.d/patch.js)
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.2.1")
             }
