@@ -260,7 +260,9 @@ If you are planning to use this library, please fork it (internally), and review
 ## Changelog
 
 Version 1.0.0:
- - Convert to a Kotlin multiplatform project, therefore some details may have changed when calling from Java
+ - Convert to a Kotlin multiplatform project, therefore some details may have changed when calling from JVM
+ - Implements encoding and decoding data on JS and JVM targets
+ - Some testcases from `dgc-testdata` still fail
 
 Version 0.4.0:
  - Update ehn-dgc-schema to 1.2.1

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "ehn.techiop.hcert"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 idea {
@@ -82,19 +82,6 @@ kotlin {
         binaries.executable()
         useCommonJs()
     }
-    /* js("node", LEGACY) {
-         moduleName = "hcert-node"
-         browser {
-             distribution {
-                 directory = file("$projectDir/output-node/")
-             }
-             webpackTask {
-                 output.library = "hcert-node"
-             }
-         }
-         useCommonJs()
-     }*/
-
     sourceSets {
         val commonMain by getting {
             dependencies {
