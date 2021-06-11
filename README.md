@@ -70,10 +70,10 @@ GreenCertificate greenCertificate = result.getChainDecodeResult().getEudgc(); //
 
 The build result of this library for JS is a module in UMD format, under `build/distributions/hcert-kotlin.js`. This script runs in a web browser environment and can be used in the following way (see [demo.html](demo.html)).
 
-Build the module either for development or distribution:
+Build the module either for development or production:
 ```
 ./gradlew jsBrowserDevelopmentWebpack
-./gradlew jsBrowserDistributionWebpack
+./gradlew jsBrowserProductionWebpack
 ```
 
 To verify a single QR code content:
