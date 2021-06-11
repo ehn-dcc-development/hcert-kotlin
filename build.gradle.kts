@@ -1,8 +1,8 @@
 plugins {
-    kotlin("multiplatform") version "1.5.10"
-    kotlin("plugin.serialization") version "1.5.10"
+    kotlin("multiplatform") version Versions.kotlin
+    kotlin("plugin.serialization") version Versions.kotlin
     id("idea")
-    id("com.github.jk1.dependency-license-report") version "1.16"
+    id("com.github.jk1.dependency-license-report") version Versions.licenseReport
     id("maven-publish")
 }
 
@@ -87,57 +87,57 @@ kotlin {
             dependencies {
                 //cannot use 0.2.1 due to https://youtrack.jetbrains.com/issue/KT-43237 when also seeking to expose node module
                 //however, we only release bundles and can monkey-patch it (see webpack.config.d/patch.js)
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.2.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.datetime}")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:${Versions.serialization}")
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation("io.kotest:kotest-framework-engine:4.6.0")
-                implementation("io.kotest:kotest-assertions-core:4.6.0")
-                implementation("io.kotest:kotest-framework-datatest:4.6.0")
+                implementation("io.kotest:kotest-framework-engine:${Versions.kotest}")
+                implementation("io.kotest:kotest-assertions-core:${Versions.kotest}")
+                implementation("io.kotest:kotest-framework-datatest:${Versions.kotest}")
             }
         }
         val jvmMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.10")
-                implementation("com.augustcellars.cose:cose-java:1.1.0")
-                implementation("com.google.zxing:core:3.4.1")
-                implementation("com.google.zxing:javase:3.4.1")
-                implementation("org.bouncycastle:bcpkix-jdk15to18:1.68")
-                implementation("javax.validation:validation-api:2.0.1.Final")
-                implementation("net.pwall.json:json-kotlin-schema:0.20")
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}")
+                implementation("com.augustcellars.cose:cose-java:${Versions.jvm.cose}")
+                implementation("com.google.zxing:core:${Versions.jvm.zxing}")
+                implementation("com.google.zxing:javase:${Versions.jvm.zxing}")
+                implementation("org.bouncycastle:bcpkix-jdk15to18:${Versions.jvm.bcpkix}")
+                implementation("javax.validation:validation-api:${Versions.jvm.validation}")
+                implementation("net.pwall.json:json-kotlin-schema:${Versions.jvm.jsonSchema}")
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation("io.kotest:kotest-runner-junit5:4.6.0")
+                implementation("io.kotest:kotest-runner-junit5:${Versions.kotest}")
             }
         }
         val jsMain by getting {
             sourceSets { kotlin.srcDir("src/jsMain/generated") }
             dependencies {
-                implementation(npm("pako", "2.0.3"))
-                implementation(npm("@types/pako", "1.0.1", generateExternals = true))
-                implementation(npm("pkijs", "2.1.95"))
+                implementation(npm("pako", Versions.js.pako))
+                implementation(npm("@types/pako", Versions.js.pakoTypes, generateExternals = true))
+                implementation(npm("pkijs", Versions.js.pkijs))
                 implementation(npm("cose-js", File("${projectDir.absolutePath}/cose-js"), generateExternals = false))
-                implementation(npm("crypto-browserify", "3.12.0"))
-                implementation(npm("stream-browserify", "3.0.0"))
-                implementation(npm("util", "0.12.3"))
-                implementation(npm("buffer", "6.0.3"))
-                implementation(npm("process", "0.11.10"))
-                implementation(npm("cbor", "7.0.5"))
-                implementation(npm("node-inspect-extracted", "1.0.7"))
-                implementation(npm("fast-sha256", "1.3.0", generateExternals = true))
-                implementation(npm("url", "0.11.0"))
-                implementation(npm("elliptic", "6.5.4"))
-                implementation(npm("node-rsa", "1.1.1"))
-                implementation(npm("constants-browserify", "1.0.0"))
-                implementation(npm("assert", "2.0.0"))
-                implementation(npm("ajv", "8.5.0"))
-                implementation(npm("ajv-formats", "2.1.0"))
-                implementation(npm("@nuintun/qrcode", "3.0.1"))
+                implementation(npm("crypto-browserify", Versions.js.`crypto-browserify`))
+                implementation(npm("stream-browserify", Versions.js.`stream-browserify`))
+                implementation(npm("util", Versions.js.util))
+                implementation(npm("buffer", Versions.js.buffer))
+                implementation(npm("process", Versions.js.process))
+                implementation(npm("cbor", Versions.js.cbor))
+                implementation(npm("node-inspect-extracted", Versions.js.`node-inspect-extract`))
+                implementation(npm("fast-sha256", Versions.js.sha256, generateExternals = true))
+                implementation(npm("url", Versions.js.url))
+                implementation(npm("elliptic", Versions.js.elliptic))
+                implementation(npm("node-rsa", Versions.js.rsa))
+                implementation(npm("constants-browserify", Versions.js.`constants-browserify`))
+                implementation(npm("assert", Versions.js.assert))
+                implementation(npm("ajv", Versions.js.ajv))
+                implementation(npm("ajv-formats", Versions.js.`ajv-formats`))
+                implementation(npm("@nuintun/qrcode", Versions.js.qrcode))
             }
         }
         val jsTest by getting {
