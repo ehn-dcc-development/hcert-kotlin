@@ -4,7 +4,6 @@ import ehn.techiop.hcert.kotlin.chain.asBase64
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.ints.shouldBeGreaterThan
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.random.Random
 
@@ -19,10 +18,10 @@ class DefaultTwoDimCodeServiceJsTest : FunSpec({
 
         val encoded = service.encode(input.input)
         encoded shouldNotBe null
-        encoded.asBase64().length shouldBeGreaterThan input.moduleSize
-
-        val decoded = service.decode(encoded)
-        decoded shouldBe input.input
+        encoded.asBase64().length shouldBeGreaterThan (input.moduleSize * input.moduleSize)
+        // decoding the image from encode isn't supported by the JS library
+        //val decoded = service.decode(encoded)
+        //decoded shouldBe input.input
     }
 })
 

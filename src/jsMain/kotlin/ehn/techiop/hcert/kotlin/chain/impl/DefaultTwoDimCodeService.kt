@@ -6,6 +6,8 @@ import ehn.techiop.hcert.kotlin.chain.toUint8ClampedArray
 import qrcode.Decoder
 import qrcode.Encoder
 import qrcode.ErrorCorrectionLevel
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 /**
  * Encodes the input as an 2D QR code.
@@ -28,11 +30,18 @@ class DefaultTwoDimCodeService(
     }
 
     /**
-     * Decodes the content of a *gif* encoded image of a 2D code
+     * Decodes the content of an image of a 2D code.
+     *
+     * Note: This method can not decode the pictures generated with [encode].
+     * The JS library seems to expect the rgb-encoded data of an image ...
      */
     override fun decode(input: ByteArray): String {
         val decoder = Decoder()
-        val result = decoder.decode(input.toUint8ClampedArray(), moduleSize, moduleSize)
+        // calculate width and height as expected by JS library
+        val data = input.toUint8ClampedArray()
+        val pixelCount = data.length / 4
+        val width = sqrt(pixelCount.toFloat()).roundToInt()
+        val result = decoder.decode(data, width, width)
         return result.data
     }
 
