@@ -25,7 +25,6 @@ private fun Map<String, String>.workaroundKotestNamingBug() =
 
 class CommonTests : ExtendedTestRunner(allOfficialTestCases()
     .filter { it.key.contains("common/") }
-    .filterNot { it.key.contains("DGC1") } // TODO Schema validation
     .filterNot { it.key.contains("DGC2") } // Testcase is not correct
     .filterNot { it.key.contains("CO28") } // TODO JS COSE
     .workaroundKotestNamingBug())
@@ -48,9 +47,9 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("FR/2DCode/raw/test_pcr_ok") } // Schema not correct for 1.2.1
     .filterNot { it.key.contains("NL/") } // Schema not correct, wrong value set entries
     .filterNot { it.key.contains("IS/2DCode/raw/3") } // Wrong test on key usage
-    .filterNot { it.key.contains("PL/2DCode/raw/7") } // TODO JVM Schema Validation
-    .filterNot { it.key.contains("PL/2DCode/raw/8") } // TODO JVM Schema Validation
-    .filterNot { it.key.contains("PL/2DCode/raw/9") } // TODO JVM Schema Validation
+    .filterNot { it.key.contains("PL/2DCode/raw/7") } // TODO  Schema is valid???
+    .filterNot { it.key.contains("PL/2DCode/raw/8") } // TODO  Schema is valid???
+    .filterNot { it.key.contains("PL/2DCode/raw/9") } // TODO  Schema is valid???
     .filterNot { it.key.contains("PT/") } // TODO Empty/null arrays
     .filterNot { it.key.contains("SE/2DCode/raw/2") } // TODO CBOR Tags
     .filterNot { it.key.contains("SE/2DCode/raw/7") } // TODO CBOR Tag C0
