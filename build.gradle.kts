@@ -107,6 +107,7 @@ kotlin {
                 implementation("com.google.zxing:javase:3.4.1")
                 implementation("org.bouncycastle:bcpkix-jdk15to18:1.68")
                 implementation("javax.validation:validation-api:2.0.1.Final")
+                implementation("net.pwall.json:json-kotlin-schema:0.20")
             }
         }
         val jvmTest by getting {
