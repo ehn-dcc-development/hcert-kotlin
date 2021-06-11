@@ -22,7 +22,7 @@ data class ValueSetHolder(
     fun find(valueSetId: String, key: String): ValueSetEntryAdapter {
         return valueSets.firstOrNull { it.valueSetId == valueSetId }
             ?.valueSetValues?.get(key)?.let { ValueSetEntryAdapter(key, it) }
-            ?: throw IllegalArgumentException("ValueSet: $key")
+            ?: return buildMissingValueSetEntry(key, valueSetId)
     }
 
     fun find(key: String): ValueSetEntryAdapter {
@@ -30,7 +30,12 @@ data class ValueSetHolder(
             if (it.valueSetValues.containsKey(key))
                 return ValueSetEntryAdapter(key, it.valueSetValues[key]!!)
         }
-        throw IllegalArgumentException("ValueSet: $key")
+        return buildMissingValueSetEntry(key, null)
+    }
+
+    private fun buildMissingValueSetEntry(key: String, valueSetId: String?): ValueSetEntryAdapter {
+        val entry = ValueSetEntry(key, "en", false, "http://example.com/missing", "0", valueSetId)
+        return ValueSetEntryAdapter(key, entry)
     }
 
 }
