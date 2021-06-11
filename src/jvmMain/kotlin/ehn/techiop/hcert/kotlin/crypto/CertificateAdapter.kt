@@ -40,7 +40,7 @@ actual class CertificateAdapter(val certificate: X509Certificate) {
 
     actual val validUntil = Instant.fromEpochMilliseconds(certificate.notAfter.time)
 
-    actual val publicKey: PubKey<*> = JvmPubKey(certificate.publicKey)
+    actual val publicKey: PubKey = JvmPubKey(certificate.publicKey)
 
     actual fun toTrustedCertificate() = TrustedCertificateV2(kid, certificate.encoded)
 
@@ -49,7 +49,6 @@ actual class CertificateAdapter(val certificate: X509Certificate) {
     actual val encoded = certificate.encoded
 
 }
-
 
 val X509Certificate.kid: ByteArray
     get() = Hash(encoded).calc().copyOf(8)

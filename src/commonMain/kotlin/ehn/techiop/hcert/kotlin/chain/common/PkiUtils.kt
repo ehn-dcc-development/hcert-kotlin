@@ -11,8 +11,8 @@ expect class PkiUtils() {
 
     fun selfSignCertificate(
         commonName: String,
-        privateKey: PrivKey<*>,
-        publicKey: PubKey<*>,
+        privateKey: PrivKey,
+        publicKey: PubKey,
         keySize: Int,
         contentType: List<ContentType> = ContentType.values().toList(),
         clock: Clock = Clock.System

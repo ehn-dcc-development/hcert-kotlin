@@ -9,7 +9,7 @@ import org.khronos.webgl.Uint8Array
 import tsstdlib.JsonWebKey
 
 class JsEcPubKey(private val xCoord: Buffer, private val yCoord: Buffer, private val keySizeBits: Int) :
-    PubKey<dynamic> {
+    JsPubKey {
 
     constructor(ecPublicKey: EcPublicKey, keySize: Int) : this(
         ecPublicKey.getX().toArrayLike(Buffer),

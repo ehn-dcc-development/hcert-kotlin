@@ -1,9 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.common
 
-import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
-import ehn.techiop.hcert.kotlin.crypto.PrivKey
-import ehn.techiop.hcert.kotlin.crypto.PubKey
+import ehn.techiop.hcert.kotlin.crypto.*
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
@@ -29,8 +26,8 @@ import kotlin.time.Duration
 actual class PkiUtils {
     actual fun selfSignCertificate(
         commonName: String,
-        privateKey: PrivKey<*>,
-        publicKey: PubKey<*>,
+        privateKey: PrivKey,
+        publicKey: PubKey,
         keySize: Int,
         contentType: List<ContentType>,
         clock: Clock
@@ -53,7 +50,7 @@ actual class PkiUtils {
             subjectPublicKeyInfo
         )
         listOf(keyUsageExt, testUsage).forEach<Extension> { builder.addExtension(it) }
-        val jvmPrivateKey = privateKey.toPlatformPrivateKey() as PrivateKey
+        val jvmPrivateKey = (privateKey as JvmPrivKey).toPlatformPrivateKey()
         val contentSigner = JcaContentSignerBuilder(getAlgorithm(jvmPrivateKey)).build(jvmPrivateKey)
         val certificateHolder = builder.build(contentSigner)
         return CertificateAdapter(

@@ -11,18 +11,13 @@ expect class CertificateAdapter(pemEncoded: String) {
     val validContentTypes: List<ContentType>
     val validFrom: Instant
     val validUntil: Instant
-    val publicKey: PubKey<*>
+    val publicKey: PubKey
     fun toTrustedCertificate(): TrustedCertificateV2
     val kid: ByteArray
     val encoded: ByteArray
 }
 
-interface PrivKey<T> {
-    fun toCoseRepresentation(): Any
-    fun toPlatformPrivateKey(): T
-}
+interface PrivKey
 
-interface PubKey<T> {
-    fun toCoseRepresentation(): Any
-    fun toPlatformPublicKey(): T
-}
+interface PubKey
+

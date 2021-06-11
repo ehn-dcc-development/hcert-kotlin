@@ -12,11 +12,7 @@ import Buffer
 import NodeRSA
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
-import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
-import ehn.techiop.hcert.kotlin.crypto.PrivKey
-import ehn.techiop.hcert.kotlin.crypto.PubKey
+import ehn.techiop.hcert.kotlin.crypto.*
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import hash
 import kotlinx.datetime.Clock
@@ -38,11 +34,11 @@ import kotlin.time.Duration
 
 actual class PkiUtils {
 
-    @Suppress("unused", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    @Suppress("unused")
     actual fun selfSignCertificate(
         commonName: String,
-        privateKey: PrivKey<*>,
-        publicKey: PubKey<*>,
+        privateKey: PrivKey,
+        publicKey: PubKey,
         keySize: Int,
         contentType: List<ContentType>,
         clock: Clock
@@ -81,7 +77,7 @@ actual class PkiUtils {
             })
         )
 
-        val jwk = publicKey.toPlatformPublicKey() as JsonWebKey
+        val jwk = (publicKey as JsPubKey).toPlatformPublicKey()
         (certificate.subjectPublicKeyInfo as PublicKeyInfo).fromJSON(jwk)
         val algorithmIdentifier = AlgorithmIdentifier()
         algorithmIdentifier.algorithmId =
@@ -94,6 +90,7 @@ actual class PkiUtils {
             val priv = privateKey.dValue
             Uint8Array(privateKey.ec.sign(sha256, BN(priv)).toDER()).buffer
         } else if (privateKey is JsRsaPrivKey) {
+            @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
             Uint8Array(NodeRSA().importKey(privateKey.raw as NodeRSA.KeyComponentsPrivate).sign(Buffer(data))).buffer
         } else {
             throw IllegalArgumentException("KeyType")

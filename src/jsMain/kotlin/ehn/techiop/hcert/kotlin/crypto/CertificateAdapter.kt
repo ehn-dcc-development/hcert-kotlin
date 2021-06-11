@@ -69,7 +69,7 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
             return Instant.parse(date.toISOString())
         }
 
-    actual val publicKey: PubKey<*>
+    actual val publicKey: PubKey
         get() {
             @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
             val publicKeyOID = ((cert.subjectPublicKeyInfo as Json)["algorithm"] as Json)["algorithmId"] as String
@@ -103,6 +103,5 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
 
     actual val kid: ByteArray
         get() = Hash(encoded).calc().copyOf(8)
-
 
 }

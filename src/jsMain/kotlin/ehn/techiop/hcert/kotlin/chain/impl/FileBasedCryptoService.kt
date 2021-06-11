@@ -27,8 +27,8 @@ actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: Str
     CryptoService {
 
     private val privateKeyInfo: PrivateKeyInfo
-    private val privateKey: PrivKey<*>
-    private val publicKey: PubKey<*>
+    private val privateKey: PrivKey
+    private val publicKey: PubKey
     private val algorithmID: CwtAlgorithm
     private val certificate: CertificateAdapter
     private val keyId: ByteArray
@@ -80,7 +80,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: Str
     override fun getCborVerificationKey(
         kid: ByteArray,
         verificationResult: VerificationResult
-    ): PubKey<*> {
+    ): PubKey {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
             verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
         }

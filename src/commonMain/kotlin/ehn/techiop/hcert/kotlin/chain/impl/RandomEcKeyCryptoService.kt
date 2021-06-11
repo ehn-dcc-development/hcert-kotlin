@@ -43,7 +43,7 @@ class RandomEcKeyCryptoService constructor(
 
     override fun getCborSigningKey() = cryptoAdapter.privateKey
 
-    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey<*> {
+    override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey {
         if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
             verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
         }

@@ -1,12 +1,11 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import COSE.MessageTag
-import COSE.OneKey
 import COSE.Sign1Message
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 
@@ -29,7 +28,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
     actual fun validate(kid: ByteArray, repository: CertificateRepository): Boolean {
         repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
-            if (sign1Message.validate(it.publicKey.toCoseRepresentation() as OneKey)) {
+            if (sign1Message.validate((it.publicKey as JvmPubKey).toCoseRepresentation())) {
                 return true
             }
         }
@@ -43,7 +42,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
     ): Boolean {
         repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
             verificationResult.setCertificateData(trustedCert)
-            if (sign1Message.validate(trustedCert.publicKey.toCoseRepresentation() as OneKey)) {
+            if (sign1Message.validate((trustedCert.publicKey as JvmPubKey).toCoseRepresentation())) {
                 return true
             }
         }
@@ -57,7 +56,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
     ): Boolean {
         val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
         verificationResult.setCertificateData(cryptoService.getCertificate())
-        return sign1Message.validate(verificationKey.toCoseRepresentation() as OneKey)
+        return sign1Message.validate((verificationKey as JvmPubKey).toCoseRepresentation())
     }
 
     actual fun getContent() = sign1Message.GetContent()
