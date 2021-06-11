@@ -13,9 +13,9 @@ interface CryptoService {
 
     fun getCborHeaders(): List<Pair<CoseHeaderKeys, Any>>
 
-    fun getCborSigningKey(): PrivKey<*>
+    fun getCborSigningKey(): PrivKey
 
-    fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult = VerificationResult()): PubKey<*>
+    fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult = VerificationResult()): PubKey
 
     fun getCertificate(): CertificateAdapter
 

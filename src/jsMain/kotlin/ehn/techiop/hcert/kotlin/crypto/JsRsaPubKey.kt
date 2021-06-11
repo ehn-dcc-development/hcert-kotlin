@@ -12,7 +12,7 @@ import tsstdlib.JsonWebKey
 import kotlin.js.Json
 
 class JsRsaPubKey(val modulus: ArrayBuffer, val publicExponent: Number) :
-    PubKey<dynamic> {
+    JsPubKey {
 
     constructor(publicKey: Json) : this(
         ArrayBuffer.from((publicKey["n"] as Buffer).toByteArray()),

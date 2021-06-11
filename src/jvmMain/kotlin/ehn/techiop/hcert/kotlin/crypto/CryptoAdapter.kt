@@ -19,9 +19,8 @@ actual class CryptoAdapter actual constructor(keyType: KeyType, keySize: Int) {
             .apply { initialize(keySize) }.genKeyPair()
     }
 
-    actual val privateKey: PrivKey<*> = JvmPrivKey(keyPair.private)
-    actual val publicKey: PubKey<*> = JvmPubKey(keyPair.public)
-    actual val privateKeyBase64: String
-        get() = JcaPKCS8Generator(keyPair.private, null).generate().content.asBase64()
+    actual val privateKey: PrivKey = JvmPrivKey(keyPair.private)
+    actual val publicKey: PubKey = JvmPubKey(keyPair.public)
+    actual val privateKeyBase64: String = JcaPKCS8Generator(keyPair.private, null).generate().content.asBase64()
 
 }

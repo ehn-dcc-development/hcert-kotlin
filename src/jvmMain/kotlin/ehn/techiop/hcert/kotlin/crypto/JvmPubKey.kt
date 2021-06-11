@@ -3,10 +3,10 @@ package ehn.techiop.hcert.kotlin.crypto
 import COSE.OneKey
 import java.security.PublicKey
 
-class JvmPubKey(private val publicKey: PublicKey) : PubKey<PublicKey> {
+class JvmPubKey(private val publicKey: PublicKey) : PubKey {
 
-    override fun toCoseRepresentation() = OneKey(publicKey, null)
+    fun toCoseRepresentation() = OneKey(publicKey, null)
 
-    override fun toPlatformPublicKey() = publicKey
+    fun toPlatformPublicKey() = publicKey
 
 }

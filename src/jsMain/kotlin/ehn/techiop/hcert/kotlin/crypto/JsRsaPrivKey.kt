@@ -12,7 +12,7 @@ import tsstdlib.JsonWebKey
 import kotlin.js.Json
 import kotlin.js.json
 
-class JsRsaPrivKey(val raw: Json) : PrivKey<dynamic> {
+class JsRsaPrivKey(val raw: Json) : JsPrivKey {
 
     constructor(privateKey: RSAPrivateKey) : this(
         json(
@@ -27,7 +27,7 @@ class JsRsaPrivKey(val raw: Json) : PrivKey<dynamic> {
         )
     )
 
-    override fun toCoseRepresentation(): RsaCosePrivateKey = object : RsaCosePrivateKey {
+    override fun toCoseRepresentation() = object : RsaCosePrivateKey {
         override val p: Buffer = raw["p"] as Buffer
         override val q: Buffer = raw["q"] as Buffer
         override val dp: Buffer = raw["dmp1"] as Buffer
@@ -38,7 +38,7 @@ class JsRsaPrivKey(val raw: Json) : PrivKey<dynamic> {
         override val e: Number = raw["e"] as Number
     }
 
-    override fun toPlatformPrivateKey() = object : JsonWebKey {
+    fun toPlatformPrivateKey() = object : JsonWebKey {
         override var alg: String? = "PS256"
         override var kty: String? = "RSA"
         override var p: String? = (raw["p"] as Buffer).toBase64UrlString()

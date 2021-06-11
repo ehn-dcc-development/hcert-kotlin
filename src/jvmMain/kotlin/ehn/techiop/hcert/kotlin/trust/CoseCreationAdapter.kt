@@ -1,11 +1,11 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import COSE.Attribute
-import COSE.OneKey
 import COSE.Sign1Message
 import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
+import ehn.techiop.hcert.kotlin.crypto.JvmPrivKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
@@ -36,8 +36,8 @@ actual class CoseCreationAdapter actual constructor(private val content: ByteArr
         )
     }
 
-    actual fun sign(key: PrivKey<*>) {
-        sign1Message.sign(key.toCoseRepresentation() as OneKey)
+    actual fun sign(key: PrivKey) {
+        sign1Message.sign((key as JvmPrivKey).toCoseRepresentation())
     }
 
     actual fun encode() = sign1Message.EncodeToBytes()

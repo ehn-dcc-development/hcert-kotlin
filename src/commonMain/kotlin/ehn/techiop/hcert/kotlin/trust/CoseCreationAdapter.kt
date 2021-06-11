@@ -9,7 +9,7 @@ expect class CoseCreationAdapter constructor(content: ByteArray) {
 
     fun addUnprotectedAttribute(key: CoseHeaderKeys, value: Any)
 
-    fun sign(key: PrivKey<*>)
+    fun sign(key: PrivKey)
 
     fun encode(): ByteArray
 

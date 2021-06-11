@@ -5,8 +5,8 @@ expect class CryptoAdapter constructor(
     keySize: Int = 256,
 ) {
 
-    val privateKey: PrivKey<*>
-    val publicKey: PubKey<*>
+    val privateKey: PrivKey
+    val publicKey: PubKey
     val privateKeyBase64: String
 
 }

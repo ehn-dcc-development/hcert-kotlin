@@ -25,7 +25,7 @@ actual class CoseCreationAdapter actual constructor(private val content: ByteArr
         unprotectedHeader.set(key.stringVal, content)
     }
 
-    actual fun sign(key: PrivKey<*>) {
+    actual fun sign(key: PrivKey) {
         val header = json("p" to protectedHeader, "u" to unprotectedHeader)
         encoded = Cose.sign(header, content, key).toByteArray()
     }
