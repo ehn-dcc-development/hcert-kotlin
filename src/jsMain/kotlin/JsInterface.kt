@@ -1,22 +1,16 @@
-import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.chain.Chain
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.DecodeJsResult
-import ehn.techiop.hcert.kotlin.chain.DefaultChain
-import ehn.techiop.hcert.kotlin.chain.SampleData
-import ehn.techiop.hcert.kotlin.chain.asBase64
-import ehn.techiop.hcert.kotlin.chain.from
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
-import ehn.techiop.hcert.kotlin.chain.impl.FileBasedCryptoService
-import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
-import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
-import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
-import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.impl.*
+import io.github.aakira.napier.Napier
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.khronos.webgl.ArrayBuffer
 import kotlin.js.Json as jsJson
+
+@JsExport
+@JsName("setLogLevel")
+fun setLogLevel(level: String?) =
+    ehn.techiop.hcert.kotlin.log.setLogLevel(Napier.Level.values().firstOrNull { it.name == level?.uppercase() })
 
 @JsExport
 @JsName("Verifier")

@@ -90,6 +90,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.datetime}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:${Versions.serialization}")
+                implementation("io.github.aakira:napier:${Versions.logging}")
             }
         }
         val commonTest by getting {
