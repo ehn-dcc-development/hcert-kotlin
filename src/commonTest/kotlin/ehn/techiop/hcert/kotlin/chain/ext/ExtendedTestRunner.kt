@@ -32,11 +32,6 @@ class CommonTests : ExtendedTestRunner(allOfficialTestCases()
 
 class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("common/") }
-    // CBOR Tags are not supported by kotlinx.serialization:
-    .filterNot { it.key.contains("SE/2DCode/raw/2") } // CborDecodingException: Expected start of string, but found C0
-    .filterNot { it.key.contains("SE/2DCode/raw/4") } // CborDecodingException: Expected start of string, but found C0
-    .filterNot { it.key.contains("SI/2DCode/raw/2") } // CborDecodingException: Expected start of string, but found C0
-    .filterNot { it.key.contains("SI/2DCode/raw/4") } // CborDecodingException: Expected start of string, but found C0
     // Errors from member states in context files:
     .filterNot { it.key.contains("BG/2DCode/raw/1") } // DateTimeParseException: Text '2021-03-09T00:00:00' could not be parsed, unparsed text found at index 10
     .filterNot { it.key.contains("BG/2DCode/raw/2") } // DateTimeParseException: Text '2021-05-11T00:00:00' could not be parsed, unparsed text found at index 10
