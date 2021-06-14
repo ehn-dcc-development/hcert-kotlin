@@ -26,8 +26,10 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
                     throw Throwable("Data does not follow schema: ${result.errors}")
                 }
             }
-        } catch (t: Throwable) {
-            verificationResult.error = Error.CBOR_DESERIALIZATION_FAILED
+        } catch (e: Throwable) {
+            throw e.also {
+                verificationResult.error = Error.SCHEMA_VALIDATION_FAILED
+            }
         }
     }
 

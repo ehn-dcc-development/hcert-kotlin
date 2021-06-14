@@ -206,10 +206,10 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     val newResult = VerificationResult()
                     DefaultSchemaValidationService().validate(case.cborHex.fromHexString(), newResult)
                     if (it) newResult.error shouldBe null
-                    if (!it) newResult.error shouldBe Error.CBOR_DESERIALIZATION_FAILED
+                    if (!it) newResult.error shouldBe Error.SCHEMA_VALIDATION_FAILED
                 }
                 if (!it) {
-                    verificationResult.error shouldBe Error.CBOR_DESERIALIZATION_FAILED
+                    verificationResult.error shouldBe Error.SCHEMA_VALIDATION_FAILED
                     errorExpected = true
                 }
             }

@@ -144,6 +144,7 @@ The resulting `error` may be one of the following (the list is identical to Vali
  - `BASE_45_DECODING_FAILED`: Error in Base45 decoding
  - `COSE_DESERIALIZATION_FAILED`: not used
  - `CBOR_DESERIALIZATION_FAILED`: Error in decoding CBOR or CWT structures
+ - `SCHEMA_VALIDATION_FAILED`: Data does not conform to schema (on iOS, this is a `CBOR_DESERIALIZATION_FAILED`)
  - `CWT_EXPIRED`: Timestamps in CWT are not correct, e.g. expired before issuing timestamp
  - `QR_CODE_ERROR`: not used
  - `CERTIFICATE_QUERY_FAILED`: not used
