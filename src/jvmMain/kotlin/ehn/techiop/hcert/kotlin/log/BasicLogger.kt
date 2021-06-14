@@ -7,16 +7,16 @@ import java.io.StringWriter
 import java.util.logging.*
 import java.util.regex.Pattern
 
+private const val CALL_STACK_INDEX = 8
+
 //based on default JVM debug Antilog
-internal actual fun antilog(defaultTag: String?) = object : Antilog() {
+actual open class BasicLogger actual constructor(protected val defaultTag: String?) : Antilog() {
+
     private val handler: List<Handler> = listOf()
 
-    private val CALL_STACK_INDEX = 8
-
-    val consoleHandler: ConsoleHandler = ConsoleHandler().apply {
+    protected val consoleHandler: ConsoleHandler = ConsoleHandler().apply {
         level = Level.ALL
         formatter = SimpleFormatter()
-
     }
 
     private val logger: Logger = Logger.getLogger(this::class.java.name).apply {
@@ -66,18 +66,18 @@ internal actual fun antilog(defaultTag: String?) = object : Antilog() {
     private fun buildLog(tag: String?, message: String?): String {
         val src = try {
             Thread.currentThread().stackTrace.drop(4)
-                .firstOrNull { !it.className.startsWith("io.github.aakira.napier") } ?: "Antilog"
+                .firstOrNull { !it.className.startsWith("io.github.aakira.napier") } ?: "BasicLogger"
         } catch (t: Throwable) {
-            "Antilog"
+            "BasicLogger"
         }
         return "$src\n\t${tag ?: performTag(defaultTag ?: "")} - $message"
     }
 
     private fun performTag(defaultTag: String): String {
-        val thread = Thread.currentThread().stackTrace
+        val stack = Thread.currentThread().stackTrace
 
-        return if (thread != null && thread.size >= CALL_STACK_INDEX) {
-            thread[CALL_STACK_INDEX].run {
+        return if (stack.size >= CALL_STACK_INDEX) {
+            stack[CALL_STACK_INDEX].run {
                 "${createStackElementTag(className)}\$$methodName"
             }
         } else {

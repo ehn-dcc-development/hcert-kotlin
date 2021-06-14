@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
-import ehn.techiop.hcert.kotlin.log.antilog
 import ehn.techiop.hcert.kotlin.log.globalLogLevel
 import io.github.aakira.napier.Napier
 import kotlin.js.JsName

@@ -2,7 +2,7 @@ package ehn.techiop.hcert.kotlin
 
 import ehn.techiop.hcert.kotlin.chain.CryptoServiceHolder
 import ehn.techiop.hcert.kotlin.crypto.KeyType
-import ehn.techiop.hcert.kotlin.log.antilog
+import ehn.techiop.hcert.kotlin.log.BasicLogger
 import ehn.techiop.hcert.kotlin.log.setLogLevel
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import io.github.aakira.napier.Napier
@@ -19,7 +19,7 @@ class A000InitTestContext : FunSpec({
         //This is pretty awesome, as it supports an arbitrary number of arbitrary loggers
         //So we could create a custom test logger, which collects all log messages their parameters
         //This would allows us to write tests, which make sure that both JS and JVM target provide the same level of details (i.e. meaningful stack traces for exceptions, which are currently heavily platform-specific)
-        Napier.base(antilog())
+        Napier.base(BasicLogger())
         Napier.i(message = "Logging enabled, you should see me!", tag = "Test Context")
     }
 
