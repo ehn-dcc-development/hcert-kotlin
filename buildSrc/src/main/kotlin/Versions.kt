@@ -1,6 +1,8 @@
 object Versions {
     const val kotlin = "1.5.10"
     const val serialization = "1.2.1"
+    //cannot use 0.2.1 due to https://youtrack.jetbrains.com/issue/KT-43237 when also seeking to expose node module
+    //however, we only release bundles and can monkey-patch it (see webpack.config.d/patch.js)
     const val datetime = "0.2.1"
     const val kotest = "4.6.0"
     const val licenseReport = "1.16"

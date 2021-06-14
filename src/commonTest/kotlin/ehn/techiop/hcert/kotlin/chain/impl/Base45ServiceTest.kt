@@ -4,6 +4,7 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 import ehn.techiop.hcert.kotlin.chain.toHexString
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import kotlin.random.Random
@@ -34,19 +35,6 @@ class Base45ServiceTest : FunSpec({
         // transfer
         val decoded = Base45Encoder.decode(encoded)
         (decoded.asList() shouldBe deflated.asList())
-    }
-
-
-    test("ZLib random compress+deflate") {
-        val compressorService = DefaultCompressorService()
-        val input = Random.nextBytes(32).toHexString()
-        val deflated = compressorService.encode(input.encodeToByteArray())
-        val encoded = Base45Encoder.encode(deflated)
-        // transfer
-        val decoded = Base45Encoder.decode(encoded)
-        decoded.asList() shouldBe deflated.asList()
-        val inflated = compressorService.decode(decoded, VerificationResult())
-        inflated.decodeToString() shouldBe input
     }
 
 })
