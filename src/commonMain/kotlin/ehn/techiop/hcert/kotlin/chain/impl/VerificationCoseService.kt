@@ -13,7 +13,7 @@ class VerificationCoseService constructor(private val repository: CertificateRep
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         try {
-            val coseAdapter = CoseAdapter(strippedInput(input))
+            val coseAdapter = CoseAdapter(input)
             val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
                 ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
                 ?: throw IllegalArgumentException("KID not found").also {
@@ -34,10 +34,4 @@ class VerificationCoseService constructor(private val repository: CertificateRep
         }
     }
 
-    // Input may be tagged as a CWT and a Sign1
-    private fun strippedInput(input: ByteArray): ByteArray {
-        if (input.size >= 3 && input[0] == 0xD8.toByte() && input[1] == 0x3D.toByte() && input[2] == 0xD2.toByte())
-            return input.drop(2).toByteArray()
-        return input
-    }
 }

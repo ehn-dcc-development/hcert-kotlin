@@ -48,25 +48,20 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("FR/2DCode/raw/recovery") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("FR/2DCode/raw/test_pcr") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("FR/2DCode/raw/vaccin") } // Throwable: issuedAt>clock.now()
+    .filterNot { it.key.contains("LU/2DCode/raw/INCERT_R_DCC_Recovery") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("PL/2DCode/raw/10") } // Throwable: issuedAt<certValidFrom
     .filterNot { it.key.contains("NL/") } // Nearly every testcase has a schema error
     .filterNot { it.key.contains("test+recovery") } // Certificate missing OID
     .filterNot { it.key.contains("recovery+vaccination") } // Certificate missing OID
     .filterNot { it.key.contains("test+vaccination") } // Certificate missing OID
-    // todos for us, maybe also logical errors in test files:
-    .filterNot { it.key.contains("LU/2DCode/raw/INCERT_R_DCC_Recovery") } // Wrong test on key usage: Expected UNSUITABLE_PUBLIC_KEY_TYPE but actual was null
-    .filterNot { it.key.contains("IS/2DCode/raw/3") } // Wrong test on key usage: Expected UNSUITABLE_PUBLIC_KEY_TYPE but actual was null
-    .filterNot { it.key.contains("PL/2DCode/raw/7") } // Expected SCHEMA_VALIDATION_FAILED but actual was null
-    .filterNot { it.key.contains("PL/2DCode/raw/8") } // Expected SCHEMA_VALIDATION_FAILED but actual was null
-    .filterNot { it.key.contains("PL/2DCode/raw/9") } // Expected SCHEMA_VALIDATION_FAILED but actual was null
-    // todos for us, maybe errors in JS:
-    .filterNot { it.key.contains("ES/2DCode/raw/1501") } // JS Illegal cast in CoseAdapter
-    .filterNot { it.key.contains("ES/2DCode/raw/1502") } // JS Illegal cast in CoseAdapter
-    .filterNot { it.key.contains("ES/2DCode/raw/1503") } // JS Illegal cast in CoseAdapter
-    .filterNot { it.key.contains("ES/2DCode/raw/401") } // JS COSE not validated
-    .filterNot { it.key.contains("ES/2DCode/raw/402") } // JS COSE not validated
-    .filterNot { it.key.contains("ES/2DCode/raw/403") } // JS COSE not validated
-
+    .filterNot { it.key.contains("IS/2DCode/raw/3") } // Wrong test on key usage: Expected UNSUITABLE_PUBLIC_KEY_TYPE but actual was null, see https://github.com/eu-digital-green-certificates/dgc-testdata/issues/244
+    .filterNot { it.key.contains("ES/2DCode/raw/401") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
+    .filterNot { it.key.contains("ES/2DCode/raw/402") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
+    .filterNot { it.key.contains("ES/2DCode/raw/403") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
+     // Probably not an error for us:
+    .filterNot { it.key.contains("PL/2DCode/raw/7") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Entry for "ma"="9999" not in value set
+    .filterNot { it.key.contains("PL/2DCode/raw/8") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Country not valid" "co"="XY"
+    .filterNot { it.key.contains("PL/2DCode/raw/9") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Entry for "ma"="ORG-99999999" not in value set
     .workaroundKotestNamingBug())
 
 abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
