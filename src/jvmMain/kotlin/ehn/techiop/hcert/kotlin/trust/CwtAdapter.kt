@@ -16,15 +16,13 @@ actual class CwtAdapter actual constructor(private val input: ByteArray) {
 
     actual fun getNumber(key: Int) = map[key]?.AsInt64() as Number?
 
-    actual fun getMap(key: Int): CwtAdapter? {
-        if (!map.ContainsKey(key)) return null
+    actual fun getDgcContent(outerKey: Int, innerKey: Int): ByteArray? {
+        if (!map.ContainsKey(outerKey)) return null
         return try {
-            CwtAdapter(map[key].GetByteString())
+            map[outerKey][innerKey].EncodeToBytes()
         } catch (e: Throwable) {
-            CwtAdapter(map[key].EncodeToBytes())
+            null
         }
     }
-
-    actual fun encoded() = input
 
 }

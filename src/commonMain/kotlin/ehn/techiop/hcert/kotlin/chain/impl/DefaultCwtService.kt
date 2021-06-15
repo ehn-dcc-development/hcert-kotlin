@@ -70,10 +70,8 @@ open class DefaultCwtService constructor(
                 }
             }
 
-            map.getMap(CwtHeaderKeys.HCERT.intVal)?.let { hcert ->
-                hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.intVal)?.let { eudgcV1 ->
-                    return eudgcV1.encoded()
-                }
+            map.getDgcContent(CwtHeaderKeys.HCERT.intVal, CwtHeaderKeys.EUDGC_IN_HCERT.intVal)?.let { it ->
+                return it
             }
             throw Throwable("CWT contains no HCERT or EUDGC")
         } catch (e: Throwable) {

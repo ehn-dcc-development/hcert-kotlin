@@ -8,8 +8,6 @@ expect class CwtAdapter constructor(input: ByteArray) {
 
     fun getNumber(key: Int): Number?
 
-    fun getMap(key: Int): CwtAdapter?
-
-    fun encoded(): ByteArray
+    fun getDgcContent(outerKey: Int, innerKey: Int): ByteArray?
 
 }

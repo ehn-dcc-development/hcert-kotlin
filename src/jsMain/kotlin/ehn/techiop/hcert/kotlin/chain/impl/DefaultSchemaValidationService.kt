@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import AJV2020
-import Cbor.DecodeOptions
+import Cbor.DecoderOptions
 import MainResourceHolder
 import addFormats
 import ehn.techiop.hcert.kotlin.chain.Error
@@ -32,13 +32,12 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
 
     override fun validate(cbor: ByteArray, verificationResult: VerificationResult) {
         jsTry {
-            val json = Cbor.Decoder.decodeFirstSync(input = cbor.toBuffer(), options = object : DecodeOptions {})
+            val json = Cbor.Decoder.decodeFirstSync(input = cbor.toBuffer(), options = object : DecoderOptions {})
             if (!ajv.validate(schema, json)) {
                 val uppercase = cbor.toHexString().uppercase()
-                if (uppercase.contains("627363C1") // optional cbor tag C1 for "sc"
+                if (uppercase.contains("627363C0") // optional cbor tag C1 for "sc"
                     && (ajv.errors as Array<*>).size == 1
                     && JSON.stringify(ajv.errors).contains("#/properties/sc/type")) {
-                    // TODO why is this encoded as C1? COSE input contains C0 ...
                     // val sc = json.asDynamic()["t"][0]["sc"] // js("typeof sc") = object ... but why not a string?
                 } else {
                     throw Throwable("Data does not follow schema: ${JSON.stringify(ajv.errors)}")
