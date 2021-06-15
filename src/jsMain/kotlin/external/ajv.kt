@@ -1,8 +1,13 @@
-@file:Suppress("INTERFACE_WITH_SUPERCLASS", "OVERRIDING_FINAL_MEMBER", "RETURN_TYPE_MISMATCH_ON_OVERRIDE", "CONFLICTING_OVERLOADS")
+@file:Suppress(
+    "INTERFACE_WITH_SUPERCLASS",
+    "OVERRIDING_FINAL_MEMBER",
+    "RETURN_TYPE_MISMATCH_ON_OVERRIDE",
+    "CONFLICTING_OVERLOADS"
+)
 
 @JsNonModule
 @JsModule("ajv")
-external open class AJV {
+open external class AJV {
     fun validate(schema: dynamic, data: dynamic): Boolean
     fun validateSchema(schema: dynamic): Boolean
     fun addKeyword(keyword: String)
