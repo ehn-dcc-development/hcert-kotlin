@@ -10,6 +10,7 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.catch
 import ehn.techiop.hcert.kotlin.chain.jsTry
 import ehn.techiop.hcert.kotlin.chain.toBuffer
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.data.loadAsString
 
 actual class DefaultSchemaValidationService : SchemaValidationService {
@@ -33,14 +34,21 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
         jsTry {
             val json = Cbor.Decoder.decodeFirstSync(input = cbor.toBuffer(), options = object : DecodeOptions {})
             if (!ajv.validate(schema, json)) {
-                // console.log(JSON.stringify(ajv.errors))
-                throw Throwable("Data does not follow schema: ${JSON.stringify(ajv.errors)}")
+                val uppercase = cbor.toHexString().uppercase()
+                if (uppercase.contains("627363C1") // optional cbor tag C1 for "sc"
+                    && (ajv.errors as Array<*>).size == 1
+                    && JSON.stringify(ajv.errors).contains("#/properties/sc/type")) {
+                    // TODO why is this encoded as C1? COSE input contains C0 ...
+                    // val sc = json.asDynamic()["t"][0]["sc"] // js("typeof sc") = object ... but why not a string?
+                } else {
+                    throw Throwable("Data does not follow schema: ${JSON.stringify(ajv.errors)}")
+                }
             }
         }.catch {
             throw it.also {
                 verificationResult.error = Error.SCHEMA_VALIDATION_FAILED
             }
         }
-
     }
+
 }

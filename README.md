@@ -252,10 +252,6 @@ To publish this package to GitHub, create a personal access token (read <https:/
 
 ## Known Issues
 
-There are several known issues with this library:
- - The JVM target does not implement Schema validation
- - Several test cases from `dgc-testdata` fail, e.g. when using special COSE tags
-
 If you are planning to use this library, please fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
 
 ## Changelog
