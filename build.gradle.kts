@@ -6,7 +6,7 @@ plugins {
     id("maven-publish")
 }
 
-group = "ehn.techiop.hcert"
+group = "io.section42"
 version = "1.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
