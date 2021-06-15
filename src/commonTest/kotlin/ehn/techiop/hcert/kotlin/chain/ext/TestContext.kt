@@ -29,8 +29,10 @@ data class TestContext(
         get() = Instant.parse(fixInstantString(_validationClock))
 
     /**
-     * Some memberstate tests from dgc-testdata actually don't include the Zulu time zone marker ...
+     * Some memberstate tests from dgc-testdata actually don't include the Zulu time zone marker,
+     * and some include the offset wrongly as "+0200" instead of "+02:00"
      */
-    private fun fixInstantString(s: String) =
-        if (s.contains('Z') || s.contains("+")) s else s + 'Z'
+    private fun fixInstantString(s: String): String {
+        return if (s.contains('Z') || s.contains("+")) s.replace("+0200", "+02:00") else s + 'Z'
+    }
 }
