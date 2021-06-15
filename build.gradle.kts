@@ -85,11 +85,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                //cannot use 0.2.1 due to https://youtrack.jetbrains.com/issue/KT-43237 when also seeking to expose node module
-                //however, we only release bundles and can monkey-patch it (see webpack.config.d/patch.js)
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.datetime}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:${Versions.serialization}")
+                implementation("io.github.aakira:napier:${Versions.logging}")
             }
         }
         val commonTest by getting {
@@ -119,7 +118,9 @@ kotlin {
             sourceSets { kotlin.srcDir("src/jsMain/generated") }
             dependencies {
                 implementation(npm("pako", Versions.js.pako))
-                implementation(npm("@types/pako", Versions.js.pakoTypes, generateExternals = true))
+                //cannot overload chunked inflater due to conflicting overloads from generated externals
+                //…and so we patch again
+                //implementation(npm("@types/pako", Versions.js.pakoTypes, generateExternals = true))
                 implementation(npm("pkijs", Versions.js.pkijs))
                 implementation(npm("cose-js", File("${projectDir.absolutePath}/cose-js"), generateExternals = false))
                 implementation(npm("crypto-browserify", Versions.js.`crypto-browserify`))
