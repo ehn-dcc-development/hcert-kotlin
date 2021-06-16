@@ -16,7 +16,9 @@ class Chain(
     private val contextIdentifierService: ContextIdentifierService,
     private val compressorService: CompressorService,
     private val base45Service: Base45Service,
-    private val schemaValidationService: SchemaValidationService
+    private val schemaValidationService: SchemaValidationService,
+    private val higherOrderValidationService: HigherOrderValidationService
+
 ) {
 
     /**
@@ -57,7 +59,7 @@ class Chain(
         val verificationResult = VerificationResult()
 
         var eudgc: GreenCertificate? = null
-        var cbor: ByteArray? = null
+        var rawEuGcc: String? = null
         var cwt: ByteArray? = null
         var cose: ByteArray? = null
         var compressed: ByteArray? = null
@@ -69,13 +71,14 @@ class Chain(
             cose = compressorService.decode(compressed, verificationResult)
             cwt = coseService.decode(cose, verificationResult)
             val cborObj = cwtService.decode(cwt, verificationResult)
-
-            eudgc = cborService.decode(cborObj, verificationResult)
+            rawEuGcc = cborObj.toJsonString()
+            val schemaValidated = schemaValidationService.validate(cborObj, verificationResult)
+            eudgc = higherOrderValidationService.validate(schemaValidated, verificationResult)
         } catch (t: Throwable) {
             // ignore it on purpose, the verificationResult will contain an error
         }
 
-        val chainDecodeResult = ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded)
+        val chainDecodeResult = ChainDecodeResult(eudgc, rawEuGcc, cwt, cose, compressed, encoded)
         return DecodeResult(verificationResult, chainDecodeResult)
     }
 }

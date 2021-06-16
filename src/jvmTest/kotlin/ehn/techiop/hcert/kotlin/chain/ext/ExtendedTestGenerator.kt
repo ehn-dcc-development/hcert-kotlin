@@ -1,17 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.kotlin.chain.Base45Service
-import ehn.techiop.hcert.kotlin.chain.CborService
-import ehn.techiop.hcert.kotlin.chain.Chain
-import ehn.techiop.hcert.kotlin.chain.ChainResult
-import ehn.techiop.hcert.kotlin.chain.CompressorService
-import ehn.techiop.hcert.kotlin.chain.ContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.CoseService
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.CwtService
-import ehn.techiop.hcert.kotlin.chain.SampleData
-import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.chain.faults.BothProtectedWrongCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.BothUnprotectedWrongCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.BrokenCoseService
@@ -24,17 +13,7 @@ import ehn.techiop.hcert.kotlin.chain.faults.NoopCompressorService
 import ehn.techiop.hcert.kotlin.chain.faults.NoopContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.faults.UnprotectedCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.WrongUnprotectedCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
-import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
-import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
-import ehn.techiop.hcert.kotlin.chain.toHexString
+import ehn.techiop.hcert.kotlin.chain.impl.*
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
@@ -856,7 +835,8 @@ class ExtendedTestGenerator {
         val contextIdentifierService: ContextIdentifierService,
         val compressorService: CompressorService,
         val base45Service: Base45Service,
-        val schemaValidationService: SchemaValidationService
+        val schemaValidationService: SchemaValidationService,
+        val higherOrderValidationService: HigherOrderValidationService
     ) {
         companion object {
             fun good(clock: Clock, cryptoService: CryptoService) = ChainBuilder(
@@ -866,7 +846,8 @@ class ExtendedTestGenerator {
                 DefaultContextIdentifierService(),
                 DefaultCompressorService(),
                 DefaultBase45Service(),
-                DefaultSchemaValidationService()
+                DefaultSchemaValidationService(),
+                DefaultHigherOrderValidationService()
             )
         }
 
@@ -878,7 +859,8 @@ class ExtendedTestGenerator {
                 contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                schemaValidationService,
+                higherOrderValidationService
             )
 
         fun with(base45Service: Base45Service) =
@@ -889,7 +871,8 @@ class ExtendedTestGenerator {
                 contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                schemaValidationService,
+                higherOrderValidationService
             )
 
         fun with(contextIdentifierService: ContextIdentifierService) =
@@ -900,7 +883,8 @@ class ExtendedTestGenerator {
                 contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                schemaValidationService,
+                higherOrderValidationService
             )
 
         fun build() =
@@ -911,7 +895,8 @@ class ExtendedTestGenerator {
                 contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                schemaValidationService,
+                higherOrderValidationService
             )
 
         fun with(cryptoService: CryptoService) = Chain(
@@ -920,7 +905,9 @@ class ExtendedTestGenerator {
             DefaultCoseService(cryptoService),
             contextIdentifierService,
             compressorService,
-            base45Service, schemaValidationService
+            base45Service,
+            schemaValidationService,
+            higherOrderValidationService
         )
 
         fun with(coseService: CoseService) =
@@ -931,7 +918,8 @@ class ExtendedTestGenerator {
                 contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                schemaValidationService,
+                higherOrderValidationService
             )
 
         fun with(cwtService: CwtService) =
@@ -942,7 +930,8 @@ class ExtendedTestGenerator {
                 contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                schemaValidationService,
+                higherOrderValidationService
             )
 
         fun with(cborService: CborService) =
@@ -953,7 +942,8 @@ class ExtendedTestGenerator {
                 contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                schemaValidationService,
+                higherOrderValidationService
             )
 
     }

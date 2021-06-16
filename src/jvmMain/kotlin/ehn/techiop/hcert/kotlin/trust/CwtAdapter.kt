@@ -31,7 +31,7 @@ class JvmCwtAdapter(private val input: ByteArray) : CwtAdapter {
     }
 
     override fun toCborObject(): CborObject = JvmCborObject(map)
-    internal class JvmCborObject(cbor: CBORObject) : CborObject {
-        internal val jsonRepresentation:String = cbor.ToJSONString()
+    internal class JvmCborObject(private val cbor: CBORObject) : CborObject {
+        override fun toJsonString() = cbor.ToJSONString()
     }
 }

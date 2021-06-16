@@ -15,7 +15,7 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
 
     override fun validate(cbor: CborObject, verificationResult: VerificationResult): GreenCertificate {
         try {
-            val json = (cbor as JvmCwtAdapter.JvmCborObject).jsonRepresentation
+            val json = (cbor as JvmCwtAdapter.JvmCborObject).toJsonString()
             val resource = javaClass.classLoader.getResourceAsStream("json/DCC.combined-schema.json")
                 ?: throw IllegalArgumentException("Schema not found")
             val parser = Parser(uriResolver = { resource })

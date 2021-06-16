@@ -1,13 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
+import ehn.techiop.hcert.kotlin.chain.impl.*
 import kotlinx.datetime.Clock
 import kotlin.js.JsName
 
@@ -21,7 +14,7 @@ object DefaultChain {
         DefaultContextIdentifierService(),
         DefaultCompressorService(),
         DefaultBase45Service(),
-        DefaultSchemaValidationService()
+        DefaultSchemaValidationService(), DefaultHigherOrderValidationService()
     )
 
     /**
@@ -35,6 +28,7 @@ object DefaultChain {
         DefaultContextIdentifierService(),
         DefaultCompressorService(),
         DefaultBase45Service(),
-        DefaultSchemaValidationService()
+        DefaultSchemaValidationService(),
+        DefaultHigherOrderValidationService()
     )
 }

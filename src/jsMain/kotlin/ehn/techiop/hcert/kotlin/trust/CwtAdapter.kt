@@ -51,5 +51,7 @@ class JsCwtAdapter(private val map: dynamic) : CwtAdapter {
 
     //This seems gruesome, but works on JS since the Interface does not declare any members
     override fun toCborObject(): CborObject = JsCborObject(map)
-    class JsCborObject(internal val internalRepresentation: dynamic) : CborObject
+    class JsCborObject(internal val internalRepresentation: dynamic) : CborObject {
+        override fun toJsonString()=JSON.stringify(internalRepresentation)
+    }
 }

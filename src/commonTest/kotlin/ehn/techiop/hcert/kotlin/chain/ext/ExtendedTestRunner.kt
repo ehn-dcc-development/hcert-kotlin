@@ -1,14 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.kotlin.chain.DefaultChain
-import ehn.techiop.hcert.kotlin.chain.Error
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.fromHexString
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultHigherOrderValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
-import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.StringSpec
@@ -59,7 +55,7 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("ES/2DCode/raw/401") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
     .filterNot { it.key.contains("ES/2DCode/raw/402") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
     .filterNot { it.key.contains("ES/2DCode/raw/403") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
-     // Probably not an error for us:
+    // Probably not an error for us:
     .filterNot { it.key.contains("PL/2DCode/raw/7") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Entry for "ma"="9999" not in value set
     .filterNot { it.key.contains("PL/2DCode/raw/8") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Country not valid" "co"="XY"
     .filterNot { it.key.contains("PL/2DCode/raw/9") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Entry for "ma"="ORG-99999999" not in value set
@@ -155,7 +151,13 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     if (case.cborHex != null) {
                         val newResult = VerificationResult()
 
-                        DefaultCborService().decode(CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), newResult)
+                        //TODO cleanup test cases for new chain
+                        DefaultHigherOrderValidationService().validate(
+                            DefaultSchemaValidationService().validate(
+                                CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(),
+                                newResult
+                            ), newResult
+                        )
                         newResult.error shouldBe null
                     }
                 } else {
@@ -175,7 +177,15 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 if (errorExpected) {
                     chainResult.chainDecodeResult.eudgc shouldBe null
                     if (case.cborHex != null) {
-                        val dgc = DefaultCborService().decode(CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), VerificationResult())
+                        //TODO cleanup test cases for new chain
+                        val newResult = VerificationResult()
+                        val dgc =
+                            DefaultHigherOrderValidationService().validate(
+                                DefaultSchemaValidationService().validate(
+                                    CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(),
+                                    newResult
+                                ), newResult
+                            )
                         dgc shouldBe case.eudgc
                     }
                 } else {
@@ -192,7 +202,9 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 // Our implementation exits early with a COSE error
                 if (errorExpected && case.cborHex != null) {
                     val newResult = VerificationResult()
-                    DefaultSchemaValidationService().validate(CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), newResult)
+                    DefaultSchemaValidationService().validate(
+                        CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), newResult
+                    )
                     if (it) newResult.error shouldBe null
                     if (!it) newResult.error shouldBe Error.SCHEMA_VALIDATION_FAILED
                 }
