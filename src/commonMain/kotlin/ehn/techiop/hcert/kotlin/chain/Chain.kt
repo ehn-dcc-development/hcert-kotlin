@@ -68,9 +68,9 @@ class Chain(
             compressed = base45Service.decode(encoded, verificationResult)
             cose = compressorService.decode(compressed, verificationResult)
             cwt = coseService.decode(cose, verificationResult)
-            cbor = cwtService.decode(cwt, verificationResult)
-            schemaValidationService.validate(cbor, verificationResult)
-            eudgc = cborService.decode(cbor, verificationResult)
+            val cborObj = cwtService.decode(cwt, verificationResult)
+
+            eudgc = cborService.decode(cborObj, verificationResult)
         } catch (t: Throwable) {
             // ignore it on purpose, the verificationResult will contain an error
         }

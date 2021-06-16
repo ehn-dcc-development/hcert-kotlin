@@ -61,7 +61,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
     actual fun getContent() = sign1Message.GetContent()
 
-    actual fun getContentMap() = CwtAdapter(sign1Message.GetContent())
+    actual fun getContentMap(): CwtAdapter = JvmCwtAdapter(sign1Message.GetContent())
 
     /**
      * Input may be missing COSE Tag 0xD2 = 18 = cose-sign1.

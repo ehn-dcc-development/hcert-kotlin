@@ -9,6 +9,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
 import ehn.techiop.hcert.kotlin.chain.toHexString
+import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.withData
@@ -153,7 +154,8 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 if (errorExpected) {
                     if (case.cborHex != null) {
                         val newResult = VerificationResult()
-                        DefaultCborService().decode(case.cborHex.fromHexString(), newResult)
+
+                        DefaultCborService().decode(CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), newResult)
                         newResult.error shouldBe null
                     }
                 } else {
@@ -173,7 +175,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 if (errorExpected) {
                     chainResult.chainDecodeResult.eudgc shouldBe null
                     if (case.cborHex != null) {
-                        val dgc = DefaultCborService().decode(case.cborHex.fromHexString(), VerificationResult())
+                        val dgc = DefaultCborService().decode(CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), VerificationResult())
                         dgc shouldBe case.eudgc
                     }
                 } else {
@@ -190,7 +192,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 // Our implementation exits early with a COSE error
                 if (errorExpected && case.cborHex != null) {
                     val newResult = VerificationResult()
-                    DefaultSchemaValidationService().validate(case.cborHex.fromHexString(), newResult)
+                    DefaultSchemaValidationService().validate(CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), newResult)
                     if (it) newResult.error shouldBe null
                     if (!it) newResult.error shouldBe Error.SCHEMA_VALIDATION_FAILED
                 }

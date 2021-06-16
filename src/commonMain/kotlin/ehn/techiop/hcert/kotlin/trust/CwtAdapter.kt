@@ -1,6 +1,8 @@
 package ehn.techiop.hcert.kotlin.trust
 
-expect class CwtAdapter constructor(input: ByteArray) {
+import ehn.techiop.hcert.kotlin.data.CborObject
+
+interface CwtAdapter {
 
     fun getByteArray(key: Int): ByteArray?
 
@@ -8,6 +10,11 @@ expect class CwtAdapter constructor(input: ByteArray) {
 
     fun getNumber(key: Int): Number?
 
-    fun getDgcContent(outerKey: Int, innerKey: Int): ByteArray?
+    fun getMap(key: Int): CwtAdapter?
 
+    fun toCborObject(): CborObject
+}
+
+expect object CwtHelper {
+    fun fromCbor(input: ByteArray): CwtAdapter
 }

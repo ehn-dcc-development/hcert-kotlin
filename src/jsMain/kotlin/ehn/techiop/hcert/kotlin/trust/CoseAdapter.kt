@@ -78,7 +78,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
     actual fun getContent() = content.toByteArray()
 
-    actual fun getContentMap() = CwtAdapter(content.toByteArray())
+    actual fun getContentMap() = CwtHelper.fromCbor(content.toByteArray())
 
     /**
      * Input may be missing COSE Tag 0xD2 = 18 = cose-sign1.

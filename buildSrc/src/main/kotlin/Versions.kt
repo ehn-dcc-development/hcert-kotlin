@@ -25,7 +25,6 @@ object Versions {
         const val util = "0.12.3"
         const val buffer = "6.0.3"
         const val process = "0.11.10"
-        const val cbor = "7.0.5"
         const val `node-inspect-extract` = "1.0.7"
         const val sha256 = "1.3.0"
         const val url = "0.11.0"

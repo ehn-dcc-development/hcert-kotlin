@@ -1,28 +1,37 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import com.upokecenter.cbor.CBORObject
+import ehn.techiop.hcert.kotlin.data.CborObject
 
-actual class CwtAdapter actual constructor(private val input: ByteArray) {
+actual object CwtHelper {
+    actual fun fromCbor(input: ByteArray): CwtAdapter = JvmCwtAdapter(input)
+}
+
+class JvmCwtAdapter(private val input: ByteArray) : CwtAdapter {
 
     private val map = CBORObject.DecodeFromBytes(input)
 
-    actual fun getByteArray(key: Int) = try {
+    override fun getByteArray(key: Int) = try {
         map[key]?.GetByteString()
     } catch (e: Throwable) {
         map[key]?.EncodeToBytes()
     }
 
-    actual fun getString(key: Int) = map[key]?.AsString()
+    override fun getString(key: Int) = map[key]?.AsString()
 
-    actual fun getNumber(key: Int) = map[key]?.AsInt64() as Number?
+    override fun getNumber(key: Int) = map[key]?.AsInt64() as Number?
 
-    actual fun getDgcContent(outerKey: Int, innerKey: Int): ByteArray? {
-        if (!map.ContainsKey(outerKey)) return null
+    override fun getMap(key: Int): CwtAdapter? {
+        if (!map.ContainsKey(key)) return null
         return try {
-            map[outerKey][innerKey].EncodeToBytes()
+            JvmCwtAdapter(map[key].GetByteString())
         } catch (e: Throwable) {
-            null
+            JvmCwtAdapter(map[key].EncodeToBytes())
         }
     }
 
+    override fun toCborObject(): CborObject = JvmCborObject(map)
+    internal class JvmCborObject(cbor: CBORObject) : CborObject {
+        internal val jsonRepresentation:String = cbor.ToJSONString()
+    }
 }

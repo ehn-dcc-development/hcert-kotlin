@@ -4,3 +4,6 @@
 [submodule "src/commonTest/resources/dgc-testdata"]
 	path = src/commonTest/resources/dgc-testdata
 	url = git@github.com:eu-digital-green-certificates/dgc-testdata.git
+[submodule "node-cbor"]
+	path = node-cbor
+	url = https://github.com/JesusMcCloud/node-cbor.git
