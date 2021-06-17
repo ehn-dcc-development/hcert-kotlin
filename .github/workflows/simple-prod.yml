@@ -29,5 +29,5 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2.2.3
         with:
-           name: hcert-kotlin.js
+           name: hcert-kotlin-prod.js
            path: build/distributions/hcert-kotlin-prod.js
