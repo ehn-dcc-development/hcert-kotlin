@@ -75,7 +75,7 @@ class Chain(
             val schemaValidated = schemaValidationService.validate(cborObj, verificationResult)
             eudgc = higherOrderValidationService.validate(schemaValidated, verificationResult)
         } catch (t: Throwable) {
-            // ignore it on purpose, the verificationResult will contain an error
+          t.printStackTrace()
         }
 
         val chainDecodeResult = ChainDecodeResult(eudgc, rawEuGcc, cwt, cose, compressed, encoded)

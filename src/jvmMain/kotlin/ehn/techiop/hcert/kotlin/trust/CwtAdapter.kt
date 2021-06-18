@@ -7,7 +7,7 @@ actual object CwtHelper {
     actual fun fromCbor(input: ByteArray): CwtAdapter = JvmCwtAdapter(input)
 }
 
-class JvmCwtAdapter(private val input: ByteArray) : CwtAdapter {
+class JvmCwtAdapter(input: ByteArray) : CwtAdapter {
 
     private val map = CBORObject.DecodeFromBytes(input)
 
@@ -33,5 +33,6 @@ class JvmCwtAdapter(private val input: ByteArray) : CwtAdapter {
     override fun toCborObject(): CborObject = JvmCborObject(map)
     internal class JvmCborObject(private val cbor: CBORObject) : CborObject {
         override fun toJsonString() = cbor.ToJSONString()
+        override fun getVersionString() = cbor["ver"]?.AsString()
     }
 }

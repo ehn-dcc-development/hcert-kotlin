@@ -11,6 +11,7 @@ val inputPaths = listOf(
     "/value-sets/vaccine-mah-manf.json",
     "/value-sets/vaccine-medicinal-product.json",
     "/value-sets/vaccine-prophylaxis.json",
+  //  "/value-sets/country-2-codes.json",
 )
 
 /**
