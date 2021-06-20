@@ -11,4 +11,4 @@
 src/jsTest/generated
 src/jsMain/generated
 
-gradle.properties
+local.properties
