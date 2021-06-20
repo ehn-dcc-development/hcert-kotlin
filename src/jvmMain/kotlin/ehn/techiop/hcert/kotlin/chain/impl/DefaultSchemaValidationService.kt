@@ -8,7 +8,6 @@ import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.JvmCwtAdapter
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import net.pwall.json.schema.JSONSchema
 import net.pwall.json.schema.parser.Parser
 import java.net.URI
 
@@ -33,11 +32,13 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
     }
 
     companion object {
-        private fun loadSchema(version: String): JSONSchema {
-            val resource = javaClass.classLoader.getResourceAsStream("json/schema/$version/DCC.combined-schema.json")
+        private fun loadSchema(version: String) =
+            getSchemaResource(version).use { resource ->
+                Parser(uriResolver = { resource }).parse(URI.create("dummy:///"))
+            }
+
+        private fun getSchemaResource(version: String) =
+            javaClass.classLoader.getResourceAsStream("json/schema/$version/DCC.combined-schema.json")
                 ?: throw IllegalArgumentException("Schema not found")
-            val parser = Parser(uriResolver = { resource })
-            return parser.parse(URI.create("dummy:///"))
-        }
     }
 }
