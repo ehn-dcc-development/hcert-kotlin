@@ -17,6 +17,14 @@ The resources for interop testing are imported as a git submodule from <https://
 
 This Kotlin library is a [mulitplatform project](https://kotlinlang.org/docs/multiplatform.html), with targets for JVM and JavaScript.
 
+## jitpack (maven repo)
+[![](https://jitpack.io/v/section42/hcert-kotlin.svg)](https://jitpack.io/#section42/hcert-kotlin)
+
+- implementation 'com.github.section42.hcert-kotlin:hcert-kotlin:{{release-tag}}'
+- implementation 'com.github.section42.hcert-kotlin:hcert-kotlin-js:{{release-tag}}'
+- implementation 'com.github.section42.hcert-kotlin:hcert-kotlin-jvm:{{release-tag}}'
+
+
 ## Usage (JVM)
 
 `ehn.techiop.hcert.kotlin.chain.Chain` is the main class for encoding and decoding HCERT data. For encoding, pass an instance of a `GreenCertificate` (data class conforming to the JSON schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
