@@ -43,6 +43,10 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("ES/2DCode/raw/2102") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("ES/2DCode/raw/2103") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("HU/2DCode/raw/") } // Throwable: expirationTime>certValidUntil
+    .filterNot { it.key.contains("IE/2DCode/Raw/1") } // Declares illegal schema version 1.0.4 (but would otherwise verify fine against 1.2/1.3)
+    .filterNot { it.key.contains("IE/2DCode/Raw/2") } // Declares illegal schema version 1.0.4 (but would otherwise verify fine against 1.2/1.3)
+    .filterNot { it.key.contains("IE/2DCode/Raw/3") } // Declares illegal schema version 1.0.4 (but would otherwise verify fine against 1.2/1.3)
+    .filterNot { it.key.contains("IE/2DCode/Raw/4") } // Declares illegal schema version 1.0.4 (but would otherwise verify fine against 1.2/1.3)
     .filterNot { it.key.contains("FR/2DCode/raw/recovery") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("FR/2DCode/raw/test_pcr") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("FR/2DCode/raw/vaccin") } // Throwable: issuedAt>clock.now()
@@ -56,7 +60,7 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/11") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
     .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/12") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
     .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/13") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
-     .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/11") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
+    .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/11") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
     .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/12") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
     .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/13") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
     .filterNot { it.key.contains("NL/2DCode/raw/005") } // Data does not follow schema
@@ -160,7 +164,7 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
 
     .filterNot { it.key.contains("NL-test+wrong") } // borked
     //.filterNot { it.key.contains("test+recovery") } // Certificate missing OID
-  //  .filterNot { it.key.contains("recovery+vaccination") } // Certificate missing OID
+    //  .filterNot { it.key.contains("recovery+vaccination") } // Certificate missing OID
     //.filterNot { it.key.contains("test+vaccination") } // Certificate missing OID
     .filterNot { it.key.contains("IS/2DCode/raw/3") } // Wrong test on key usage: Expected UNSUITABLE_PUBLIC_KEY_TYPE but actual was null, see https://github.com/eu-digital-green-certificates/dgc-testdata/issues/244
     .filterNot { it.key.contains("ES/2DCode/raw/401") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285

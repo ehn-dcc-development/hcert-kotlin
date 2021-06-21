@@ -75,6 +75,7 @@ class Chain(
             val schemaValidated = schemaValidationService.validate(cborObj, verificationResult)
             eudgc = higherOrderValidationService.validate(schemaValidated, verificationResult)
         } catch (t: Throwable) {
+            t.printStackTrace()
             // ignore it on purpose, the verificationResult will contain an error
         }
 

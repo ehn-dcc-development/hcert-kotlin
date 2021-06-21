@@ -4,6 +4,8 @@ import AJV2020
 import MainResourceHolder
 import addFormats
 import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.impl.SchemaLoader.Companion.BASE_SCHEMA_VERSION
+import ehn.techiop.hcert.kotlin.chain.impl.SchemaLoader.Companion.knownSchemaVersions
 import ehn.techiop.hcert.kotlin.data.CborObject
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.data.loadAsString
@@ -11,35 +13,26 @@ import ehn.techiop.hcert.kotlin.trust.JsCwtAdapter
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromDynamic
 
-
-actual class DefaultSchemaValidationService : SchemaValidationService {
-
-    //TODO load multiple schema versions into single instance and access by name
-    val ajv13 = AJV2020()
-    val schema13: dynamic
-
-    val ajv12 = AJV2020()
-    val schema12: dynamic
-
-    init {
-        addFormats(ajv13)
-        addFormats(ajv12)
+internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
+    override fun loadSchema(version: String): Pair<AJV2020, dynamic> {
+        //TODO load multiple schema versions into single instance and access by name
+        val ajV2020 = AJV2020()
+        addFormats(ajV2020)
         // Warning: AJV does not support the valueset-uri keyword used in the schema.
         // We configure AJV to ignore the keyword, but that still means we are not checking
         // field values against the allowed options from the linked value sets.
-        ajv13.addKeyword("valueset-uri")
-        ajv12.addKeyword("valueset-uri")
-        schema13 = JSON.parse(MainResourceHolder.loadAsString("json/schema/1.3.0/DCC.combined-schema.json")!!)
-        schema12 = JSON.parse(MainResourceHolder.loadAsString("json/schema/1.2.1/DCC.combined-schema.json")!!)
-        if (!ajv13.validateSchema(schema13)) {
-            throw Throwable("JSON schema invalid: ${JSON.stringify(ajv13.errors)}")
+        ajV2020.addKeyword("valueset-uri")
+        val schema: dynamic =
+            JSON.parse(MainResourceHolder.loadAsString("json/schema/$version/DCC.combined-schema.json")!!)
+        if (!ajV2020.validateSchema(schema)) {
+            throw Throwable("JSON schema invalid: ${JSON.stringify(ajV2020.errors)}")
         }
-        if (!ajv13.validateSchema(schema12)) {
-            throw Throwable("JSON schema invalid: ${JSON.stringify(ajv12.errors)}")
-        }
+        return ajV2020 to schema
     }
+}
 
-
+actual class DefaultSchemaValidationService : SchemaValidationService {
+    private val schemaLoader = JsSchemaLoader()
     override fun validate(cbor: CborObject, verificationResult: VerificationResult): GreenCertificate {
         return jsTry {
             //AJV operates directly on JS objects, if all properties check out, it validates nicely
@@ -48,11 +41,20 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
             //however, CBOR tags and JSON schema do not go well together, so check if the only error thrown
             //concerns the tagged sc
             val json = (cbor as JsCwtAdapter.JsCborObject).internalRepresentation
-            val (ajv, schema) = if ("1.3.0" == cbor.getVersionString()) (ajv13 to schema13) else (ajv12 to schema12)
+            val versionString = cbor.getVersionString() ?: throw Throwable("No schema version specified!")
+            val (ajv, schema) = schemaLoader.validators[versionString]
+                ?: throw Throwable("Schema version $versionString is not supported. Supported versions are ${knownSchemaVersions.contentToString()}")
 
-            if (!ajv.validate(schema, json))
-                throw Throwable("Stripped data also does not follow schema: ${JSON.stringify(ajv.errors)}")
-
+            if (!ajv.validate(schema, json)) {
+                //fallback to 1.3.0, since certificates may only conform to this never schema, even though they declare otherwise
+                //this is OK, though, as long as the specified version is actually valid
+                if (versionString < "1.3.0") {
+                    val (ajv13, schema13) = schemaLoader.validators[BASE_SCHEMA_VERSION]!!
+                    if (!ajv13.validate(schema13, json))
+                        throw Throwable("Stripped data also does not follow schema 1.3.0: ${JSON.stringify(ajv13.errors)}")
+                    //TODO log warning
+                } else throw Throwable("Stripped data also does not follow schema $versionString: ${JSON.stringify(ajv.errors)}")
+            }
             Json { ignoreUnknownKeys = true }.decodeFromDynamic<GreenCertificate>(json)
         }.catch {
             throw it.also {
