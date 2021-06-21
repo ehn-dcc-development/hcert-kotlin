@@ -6,7 +6,7 @@ plugins {
     id("maven-publish")
 }
 
-group = "io.section42"
+group = "ehn.techiop.hcert"
 version = "1.0.2-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -153,7 +153,7 @@ publishing {
         mavenLocal()
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/section42/hcert-kotlin")
+            url = uri("https://maven.pkg.github.com/ehn-dcc-development/hcert-kotlin")
             credentials {
                 username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
