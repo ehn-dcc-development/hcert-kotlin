@@ -73,10 +73,12 @@ class Chain(
             cbor = cwtService.decode(cwt, verificationResult)
             schemaValidationService.validate(cbor, verificationResult)
             eudgc = cborService.decode(cbor, verificationResult)
-        } catch (t: Throwable) {
+        } catch (e: VerificationException) {
+            verificationResult.error = e.error
+            verificationResult.errorMessage = e.message
             Napier.w(
-                message = t.message ?: "Decode Chain error",
-                throwable = if (globalLogLevel == Napier.Level.VERBOSE) t else null,
+                message = e.message ?: "Decode Chain error",
+                throwable = if (globalLogLevel == Napier.Level.VERBOSE) e else null,
                 tag = logTag
             )
         }

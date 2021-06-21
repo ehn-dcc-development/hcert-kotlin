@@ -4,12 +4,9 @@ import AJV2020
 import Cbor.DecodeOptions
 import MainResourceHolder
 import addFormats
-import ehn.techiop.hcert.kotlin.chain.Error
-import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.chain.catch
 import ehn.techiop.hcert.kotlin.chain.jsTry
-import ehn.techiop.hcert.kotlin.chain.toBuffer
 import ehn.techiop.hcert.kotlin.data.loadAsString
 
 actual class DefaultSchemaValidationService : SchemaValidationService {
@@ -30,17 +27,14 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
 
 
     override fun validate(cbor: ByteArray, verificationResult: VerificationResult) {
-        jsTry {
-            val json = Cbor.Decoder.decodeFirstSync(input = cbor.toBuffer(), options = object : DecodeOptions {})
-            if (!ajv.validate(schema, json)) {
-                throw Throwable("Data does not follow schema: ${JSON.stringify(ajv.errors)}")
-                // console.log(JSON.stringify(ajv.errors))
-            }
+        val json = jsTry {
+            Cbor.Decoder.decodeFirstSync(input = cbor.toBuffer(), options = object : DecodeOptions {})
         }.catch {
-            throw it.also {
-                verificationResult.error = Error.CBOR_DESERIALIZATION_FAILED
-            }
+            throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, it.message, it)
         }
 
+        if (!ajv.validate(schema, json))
+            throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, "Data does not follow schema: ${JSON.stringify(ajv.errors)}")
+        // console.log(JSON.stringify(ajv.errors))
     }
 }

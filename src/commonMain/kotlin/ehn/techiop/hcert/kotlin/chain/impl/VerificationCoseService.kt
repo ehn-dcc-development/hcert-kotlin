@@ -1,9 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.chain.CoseService
-import ehn.techiop.hcert.kotlin.chain.Error
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.trust.CoseAdapter
 
@@ -12,26 +9,22 @@ class VerificationCoseService constructor(private val repository: CertificateRep
     override fun encode(input: ByteArray) = throw NotImplementedError()
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
-        try {
-            val coseAdapter = CoseAdapter(strippedInput(input))
-            val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
-                ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
-                ?: throw IllegalArgumentException("KID not found").also {
-                    verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
-                }
-            //val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
-            // TODO is the algorithm relevant?
-            if (!coseAdapter.validate(kid, repository, verificationResult)) {
-                throw IllegalArgumentException("Not validated").also {
-                    verificationResult.error = Error.SIGNATURE_INVALID
-                }
-            }
-            return coseAdapter.getContent()
+        val coseAdapter = try {
+            CoseAdapter(strippedInput(input))
         } catch (e: Throwable) {
-            throw e.also {
-                verificationResult.error = Error.SIGNATURE_INVALID
-            }
+            throw VerificationException(Error.SIGNATURE_INVALID, e.message, e)
         }
+
+        val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
+            ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
+            ?: throw VerificationException(Error.KEY_NOT_IN_TRUST_LIST, "KID not found")
+
+        //val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
+        // TODO is the algorithm relevant?
+        if (!coseAdapter.validate(kid, repository, verificationResult))
+            throw VerificationException(Error.SIGNATURE_INVALID, "Not validated")
+
+        return coseAdapter.getContent()
     }
 
     // Input may be tagged as a CWT and a Sign1
