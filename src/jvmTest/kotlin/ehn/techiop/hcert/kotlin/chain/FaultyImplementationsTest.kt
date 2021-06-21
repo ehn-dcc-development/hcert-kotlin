@@ -22,113 +22,113 @@ private val schemaValidationService = DefaultSchemaValidationService()
 private val higherOrderValidationService = DefaultHigherOrderValidationService()
 private val chainCorrect =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        contextIdentifierService,
         compressorService,
         base45Service,
-        schemaValidationService,
-        higherOrderValidationService
+        contextIdentifierService
     )
 private val chainFaultyBase45 =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        contextIdentifierService,
         compressorService,
         FaultyBase45Service(),
-        schemaValidationService,
-        higherOrderValidationService
+        contextIdentifierService
     )
 private val chainFaultyCompressor =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        contextIdentifierService,
         FaultyCompressorService(),
         base45Service,
-        schemaValidationService,
-        higherOrderValidationService
+        contextIdentifierService
     )
 private val chainNoopCompressor =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        contextIdentifierService,
         NoopCompressorService(),
         base45Service,
-        schemaValidationService,
-        higherOrderValidationService
+        contextIdentifierService
     )
 private val chainNoopContextIdentifier =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        NoopContextIdentifierService(),
         compressorService,
         base45Service,
-        schemaValidationService,
-        higherOrderValidationService
+        NoopContextIdentifierService()
     )
 private val chainUnverifiableCose =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         NonVerifiableCoseService(cryptoService),
-        contextIdentifierService,
         compressorService,
         base45Service,
-        schemaValidationService,
-        higherOrderValidationService
+        contextIdentifierService
     )
 private val chainUnprotectedCose =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         UnprotectedCoseService(cryptoService),
-        contextIdentifierService,
         compressorService,
         base45Service,
-        schemaValidationService,
-        higherOrderValidationService
+        contextIdentifierService
     )
 private val chainFaultyCose =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         FaultyCoseService(cryptoService),
-        contextIdentifierService,
         compressorService,
         base45Service,
-        schemaValidationService,
-        higherOrderValidationService
+        contextIdentifierService
     )
 private val chainFaultyCwt =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         FaultyCwtService(),
         coseService,
-        contextIdentifierService,
         compressorService,
         base45Service,
-        schemaValidationService,
-        higherOrderValidationService
+        contextIdentifierService
     )
 private val chainFaultyCbor =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         FaultyCborService(),
         cwtService,
         coseService,
-        contextIdentifierService,
         compressorService,
         base45Service,
-        schemaValidationService,
-        higherOrderValidationService
+        contextIdentifierService
     )
 
 private val input = SampleData.vaccination

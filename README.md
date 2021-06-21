@@ -227,20 +227,23 @@ These classes also use `ValueSetEntry` objects, that are loaded from the valuese
 
 ## Configuration
 
-Nearly every object in this library can be configured using constructor parameters. Most of these parameters have, opinionated, default values, e.g. `Clock.System` for `clock`, used to get the current timestamp.
+Nearly every object in this library can be configured using constructor parameters. Most of these parameters have opinionated, default values, e.g. `Clock.System` for `clock`, used to get the current timestamp.
 
 One example: The validity for the TrustList, as well as the validity of the HCERT in CBOR can be passed as a `validity` parameter (instance of a `Duration`) when constructing the objects:
 
 ```Java
 CryptoService cryptoService = new RandomEcKeyCryptoService(256); // or some fixed key crypto service
+HigherOrderValidationService higherOrdeValidationService = new DefaultHigherOrderValidationService();
+SchemaValidationService schemaValidationService = new DefaultSchemaValidationService();
 CborService cborService = new DefaultCborService();
 CwtService cwtService = new DefaultCwtService("AT", Duration.hours(24)); // validity for HCERT content
 CoseService coseService = new DefaultCoseService(cryptoService);
-ContextIdentifierService contextIdentifierService = new DefaultContextIdentifierService("HC1:");
 CompressorService compressorService = new DefaultCompressorService(9); // level of compression
 Base45Service base45Service = new DefaultBase45Service();
+ContextIdentifierService contextIdentifierService = new DefaultContextIdentifierService("HC1:");
 
-Chain chain = new Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service);
+
+Chain chain = new Chain(higherOrdeValidationService, schemaValidationService, cborService, cwtService, coseService, compressorService, base45Service, contextIdentifierService);
 ChainResult result = chain.encode(input);
 ```
 
@@ -298,6 +301,7 @@ For the JVM target:
  - [ZXing](https://github.com/zxing/zxing), under the Apache-2.0 License
  - [Bouncycastle](https://github.com/bcgit/bc-java), under an [MIT-compatible license](https://www.bouncycastle.org/licence.html)
  - [JUnit](https://github.com/junit-team/junit5), under the Eclipse Public License v2.0
+ - [json-kotlin-schema](https://github.com/pwall567/json-kotlin-schema), under the MIT License
 
 For the JS target:
  - [pako](https://github.com/nodeca/pako), under the MIT License

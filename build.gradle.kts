@@ -106,8 +106,9 @@ kotlin {
                 implementation("com.google.zxing:core:${Versions.jvm.zxing}")
                 implementation("com.google.zxing:javase:${Versions.jvm.zxing}")
                 implementation("org.bouncycastle:bcpkix-jdk15to18:${Versions.jvm.bcpkix}")
-                implementation("javax.validation:validation-api:${Versions.jvm.validation}")
+                implementation("javax.validation:validation-api:${Versions.jvm.validation}") //??? what for ???
                 implementation("net.pwall.json:json-kotlin-schema:${Versions.jvm.jsonSchema}")
+                implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}") //explicit declaration to overrule subdependency version
             }
         }
         val jvmTest by getting {

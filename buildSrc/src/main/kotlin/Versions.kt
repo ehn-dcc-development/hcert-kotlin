@@ -12,7 +12,7 @@ object Versions {
         const val zxing = "3.4.1"
         const val bcpkix = "1.68"
         const val validation = "2.0.1.Final"
-        const val jsonSchema = "0.20"
+        const val jsonSchema = "0.21"
     }
 
     object Js {

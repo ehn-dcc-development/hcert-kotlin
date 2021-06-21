@@ -8,13 +8,13 @@ import kotlin.js.JsName
 object DefaultChain {
     @JsName("buildCreationChain")
     fun buildCreationChain(cryptoService: CryptoService) = Chain(
+        DefaultHigherOrderValidationService(),
+        DefaultSchemaValidationService(),
         DefaultCborService(),
         DefaultCwtService(),
         DefaultCoseService(cryptoService),
-        DefaultContextIdentifierService(),
         DefaultCompressorService(),
-        DefaultBase45Service(),
-        DefaultSchemaValidationService(), DefaultHigherOrderValidationService()
+        DefaultBase45Service(), DefaultContextIdentifierService()
     )
 
     /**
@@ -22,13 +22,13 @@ object DefaultChain {
      */
     @JsName("buildVerificationChain")
     fun buildVerificationChain(repository: CertificateRepository, clock: Clock = Clock.System) = Chain(
+        DefaultHigherOrderValidationService(),
+        DefaultSchemaValidationService(),
         DefaultCborService(),
         DefaultCwtService(clock = clock),
         VerificationCoseService(repository),
-        DefaultContextIdentifierService(),
         DefaultCompressorService(),
         DefaultBase45Service(),
-        DefaultSchemaValidationService(),
-        DefaultHigherOrderValidationService()
+        DefaultContextIdentifierService()
     )
 }

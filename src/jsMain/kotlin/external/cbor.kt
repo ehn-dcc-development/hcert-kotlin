@@ -2,7 +2,8 @@
     "INTERFACE_WITH_SUPERCLASS",
     "OVERRIDING_FINAL_MEMBER",
     "RETURN_TYPE_MISMATCH_ON_OVERRIDE",
-    "CONFLICTING_OVERLOADS"
+    "CONFLICTING_OVERLOADS",
+    "DEPRECATION"
 )
 @file:JsModule("cbor")
 @file:JsNonModule
@@ -15,6 +16,7 @@ import tsstdlib.Iterable
 import kotlin.js.Promise
 
 external interface `T$1` {
+
     @nativeGetter
     operator fun get(tag: Number): ((v: Any) -> Any)?
 

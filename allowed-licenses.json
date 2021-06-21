@@ -28,6 +28,9 @@
             "moduleLicense": "MIT License"
         },
         {
+            "moduleLicense": "The MIT License (MIT)"
+        },
+        {
             // is Apache 2
             "moduleName": "org.jetbrains.kotlinx:kotlinx-serialization-core"
         },

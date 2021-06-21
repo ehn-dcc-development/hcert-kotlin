@@ -1,4 +1,4 @@
-@file:Suppress("INTERFACE_WITH_SUPERCLASS", "OVERRIDING_FINAL_MEMBER", "RETURN_TYPE_MISMATCH_ON_OVERRIDE", "CONFLICTING_OVERLOADS")
+@file:Suppress("INTERFACE_WITH_SUPERCLASS", "OVERRIDING_FINAL_MEMBER", "RETURN_TYPE_MISMATCH_ON_OVERRIDE", "CONFLICTING_OVERLOADS", "DEPRECATION")
 package tsstdlib
 
 import kotlin.js.*
@@ -120,7 +120,5 @@ external interface ArrayConstructor {
 external interface PromiseLike<T> {
     fun then(onfulfilled: ((value: T) -> Any?)? = definedExternally, onrejected: ((reason: Any) -> Any?)? = definedExternally): PromiseLike<dynamic /* TResult1 | TResult2 */>
 }
-
-typealias Readonly<T> = Any
 
 external interface ThisType<T>

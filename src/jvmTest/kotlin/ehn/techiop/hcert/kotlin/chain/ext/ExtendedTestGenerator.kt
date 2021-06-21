@@ -853,97 +853,97 @@ class ExtendedTestGenerator {
 
         fun with(compressorService: CompressorService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService,
-                higherOrderValidationService
+                contextIdentifierService
             )
 
         fun with(base45Service: Base45Service) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService,
-                higherOrderValidationService
+                contextIdentifierService
             )
 
         fun with(contextIdentifierService: ContextIdentifierService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService,
-                higherOrderValidationService
+                contextIdentifierService
             )
 
         fun build() =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService,
-                higherOrderValidationService
+                contextIdentifierService
             )
 
         fun with(cryptoService: CryptoService) = Chain(
+            higherOrderValidationService,
+            schemaValidationService,
             cborService,
             cwtService,
             DefaultCoseService(cryptoService),
-            contextIdentifierService,
             compressorService,
             base45Service,
-            schemaValidationService,
-            higherOrderValidationService
+            contextIdentifierService
         )
 
         fun with(coseService: CoseService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService,
-                higherOrderValidationService
+                contextIdentifierService
             )
 
         fun with(cwtService: CwtService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService,
-                higherOrderValidationService
+                contextIdentifierService
             )
 
         fun with(cborService: CborService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService,
-                higherOrderValidationService
+                contextIdentifierService
             )
 
     }

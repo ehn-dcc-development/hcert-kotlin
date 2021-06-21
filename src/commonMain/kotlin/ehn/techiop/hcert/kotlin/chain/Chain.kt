@@ -10,15 +10,14 @@ import kotlin.js.JsName
  * @see [GreenCertificate]
  */
 class Chain(
+    private val higherOrderValidationService: HigherOrderValidationService,
+    private val schemaValidationService: SchemaValidationService,
     private val cborService: CborService,
     private val cwtService: CwtService,
     private val coseService: CoseService,
-    private val contextIdentifierService: ContextIdentifierService,
     private val compressorService: CompressorService,
     private val base45Service: Base45Service,
-    private val schemaValidationService: SchemaValidationService,
-    private val higherOrderValidationService: HigherOrderValidationService
-
+    private val contextIdentifierService: ContextIdentifierService
 ) {
 
     /**
