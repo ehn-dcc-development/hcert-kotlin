@@ -21,17 +21,20 @@ data class ValueSetHolder(
     val valueSets: List<ValueSet>
 ) {
     fun find(valueSetId: String, key: String): ValueSetEntryAdapter {
+        // we'll trim it, to work around entries containing whitespace
+        val trimmed = key.trim()
         return valueSets.firstOrNull { it.valueSetId == valueSetId }
-            ?.valueSetValues?.get(key)?.let { ValueSetEntryAdapter(key, it) }
-            ?: return buildMissingValueSetEntry(key, valueSetId)
+            ?.valueSetValues?.get(trimmed)?.let { ValueSetEntryAdapter(trimmed, it) }
+            ?: return buildMissingValueSetEntry(trimmed, valueSetId)
     }
 
     fun find(key: String): ValueSetEntryAdapter {
+        val trimmed = key.trim()
         valueSets.forEach {
-            if (it.valueSetValues.containsKey(key))
-                return ValueSetEntryAdapter(key, it.valueSetValues[key]!!)
+            if (it.valueSetValues.containsKey(trimmed))
+                return ValueSetEntryAdapter(trimmed, it.valueSetValues[trimmed]!!)
         }
-        return buildMissingValueSetEntry(key, null)
+        return buildMissingValueSetEntry(trimmed, null)
     }
 
     private fun buildMissingValueSetEntry(key: String, valueSetId: String?): ValueSetEntryAdapter {
