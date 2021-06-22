@@ -36,40 +36,40 @@ open class DefaultCwtService constructor(
     override fun decode(input: ByteArray, verificationResult: VerificationResult): CborObject {
         try {
             val map = CwtHelper.fromCbor(input)
-
+            // issuer is truly optional
             map.getString(CwtHeaderKeys.ISSUER.intVal)?.let {
                 verificationResult.issuer = it
             }
 
-            map.getNumber(CwtHeaderKeys.ISSUED_AT.intVal)?.let {
-                val issuedAt = Instant.fromEpochSeconds(it.toLong())
-                verificationResult.issuedAt = issuedAt
-                verificationResult.certificateValidFrom?.let { certValidFrom ->
-                    if (issuedAt < certValidFrom)
-                        throw VerificationException(Error.CWT_EXPIRED, "issuedAt<certValidFrom")
-                }
-                if (issuedAt > clock.now())
-                    throw VerificationException(Error.CWT_EXPIRED, "issuedAt>clock.now()")
+            val issuedAtSeconds = map.getNumber(CwtHeaderKeys.ISSUED_AT.intVal)
+                ?: throw VerificationException(Error.CWT_EXPIRED, "issuedAt null")
+            val issuedAt = Instant.fromEpochSeconds(issuedAtSeconds.toLong())
+            verificationResult.issuedAt = issuedAt
+            verificationResult.certificateValidFrom?.let { certValidFrom ->
+                if (issuedAt < certValidFrom)
+                    throw VerificationException(Error.CWT_EXPIRED, "issuedAt<certValidFrom")
             }
+            if (issuedAt > clock.now())
+                throw VerificationException(Error.CWT_EXPIRED, "issuedAt>clock.now()")
 
-            map.getNumber(CwtHeaderKeys.EXPIRATION.intVal)?.let {
-                val expirationTime = Instant.fromEpochSeconds(it.toLong())
-                verificationResult.expirationTime = expirationTime
-                verificationResult.certificateValidUntil?.let { certValidUntil ->
-                    if (expirationTime > certValidUntil)
-                        throw VerificationException(Error.CWT_EXPIRED, "expirationTime>certValidUntil")
-                }
-                if (expirationTime < clock.now())
-                    throw VerificationException(Error.CWT_EXPIRED, "expirationTime<clock.now()")
+            val expirationSeconds = map.getNumber(CwtHeaderKeys.EXPIRATION.intVal)
+                ?: throw VerificationException(Error.CWT_EXPIRED, "expirationTime null")
+            val expirationTime = Instant.fromEpochSeconds(expirationSeconds.toLong())
+            verificationResult.expirationTime = expirationTime
+            verificationResult.certificateValidUntil?.let { certValidUntil ->
+                if (expirationTime > certValidUntil)
+                    throw VerificationException(Error.CWT_EXPIRED, "expirationTime>certValidUntil")
             }
+            if (expirationTime < clock.now())
+                throw VerificationException(Error.CWT_EXPIRED, "expirationTime<clock.now()")
 
-            map.getMap(CwtHeaderKeys.HCERT.intVal)?.let { hcert ->
-                hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.intVal)?.let { eudgcV1 ->
-                    return eudgcV1.toCborObject()
-                }
-            }
+            val hcert: CwtAdapter = map.getMap(CwtHeaderKeys.HCERT.intVal)
+                ?: throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, "CWT contains no HCERT")
 
-            throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, "CWT contains no HCERT or EUDGC")
+            val dgc = hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.intVal)
+                ?: throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, "CWT contains no EUDGC")
+
+            return dgc.toCborObject()
         } catch (e: VerificationException) {
             throw e
         } catch (e: Throwable) {
