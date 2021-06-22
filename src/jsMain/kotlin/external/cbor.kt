@@ -2,7 +2,8 @@
     "INTERFACE_WITH_SUPERCLASS",
     "OVERRIDING_FINAL_MEMBER",
     "RETURN_TYPE_MISMATCH_ON_OVERRIDE",
-    "CONFLICTING_OVERLOADS"
+    "CONFLICTING_OVERLOADS",
+    "DEPRECATION"
 )
 @file:JsModule("cbor")
 @file:JsNonModule
@@ -15,6 +16,7 @@ import tsstdlib.Iterable
 import kotlin.js.Promise
 
 external interface `T$1` {
+
     @nativeGetter
     operator fun get(tag: Number): ((v: Any) -> Any)?
 
@@ -32,9 +34,6 @@ external interface DecoderOptions {
     var bigint: Boolean?
         get() = definedExternally
         set(value) = definedExternally
-}
-
-external interface DecodeOptions {
     var encoding: String?
         get() = definedExternally
         set(value) = definedExternally
@@ -49,48 +48,48 @@ open external class Map(iterable: Iterable<Any> = definedExternally) {
 open external class Decoder(options: DecoderOptions = definedExternally) {
     companion object {
         fun nullcheck(param_val: Any): Any
-        fun decodeFirstSync(input: String, options: DecodeOptions = definedExternally): Any
+        fun decodeFirstSync(input: String, options: DecoderOptions = definedExternally): Any
         fun decodeFirstSync(input: String, options: String = definedExternally): Any
-        fun decodeFirstSync(input: Buffer, options: DecodeOptions = definedExternally): Any
+        fun decodeFirstSync(input: Buffer, options: DecoderOptions = definedExternally): Any
         fun decodeFirstSync(input: Buffer, options: String = definedExternally): Any
-        fun decodeFirstSync(input: ArrayBufferView, options: DecodeOptions = definedExternally): Any
+        fun decodeFirstSync(input: ArrayBufferView, options: DecoderOptions = definedExternally): Any
         fun decodeFirstSync(input: ArrayBufferView, options: String = definedExternally): Any
-        fun decodeAllSync(input: String, options: DecodeOptions = definedExternally): Array<Any>
+        fun decodeAllSync(input: String, options: DecoderOptions = definedExternally): Array<Any>
         fun decodeAllSync(input: String, options: String = definedExternally): Array<Any>
-        fun decodeAllSync(input: Buffer, options: DecodeOptions = definedExternally): Array<Any>
+        fun decodeAllSync(input: Buffer, options: DecoderOptions = definedExternally): Array<Any>
 
         /*fun decodeAllSync(input: Buffer, options: String = definedExternally): Array<Any>
-        fun decodeAllSync(input: ArrayBufferView, options: DecodeOptions = definedExternally): Array<Any>
+        fun decodeAllSync(input: ArrayBufferView, options: DecoderOptions = definedExternally): Array<Any>
         fun decodeAllSync(input: ArrayBufferView, options: String = definedExternally): Array<Any>*/
         fun decodeFirst(input: String, cb: (error: Error, value: Any) -> Unit)
         fun decodeFirst(input: Buffer, cb: (error: Error, value: Any) -> Unit)
         fun decodeFirst(input: ArrayBufferView, cb: (error: Error, value: Any) -> Unit)
-        fun decodeFirst(input: String, options: DecodeOptions, cb: (error: Error, value: Any) -> Unit)
+        fun decodeFirst(input: String, options: DecoderOptions, cb: (error: Error, value: Any) -> Unit)
         fun decodeFirst(input: String, options: String, cb: (error: Error, value: Any) -> Unit)
-        fun decodeFirst(input: Buffer, options: DecodeOptions, cb: (error: Error, value: Any) -> Unit)
+        fun decodeFirst(input: Buffer, options: DecoderOptions, cb: (error: Error, value: Any) -> Unit)
         fun decodeFirst(input: Buffer, options: String, cb: (error: Error, value: Any) -> Unit)
-        fun decodeFirst(input: ArrayBufferView, options: DecodeOptions, cb: (error: Error, value: Any) -> Unit)
+        fun decodeFirst(input: ArrayBufferView, options: DecoderOptions, cb: (error: Error, value: Any) -> Unit)
         fun decodeFirst(input: ArrayBufferView, options: String, cb: (error: Error, value: Any) -> Unit)
-        fun decodeFirst(input: String, options: DecodeOptions = definedExternally): Promise<Any>
+        fun decodeFirst(input: String, options: DecoderOptions = definedExternally): Promise<Any>
         fun decodeFirst(input: String, options: String = definedExternally): Promise<Any>
-        fun decodeFirst(input: Buffer, options: DecodeOptions = definedExternally): Promise<Any>
+        fun decodeFirst(input: Buffer, options: DecoderOptions = definedExternally): Promise<Any>
         fun decodeFirst(input: Buffer, options: String = definedExternally): Promise<Any>
-        fun decodeFirst(input: ArrayBufferView, options: DecodeOptions = definedExternally): Promise<Any>
+        fun decodeFirst(input: ArrayBufferView, options: DecoderOptions = definedExternally): Promise<Any>
         fun decodeFirst(input: ArrayBufferView, options: String = definedExternally): Promise<Any>
         fun decodeAll(input: String, cb: (error: Error, value: Array<Any>) -> Unit)
         fun decodeAll(input: Buffer, cb: (error: Error, value: Array<Any>) -> Unit)
         fun decodeAll(input: ArrayBufferView, cb: (error: Error, value: Array<Any>) -> Unit)
-        fun decodeAll(input: String, options: DecodeOptions, cb: (error: Error, value: Array<Any>) -> Unit)
+        fun decodeAll(input: String, options: DecoderOptions, cb: (error: Error, value: Array<Any>) -> Unit)
         fun decodeAll(input: String, options: String, cb: (error: Error, value: Array<Any>) -> Unit)
-        fun decodeAll(input: Buffer, options: DecodeOptions, cb: (error: Error, value: Array<Any>) -> Unit)
+        fun decodeAll(input: Buffer, options: DecoderOptions, cb: (error: Error, value: Array<Any>) -> Unit)
         fun decodeAll(input: Buffer, options: String, cb: (error: Error, value: Array<Any>) -> Unit)
-        fun decodeAll(input: ArrayBufferView, options: DecodeOptions, cb: (error: Error, value: Array<Any>) -> Unit)
+        fun decodeAll(input: ArrayBufferView, options: DecoderOptions, cb: (error: Error, value: Array<Any>) -> Unit)
         fun decodeAll(input: ArrayBufferView, options: String, cb: (error: Error, value: Array<Any>) -> Unit)
-        fun decodeAll(input: String, options: DecodeOptions = definedExternally): Promise<Any>
+        fun decodeAll(input: String, options: DecoderOptions = definedExternally): Promise<Any>
         fun decodeAll(input: String, options: String = definedExternally): Promise<Any>
-        fun decodeAll(input: Buffer, options: DecodeOptions = definedExternally): Promise<Any>
+        fun decodeAll(input: Buffer, options: DecoderOptions = definedExternally): Promise<Any>
         fun decodeAll(input: Buffer, options: String = definedExternally): Promise<Any>
-        fun decodeAll(input: ArrayBufferView, options: DecodeOptions = definedExternally): Promise<Any>
+        fun decodeAll(input: ArrayBufferView, options: DecoderOptions = definedExternally): Promise<Any>
         fun decodeAll(input: ArrayBufferView, options: String = definedExternally): Promise<Any>
     }
 }

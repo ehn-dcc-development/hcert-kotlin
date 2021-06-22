@@ -1,17 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.kotlin.chain.Base45Service
-import ehn.techiop.hcert.kotlin.chain.CborService
-import ehn.techiop.hcert.kotlin.chain.Chain
-import ehn.techiop.hcert.kotlin.chain.ChainResult
-import ehn.techiop.hcert.kotlin.chain.CompressorService
-import ehn.techiop.hcert.kotlin.chain.ContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.CoseService
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.CwtService
-import ehn.techiop.hcert.kotlin.chain.SampleData
-import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.chain.faults.BothProtectedWrongCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.BothUnprotectedWrongCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.BrokenCoseService
@@ -24,17 +13,7 @@ import ehn.techiop.hcert.kotlin.chain.faults.NoopCompressorService
 import ehn.techiop.hcert.kotlin.chain.faults.NoopContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.faults.UnprotectedCoseService
 import ehn.techiop.hcert.kotlin.chain.faults.WrongUnprotectedCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
-import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
-import ehn.techiop.hcert.kotlin.chain.impl.RandomRsaKeyCryptoService
-import ehn.techiop.hcert.kotlin.chain.toHexString
+import ehn.techiop.hcert.kotlin.chain.impl.*
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
@@ -856,7 +835,8 @@ class ExtendedTestGenerator {
         val contextIdentifierService: ContextIdentifierService,
         val compressorService: CompressorService,
         val base45Service: Base45Service,
-        val schemaValidationService: SchemaValidationService
+        val schemaValidationService: SchemaValidationService,
+        val higherOrderValidationService: HigherOrderValidationService
     ) {
         companion object {
             fun good(clock: Clock, cryptoService: CryptoService) = ChainBuilder(
@@ -866,94 +846,104 @@ class ExtendedTestGenerator {
                 DefaultContextIdentifierService(),
                 DefaultCompressorService(),
                 DefaultBase45Service(),
-                DefaultSchemaValidationService()
+                DefaultSchemaValidationService(),
+                DefaultHigherOrderValidationService()
             )
         }
 
         fun with(compressorService: CompressorService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                contextIdentifierService
             )
 
         fun with(base45Service: Base45Service) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                contextIdentifierService
             )
 
         fun with(contextIdentifierService: ContextIdentifierService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                contextIdentifierService
             )
 
         fun build() =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                contextIdentifierService
             )
 
         fun with(cryptoService: CryptoService) = Chain(
+            higherOrderValidationService,
+            schemaValidationService,
             cborService,
             cwtService,
             DefaultCoseService(cryptoService),
-            contextIdentifierService,
             compressorService,
-            base45Service, schemaValidationService
+            base45Service,
+            contextIdentifierService
         )
 
         fun with(coseService: CoseService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                contextIdentifierService
             )
 
         fun with(cwtService: CwtService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                contextIdentifierService
             )
 
         fun with(cborService: CborService) =
             Chain(
+                higherOrderValidationService,
+                schemaValidationService,
                 cborService,
                 cwtService,
                 coseService,
-                contextIdentifierService,
                 compressorService,
                 base45Service,
-                schemaValidationService
+                contextIdentifierService
             )
 
     }

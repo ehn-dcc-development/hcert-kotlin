@@ -13,7 +13,7 @@ import org.khronos.webgl.Uint8Array
 
 actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
-    val cborJson = Cbor.Decoder.decodeAllSync(Buffer(input.toUint8Array()))
+    val cborJson = Cbor.Decoder.decodeAllSync(Buffer(augmentedInput(input).toUint8Array()))
     val cose = cborJson[0] as Cbor.Tagged
 
     @Suppress("UNCHECKED_CAST")
@@ -53,7 +53,7 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
             verificationResult.setCertificateData(trustedCert)
             val result = jsTry {
-                Cose.verifySync(input, trustedCert.publicKey) !== undefined
+                Cose.verifySync(augmentedInput(input), trustedCert.publicKey) !== undefined
             }.catch {
                 false
             }
@@ -70,21 +70,38 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         verificationResult.setCertificateData(cryptoService.getCertificate())
         val pubKey = cryptoService.getCborVerificationKey(kid, verificationResult)
         return jsTry {
-            Cose.verifySync(input, pubKey) !== undefined
+            Cose.verifySync(augmentedInput(input), pubKey) !== undefined
         }.catch {
             false
         }
     }
 
-    private fun strippedInput(input: ByteArray): ByteArray {
-        if (input.size >= 2 && input[0] == 0x84.toByte()) {
-            return byteArrayOf(0xD4.toByte()) + input
+    actual fun getContent() = content.toByteArray()
+
+    actual fun getContentMap() = CwtHelper.fromCbor(content.toByteArray())
+
+    /**
+     * Input may be missing COSE Tag 0xD2 = 18 = cose-sign1.
+     * But we need this, to cast the parsed object to [Cbor.Tagged].
+     * So we'll add the Tag to the input.
+     *
+     * It may also be tagged as a CWT (0xD8, 0x3D) and a Sign1 (0xD2).
+     * But the library expects only one tag.
+     * So we'll strip the CWT tag from the input.
+     */
+    private fun augmentedInput(input: ByteArray): ByteArray {
+        if (input.size >= 1 && isArray(input[0]))
+            return byteArrayOf(0xD2.toByte()) + input
+        if (input.size >= 3 && isCwt(input[0], input[1]) && isSign1(input[2])) {
+            return input.drop(2).toByteArray()
         }
         return input
     }
 
-    actual fun getContent() = content.toByteArray()
+    private fun isSign1(byte: Byte) = byte == 0xD2.toByte()
 
-    actual fun getContentMap() = CwtAdapter(content.toByteArray())
+    private fun isCwt(firstByte: Byte, secondByte: Byte) = firstByte == 0xD8.toByte() && secondByte == 0x3D.toByte()
+
+    private fun isArray(byte: Byte) = byte == 0x84.toByte()
 
 }

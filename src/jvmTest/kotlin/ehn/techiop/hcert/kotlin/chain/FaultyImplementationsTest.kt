@@ -1,23 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain
 
 
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyBase45Service
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyCborService
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyCompressorService
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyCoseService
-import ehn.techiop.hcert.kotlin.chain.faults.FaultyCwtService
-import ehn.techiop.hcert.kotlin.chain.faults.NonVerifiableCoseService
-import ehn.techiop.hcert.kotlin.chain.faults.NoopCompressorService
-import ehn.techiop.hcert.kotlin.chain.faults.NoopContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.faults.UnprotectedCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
+import ehn.techiop.hcert.kotlin.chain.faults.*
+import ehn.techiop.hcert.kotlin.chain.impl.*
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -34,97 +19,116 @@ private val contextIdentifierService = DefaultContextIdentifierService()
 private val compressorService = DefaultCompressorService()
 private val base45Service = DefaultBase45Service()
 private val schemaValidationService = DefaultSchemaValidationService()
+private val higherOrderValidationService = DefaultHigherOrderValidationService()
 private val chainCorrect =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        contextIdentifierService,
         compressorService,
         base45Service,
-        schemaValidationService
+        contextIdentifierService
     )
 private val chainFaultyBase45 =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        contextIdentifierService,
         compressorService,
-        FaultyBase45Service(), schemaValidationService
+        FaultyBase45Service(),
+        contextIdentifierService
     )
 private val chainFaultyCompressor =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        contextIdentifierService,
         FaultyCompressorService(),
-        base45Service, schemaValidationService
+        base45Service,
+        contextIdentifierService
     )
 private val chainNoopCompressor =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        contextIdentifierService,
         NoopCompressorService(),
         base45Service,
-        schemaValidationService
+        contextIdentifierService
     )
 private val chainNoopContextIdentifier =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         coseService,
-        NoopContextIdentifierService(),
         compressorService,
-        base45Service, schemaValidationService
+        base45Service,
+        NoopContextIdentifierService()
     )
 private val chainUnverifiableCose =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         NonVerifiableCoseService(cryptoService),
-        contextIdentifierService,
         compressorService,
-        base45Service, schemaValidationService
+        base45Service,
+        contextIdentifierService
     )
 private val chainUnprotectedCose =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         UnprotectedCoseService(cryptoService),
-        contextIdentifierService,
         compressorService,
-        base45Service, schemaValidationService
+        base45Service,
+        contextIdentifierService
     )
 private val chainFaultyCose =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         cwtService,
         FaultyCoseService(cryptoService),
-        contextIdentifierService,
         compressorService,
-        base45Service, schemaValidationService
+        base45Service,
+        contextIdentifierService
     )
 private val chainFaultyCwt =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         cborService,
         FaultyCwtService(),
         coseService,
-        contextIdentifierService,
         compressorService,
-        base45Service, schemaValidationService
+        base45Service,
+        contextIdentifierService
     )
 private val chainFaultyCbor =
     Chain(
+        higherOrderValidationService,
+        schemaValidationService,
         FaultyCborService(),
         cwtService,
         coseService,
-        contextIdentifierService,
         compressorService,
-        base45Service, schemaValidationService
+        base45Service,
+        contextIdentifierService
     )
 
 private val input = SampleData.vaccination
@@ -208,7 +212,7 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainFaultyCbor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            Error.CBOR_DESERIALIZATION_FAILED
+            Error.SCHEMA_VALIDATION_FAILED
         )
     }
 

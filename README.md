@@ -11,7 +11,7 @@ This library implements a very basic validation and creation chain for electroni
 
 All services are implemented according to <https://github.com/ehn-digital-green-development/hcert-spec>, Version 1.0.5 from 2021-04-18.
 
-The schemata for data classes is imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, Version 1.2.1, from 2021-05-27.
+The schemata for data classes are imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, up to Version 1.3.0, from 2021-06-11.
 
 The resources for interop testing are imported as a git submodule from <https://github.com/eu-digital-green-certificates/dgc-testdata> into `src/commonTest/resources/dgc-testdata`. Please clone this repository with `git clone --recursive` or run `git submodule init && git submodule update` afterwards.
 
@@ -144,6 +144,7 @@ The resulting `error` may be one of the following (the list is identical to Vali
  - `BASE_45_DECODING_FAILED`: Error in Base45 decoding
  - `COSE_DESERIALIZATION_FAILED`: not used
  - `CBOR_DESERIALIZATION_FAILED`: Error in decoding CBOR or CWT structures
+ - `SCHEMA_VALIDATION_FAILED`: Data does not conform to schema (on iOS, this is a `CBOR_DESERIALIZATION_FAILED`)
  - `CWT_EXPIRED`: Timestamps in CWT are not correct, e.g. expired before issuing timestamp
  - `QR_CODE_ERROR`: not used
  - `CERTIFICATE_QUERY_FAILED`: not used
@@ -226,20 +227,23 @@ These classes also use `ValueSetEntry` objects, that are loaded from the valuese
 
 ## Configuration
 
-Nearly every object in this library can be configured using constructor parameters. Most of these parameters have, opinionated, default values, e.g. `Clock.System` for `clock`, used to get the current timestamp.
+Nearly every object in this library can be configured using constructor parameters. Most of these parameters have opinionated, default values, e.g. `Clock.System` for `clock`, used to get the current timestamp.
 
 One example: The validity for the TrustList, as well as the validity of the HCERT in CBOR can be passed as a `validity` parameter (instance of a `Duration`) when constructing the objects:
 
 ```Java
 CryptoService cryptoService = new RandomEcKeyCryptoService(256); // or some fixed key crypto service
+HigherOrderValidationService higherOrdeValidationService = new DefaultHigherOrderValidationService();
+SchemaValidationService schemaValidationService = new DefaultSchemaValidationService();
 CborService cborService = new DefaultCborService();
 CwtService cwtService = new DefaultCwtService("AT", Duration.hours(24)); // validity for HCERT content
 CoseService coseService = new DefaultCoseService(cryptoService);
-ContextIdentifierService contextIdentifierService = new DefaultContextIdentifierService("HC1:");
 CompressorService compressorService = new DefaultCompressorService(9); // level of compression
 Base45Service base45Service = new DefaultBase45Service();
+ContextIdentifierService contextIdentifierService = new DefaultContextIdentifierService("HC1:");
 
-Chain chain = new Chain(cborService, cwtService, coseService, contextIdentifierService, compressorService, base45Service);
+
+Chain chain = new Chain(higherOrdeValidationService, schemaValidationService, cborService, cwtService, coseService, compressorService, base45Service, contextIdentifierService);
 ChainResult result = chain.encode(input);
 ```
 
@@ -249,12 +253,22 @@ Implementers may load values for constructor parameters from a configuration fil
 
 To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`
 
-## Known Issues
+The library is also published on jitpack.io: [![](https://jitpack.io/v/ehn-dcc-development/hcert-kotlin.svg)](https://jitpack.io/#ehn-dcc-development/hcert-kotlin).
 
-There are several known issues with this library:
- - Several test cases from `dgc-testdata` fail, e.g. when using special COSE tags
+Use it in your project like this:
 
-If you are planning to use this library, please fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
+```
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.0.2-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.0.2-SNAPSHOT'
+}
+```
+
+If you are planning to use this library, we'll suggest to fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
 
 ## Changelog
 
@@ -304,6 +318,7 @@ For the JVM target:
  - [ZXing](https://github.com/zxing/zxing), under the Apache-2.0 License
  - [Bouncycastle](https://github.com/bcgit/bc-java), under an [MIT-compatible license](https://www.bouncycastle.org/licence.html)
  - [JUnit](https://github.com/junit-team/junit5), under the Eclipse Public License v2.0
+ - [json-kotlin-schema](https://github.com/pwall567/json-kotlin-schema), under the MIT License
 
 For the JS target:
  - [pako](https://github.com/nodeca/pako), under the MIT License

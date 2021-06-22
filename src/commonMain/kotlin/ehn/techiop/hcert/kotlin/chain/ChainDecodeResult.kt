@@ -8,7 +8,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 @Serializable
 data class ChainDecodeResult(
     val eudgc: GreenCertificate?,
-    val step0Cbor: ByteArray?,
+    val step0rawEuGcc: String?,
     val step1Cwt: ByteArray?,
     val step2Cose: ByteArray?,
     val step3Compressed: ByteArray?,
@@ -21,7 +21,7 @@ data class ChainDecodeResult(
         other as ChainDecodeResult
 
         if (eudgc != other.eudgc) return false
-        if (!step0Cbor.contentEquals(other.step0Cbor)) return false
+        if (!step0rawEuGcc.contentEquals(other.step0rawEuGcc)) return false
         if (!step1Cwt.contentEquals(other.step1Cwt)) return false
         if (!step2Cose.contentEquals(other.step2Cose)) return false
         if (!step3Compressed.contentEquals(other.step3Compressed)) return false
@@ -32,7 +32,7 @@ data class ChainDecodeResult(
 
     override fun hashCode(): Int {
         var result = eudgc.hashCode()
-        result = 31 * result + step0Cbor.contentHashCode()
+        result = 31 * result + step0rawEuGcc.hashCode()
         result = 31 * result + step1Cwt.contentHashCode()
         result = 31 * result + step2Cose.contentHashCode()
         result = 31 * result + step3Compressed.contentHashCode()

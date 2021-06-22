@@ -11,13 +11,14 @@ import kotlin.js.JsName
  * @see [GreenCertificate]
  */
 class Chain(
+    private val higherOrderValidationService: HigherOrderValidationService,
+    private val schemaValidationService: SchemaValidationService,
     private val cborService: CborService,
     private val cwtService: CwtService,
     private val coseService: CoseService,
-    private val contextIdentifierService: ContextIdentifierService,
     private val compressorService: CompressorService,
     private val base45Service: Base45Service,
-    private val schemaValidationService: SchemaValidationService
+    private val contextIdentifierService: ContextIdentifierService
 ) {
     private val logTag = "Chain${hashCode()}"
 
@@ -59,7 +60,7 @@ class Chain(
         val verificationResult = VerificationResult()
 
         var eudgc: GreenCertificate? = null
-        var cbor: ByteArray? = null
+        var rawEuGcc: String? = null
         var cwt: ByteArray? = null
         var cose: ByteArray? = null
         var compressed: ByteArray? = null
@@ -70,9 +71,10 @@ class Chain(
             compressed = base45Service.decode(encoded, verificationResult)
             cose = compressorService.decode(compressed, verificationResult)
             cwt = coseService.decode(cose, verificationResult)
-            cbor = cwtService.decode(cwt, verificationResult)
-            schemaValidationService.validate(cbor, verificationResult)
-            eudgc = cborService.decode(cbor, verificationResult)
+            val cborObj = cwtService.decode(cwt, verificationResult)
+            rawEuGcc = cborObj.toJsonString()
+            val schemaValidated = schemaValidationService.validate(cborObj, verificationResult)
+            eudgc = higherOrderValidationService.validate(schemaValidated, verificationResult)
         } catch (t: Throwable) {
             Napier.w(
                 message = t.message ?: "Decode Chain error",
@@ -81,7 +83,7 @@ class Chain(
             )
         }
 
-        val chainDecodeResult = ChainDecodeResult(eudgc, cbor, cwt, cose, compressed, encoded)
+        val chainDecodeResult = ChainDecodeResult(eudgc, rawEuGcc, cwt, cose, compressed, encoded)
         return DecodeResult(verificationResult, chainDecodeResult)
     }
 }

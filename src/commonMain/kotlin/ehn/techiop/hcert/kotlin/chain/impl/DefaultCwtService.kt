@@ -4,8 +4,10 @@ import ehn.techiop.hcert.kotlin.chain.CwtService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
+import ehn.techiop.hcert.kotlin.data.CborObject
 import ehn.techiop.hcert.kotlin.trust.CwtAdapter
 import ehn.techiop.hcert.kotlin.trust.CwtCreationAdapter
+import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
@@ -30,9 +32,9 @@ open class DefaultCwtService constructor(
         return cwtAdapter.encode()
     }
 
-    override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
+    override fun decode(input: ByteArray, verificationResult: VerificationResult): CborObject {
         try {
-            val map = CwtAdapter(input)
+            val map = CwtHelper.fromCbor(input)
 
             map.getString(CwtHeaderKeys.ISSUER.intVal)?.let {
                 verificationResult.issuer = it
@@ -72,7 +74,7 @@ open class DefaultCwtService constructor(
 
             map.getMap(CwtHeaderKeys.HCERT.intVal)?.let { hcert ->
                 hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.intVal)?.let { eudgcV1 ->
-                    return eudgcV1.encoded()
+                    return eudgcV1.toCborObject()
                 }
             }
             throw Throwable("CWT contains no HCERT or EUDGC")

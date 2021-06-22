@@ -1,13 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
-import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
+import ehn.techiop.hcert.kotlin.chain.impl.*
 import kotlinx.datetime.Clock
 import kotlin.js.JsName
 
@@ -15,13 +8,13 @@ import kotlin.js.JsName
 object DefaultChain {
     @JsName("buildCreationChain")
     fun buildCreationChain(cryptoService: CryptoService) = Chain(
+        DefaultHigherOrderValidationService(),
+        DefaultSchemaValidationService(),
         DefaultCborService(),
         DefaultCwtService(),
         DefaultCoseService(cryptoService),
-        DefaultContextIdentifierService(),
         DefaultCompressorService(),
-        DefaultBase45Service(),
-        DefaultSchemaValidationService()
+        DefaultBase45Service(), DefaultContextIdentifierService()
     )
 
     /**
@@ -29,12 +22,13 @@ object DefaultChain {
      */
     @JsName("buildVerificationChain")
     fun buildVerificationChain(repository: CertificateRepository, clock: Clock = Clock.System) = Chain(
+        DefaultHigherOrderValidationService(),
+        DefaultSchemaValidationService(),
         DefaultCborService(),
         DefaultCwtService(clock = clock),
         VerificationCoseService(repository),
-        DefaultContextIdentifierService(),
         DefaultCompressorService(),
         DefaultBase45Service(),
-        DefaultSchemaValidationService()
+        DefaultContextIdentifierService()
     )
 }

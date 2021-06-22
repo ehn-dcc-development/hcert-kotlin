@@ -1,6 +1,6 @@
 package ehn.techiop.hcert.kotlin.trust
 
-import Cbor.DecodeOptions
+import Cbor.DecoderOptions
 import Cbor.Encoder
 import Cbor.Map
 import ehn.techiop.hcert.kotlin.chain.toBuffer
@@ -23,7 +23,7 @@ actual class CwtCreationAdapter actual constructor() {
 
     actual fun addDgc(key: Int, innerKey: Int, input: ByteArray) {
         val innerMap = Map(js("([])"))
-        val value = Cbor.Decoder.decodeFirstSync(input = input.toBuffer(), options = object : DecodeOptions {})
+        val value = Cbor.Decoder.decodeFirstSync(input = input.toBuffer(), options = object : DecoderOptions {})
         innerMap.set(innerKey, value)
         map.set(key, innerMap)
     }
