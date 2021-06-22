@@ -75,10 +75,11 @@ class Chain(
             rawEuGcc = cborObj.toJsonString()
             val schemaValidated = schemaValidationService.validate(cborObj, verificationResult)
             eudgc = higherOrderValidationService.validate(schemaValidated, verificationResult)
-        } catch (t: Throwable) {
+        } catch (e: VerificationException) {
+            verificationResult.error = e.error
             Napier.w(
-                message = t.message ?: "Decode Chain error",
-                throwable = if (globalLogLevel == Napier.Level.VERBOSE) t else null,
+                message = e.message ?: "Decode Chain error",
+                throwable = if (globalLogLevel == Napier.Level.VERBOSE) e else null,
                 tag = logTag
             )
         }

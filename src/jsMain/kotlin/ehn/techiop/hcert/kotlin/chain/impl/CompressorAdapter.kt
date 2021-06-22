@@ -1,8 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.catch
+import ehn.techiop.hcert.kotlin.chain.NonNullableTryCatch.catch
+import ehn.techiop.hcert.kotlin.chain.NonNullableTryCatch.jsTry
 import ehn.techiop.hcert.kotlin.chain.impl.CompressionConstants.MAX_DECOMPRESSED_SIZE
-import ehn.techiop.hcert.kotlin.chain.jsTry
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.log.formatMag

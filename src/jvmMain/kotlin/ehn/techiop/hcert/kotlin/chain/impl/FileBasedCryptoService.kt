@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
@@ -64,9 +65,9 @@ actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: Str
     override fun getCborSigningKey() = JvmPrivKey(privateKey)
 
     override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey {
-        if (!(keyId contentEquals kid)) throw IllegalArgumentException("kid not known: $kid").also {
-            verificationResult.error = Error.KEY_NOT_IN_TRUST_LIST
-        }
+        if (!(keyId contentEquals kid))
+            throw VerificationException(Error.KEY_NOT_IN_TRUST_LIST, "kid not known: $kid")
+
         verificationResult.setCertificateData(certificate)
         return JvmPubKey(publicKey)
     }

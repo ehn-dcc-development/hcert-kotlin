@@ -1,7 +1,7 @@
 package ehn.techiop.hcert.kotlin.trust
 
-import ehn.techiop.hcert.kotlin.chain.catch
-import ehn.techiop.hcert.kotlin.chain.jsTry
+import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
+import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
 import ehn.techiop.hcert.kotlin.chain.toBuffer
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.data.CborObject
@@ -53,6 +53,11 @@ class JsCwtAdapter(private val map: dynamic) : CwtAdapter {
     override fun toCborObject(): CborObject = JsCborObject(map)
     class JsCborObject(internal val internalRepresentation: dynamic) : CborObject {
         override fun toJsonString() = JSON.stringify(internalRepresentation)
-        override fun getVersionString() = jsTry { internalRepresentation["ver"] as String?}.catch { null  }
+        //if not present in object structure, this is technically a schema issue and we therefore do not handle it here
+        override fun getVersionString() :String? = try {
+            jsTry { internalRepresentation["ver"] as String? }.catch { null }
+        } catch (npe: NullPointerException) {
+            null
+        }
     }
 }

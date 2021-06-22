@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
+import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.impl.SchemaLoader.Companion.BASE_SCHEMA_VERSION
 import ehn.techiop.hcert.kotlin.chain.impl.SchemaLoader.Companion.knownSchemaVersions
@@ -30,9 +31,9 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
         try {
             val json = (cbor as JvmCwtAdapter.JvmCborObject).toJsonString()
 
-            val versionString = cbor.getVersionString() ?: throw Throwable("No schema version specified!")
+            val versionString = cbor.getVersionString() ?: throw VerificationException(Error.SCHEMA_VALIDATION_FAILED, "No schema version specified!")
             val validator = schemaLoader.validators[versionString]
-                ?: throw Throwable("Schema version $versionString is not supported. Supported versions are ${knownSchemaVersions.contentToString()}")
+                ?: throw VerificationException(Error.SCHEMA_VALIDATION_FAILED, "Schema version $versionString is not supported. Supported versions are ${knownSchemaVersions.contentToString()}")
 
             val result = validator.validateBasic(json)
 
@@ -45,15 +46,15 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
                         val validator13 = schemaLoader.validators[BASE_SCHEMA_VERSION]!!
                         val result13 = validator13.validateBasic(json)
                         result13.errors?.let { error13 ->
-                            if (error13.isNotEmpty()) throw Throwable("Data does not follow schema 1.3.0: ${result13.errors?.map { "${it.error}: ${it.keywordLocation}, ${it.instanceLocation}" }}")
+                            if (error13.isNotEmpty()) throw VerificationException(Error.SCHEMA_VALIDATION_FAILED, "Data does not follow schema 1.3.0: ${result13.errors?.map { "${it.error}: ${it.keywordLocation}, ${it.instanceLocation}" }}")
                             //TODO log warning
                         }
-                    } else throw Throwable("Data does not follow schema $versionString: ${result.errors?.map { "${it.error}: ${it.keywordLocation}, ${it.instanceLocation}" }}")
+                    } else throw VerificationException(Error.SCHEMA_VALIDATION_FAILED, "Data does not follow schema $versionString: ${result.errors?.map { "${it.error}: ${it.keywordLocation}, ${it.instanceLocation}" }}")
                 }
             }
             return Json { ignoreUnknownKeys = true }.decodeFromString(json)
         } catch (t: Throwable) {
-            throw t.also { verificationResult.error = Error.SCHEMA_VALIDATION_FAILED }
+            throw t
         }
     }
 

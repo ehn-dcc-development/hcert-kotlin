@@ -4,6 +4,8 @@ import AJV2020
 import MainResourceHolder
 import addFormats
 import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.NonNullableTryCatch.catch
+import ehn.techiop.hcert.kotlin.chain.NonNullableTryCatch.jsTry
 import ehn.techiop.hcert.kotlin.chain.impl.SchemaLoader.Companion.BASE_SCHEMA_VERSION
 import ehn.techiop.hcert.kotlin.chain.impl.SchemaLoader.Companion.knownSchemaVersions
 import ehn.techiop.hcert.kotlin.data.CborObject
@@ -41,9 +43,9 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
             //however, CBOR tags and JSON schema do not go well together, so check if the only error thrown
             //concerns the tagged sc
             val json = (cbor as JsCwtAdapter.JsCborObject).internalRepresentation
-            val versionString = cbor.getVersionString() ?: throw Throwable("No schema version specified!")
+            val versionString = cbor.getVersionString() ?: throw VerificationException(Error.SCHEMA_VALIDATION_FAILED,"No schema version specified!")
             val (ajv, schema) = schemaLoader.validators[versionString]
-                ?: throw Throwable("Schema version $versionString is not supported. Supported versions are ${knownSchemaVersions.contentToString()}")
+                ?: throw VerificationException(Error.SCHEMA_VALIDATION_FAILED, "Schema version $versionString is not supported. Supported versions are ${knownSchemaVersions.contentToString()}")
 
             if (!ajv.validate(schema, json)) {
                 //fallback to 1.3.0, since certificates may only conform to this never schema, even though they declare otherwise
@@ -51,15 +53,13 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
                 if (versionString < "1.3.0") {
                     val (ajv13, schema13) = schemaLoader.validators[BASE_SCHEMA_VERSION]!!
                     if (!ajv13.validate(schema13, json))
-                        throw Throwable("Stripped data also does not follow schema 1.3.0: ${JSON.stringify(ajv13.errors)}")
+                        throw VerificationException(Error.SCHEMA_VALIDATION_FAILED, "Stripped data also does not follow schema 1.3.0: ${JSON.stringify(ajv13.errors)}")
                     //TODO log warning
-                } else throw Throwable("Stripped data also does not follow schema $versionString: ${JSON.stringify(ajv.errors)}")
+                } else throw VerificationException(Error.SCHEMA_VALIDATION_FAILED, "Stripped data also does not follow schema $versionString: ${JSON.stringify(ajv.errors)}")
             }
             Json { ignoreUnknownKeys = true }.decodeFromDynamic<GreenCertificate>(json)
         }.catch {
-            throw it.also {
-                verificationResult.error = Error.SCHEMA_VALIDATION_FAILED
-            }
+            throw it
         }
     }
 }

@@ -2,16 +2,18 @@ package ehn.techiop.hcert.kotlin.trust
 
 import COSE.MessageTag
 import COSE.Sign1Message
-import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 
 actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
-    val sign1Message = Sign1Message.DecodeFromBytes(augmentedInput(input), MessageTag.Sign1) as Sign1Message
+    val sign1Message = try {
+        Sign1Message.DecodeFromBytes(augmentedInput(input), MessageTag.Sign1) as Sign1Message
+    } catch (t: Throwable) {
+        throw VerificationException(Error.SIGNATURE_INVALID, cause = t)
+    }
 
     init {
         Security.addProvider(BouncyCastleProvider()) // for SHA256withRSA/PSS
