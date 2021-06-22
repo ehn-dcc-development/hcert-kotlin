@@ -50,11 +50,6 @@ class VerificationResult {
      */
     var error: Error? = null
 
-    /**
-     * Optional message with details about the error, if any occurred
-     */
-    var errorMessage: String? = null
-
     override fun toString(): String {
         return "VerificationResult(" +
                 "expirationTime=$expirationTime, " +
@@ -65,7 +60,6 @@ class VerificationResult {
                 "certificateValidContent=$certificateValidContent, " +
                 "content=$content, " +
                 "error=$error, " +
-                "errorMessage=$errorMessage" +
                 ")"
     }
 

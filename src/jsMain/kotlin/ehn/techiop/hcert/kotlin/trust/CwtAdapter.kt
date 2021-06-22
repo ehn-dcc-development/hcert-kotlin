@@ -15,49 +15,34 @@ actual object CwtHelper {
 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
 class JsCwtAdapter(private val map: dynamic) : CwtAdapter {
 
-    override fun getByteArray(key: Int): ByteArray? {
-        return jsTry {
-            (map.get(key) as Uint8Array?)?.toByteArray()
-        }.catch {
-            return null
-        }
-    }
+    override fun getByteArray(key: Int): ByteArray? =
+        jsTry { (map.get(key) as Uint8Array?)?.toByteArray() }.catch { null }
 
-    override fun getString(key: Int): String? {
-        return jsTry {
-            map.get(key) as String?
-        }.catch {
-            return null
-        }
-    }
 
-    override fun getNumber(key: Int): Number? {
-        return jsTry {
-            map.get(key) as Number?
-        }.catch {
-            return null
-        }
-    }
+    override fun getString(key: Int): String? =
+        jsTry { map.get(key) as String? }.catch { null }
 
-    override fun getMap(key: Int): CwtAdapter? {
-        return jsTry {
+
+    override fun getNumber(key: Int): Number? =
+        jsTry { map.get(key) as Number? }.catch { null }
+
+
+    override fun getMap(key: Int): CwtAdapter? =
+        jsTry {
             val value = map?.get(key)
             if (value == null || value == undefined) return null
             JsCwtAdapter(value)
         }.catch {
-            return null
+            null
         }
-    }
+
 
     //This seems gruesome, but works on JS since the Interface does not declare any members
     override fun toCborObject(): CborObject = JsCborObject(map)
     class JsCborObject(internal val internalRepresentation: dynamic) : CborObject {
         override fun toJsonString() = JSON.stringify(internalRepresentation)
+
         //if not present in object structure, this is technically a schema issue and we therefore do not handle it here
-        override fun getVersionString() :String? = try {
-            jsTry { internalRepresentation["ver"] as String? }.catch { null }
-        } catch (npe: NullPointerException) {
-            null
-        }
+        override fun getVersionString(): String? = jsTry { internalRepresentation["ver"] as String? }.catch { null }
     }
 }
