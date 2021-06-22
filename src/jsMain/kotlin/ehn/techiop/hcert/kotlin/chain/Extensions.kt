@@ -37,69 +37,31 @@ fun Uint8Array.toByteArray(): ByteArray {
     return ByteArray(this.length) { this[it] }
 }
 
-fun Map<*, *>.mapToJson(): dynamic {
-    val json = js("{}")
-    this.forEach {
-        val value = it.value
-        if (value is Map<*, *>)
-            json[it.key] = value.mapToJson()
-        else
-            json[it.key] = value
-    }
-    return json
-}
-
-fun toMap(container: dynamic): HashMap<String, Any> {
-    val m = HashMap<String, Any>().asDynamic()
-    m.map = container
-    val keys = js("Object.keys")
-    m.`$size` = keys(container).length
-    return m
-}
-
 fun Buffer.Companion.from(arr: ByteArray): Buffer {
     return from(arr.toUint8Array())
 }
 
-internal object NonNullableTryCatch{
-    internal class H<T>(internal val result: T?, internal val err: Throwable?)
-
-    internal inline fun <reified T> jsTry(block: () -> T): H<T> {
-        return try {
-            H(block(), null)
-        } catch (e: dynamic) {
-            H(null, (if (e is Throwable) e else Throwable(JSON.stringify(e))) as? Throwable)
-        }
-    }
-
-    internal inline fun <reified T> H<T>.catch(block: (t: Throwable) -> T): T {
-        return if (this.err == null) result!! else block(this.err)
-    }
-
-    internal inline fun H<Unit>.catch(block: (t: Throwable) -> Unit) {
-        if (this.err != null) block(this.err)
-    }
-}
-
-
 internal object NullableTryCatch {
 
-    internal class N<T>(internal val result: T?, internal val err: Throwable?)
-
-    internal inline fun <reified T> jsTry(block: () -> T?): N<T> {
-        return try {
-            N(block(), null)
-        } catch (e: dynamic) {
-            N(null, (if (e is Throwable) e else Throwable(JSON.stringify(e))) as? Throwable)
-        }
+    internal sealed class Holder<T> {
+        class Result<T>(internal val result: T) : Holder<T>()
+        class Error<T>(internal val throwable: Throwable) : Holder<T>()
     }
 
-    internal inline fun <reified T> N<T>.catch(block: (t: Throwable) -> T?): T? {
-        return if (this.err == null) result else block(this.err)
+    internal inline fun <reified T> jsTry(tryBlock: () -> T) = try {
+        Holder.Result(tryBlock())
+    } catch (e: dynamic) {
+        val throwable = (if (e is Throwable) e else Throwable(JSON.stringify(e))) as Throwable
+        Holder.Error(throwable)
     }
 
-    internal inline fun N<Unit>.catch(block: (t: Throwable) -> Unit) {
-        if (this.err != null) block(this.err)
+    internal inline fun <reified U, T : U> Holder<T>.catch(catchBlock: (t: Throwable) -> U) = when (this) {
+        is Holder.Result<T> -> this.result
+        is Holder.Error<T> -> catchBlock(this.throwable)
+    }
+
+    internal inline fun Holder<Unit>.catch(block: (t: Throwable) -> Unit) {
+        if (this is Holder.Error<Unit>) block(this.throwable)
     }
 
 }

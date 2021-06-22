@@ -2,8 +2,8 @@ package ehn.techiop.hcert.kotlin.trust
 
 import Buffer
 import ehn.techiop.hcert.kotlin.chain.*
-import ehn.techiop.hcert.kotlin.chain.NonNullableTryCatch.catch
-import ehn.techiop.hcert.kotlin.chain.NonNullableTryCatch.jsTry
+import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
+import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import org.khronos.webgl.Uint8Array
 

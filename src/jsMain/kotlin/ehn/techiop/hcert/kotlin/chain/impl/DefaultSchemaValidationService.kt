@@ -4,8 +4,8 @@ import AJV2020
 import MainResourceHolder
 import addFormats
 import ehn.techiop.hcert.kotlin.chain.*
-import ehn.techiop.hcert.kotlin.chain.NonNullableTryCatch.catch
-import ehn.techiop.hcert.kotlin.chain.NonNullableTryCatch.jsTry
+import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
+import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
 import ehn.techiop.hcert.kotlin.chain.impl.SchemaLoader.Companion.BASE_SCHEMA_VERSION
 import ehn.techiop.hcert.kotlin.chain.impl.SchemaLoader.Companion.knownSchemaVersions
 import ehn.techiop.hcert.kotlin.data.CborObject

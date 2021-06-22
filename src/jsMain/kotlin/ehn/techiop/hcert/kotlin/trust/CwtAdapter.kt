@@ -18,14 +18,11 @@ class JsCwtAdapter(private val map: dynamic) : CwtAdapter {
     override fun getByteArray(key: Int): ByteArray? =
         jsTry { (map.get(key) as Uint8Array?)?.toByteArray() }.catch { null }
 
-
     override fun getString(key: Int): String? =
         jsTry { map.get(key) as String? }.catch { null }
 
-
     override fun getNumber(key: Int): Number? =
         jsTry { map.get(key) as Number? }.catch { null }
-
 
     override fun getMap(key: Int): CwtAdapter? =
         jsTry {
