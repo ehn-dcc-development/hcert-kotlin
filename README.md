@@ -225,6 +225,8 @@ Classes in `ehn.techiop.hcert.kotlin.data` provide Kotlin data classes that conf
 
 These classes also use `ValueSetEntry` objects, that are loaded from the valuesets of the dgc-schema. These provide additional information, e.g. for the key "EU/1/20/1528" to map to the vaccine "Comirnaty".
 
+This implementation is on purpose lenient when parsing HCERT data, since there may be some production data out there, that includes timestamps in date objects, or whitespaces in keys for value sets.
+
 ## Configuration
 
 Nearly every object in this library can be configured using constructor parameters. Most of these parameters have opinionated, default values, e.g. `Clock.System` for `clock`, used to get the current timestamp.

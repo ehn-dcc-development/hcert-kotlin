@@ -10,6 +10,7 @@ data class RecoveryStatement(
     val target: ValueSetEntryAdapter,
 
     @SerialName("fr")
+    @Serializable(with = LenientLocalDateParser::class)
     val dateOfFirstPositiveTestResult: LocalDate,
 
     @SerialName("co")
@@ -19,11 +20,14 @@ data class RecoveryStatement(
     val certificateIssuer: String,
 
     @SerialName("df")
+    @Serializable(with = LenientLocalDateParser::class)
     val certificateValidFrom: LocalDate,
 
     @SerialName("du")
+    @Serializable(with = LenientLocalDateParser::class)
     val certificateValidUntil: LocalDate,
 
     @SerialName("ci")
     val certificateIdentifier: String,
-)
+) {
+}

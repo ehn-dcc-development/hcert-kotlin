@@ -25,6 +25,7 @@ data class Vaccination(
     val doseTotalNumber: Int,
 
     @SerialName("dt")
+    @Serializable(with = LenientLocalDateParser::class)
     val date: LocalDate,
 
     @SerialName("co")
