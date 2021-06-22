@@ -19,6 +19,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromDynamic
 
 internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
+
     override fun loadSchema(version: String): Pair<AJV2020, dynamic> {
         //TODO load multiple schema versions into single instance and access by name
         val ajV2020 = AJV2020()
@@ -34,10 +35,13 @@ internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
         }
         return ajV2020 to schema
     }
+
 }
 
 actual class DefaultSchemaValidationService : SchemaValidationService {
+
     private val schemaLoader = JsSchemaLoader()
+
     override fun validate(cbor: CborObject, verificationResult: VerificationResult): GreenCertificate {
         return jsTry {
             //AJV operates directly on JS objects, if all properties check out, it validates nicely
