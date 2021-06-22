@@ -10,8 +10,9 @@ import kotlinx.serialization.encoding.Encoder
 
 
 /**
- * Some memberstate tests from dgc-testdata actually don't include the Zulu time zone marker,
- * and some include the offset wrongly as "+0200" instead of "+02:00"
+ * Some countries encode Instants in a wrong format,
+ * e.g. missing "Z" or the offset "+0200" instead of "+02:00",
+ * so we'll try to work around those issues
  */
 object LenientInstantParser : KSerializer<Instant> {
 
@@ -20,9 +21,9 @@ object LenientInstantParser : KSerializer<Instant> {
 
     override fun deserialize(decoder: Decoder): Instant {
         val value = decoder.decodeString()
-        val offsetFixed = value.replace(Regex("\\+(\\d{2})(\\d{2})")) { "+${it.groupValues[1]}:${it.groupValues[2]}" }
-        val fixed = if (offsetFixed.contains('Z') || offsetFixed.contains("+")) offsetFixed else offsetFixed + 'Z'
-        return Instant.parse(fixed)
+        val fixOffset = value.replace(Regex("\\+(\\d{2})(\\d{2})")) { "+${it.groupValues[1]}:${it.groupValues[2]}" }
+        val fixZulu = if (fixOffset.contains('Z') || fixOffset.contains("+")) fixOffset else fixOffset + 'Z'
+        return Instant.parse(fixZulu)
     }
 
     override fun serialize(encoder: Encoder, value: Instant) {

@@ -11,8 +11,8 @@ import kotlinx.serialization.encoding.Encoder
 
 /**
  * Some countries include a timestamp, e.g. "T00:00:00",
- * where everybody else expectso YYYY-MM-DD only,
- * so strip it, to be able to parse it.
+ * where everybody else expects YYYY-MM-DD only,
+ * so we'll strip it, to be able to parse it.
  */
 object LenientLocalDateParser : KSerializer<LocalDate> {
 
