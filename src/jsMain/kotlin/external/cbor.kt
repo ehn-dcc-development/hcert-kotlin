@@ -39,7 +39,7 @@ external interface DecoderOptions {
         set(value) = definedExternally
 }
 
-open external class Map (iterable: Iterable<Any> = definedExternally) {
+open external class Map(iterable: Iterable<Any> = definedExternally) {
 
     fun get(key: dynamic): dynamic
     fun set(key: dynamic, `val`: dynamic): dynamic

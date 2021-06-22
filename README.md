@@ -259,6 +259,10 @@ If you are planning to use this library, please fork it (internally), and review
 
 ## Changelog
 
+Version 1.0.1:
+ - Validate schema on JVM
+ - Fix usage of this project as a library, e.g. on Android
+
 Version 1.0.0:
  - Convert to a Kotlin multiplatform project, therefore some details may have changed when calling from JVM
  - Implements encoding and decoding data on JS and JVM targets

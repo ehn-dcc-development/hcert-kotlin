@@ -1,8 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
+import ehn.techiop.hcert.kotlin.log.globalLogLevel
+import io.github.aakira.napier.Napier
 import kotlin.js.JsName
-
 
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes
@@ -19,6 +20,7 @@ class Chain(
     private val base45Service: Base45Service,
     private val contextIdentifierService: ContextIdentifierService
 ) {
+    private val logTag = "Chain${hashCode()}"
 
     /**
      * Process the [input], apply encoding in this order:
@@ -74,8 +76,11 @@ class Chain(
             val schemaValidated = schemaValidationService.validate(cborObj, verificationResult)
             eudgc = higherOrderValidationService.validate(schemaValidated, verificationResult)
         } catch (t: Throwable) {
-            t.printStackTrace()
-            // ignore it on purpose, the verificationResult will contain an error
+            Napier.w(
+                message = t.message ?: "Decode Chain error",
+                throwable = if (globalLogLevel == Napier.Level.VERBOSE) t else null,
+                tag = logTag
+            )
         }
 
         val chainDecodeResult = ChainDecodeResult(eudgc, rawEuGcc, cwt, cose, compressed, encoded)
