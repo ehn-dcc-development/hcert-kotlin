@@ -212,7 +212,7 @@ class FaultyImplementationsTest : StringSpec({
         assertVerification(
             chainFaultyCbor.encode(decodedFromInput).step5Prefixed,
             decodedFromInput,
-            Error.SCHEMA_VALIDATION_FAILED
+            Error.CBOR_DESERIALIZATION_FAILED
         )
     }
 

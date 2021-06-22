@@ -23,7 +23,6 @@ private fun Map<String, String>.workaroundKotestNamingBug() =
 class CommonTests : ExtendedTestRunner(allOfficialTestCases()
     .filter { it.key.contains("common/") }
     .filterNot { it.key.contains("DGC2") } // Testcase is not correct?
-    .filterNot { it.key.contains("CBO1") } // Test case not correct? other testcases not correct? Expected :CBOR_DESERIALIZATION_FAILED,  Actual   :SCHEMA_VALIDATION_FAILED, but at least in JS, this is tough to distinguish
     .workaroundKotestNamingBug())
 
 
