@@ -58,16 +58,8 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
             )
 
             if (!ajv.validate(schema, json)) {
-                //fallback to 1.3.0, since certificates may only conform to this never schema, even though they declare otherwise
-                //this is OK, though, as long as the specified version is actually valid
                 if (versionString < "1.3.0") {
-                    val (ajv13, schema13) = schemaLoader.defaultValidator
-                    if (!ajv13.validate(schema13, json))
-                        throw VerificationException(
-                            Error.SCHEMA_VALIDATION_FAILED,
-                            "Stripped data also does not follow schema 1.3.0: ${JSON.stringify(ajv13.errors)}"
-                        )
-                    //TODO log warning
+                    validateWithFallback(json)
                 } else throw VerificationException(
                     Error.SCHEMA_VALIDATION_FAILED,
                     "Stripped data also does not follow schema $versionString: ${JSON.stringify(ajv.errors)}"
@@ -77,5 +69,19 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
         }.catch {
             throw it
         }
+    }
+
+    /**
+     * fallback to 1.3.0, since certificates may only conform to this never schema, even though they declare otherwise
+     * this is OK, though, as long as the specified version is actually valid
+     */
+    private fun validateWithFallback(json: Any?) {
+        val (ajv, schema) = schemaLoader.defaultValidator
+        if (!ajv.validate(schema, json))
+            throw VerificationException(
+                Error.SCHEMA_VALIDATION_FAILED,
+                "Stripped data also does not follow schema 1.3.0: ${JSON.stringify(ajv.errors)}"
+            )
+        //TODO log warning
     }
 }
