@@ -9,7 +9,6 @@ import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
 import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.impl.SchemaLoader.Companion.BASE_VERSION
 import ehn.techiop.hcert.kotlin.data.CborObject
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.data.loadAsString
@@ -62,7 +61,7 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
                 //fallback to 1.3.0, since certificates may only conform to this never schema, even though they declare otherwise
                 //this is OK, though, as long as the specified version is actually valid
                 if (versionString < "1.3.0") {
-                    val (ajv13, schema13) = schemaLoader.validators[BASE_VERSION]!!
+                    val (ajv13, schema13) = schemaLoader.defaultValidator
                     if (!ajv13.validate(schema13, json))
                         throw VerificationException(
                             Error.SCHEMA_VALIDATION_FAILED,
