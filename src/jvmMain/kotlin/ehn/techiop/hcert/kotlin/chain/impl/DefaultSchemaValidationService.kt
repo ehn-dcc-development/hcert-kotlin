@@ -16,6 +16,7 @@ import net.pwall.json.schema.parser.Parser
 import java.net.URI
 
 class JvmSchemaLoader : SchemaLoader<JSONSchema>() {
+
     override fun loadSchema(version: String): JSONSchema = getSchemaResource(version).use { resource ->
         Parser(uriResolver = { resource }).parse(URI.create("dummy:///"))
     }
@@ -23,10 +24,13 @@ class JvmSchemaLoader : SchemaLoader<JSONSchema>() {
     private fun getSchemaResource(version: String) =
         DefaultSchemaValidationService::class.java.classLoader.getResourceAsStream("json/schema/$version/DCC.combined-schema.json")
             ?: throw IllegalArgumentException("Schema not found")
+
 }
 
 actual class DefaultSchemaValidationService : SchemaValidationService {
+
     private val schemaLoader = JvmSchemaLoader()
+
     override fun validate(cbor: CborObject, verificationResult: VerificationResult): GreenCertificate {
         try {
             val json = (cbor as JvmCwtAdapter.JvmCborObject).toJsonString()
@@ -42,8 +46,6 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
                 )
 
             val result = validator.validateBasic(json)
-
-
             result.errors?.let { error ->
                 if (error.isNotEmpty()) {
                     //fallback to 1.3.0, since certificates may only conform to this never schema, even though they declare otherwise
