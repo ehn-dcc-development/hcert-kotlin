@@ -33,6 +33,12 @@ class JvmCwtAdapter(input: ByteArray) : CwtAdapter {
     override fun toCborObject(): CborObject = JvmCborObject(map)
     internal class JvmCborObject(private val cbor: CBORObject) : CborObject {
         override fun toJsonString() = cbor.ToJSONString()
-        override fun getVersionString() = cbor["ver"]?.AsString()
+
+        //if not present in object structure, this is technically a schema issue and we therefore do not handle it here
+        override fun getVersionString() = try {
+            cbor["ver"]?.AsString()
+        } catch (t: Throwable) {
+            null
+        }
     }
 }

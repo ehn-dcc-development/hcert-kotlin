@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.ContextIdentifierService
 import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
 /**
@@ -15,9 +16,7 @@ open class DefaultContextIdentifierService(private val prefix: String = "HC1:") 
 
     override fun decode(input: String, verificationResult: VerificationResult) = when {
         input.startsWith(prefix) -> input.drop(prefix.length)
-        else -> throw Throwable("No context prefix '$prefix'").also {
-            verificationResult.error = Error.INVALID_SCHEME_PREFIX
-        }
+        else -> throw VerificationException(Error.INVALID_SCHEME_PREFIX, "No context prefix '$prefix'")
     }
 
 }

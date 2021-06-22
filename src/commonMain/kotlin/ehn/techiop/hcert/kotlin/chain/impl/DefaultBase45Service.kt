@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.Base45Service
 import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 
@@ -19,9 +20,7 @@ open class DefaultBase45Service : Base45Service {
         try {
             return encoder.decode(input)
         } catch (e: Throwable) {
-            throw e.also {
-                verificationResult.error = Error.BASE_45_DECODING_FAILED
-            }
+            throw VerificationException(Error.BASE_45_DECODING_FAILED, cause = e)
         }
     }
 
