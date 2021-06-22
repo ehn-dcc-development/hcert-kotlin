@@ -22,7 +22,6 @@ private fun Map<String, String>.workaroundKotestNamingBug() =
 
 class CommonTests : ExtendedTestRunner(allOfficialTestCases()
     .filter { it.key.contains("common/") }
-    .filterNot { it.key.contains("DGC2") } // Testcase is not correct?
     .workaroundKotestNamingBug())
 
 
