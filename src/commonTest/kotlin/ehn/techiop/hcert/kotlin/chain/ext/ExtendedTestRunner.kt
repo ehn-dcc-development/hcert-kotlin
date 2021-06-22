@@ -31,7 +31,6 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     // Errors in context files:
     .filterNot { it.key.contains("CZ/") } // Error in test context files: Version not an int
     // Logical errors in test files:
-    //.filterNot { it.key.contains("BE/2DCode/raw/3") } // MissingFieldException: Fields [tg, tt, tr, tc, co, is, ci] are required for type with serial name 'ehn.techiop.hcert.kotlin.data.Test', but they were missing
     .filterNot { it.key.contains("BG/2DCode/raw/1") } // DateTimeParseException: Text '2021-03-09T00:00:00' could not be parsed, unparsed text found at index 10
     .filterNot { it.key.contains("BG/2DCode/raw/2") } // DateTimeParseException: Text '2021-05-11T00:00:00' could not be parsed, unparsed text found at index 10
     .filterNot { it.key.contains("BG/2DCode/raw/4") } // Throwable: issuedAt<certValidFrom
@@ -50,9 +49,6 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("FR/2DCode/raw/test_pcr") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("FR/2DCode/raw/vaccin") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("LI/2DCode/raw/4.json") } // Throwable: Field 'ver' is missing
-    .filterNot { it.key.contains("LT/2DCode/raw/1.json") } // DateTimeParseException: Text '2021-06-10T12:02:09.003+0000:00' could not be parsed, unparsed text found at index 26
-    .filterNot { it.key.contains("LT/2DCode/raw/2.json") } // DateTimeParseException: Text '2021-06-10T12:02:09.003+0000:00' could not be parsed, unparsed text found at index 26
-    .filterNot { it.key.contains("LT/2DCode/raw/3.json") } // DateTimeParseException: Text '2021-06-10T12:02:09.003+0000:00' could not be parsed, unparsed text found at index 26
     .filterNot { it.key.contains("LU/2DCode/raw/INCERT_R_DCC_Recovery") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/10") } // Throwable: issuedAt<certValidFrom
     .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/10") } // Throwable: issuedAt<certValidFrom
@@ -162,9 +158,6 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("NL/2DCode/raw/213") } // Validates, but Testcase claims schema error
 
     .filterNot { it.key.contains("NL-test+wrong") } // borked
-    //.filterNot { it.key.contains("test+recovery") } // Certificate missing OID
-    //  .filterNot { it.key.contains("recovery+vaccination") } // Certificate missing OID
-    //.filterNot { it.key.contains("test+vaccination") } // Certificate missing OID
     .filterNot { it.key.contains("IS/2DCode/raw/3") } // Wrong test on key usage: Expected UNSUITABLE_PUBLIC_KEY_TYPE but actual was null, see https://github.com/eu-digital-green-certificates/dgc-testdata/issues/244
     .filterNot { it.key.contains("ES/2DCode/raw/401") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
     .filterNot { it.key.contains("ES/2DCode/raw/402") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
