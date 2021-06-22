@@ -8,7 +8,8 @@ import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
 //we need to work around Duplicate JVM class name bug → we can skip expect definitions altogether
 abstract class SchemaLoader<T> {
     companion object {
-        internal val knownSchemaVersions = arrayOf(
+        internal const val BASE_VERSION = "1.3.0"
+        internal val KNOWN_VERSIONS = arrayOf(
             "1.0.0",
             "1.0.1",
             "1.1.0",
@@ -16,11 +17,10 @@ abstract class SchemaLoader<T> {
             "1.2.1",
             "1.3.0"
         )
-        internal const val BASE_SCHEMA_VERSION="1.3.0"
     }
 
-    internal val validators = knownSchemaVersions.mapIndexed { i, version ->
-        knownSchemaVersions[i] to loadSchema(version)
+    internal val validators = KNOWN_VERSIONS.mapIndexed { i, version ->
+        KNOWN_VERSIONS[i] to loadSchema(version)
     }.toMap()
 
     abstract internal fun loadSchema(version: String): T
