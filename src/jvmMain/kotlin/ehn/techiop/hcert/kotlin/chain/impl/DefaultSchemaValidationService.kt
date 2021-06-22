@@ -45,18 +45,8 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
             val result = validator.validateBasic(json)
             result.errors?.let { error ->
                 if (error.isNotEmpty()) {
-                    //fallback to 1.3.0, since certificates may only conform to this never schema, even though they declare otherwise
-                    //this is OK, though, as long as the specified version is actually valid
                     if (versionString < "1.3.0") {
-                        val validator13 = schemaLoader.defaultValidator
-                        val result13 = validator13.validateBasic(json)
-                        result13.errors?.let { error13 ->
-                            if (error13.isNotEmpty()) throw VerificationException(
-                                Error.SCHEMA_VALIDATION_FAILED,
-                                "Data does not follow schema 1.3.0: ${result13.errors?.map { "${it.error}: ${it.keywordLocation}, ${it.instanceLocation}" }}"
-                            )
-                            //TODO log warning
-                        }
+                        validateWithFallback(json)
                     } else throw VerificationException(
                         Error.SCHEMA_VALIDATION_FAILED,
                         "Data does not follow schema $versionString: ${result.errors?.map { "${it.error}: ${it.keywordLocation}, ${it.instanceLocation}" }}"
@@ -66,6 +56,22 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
             return Json { ignoreUnknownKeys = true }.decodeFromString(json)
         } catch (t: Throwable) {
             throw t
+        }
+    }
+
+    /**
+     * fallback to 1.3.0, since certificates may only conform to this never schema, even though they declare otherwise
+     * this is OK, though, as long as the specified version is actually valid
+     */
+    private fun validateWithFallback(json: String) {
+        val validator = schemaLoader.defaultValidator
+        val result = validator.validateBasic(json)
+        result.errors?.let { errorList ->
+            if (errorList.isNotEmpty()) throw VerificationException(
+                Error.SCHEMA_VALIDATION_FAILED,
+                "Data does not follow schema 1.3.0: ${result.errors?.map { "${it.error}: ${it.keywordLocation}, ${it.instanceLocation}" }}"
+            )
+            //TODO log warning
         }
     }
 
