@@ -65,7 +65,7 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
                     "Stripped data also does not follow schema $versionString: ${JSON.stringify(ajv.errors)}"
                 )
             }
-            Json { ignoreUnknownKeys = true }.decodeFromDynamic<GreenCertificate>(json)
+            Json.decodeFromDynamic<GreenCertificate>(json)
         }.catch {
             throw it
         }

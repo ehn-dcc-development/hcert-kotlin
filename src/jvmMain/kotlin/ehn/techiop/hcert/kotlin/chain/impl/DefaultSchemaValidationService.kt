@@ -53,7 +53,7 @@ actual class DefaultSchemaValidationService : SchemaValidationService {
                     )
                 }
             }
-            return Json { ignoreUnknownKeys = true }.decodeFromString(json)
+            return Json.decodeFromString(json)
         } catch (t: Throwable) {
             throw t
         }

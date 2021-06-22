@@ -23,6 +23,10 @@ data class Test constructor(
     @Serializable(with = InstantIso8601Serializer::class)
     val dateTimeSample: Instant,
 
+    @SerialName("dr")
+    @Serializable(with = InstantIso8601Serializer::class)
+    val dateTimeResult: Instant? = null,
+
     @SerialName("tr")
     val resultPositive: ValueSetEntryAdapter,
 
