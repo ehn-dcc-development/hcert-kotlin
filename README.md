@@ -253,9 +253,22 @@ Implementers may load values for constructor parameters from a configuration fil
 
 To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`
 
-## Known Issues
+The library is also published on jitpack.io: [![](https://jitpack.io/v/ehn-dcc-development/hcert-kotlin.svg)](https://jitpack.io/#ehn-dcc-development/hcert-kotlin).
 
-If you are planning to use this library, please fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
+Use it in your project like this:
+
+```
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.0.2-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.0.2-SNAPSHOT'
+}
+```
+
+If you are planning to use this library, we'll suggest to fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
 
 ## Changelog
 
