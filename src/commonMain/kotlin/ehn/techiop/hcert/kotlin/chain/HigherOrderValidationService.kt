@@ -7,9 +7,6 @@ import ehn.techiop.hcert.kotlin.data.GreenCertificate
  */
 interface HigherOrderValidationService {
 
-    fun validate(
-        schemaValidatedCertificate: GreenCertificate,
-        verificationResult: VerificationResult
-    ): GreenCertificate?
+    fun validate(input: GreenCertificate, verificationResult: VerificationResult): GreenCertificate
 
 }
