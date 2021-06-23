@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
+import net.ormr.semver4k.SemVer
 
 //As of 1.3.0 our codebase handles all version equally well
 
@@ -16,7 +17,8 @@ abstract class SchemaLoader<T> {
             "1.2.1",
             "1.3.0"
         )
-        internal const val BASE_SCHEMA_VERSION="1.3.0"
+        internal const val BASE_SCHEMA_VERSION = "1.3.0"
+        internal val BASE_SCHEMA_SEMVER = SemVer.parse(BASE_SCHEMA_VERSION).fold(onSuccess = { it }) { throw it }
     }
 
     internal val validators = knownSchemaVersions.mapIndexed { i, version ->
