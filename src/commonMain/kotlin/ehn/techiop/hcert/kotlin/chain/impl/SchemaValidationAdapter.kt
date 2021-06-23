@@ -24,9 +24,9 @@ abstract class SchemaLoader<T> {
         KNOWN_VERSIONS[i] to loadSchema(version)
     }.toMap()
 
-    internal val defaultValidator = validators[BASE_VERSION]!!
-
     internal abstract fun loadSchema(version: String): T
+
+    internal abstract fun loadFallbackSchema(): T
 
 }
 

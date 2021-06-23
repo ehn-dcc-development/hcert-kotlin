@@ -10,21 +10,40 @@ import ehn.techiop.hcert.kotlin.trust.JsCwtAdapter
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromDynamic
 
+/**
+ * Warning: AJV does not support the valueset-uri keyword used in the schema.
+ * We configure AJV to ignore the keyword, but that still means we are not checking
+ * field values against the allowed options from the linked value sets.
+ */
 internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
 
     override fun loadSchema(version: String): Pair<AJV2020, dynamic> {
-        val ajV2020 = AJV2020()
-        addFormats(ajV2020)
-        // Warning: AJV does not support the valueset-uri keyword used in the schema.
-        // We configure AJV to ignore the keyword, but that still means we are not checking
-        // field values against the allowed options from the linked value sets.
-        ajV2020.addKeyword("valueset-uri")
-        val schema: dynamic =
-            JSON.parse(MainResourceHolder.loadAsString("json/schema/$version/DCC.combined-schema.json")!!)
-        if (!ajV2020.validateSchema(schema)) {
-            throw Throwable("JSON schema invalid: ${JSON.stringify(ajV2020.errors)}")
+        loadAjv().apply {
+            val schema: dynamic = getSchema(version, this)
+            if (!this.validateSchema(schema))
+                throw Throwable("JSON schema invalid: ${JSON.stringify(this.errors)}")
+            return this to schema
         }
-        return ajV2020 to schema
+    }
+
+    override fun loadFallbackSchema(): Pair<AJV2020, dynamic> {
+        loadAjv().apply {
+            val schema: dynamic = getFallbackSchema(this)
+            if (!this.validateSchema(schema))
+                throw Throwable("Relaxed JSON schema invalid: ${JSON.stringify(this.errors)}")
+            return this to schema
+        }
+    }
+
+    private fun getSchema(version: String, ajv: AJV2020): dynamic =
+        JSON.parse(MainResourceHolder.loadAsString("json/schema/$version/DCC.combined-schema.json")!!)
+
+    private fun getFallbackSchema(ajv: AJV2020): dynamic =
+        JSON.parse(MainResourceHolder.loadAsString("json/schema/fallback/DCC.combined-schema.json")!!)
+
+    private fun loadAjv(): AJV2020 = AJV2020().apply {
+        addFormats(this)
+        addKeyword("valueset-uri")
     }
 
 }
@@ -50,7 +69,7 @@ actual class SchemaValidationAdapter actual constructor(private val cbor: CborOb
     }
 
     actual fun validateWithFallback(): Collection<SchemaError> {
-        val (ajv, schema) = schemaLoader.defaultValidator
+        val (ajv, schema) = schemaLoader.loadFallbackSchema()
         return validate(ajv, schema)
     }
 
