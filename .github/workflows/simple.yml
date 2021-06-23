@@ -24,10 +24,17 @@ jobs:
             path: ~/.gradle/caches
             key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
             restore-keys: ${{ runner.os }}-gradle
-      - name: Build with Gradle
-        run: ./gradlew jsBrowserDevelopmentWebpack
-      - name: Upload a Build Artifact
+      - name: Build jsBrowserDevelopmentWebpack
+        run: ./gradlew clean jsBrowserDevelopmentWebpack
+      - name: Upload hcert-kotlin.js
         uses: actions/upload-artifact@v2.2.3
         with:
            name: hcert-kotlin.js
+           path: build/distributions/hcert-kotlin.js
+      - name: Build jsBrowserProductionWebpack
+        run: ./gradlew clean jsBrowserProductionWebpack
+      - name: Upload hcert-kotlin-prod.js
+        uses: actions/upload-artifact@v2.2.3
+        with:
+           name: hcert-kotlin-prod.js
            path: build/distributions/hcert-kotlin.js
