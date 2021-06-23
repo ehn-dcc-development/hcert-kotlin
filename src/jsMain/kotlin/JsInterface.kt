@@ -1,5 +1,21 @@
-import ehn.techiop.hcert.kotlin.chain.*
-import ehn.techiop.hcert.kotlin.chain.impl.*
+import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.Chain
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.DecodeJsResult
+import ehn.techiop.hcert.kotlin.chain.DefaultChain
+import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
+import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
+import ehn.techiop.hcert.kotlin.chain.SampleData
+import ehn.techiop.hcert.kotlin.chain.VerificationException
+import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.from
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
+import ehn.techiop.hcert.kotlin.chain.impl.FileBasedCryptoService
+import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
+import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.toByteArray
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -32,15 +48,24 @@ class Verifier {
 
     @JsName("updateTrustList")
     fun updateTrustList(rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer) {
-        val root = PrefilledCertificateRepository(rootPem)
-        val sig = trustListSignature.toByteArray()
-        val content = trustListContent.toByteArray()
-        repo = TrustListCertificateRepository(sig, content, root)
-        chain = DefaultChain.buildVerificationChain(repo)
+        jsTry {
+            val root = PrefilledCertificateRepository(rootPem)
+            val sig = trustListSignature.toByteArray()
+            val content = trustListContent.toByteArray()
+            repo = TrustListCertificateRepository(sig, content, root)
+            chain = DefaultChain.buildVerificationChain(repo)
+        }.catch {
+            if (it is VerificationException)
+                throw it
+            throw VerificationException(Error.TRUST_SERVICE_ERROR, it.message, it)
+        }
     }
 
     fun verify(qrContent: String): jsJson {
         val decodeResult = DecodeJsResult(chain.decode(qrContent))
+        // we can't return DecodeJsResult directly, because that would lead to
+        // ugly serialization in JS, because we can't annotate Platform Types with
+        // @JSExport, and neither @Serializable types
         return JSON.parse(Json { encodeDefaults = true }.encodeToString(decodeResult))
     }
 

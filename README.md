@@ -13,7 +13,7 @@ All services are implemented according to <https://github.com/ehn-digital-green-
 
 The schemata for data classes are imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, up to Version 1.3.0, from 2021-06-11.
 
-The resources for interop testing are imported as a git submodule from <https://github.com/eu-digital-green-certificates/dgc-testdata> into `src/commonTest/resources/dgc-testdata`. Please clone this repository with `git clone --recursive` or run `git submodule init && git submodule update` afterwards.
+Several other git repositories are included as submodules. Please clone this repository with `git clone --recursive` or run `git submodule init && git submodule update --recursive` afterwards.
 
 This Kotlin library is a [mulitplatform project](https://kotlinlang.org/docs/multiplatform.html), with targets for JVM and JavaScript.
 
@@ -137,27 +137,6 @@ The meta information contains extracted data from the QR code contents, e.g.:
 }
 ```
 
-The resulting `error` may be one of the following (the list is identical to ValidationCore for Swift, therefore there may be some unused entries):
- - `GENERAL_ERROR`:
- - `INVALID_SCHEME_PREFIX`: The prefix does not conform to the expected one, e.g. `HC1:`
- - `DECOMPRESSION_FAILED`: Error in decompressing the input
- - `BASE_45_DECODING_FAILED`: Error in Base45 decoding
- - `COSE_DESERIALIZATION_FAILED`: not used
- - `CBOR_DESERIALIZATION_FAILED`: Error in decoding CBOR or CWT structures
- - `SCHEMA_VALIDATION_FAILED`: Data does not conform to schema (on iOS, this is a `CBOR_DESERIALIZATION_FAILED`)
- - `CWT_EXPIRED`: Timestamps in CWT are not correct, e.g. expired before issuing timestamp
- - `QR_CODE_ERROR`: not used
- - `CERTIFICATE_QUERY_FAILED`: not used
- - `USER_CANCELLED`: not used
- - `TRUST_SERVICE_ERROR`: not used
- - `KEY_NOT_IN_TRUST_LIST`: Certificate with `KID` not found
- - `PUBLIC_KEY_EXPIRED`: Certificate used to sign the COSE structure has expired
- - `UNSUITABLE_PUBLIC_KEY_TYPE`: Certificate has not the correct extension for signing that content type, e.g. Vaccination entries
- - `KEY_CREATION_ERROR`: not used
- - `KEYSTORE_ERROR`: not used
- - `SIGNATURE_INVALID`: Signature on COSE structure could not be verified
-
-
 Encoding of HCERT data, i.e. generating the input for an QR Code, as well as the QR Code picture:
 ```JavaScript
 let generator = new hcert.GeneratorEcRandom(256); // creates a new EC key
@@ -185,6 +164,47 @@ let qrCode = generator.encodeToQrCode(input, 4, 2); // 4 is the module size of t
 
 console.info(result.step5Prefixed); // the contents of the QR code
 ```
+
+## Errors
+
+The field `error` in the resulting structure (`DecodeResult`) may contain the error code. The list of possible errors is the same as for [ValidationCore](https://github.com/ehn-dcc-development/ValidationCore):
+ - `GENERAL_ERROR`:
+ - `INVALID_SCHEME_PREFIX`: The prefix does not conform to the expected one, e.g. `HC1:`
+ - `DECOMPRESSION_FAILED`: Error in decompressing the input
+ - `BASE_45_DECODING_FAILED`: Error in Base45 decoding
+ - `COSE_DESERIALIZATION_FAILED`: not used
+ - `CBOR_DESERIALIZATION_FAILED`: Error in decoding CBOR or CWT structures
+ - `SCHEMA_VALIDATION_FAILED`: Data does not conform to schema (on iOS, this is a `CBOR_DESERIALIZATION_FAILED`)
+ - `CWT_EXPIRED`: Timestamps in CWT are not correct, e.g. expired before issuing timestamp
+ - `QR_CODE_ERROR`: not used
+ - `CERTIFICATE_QUERY_FAILED`: not used
+ - `USER_CANCELLED`: not used
+ - `TRUST_SERVICE_ERROR`: General error when loading Trust List
+ - `TRUST_LIST_EXPIRED`: Trust List has expired
+ - `TRUST_LIST_NOT_YET_VALID`: Trust List is not yet valid
+ - `TRUST_LIST_SIGNATURE_INVALID`: Signature on trust list is not valid
+ - `KEY_NOT_IN_TRUST_LIST`: Certificate with `KID` not found
+ - `PUBLIC_KEY_EXPIRED`: Certificate used to sign the COSE structure has expired
+ - `UNSUITABLE_PUBLIC_KEY_TYPE`: Certificate has not the correct extension for signing that content type, e.g. Vaccination entries
+ - `KEY_CREATION_ERROR`: not used
+ - `KEYSTORE_ERROR`: not used
+ - `SIGNATURE_INVALID`: Signature on COSE structure could not be verified
+
+On JavaScript, the methods `updateTrustList` and `VerifierTrustList` may throw an error of the type `VerificationException` directly. The object has the following structure:
+```JSON
+{
+  "message_8yp7un$_0": "Hash not matching",
+  "cause_th0jdv$_0": null,
+  "stack": "n/</e.captureStack@file:///...",
+  "name": "VerificationException",
+  "error": {
+    "name$": "TRUST_LIST_SIGNATURE_INVALID",
+    "ordinal$": 14
+  }
+}
+```
+
+The important bits are `name` (which should always be `VerificationException`) and `error.name$`, which contains the error code from the list above, e.g. `TRUST_LIST_SIGNATURE_INVALID`. See also <demo.html>.
 
 
 ## TrustList
