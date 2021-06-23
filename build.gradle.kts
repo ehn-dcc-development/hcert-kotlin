@@ -30,15 +30,13 @@ repositories {
 }
 
 object customSrcDirs {
-    val jsGenerated = "src/jsMain/generated"
     val commonShared = "src/commonShared/kotlin"
+    val jsMainGenerated = "src/jsMain/generated"
     val jsTestGenerated = "src/jsTest/generated"
     val jvmFaulty = "src/jvmMain/addon-datagen"
 }
 
 kotlin {
-
-
     targets.all {
         compilations.all {
             kotlinOptions {
@@ -83,7 +81,6 @@ kotlin {
                 defaultSourceSet {
                     dependsOn(sourceSets.getByName("jvmMain"))
                     kotlin.srcDir(customSrcDirs.jvmFaulty)
-                    kotlin.srcDir(customSrcDirs.commonShared)
                 }
             }
         }
@@ -107,6 +104,9 @@ kotlin {
         useCommonJs()
     }
     sourceSets {
+        val commonShared by creating {
+            sourceSets { kotlin.srcDir(customSrcDirs.commonShared) }
+        }
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.datetime}")
@@ -121,9 +121,8 @@ kotlin {
                 implementation("io.kotest:kotest-assertions-core:${Versions.kotest}")
                 implementation("io.kotest:kotest-framework-datatest:${Versions.kotest}")
             }
-            sourceSets { kotlin.srcDir(customSrcDirs.commonShared) }
+            dependsOn(commonShared)
         }
-
         val jvmMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}")
@@ -135,15 +134,18 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}") //explicit declaration to overrule subdependency version
             }
         }
+        val `jvm-dataGenMain` by getting {
+            dependsOn(commonShared)
+        }
         val jvmTest by getting {
             dependencies {
                 implementation("io.kotest:kotest-runner-junit5:${Versions.kotest}")
             }
-            dependsOn(sourceSets.getByName("jvm-dataGenMain"))
+            dependsOn(`jvm-dataGenMain`)
         }
 
         val jsMain by getting {
-            sourceSets { kotlin.srcDir(customSrcDirs.jsGenerated) }
+            sourceSets { kotlin.srcDir(customSrcDirs.jsMainGenerated) }
             dependencies {
                 implementation(npm("pako", Versions.js.pako))
                 //cannot overload chunked inflater due to conflicting overloads from generated externals
@@ -218,8 +220,8 @@ tasks.named("compileTestKotlinJs") { dependsOn(tasks.named("jsWrapTestResources"
 tasks.register("jsWrapTestResources") { doFirst { wrapJsResources(test = true) } }
 tasks.register("jsWrapMainResources") { doFirst { wrapJsResources() } }
 tasks.register("jsCleanResources") {
-    File("${projectDir.absolutePath}/src/jsTest/generated").deleteRecursively()
-    File("${projectDir.absolutePath}/src/jsMain/generated").deleteRecursively()
+    File("${projectDir.absolutePath}/${customSrcDirs.jsTestGenerated}").deleteRecursively()
+    File("${projectDir.absolutePath}/${customSrcDirs.jsMainGenerated}").deleteRecursively()
 }
 
 
