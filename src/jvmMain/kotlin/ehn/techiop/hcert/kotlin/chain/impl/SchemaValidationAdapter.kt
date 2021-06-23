@@ -31,14 +31,16 @@ actual class SchemaValidationAdapter actual constructor(private val cbor: CborOb
     }
 
     actual fun validateBasic(versionString: String): Collection<SchemaError> {
-        val activeSchema = schemaLoader.validators[versionString] ?: throw IllegalArgumentException("versionString")
-        val result = activeSchema.validateBasic(json)
-        return result.errors?.map { SchemaError("${it.error}, ${it.keywordLocation}, ${it.instanceLocation}") }
-            ?: listOf()
+        val validator = schemaLoader.validators[versionString] ?: throw IllegalArgumentException("versionString")
+        return validate(validator)
     }
 
     actual fun validateWithFallback(): Collection<SchemaError> {
         val validator = schemaLoader.defaultValidator
+        return validate(validator)
+    }
+
+    private fun validate(validator: JSONSchema): Collection<SchemaError> {
         val result = validator.validateBasic(json)
         return result.errors?.map { SchemaError("${it.error}, ${it.keywordLocation}, ${it.instanceLocation}") }
             ?: listOf()
