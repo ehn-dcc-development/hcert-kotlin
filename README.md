@@ -308,14 +308,21 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.0.2-SNAPSHOT'
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.0.2-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.1.0'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.1.0'
 }
 ```
 
 If you are planning to use this library, we'll suggest to fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
 
 ## Changelog
+
+Version 1.1.0:
+ - Try to parse as many dates and datetimes as possible
+ - Perform a very relaxed schema validation by default
+ - Add errors for trust list loading
+ - Support lower Android targets by not using `java.util.Base64`
+ - Publish library on jitpack.io
 
 Version 1.0.1:
  - Validate schema on JVM
