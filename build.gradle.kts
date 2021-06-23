@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "ehn.techiop.hcert"
-version = "1.0.2-SNAPSHOT"
+version = "1.1.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 idea {
