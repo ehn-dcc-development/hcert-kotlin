@@ -3,12 +3,6 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import AJV2020
 import MainResourceHolder
 import addFormats
-import ehn.techiop.hcert.kotlin.chain.Error
-import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
-import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
-import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.VerificationException
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.data.CborObject
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.data.loadAsString
@@ -19,7 +13,6 @@ import kotlinx.serialization.json.decodeFromDynamic
 internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
 
     override fun loadSchema(version: String): Pair<AJV2020, dynamic> {
-        //TODO load multiple schema versions into single instance and access by name
         val ajV2020 = AJV2020()
         addFormats(ajV2020)
         // Warning: AJV does not support the valueset-uri keyword used in the schema.
@@ -36,52 +29,37 @@ internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
 
 }
 
-actual class DefaultSchemaValidationService : SchemaValidationService {
+actual class SchemaValidationAdapter actual constructor(private val cbor: CborObject) {
 
     private val schemaLoader = JsSchemaLoader()
 
-    override fun validate(cbor: CborObject, verificationResult: VerificationResult): GreenCertificate {
-        return jsTry {
-            //AJV operates directly on JS objects, if all properties check out, it validates nicely
-            //we are working on the raw parsed CBOR structure for schema validation, which is actually the
-            //closest we will ever get to direct cbor schema validation
-            //however, CBOR tags and JSON schema do not go well together, so check if the only error thrown
-            //concerns the tagged sc
-            val json = (cbor as JsCwtAdapter.JsCborObject).internalRepresentation
-            val versionString = cbor.getVersionString() ?: throw VerificationException(
-                Error.CBOR_DESERIALIZATION_FAILED,
-                "No schema version specified!"
-            )
-            val (ajv, schema) = schemaLoader.validators[versionString] ?: throw VerificationException(
-                Error.SCHEMA_VALIDATION_FAILED,
-                "Schema version $versionString is not supported."
-            )
+    //AJV operates directly on JS objects, if all properties check out, it validates nicely
+    //we are working on the raw parsed CBOR structure for schema validation, which is actually the
+    //closest we will ever get to direct cbor schema validation
+    //however, CBOR tags and JSON schema do not go well together, so check if the only error thrown
+    //concerns the tagged sc
+    private val json = (cbor as JsCwtAdapter.JsCborObject).internalRepresentation
 
-            if (!ajv.validate(schema, json)) {
-                if (versionString < "1.3.0") {
-                    validateWithFallback(json)
-                } else throw VerificationException(
-                    Error.SCHEMA_VALIDATION_FAILED,
-                    "Stripped data also does not follow schema $versionString: ${JSON.stringify(ajv.errors)}"
-                )
-            }
-            Json.decodeFromDynamic<GreenCertificate>(json)
-        }.catch {
-            throw it
-        }
+    actual fun hasValidator(versionString: String): Boolean {
+        return schemaLoader.validators[versionString] != null
     }
 
-    /**
-     * fallback to 1.3.0, since certificates may only conform to this never schema, even though they declare otherwise
-     * this is OK, though, as long as the specified version is actually valid
-     */
-    private fun validateWithFallback(json: Any?) {
+    actual fun validateBasic(versionString: String): Collection<SchemaError> {
+        val (ajv, schema) = schemaLoader.validators[versionString] ?: throw IllegalArgumentException("versionString")
+        val result = ajv.validate(schema, json)
+        if (result) return listOf()
+        return (ajv.errors as Array<dynamic>).map { SchemaError(JSON.stringify(it)) }
+    }
+
+    actual fun validateWithFallback(): Collection<SchemaError> {
         val (ajv, schema) = schemaLoader.defaultValidator
-        if (!ajv.validate(schema, json))
-            throw VerificationException(
-                Error.SCHEMA_VALIDATION_FAILED,
-                "Stripped data also does not follow schema 1.3.0: ${JSON.stringify(ajv.errors)}"
-            )
-        //TODO log warning
+        val result = ajv.validate(schema, json)
+        if (result) return listOf()
+        return (ajv.errors as Array<dynamic>).map { SchemaError(JSON.stringify(it)) }
     }
+
+    actual fun toJson(): GreenCertificate {
+        return Json.decodeFromDynamic<GreenCertificate>(json)
+    }
+
 }
