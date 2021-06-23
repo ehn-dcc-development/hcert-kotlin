@@ -23,7 +23,7 @@ class RandomEcKeyCryptoService constructor(
         384 -> CwtAlgorithm.ECDSA_384
         else -> throw IllegalArgumentException("keySize: $keySize")
     }
-    private val certificate = PkiUtils().selfSignCertificate(
+    private val certificate = PkiUtils.selfSignCertificate(
         "EC-Me",
         cryptoAdapter.privateKey,
         cryptoAdapter.publicKey,

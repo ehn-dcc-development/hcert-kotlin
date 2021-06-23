@@ -100,12 +100,12 @@ fun main() {
         )
 
         val generatorEcRandom = Generator(256)
-        generatorEcRandom.encode(SampleData.vaccination)
-        generatorEcRandom.encodeToQrCode(SampleData.vaccination, 3, 2)
+        generatorEcRandom.encode("Baz")
+        generatorEcRandom.encodeToQrCode("Bar", 3, 2)
 
         val generatorFixed = Generator("foo", "bar")
-        generatorFixed.encode(SampleData.recovery)
-        generatorFixed.encodeToQrCode(SampleData.recovery, 2, 1)
+        generatorFixed.encode("foobar")
+        generatorFixed.encodeToQrCode("Baz", 2, 1)
     }
     console.info("DCC Chain Loaded")
 }

@@ -4,6 +4,7 @@ plugins {
     id("idea")
     id("com.github.jk1.dependency-license-report") version Versions.licenseReport
     id("maven-publish")
+    id("org.barfuin.gradle.taskinfo") version "1.2.0"
 }
 
 group = "ehn.techiop.hcert"
@@ -28,7 +29,16 @@ repositories {
     mavenCentral()
 }
 
+object customSrcDirs {
+    val jsGenerated = "src/jsMain/generated"
+    val commonShared = "src/commonShared/kotlin"
+    val jsTestGenerated = "src/jsTest/generated"
+    val jvmFaulty = "src/jvmMain/addon-datagen"
+}
+
 kotlin {
+
+
     targets.all {
         compilations.all {
             kotlinOptions {
@@ -51,6 +61,7 @@ kotlin {
             useExperimentalAnnotation("kotlin.js.ExperimentalJsExport")
         }
     }
+
     jvm {
         compilations.all {
             kotlinOptions {
@@ -65,6 +76,19 @@ kotlin {
             useJUnitPlatform()
         }
     }
+
+    jvm("jvm-dataGen") {
+        compilations {
+            val main by compilations.getting {
+                defaultSourceSet {
+                    dependsOn(sourceSets.getByName("jvmMain"))
+                    kotlin.srcDir(customSrcDirs.jvmFaulty)
+                    kotlin.srcDir(customSrcDirs.commonShared)
+                }
+            }
+        }
+    }
+
     js(LEGACY) {
         moduleName = "hcert"
         browser {
@@ -97,7 +121,9 @@ kotlin {
                 implementation("io.kotest:kotest-assertions-core:${Versions.kotest}")
                 implementation("io.kotest:kotest-framework-datatest:${Versions.kotest}")
             }
+            sourceSets { kotlin.srcDir(customSrcDirs.commonShared) }
         }
+
         val jvmMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}")
@@ -105,7 +131,6 @@ kotlin {
                 implementation("com.google.zxing:core:${Versions.jvm.zxing}")
                 implementation("com.google.zxing:javase:${Versions.jvm.zxing}")
                 implementation("org.bouncycastle:bcpkix-jdk15to18:${Versions.jvm.bcpkix}")
-                implementation("javax.validation:validation-api:${Versions.jvm.validation}") //??? what for ???
                 implementation("net.pwall.json:json-kotlin-schema:${Versions.jvm.jsonSchema}")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}") //explicit declaration to overrule subdependency version
             }
@@ -114,9 +139,11 @@ kotlin {
             dependencies {
                 implementation("io.kotest:kotest-runner-junit5:${Versions.kotest}")
             }
+            dependsOn(sourceSets.getByName("jvm-dataGenMain"))
         }
+
         val jsMain by getting {
-            sourceSets { kotlin.srcDir("src/jsMain/generated") }
+            sourceSets { kotlin.srcDir(customSrcDirs.jsGenerated) }
             dependencies {
                 implementation(npm("pako", Versions.js.pako))
                 //cannot overload chunked inflater due to conflicting overloads from generated externals
@@ -143,11 +170,10 @@ kotlin {
             }
         }
         val jsTest by getting {
-            sourceSets { kotlin.srcDir("src/jsTest/generated") }
+            sourceSets { kotlin.srcDir(customSrcDirs.jsTestGenerated) }
         }
     }
 }
-
 
 publishing {
     repositories {
@@ -165,6 +191,17 @@ publishing {
 
 
 /*
+ * Now setup the task dependencies between custom targets
+ */
+tasks.named("compileKotlinJvm-dataGen") { dependsOn(tasks.named("compileKotlinJvm")) }
+tasks.named("compileTestKotlinJvm") { dependsOn(tasks.named("compileKotlinJvm-dataGen")) }
+//disable this task, it won't work and we don't need it
+val `jvm-dataGenTest` by tasks
+`jvm-dataGenTest`.enabled=false
+val `compileTestKotlinJvm-dataGen` by tasks
+`compileTestKotlinJvm-dataGen`.enabled=false
+
+/*
 * KJS: No way to get test resources in a multiplatform project.
 * https://youtrack.jetbrains.com/issue/KT-36824
 *
@@ -174,7 +211,6 @@ publishing {
 * Bonus Issue: this also affects main resources, bc test cases can obviously call code which already depends on resources
 * Therefore, we also use the trick in jsMain
 * */
-
 tasks.named("clean") { dependsOn(tasks.named("jsCleanResources")) }
 tasks.named("compileKotlinJs") { dependsOn(tasks.named("jsWrapMainResources")) }
 tasks.named("compileTestKotlinJs") { dependsOn(tasks.named("jsWrapTestResources")) }

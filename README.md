@@ -253,6 +253,10 @@ ChainResult result = chain.encode(input);
 
 Implementers may load values for constructor parameters from a configuration file, e.g. with [Spring Boot's configuration properties](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config).
 
+Configurability also holds true for logging, which is based on [Napier](https://github.com/AAkira/Napier) and is shipped with a JS+JVM basic debug logger (see [Enabling logging](src/commonTest/kotlin/ehn/techiop/hcert/kotlin/000InitTestContext.kt)).
+This should probably be configured differently in production.
+On other platforms, Napier's respective default platform-specific logger should be used.
+
 ## Publishing
 
 To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`
@@ -315,6 +319,7 @@ This library uses the following dependencies:
  - [Kotlin](https://github.com/JetBrains/kotlin), under the Apache-2.0 License
  - [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization), under the Apache-2.0 License
  - [Kotlinx Datetime](https://github.com/Kotlin/kotlinx-datetime), under the Apache-2.0 License
+ - [Napier](https://github.com/AAkira/Napier), under the Apache-2.0 License
  - [Kotest](https://github.com/kotest/kotest), under the Apache-2.0 License
 
 For the JVM target:

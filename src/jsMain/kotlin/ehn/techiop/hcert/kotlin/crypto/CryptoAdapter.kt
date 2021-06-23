@@ -18,23 +18,24 @@ actual class CryptoAdapter actual constructor(keyType: KeyType, keySize: Int) {
     actual val publicKey: PubKey
 
     init {
-        if (keyType == KeyType.EC) {
-            val ellipticName = if (keySize == 384) "p384" else "p256"
-            val keyPair = EC(ellipticName).genKeyPair()
-            privateKey = JsEcPrivKey(keyPair, keySize)
-            publicKey = JsEcPubKey(keyPair, keySize)
-            privateKeyInfo = PrivateKeyInfo()
-            privateKeyInfo.fromJSON(privateKey.toPlatformPrivateKey())
-        } else if (keyType == KeyType.RSA) {
-            val keyPair = NodeRSA().generateKeyPair(keySize)
-            @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-            publicKey = JsRsaPubKey(keyPair.exportKey("components-public") as Json)
-            @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-            privateKey = JsRsaPrivKey(keyPair.exportKey("components-private") as Json)
-            privateKeyInfo = PrivateKeyInfo()
-            privateKeyInfo.fromJSON(privateKey.toPlatformPrivateKey())
-        } else {
-            throw IllegalArgumentException("KeyType")
+        when (keyType) {
+            KeyType.EC -> {
+                val ellipticName = if (keySize == 384) "p384" else "p256"
+                val keyPair = EC(ellipticName).genKeyPair()
+                privateKey = JsEcPrivKey(keyPair, keySize)
+                publicKey = JsEcPubKey(keyPair, keySize)
+                privateKeyInfo = PrivateKeyInfo()
+                privateKeyInfo.fromJSON(privateKey.toPlatformPrivateKey())
+            }
+            KeyType.RSA -> {
+                val keyPair = NodeRSA().generateKeyPair(keySize)
+                @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+                publicKey = JsRsaPubKey(keyPair.exportKey("components-public") as Json)
+                @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+                privateKey = JsRsaPrivKey(keyPair.exportKey("components-private") as Json)
+                privateKeyInfo = PrivateKeyInfo()
+                privateKeyInfo.fromJSON(privateKey.toPlatformPrivateKey())
+            }
         }
     }
 

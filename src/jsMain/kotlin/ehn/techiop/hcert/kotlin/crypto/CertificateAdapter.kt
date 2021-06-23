@@ -93,7 +93,7 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
                     val exponent = rsaKey.publicExponent.valueBlock.valueDec
                     JsRsaPubKey(mod, exponent)
                 }
-                else -> TODO("Not implemented")
+                else -> throw IllegalArgumentException("KeyType")
             }
         }
 
