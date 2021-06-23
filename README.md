@@ -231,12 +231,14 @@ This implementation is on purpose lenient when parsing HCERT data, since there m
 
 Nearly every object in this library can be configured using constructor parameters. Most of these parameters have opinionated, default values, e.g. `Clock.System` for `clock`, used to get the current timestamp.
 
+With the default configuration, schema validation of HCERT data is done against a very relaxed JSON schema, e.g. no `maxLength`, no `format`, no `pattern` for all fields. This is done to work around several faulty implementations of some countries, whose HCERT data would not be accepted by verifiers otherwise.
+
 One example: The validity for the TrustList, as well as the validity of the HCERT in CBOR can be passed as a `validity` parameter (instance of a `Duration`) when constructing the objects:
 
 ```Java
 CryptoService cryptoService = new RandomEcKeyCryptoService(256); // or some fixed key crypto service
 HigherOrderValidationService higherOrdeValidationService = new DefaultHigherOrderValidationService();
-SchemaValidationService schemaValidationService = new DefaultSchemaValidationService();
+SchemaValidationService schemaValidationService = new DefaultSchemaValidationService(); // pass "false" to disable fallback schema validation
 CborService cborService = new DefaultCborService();
 CwtService cwtService = new DefaultCwtService("AT", Duration.hours(24)); // validity for HCERT content
 CoseService coseService = new DefaultCoseService(cryptoService);
@@ -245,7 +247,7 @@ Base45Service base45Service = new DefaultBase45Service();
 ContextIdentifierService contextIdentifierService = new DefaultContextIdentifierService("HC1:");
 
 
-Chain chain = new Chain(higherOrdeValidationService, schemaValidationService, cborService, cwtService, coseService, compressorService, base45Service, contextIdentifierService);
+Chain chain = new Chain(higherOrderValidationService, schemaValidationService, cborService, cwtService, coseService, compressorService, base45Service, contextIdentifierService);
 ChainResult result = chain.encode(input);
 ```
 
