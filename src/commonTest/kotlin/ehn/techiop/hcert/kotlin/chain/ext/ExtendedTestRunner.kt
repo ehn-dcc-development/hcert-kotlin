@@ -30,8 +30,6 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     // Errors in context files:
     .filterNot { it.key.contains("CZ/") } // Error in test context files: Version not an int
     // Logical errors in test files:
-    .filterNot { it.key.contains("BG/2DCode/raw/1") } // DateTimeParseException: Text '2021-03-09T00:00:00' could not be parsed, unparsed text found at index 10
-    .filterNot { it.key.contains("BG/2DCode/raw/2") } // DateTimeParseException: Text '2021-05-11T00:00:00' could not be parsed, unparsed text found at index 10
     .filterNot { it.key.contains("BG/2DCode/raw/4") } // Throwable: issuedAt<certValidFrom
     .filterNot { it.key.contains("ES/2DCode/raw/1101") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("ES/2DCode/raw/1102") } // Throwable: issuedAt>clock.now()
@@ -51,72 +49,44 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("LU/2DCode/raw/INCERT_R_DCC_Recovery") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/10") } // Throwable: issuedAt<certValidFrom
     .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/10") } // Throwable: issuedAt<certValidFrom
-    .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/11") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
-    .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/12") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
-    .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/13") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
-    .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/11") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
-    .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/12") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
-    .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/13") } // DateTimeParseException: Text '2021-03-18T22:54:00+02:00' could not be parsed, unparsed text found at index 10
-    .filterNot { it.key.contains("NL/2DCode/raw/005") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/006") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/011") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/014") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/018") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/020") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/022") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/030") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/038") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/045") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/046") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/054") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/057") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/059") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/060") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/062") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/070") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/071") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/073") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/078") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/079") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/086") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/094") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/095") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/102") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/104") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/109") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/110") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/118") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/120") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/121") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/123") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/126") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/130") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/134") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/139") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/141") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/142") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/143") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/144") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/150") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/153") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/158") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/162") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/163") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/165") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/166") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/169") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/174") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/178") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/182") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/186") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/189") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/190") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/192") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/198") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/201") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/206") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/214") } // Data does not follow schema
-    .filterNot { it.key.contains("NL/2DCode/raw/215") } // Data does not follow schema
+    .filterNot { it.key.contains("NL/2DCode/raw/006") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/014") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/022") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/030") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/038") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/046") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/054") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/062") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/070") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/071") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/078") } // Schema error: dn is not positive
+    .filterNot { it.key.contains("NL/2DCode/raw/079") } // Schema error: dn is not positive
+    .filterNot { it.key.contains("NL/2DCode/raw/086") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/094") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/095") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/102") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/104") } // Schema error: sd is not positive
+    .filterNot { it.key.contains("NL/2DCode/raw/109") } // Schema error: sd is not positive
+    .filterNot { it.key.contains("NL/2DCode/raw/110") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/118") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/121") } // Schema error: dn is not positive
+    .filterNot { it.key.contains("NL/2DCode/raw/126") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/130") } // Schema error: sd is not positive
+    .filterNot { it.key.contains("NL/2DCode/raw/134") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/139") } // Schema error: dn is not positive
+    .filterNot { it.key.contains("NL/2DCode/raw/141") } // Schema error: sd is not positive
+    .filterNot { it.key.contains("NL/2DCode/raw/142") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/143") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/150") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/158") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/166") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/174") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/182") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/190") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/198") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/206") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/214") } // Validates, but Testcase claims schema error
+    .filterNot { it.key.contains("NL/2DCode/raw/215") } // Validates, but Testcase claims schema error
     .filterNot { it.key.contains("NL/2DCode/raw/007") } // Validates, but Testcase claims schema error
     .filterNot { it.key.contains("NL/2DCode/raw/015") } // Validates, but Testcase claims schema error
     .filterNot { it.key.contains("NL/2DCode/raw/023") } // Validates, but Testcase claims schema error
@@ -155,7 +125,6 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("NL/2DCode/raw/211") } // Validates, but Testcase claims schema error
     .filterNot { it.key.contains("NL/2DCode/raw/212") } // Validates, but Testcase claims schema error
     .filterNot { it.key.contains("NL/2DCode/raw/213") } // Validates, but Testcase claims schema error
-
     .filterNot { it.key.contains("NL-test+wrong") } // borked
     .filterNot { it.key.contains("IS/2DCode/raw/3") } // Wrong test on key usage: Expected UNSUITABLE_PUBLIC_KEY_TYPE but actual was null, see https://github.com/eu-digital-green-certificates/dgc-testdata/issues/244
     .filterNot { it.key.contains("ES/2DCode/raw/401") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
