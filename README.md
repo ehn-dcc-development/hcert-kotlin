@@ -308,14 +308,17 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.1.0'
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.1.0'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.1.1-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.1.1-SNAPSHOT'
 }
 ```
 
 If you are planning to use this library, we'll suggest to fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
 
 ## Changelog
+
+Next release:
+ - tbd
 
 Version 1.1.0:
  - Try to parse as many dates and datetimes as possible
