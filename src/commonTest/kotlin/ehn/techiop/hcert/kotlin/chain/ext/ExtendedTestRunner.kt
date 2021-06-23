@@ -130,7 +130,8 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("ES/2DCode/raw/401") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
     .filterNot { it.key.contains("ES/2DCode/raw/402") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
     .filterNot { it.key.contains("ES/2DCode/raw/403") } // ECDSA Signature Length: https://github.com/eu-digital-green-certificates/dgc-testdata/issues/285
-
+    .filterNot { it.key.contains("RO/2DCode/raw/2") } // defines two vaccination entries, which is not valid
+    .filterNot { it.key.contains("SK/2DCode/raw/3") } // defines two vaccination entries, which is not valid
     // Probably not an error for us:
     .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/7") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Entry for "ma"="9999" not in value set
     .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/8") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Country not valid" "co"="XY"
