@@ -15,7 +15,7 @@ object ValueSetEntryAdapterSerializer : KSerializer<ValueSetEntryAdapter> {
     }
 
     override fun serialize(encoder: Encoder, value: ValueSetEntryAdapter) {
-        encoder.encodeString(value.key)
+        encoder.encodeString(value.key.trim())
     }
 }
 
