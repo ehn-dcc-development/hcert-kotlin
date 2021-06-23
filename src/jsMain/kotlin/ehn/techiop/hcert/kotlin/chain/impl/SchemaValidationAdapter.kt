@@ -19,7 +19,7 @@ internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
 
     override fun loadSchema(version: String): Pair<AJV2020, dynamic> {
         loadAjv().apply {
-            val schema: dynamic = getSchema(version, this)
+            val schema: dynamic = getSchema(version)
             if (!this.validateSchema(schema))
                 throw Throwable("JSON schema invalid: ${JSON.stringify(this.errors)}")
             return this to schema
@@ -28,17 +28,17 @@ internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
 
     override fun loadFallbackSchema(): Pair<AJV2020, dynamic> {
         loadAjv().apply {
-            val schema: dynamic = getFallbackSchema(this)
+            val schema: dynamic = getFallbackSchema()
             if (!this.validateSchema(schema))
                 throw Throwable("Relaxed JSON schema invalid: ${JSON.stringify(this.errors)}")
             return this to schema
         }
     }
 
-    private fun getSchema(version: String, ajv: AJV2020): dynamic =
+    private fun getSchema(version: String): dynamic =
         JSON.parse(MainResourceHolder.loadAsString("json/schema/$version/DCC.combined-schema.json")!!)
 
-    private fun getFallbackSchema(ajv: AJV2020): dynamic =
+    private fun getFallbackSchema(): dynamic =
         JSON.parse(MainResourceHolder.loadAsString("json/schema/fallback/DCC.combined-schema.json")!!)
 
     private fun loadAjv(): AJV2020 = AJV2020().apply {
