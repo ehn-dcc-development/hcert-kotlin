@@ -46,13 +46,15 @@ actual class SchemaValidationAdapter actual constructor(private val cbor: CborOb
 
     actual fun validateBasic(versionString: String): Collection<SchemaError> {
         val (ajv, schema) = schemaLoader.validators[versionString] ?: throw IllegalArgumentException("versionString")
-        val result = ajv.validate(schema, json)
-        if (result) return listOf()
-        return (ajv.errors as Array<dynamic>).map { SchemaError(JSON.stringify(it)) }
+        return validate(ajv, schema)
     }
 
     actual fun validateWithFallback(): Collection<SchemaError> {
         val (ajv, schema) = schemaLoader.defaultValidator
+        return validate(ajv, schema)
+    }
+
+    private fun validate(ajv: AJV2020, schema: dynamic): List<SchemaError> {
         val result = ajv.validate(schema, json)
         if (result) return listOf()
         return (ajv.errors as Array<dynamic>).map { SchemaError(JSON.stringify(it)) }

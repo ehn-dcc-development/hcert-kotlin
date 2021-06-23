@@ -1,9 +1,5 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.Error
-import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
-import ehn.techiop.hcert.kotlin.chain.VerificationException
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.data.CborObject
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 
@@ -30,7 +26,7 @@ abstract class SchemaLoader<T> {
 
     internal val defaultValidator = validators[BASE_VERSION]!!
 
-    abstract internal fun loadSchema(version: String): T
+    internal abstract fun loadSchema(version: String): T
 
 }
 
