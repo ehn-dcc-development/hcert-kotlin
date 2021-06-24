@@ -33,7 +33,7 @@ object customSrcDirs {
     val commonShared = "src/commonShared/kotlin"
     val jsMainGenerated = "src/jsMain/generated"
     val jsTestGenerated = "src/jsTest/generated"
-    val jvmFaulty = "src/jvmMain/addon-datagen"
+    val jvmFaulty = "src/jvmMain/datagen"
 }
 
 val faultAttribute = Attribute.of("ehn.techiop.hcert.faults", String::class.java)
@@ -138,14 +138,14 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}") //explicit declaration to overrule subdependency version
             }
         }
-        val `jvmDataGenMain` by getting {
+        val jvmDataGenMain by getting {
             dependsOn(commonShared)
         }
         val jvmTest by getting {
             dependencies {
                 implementation("io.kotest:kotest-runner-junit5:${Versions.kotest}")
             }
-            dependsOn(`jvmDataGenMain`)
+            dependsOn(jvmDataGenMain)
         }
 
         val jsMain by getting {
@@ -199,10 +199,10 @@ publishing {
  * Now setup the task dependencies between custom targets
  */
 //disable this task, it won't work and we don't need it
-val `jvmDataGenTest` by tasks
-`jvmDataGenTest`.enabled=false
-val `compileTestKotlinJvmDataGen` by tasks
-`compileTestKotlinJvmDataGen`.enabled=false
+val jvmDataGenTest by tasks
+jvmDataGenTest.enabled = false
+val compileTestKotlinJvmDataGen by tasks
+compileTestKotlinJvmDataGen.enabled = false
 
 /*
 * KJS: No way to get test resources in a multiplatform project.
