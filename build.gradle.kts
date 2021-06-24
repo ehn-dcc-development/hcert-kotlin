@@ -36,6 +36,8 @@ object customSrcDirs {
     val jvmFaulty = "src/jvmMain/addon-datagen"
 }
 
+val faultAttribute = Attribute.of("ehn.techiop.hcert.faults", String::class.java)
+
 kotlin {
     targets.all {
         compilations.all {
@@ -73,9 +75,10 @@ kotlin {
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
+        attributes.attribute(faultAttribute, "false")
     }
 
-    jvm("jvm-dataGen") {
+    jvm("jvmDataGen") {
         compilations {
             val main by compilations.getting {
                 defaultSourceSet {
@@ -84,6 +87,7 @@ kotlin {
                 }
             }
         }
+        attributes.attribute(faultAttribute, "true")
     }
 
     js(LEGACY) {
@@ -134,14 +138,14 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}") //explicit declaration to overrule subdependency version
             }
         }
-        val `jvm-dataGenMain` by getting {
+        val `jvmDataGenMain` by getting {
             dependsOn(commonShared)
         }
         val jvmTest by getting {
             dependencies {
                 implementation("io.kotest:kotest-runner-junit5:${Versions.kotest}")
             }
-            dependsOn(`jvm-dataGenMain`)
+            dependsOn(`jvmDataGenMain`)
         }
 
         val jsMain by getting {
@@ -191,17 +195,14 @@ publishing {
     }
 }
 
-
 /*
  * Now setup the task dependencies between custom targets
  */
-tasks.named("compileKotlinJvm-dataGen") { dependsOn(tasks.named("compileKotlinJvm")) }
-tasks.named("compileTestKotlinJvm") { dependsOn(tasks.named("compileKotlinJvm-dataGen")) }
 //disable this task, it won't work and we don't need it
-val `jvm-dataGenTest` by tasks
-`jvm-dataGenTest`.enabled=false
-val `compileTestKotlinJvm-dataGen` by tasks
-`compileTestKotlinJvm-dataGen`.enabled=false
+val `jvmDataGenTest` by tasks
+`jvmDataGenTest`.enabled=false
+val `compileTestKotlinJvmDataGen` by tasks
+`compileTestKotlinJvmDataGen`.enabled=false
 
 /*
 * KJS: No way to get test resources in a multiplatform project.
