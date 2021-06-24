@@ -4,11 +4,10 @@ plugins {
     id("idea")
     id("com.github.jk1.dependency-license-report") version Versions.licenseReport
     id("maven-publish")
-    id("org.barfuin.gradle.taskinfo") version "1.2.0"
 }
 
 group = "ehn.techiop.hcert"
-version = "1.0.2-SNAPSHOT"
+version = "1.2.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 idea {

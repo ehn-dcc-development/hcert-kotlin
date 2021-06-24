@@ -21,9 +21,7 @@ This Kotlin library is a [mulitplatform project](https://kotlinlang.org/docs/mul
 
 `ehn.techiop.hcert.kotlin.chain.Chain` is the main class for encoding and decoding HCERT data. For encoding, pass an instance of a `GreenCertificate` (data class conforming to the JSON schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
 
-The usage of interfaces for all services (CBOR, CWT, COSE, ZLib, Context) in the chain may seem over-engineered at first, but it allows us to create wrongly encoded results, by passing faulty implementations of the service. Those services reside in the namespace `ehn.techiop.hcert.kotlin.chain.faults` and should, obviously, not be used for production code.
-
-The actual, correct, implementations of the service interfaces reside in `ehn.techiop.hcert.kotlin.chain.impl`. These "default" implementations will be used when the chain is constructed using `DefaultChain.buildCreationChain()` or `DefaultChain.buildVerificationChain()`.
+Correct implementations of the service interfaces reside in `ehn.techiop.hcert.kotlin.chain.impl`. These "default" implementations will be used when the chain is constructed using `DefaultChain.buildCreationChain()` or `DefaultChain.buildVerificationChain()`.
 
 
 Example for creation services:
@@ -65,6 +63,12 @@ boolean isValid = verificationResult.getError() == null; // true or false
 Error error = verificationResult.getError(); // may be null, see list below
 GreenCertificate greenCertificate = result.getChainDecodeResult().getEudgc(); // may be null
 ```
+
+### Faulty Implementations
+
+The usage of interfaces for all services (CBOR, CWT, COSE, ZLib, Context) in the chain may seem over-engineered at first, but it allows us to create wrongly encoded results, by passing faulty implementations of the service. Those services reside in a separate artifact named `ehn.techiop.hcert:hcert-kotlin-jvmdatagen` in the namespace `ehn.techiop.hcert.kotlin.chain.faults` and should, obviously, not be used for production code.
+
+Sample data objects are provided in `SampleData`, with special thanks to Christian Baumann.
 
 ## Usage (JS)
 
@@ -219,8 +223,6 @@ Chain chain = DefaultChain.buildVerificationChain(repository);
 
 ## Data Classes
 
-Sample data objects are provided in `SampleData`, with special thanks to Christian Baumann.
-
 Classes in `ehn.techiop.hcert.kotlin.data` provide Kotlin data classes that conform to the JSON schema. They can be de-/serialized with [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), i.e. `Cbor.encodeToByteArray()` or `Cbor.decodeFromByteArray<GreenCertificate>()`.
 
 These classes also use `ValueSetEntry` objects, that are loaded from the valuesets of the dgc-schema. These provide additional information, e.g. for the key "EU/1/20/1528" to map to the vaccine "Comirnaty".
@@ -279,6 +281,9 @@ dependencies {
 If you are planning to use this library, we'll suggest to fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
 
 ## Changelog
+
+Version 1.2.0:
+ - Split faulty implementations, sample data, to separate artifact: `ehn.techiop.hcert:hcert-kotlin-jvmdatagen`
 
 Version 1.0.1:
  - Validate schema on JVM
