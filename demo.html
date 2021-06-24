@@ -53,12 +53,12 @@
             document.getElementById("tGenQr").src = generator.encodeToQrCode(input, 4, 2);
         }
 
-        function validate() {
+        function validate(showDataClass) {
             let qr = tQR.value.trim();
             let pemCert = tCert.value.trim();
             tRes.value = "Verifying ...";
             verifier = new hcert.VerifierDirect([pemCert]);
-            let result = verifier.verify(qr);
+            let result = callVerifier(showDataClass, qr);
             console.info(result);
             tRes.value = JSON.stringify(result, null, 2);
             tValid.value = JSON.stringify(result.isValid, null, 2);
@@ -82,7 +82,7 @@
             xhr.send();
         }
 
-        function validateTrustList() {
+        function validateTrustList(showDataClass) {
             let qr = tQR.value.trim();
             let pemCert = tTrustListRoot.value.trim();
             tRes.value = "Verifying ...";
@@ -92,7 +92,7 @@
                 downloadBinary(signatureUrl, function (resultSignature) {
                     try {
                         verifier = new hcert.VerifierTrustList(pemCert, resultContent, resultSignature);
-                        let result = verifier.verify(qr);
+                        let result = callVerifier(showDataClass, qr);
                         console.info(result);
                         tRes.value = JSON.stringify(result, null, 2);
                         tValid.value = JSON.stringify(result.isValid, null, 2);
@@ -122,6 +122,14 @@
                 })
             });
         }
+
+        function callVerifier(showDataClass, qr) {
+            if (showDataClass)
+                return verifier.verifyDataClass(qr);
+            else
+                return verifier.verify(qr);
+        }
+
     </script>
 </head>
 <body>
@@ -153,7 +161,10 @@ bkUQuVHW6fQbONd731/M4nc=
 </textarea>
 </p>
 <p>
-    <button onClick="validate()">Validate</button>
+    <button onClick="validate(false)">Validate</button>
+</p>
+<p>
+    <button onClick="validate(true)">Validate, show Data Class</button>
 </p>
 
 <h3>TrustList Verifier</h3>
@@ -180,7 +191,10 @@ EkhRcgdlVfUb
     <textarea rows="1" cols="100" id="tTrustListSignatureUrl">https://dgc.a-sit.at/ehn/cert/sigv2</textarea>
 </p>
 <p>
-    <button onClick="validateTrustList()">Validate with TrustList</button>
+    <button onClick="validateTrustList(false)">Validate with TrustList</button>
+</p>
+<p>
+    <button onClick="validateTrustList(true)">Validate with TrustList, show Data Class</button>
 </p>
 <p>
     <button onClick="updateTrustList()">Update TrustList</button>

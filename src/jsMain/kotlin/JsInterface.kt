@@ -1,7 +1,7 @@
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.Chain
 import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.DecodeJsResult
+import ehn.techiop.hcert.kotlin.chain.DecodeResultJs
 import ehn.techiop.hcert.kotlin.chain.DefaultChain
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
@@ -60,12 +60,22 @@ class Verifier {
         }
     }
 
+    /**
+     * Returns a serialization of [DecodeResultJs]
+     */
     fun verify(qrContent: String): jsJson {
-        val decodeResult = DecodeJsResult(chain.decode(qrContent))
-        // we can't return DecodeJsResult directly, because that would lead to
-        // ugly serialization in JS, because we can't annotate Platform Types with
-        // @JSExport, and neither @Serializable types
+        val decodeResult = DecodeResultJs(chain.decode(qrContent))
         return JSON.parse(Json { encodeDefaults = true }.encodeToString(decodeResult))
+    }
+
+    /**
+     * We'll make sure, that [DecodeResultJs] contains only
+     * types that export nicely to JavaScript, so it's okay
+     * to suppress the warning.ü0ü0
+     */
+    @Suppress("NON_EXPORTABLE_TYPE")
+    fun verifyDataClass(qrContent: String): DecodeResultJs {
+        return DecodeResultJs(chain.decode(qrContent))
     }
 
 }
@@ -109,27 +119,29 @@ class Generator {
  */
 fun main() {
     if (false) {
-        val directVerifier = Verifier("foo")
+        val directVerifier = Verifier("bar")
         directVerifier.verify("bar")
+        directVerifier.verifyDataClass("bar")
         val trustListVerifier = Verifier(
-            "foo",
+            "bar",
             ArrayBuffer.from("content".encodeToByteArray()),
             ArrayBuffer.from("signature".encodeToByteArray())
         )
         trustListVerifier.verify("bar")
+        trustListVerifier.verifyDataClass("bar")
         trustListVerifier.updateTrustList(
-            "foo",
+            "bar",
             ArrayBuffer.from("content".encodeToByteArray()),
             ArrayBuffer.from("signature".encodeToByteArray())
         )
 
         val generatorEcRandom = Generator(256)
-        generatorEcRandom.encode("Baz")
-        generatorEcRandom.encodeToQrCode("Bar", 3, 2)
+        generatorEcRandom.encode("bar")
+        generatorEcRandom.encodeToQrCode("bar", 3, 2)
 
-        val generatorFixed = Generator("foo", "bar")
-        generatorFixed.encode("foobar")
-        generatorFixed.encodeToQrCode("Baz", 2, 1)
+        val generatorFixed = Generator("bar", "bar")
+        generatorFixed.encode("bar")
+        generatorFixed.encodeToQrCode("bar", 2, 1)
     }
     console.info("DCC Chain Loaded")
 }
