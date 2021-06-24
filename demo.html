@@ -90,14 +90,18 @@
             let signatureUrl = document.getElementById("tTrustListSignatureUrl").value.trim();
             downloadBinary(contentUrl, function (resultContent) {
                 downloadBinary(signatureUrl, function (resultSignature) {
-                    verifier = new hcert.VerifierTrustList(pemCert, resultContent, resultSignature);
-                    let result = verifier.verify(qr);
-                    console.info(result);
-                    tRes.value = JSON.stringify(result, null, 2);
-                    tValid.value = JSON.stringify(result.isValid, null, 2);
-                    tError.value = JSON.stringify(result.error, null, 2);
-                    tMeta.value = JSON.stringify(result.metaInformation, null, 2);
-                    tEgc.value = JSON.stringify(result.greenCertificate, null, 2);
+                    try {
+                        verifier = new hcert.VerifierTrustList(pemCert, resultContent, resultSignature);
+                        let result = verifier.verify(qr);
+                        console.info(result);
+                        tRes.value = JSON.stringify(result, null, 2);
+                        tValid.value = JSON.stringify(result.isValid, null, 2);
+                        tError.value = JSON.stringify(result.error, null, 2);
+                        tMeta.value = JSON.stringify(result.metaInformation, null, 2);
+                        tEgc.value = JSON.stringify(result.greenCertificate, null, 2);
+                    } catch (error) {
+                        tRes.value = error.name + ": " + error.error.name$ + "\n\n" + JSON.stringify(error, null, 2);
+                    }
                 })
             });
         }
@@ -109,8 +113,12 @@
             let signatureUrl = document.getElementById("tTrustListSignatureUrl").value.trim();
             downloadBinary(contentUrl, function (resultContent) {
                 downloadBinary(signatureUrl, function (resultSignature) {
-                    verifier.updateTrustList(pemCert, resultContent, resultSignature);
-                    tRes.value = "Updated TrustList!";
+                    try {
+                        verifier.updateTrustList(pemCert, resultContent, resultSignature);
+                        tRes.value = "Updated TrustList!";
+                    } catch (error) {
+                        tRes.value = error.name + ": " + error.error.name$ + "\n\n" + JSON.stringify(error, null, 2);
+                    }
                 })
             });
         }
