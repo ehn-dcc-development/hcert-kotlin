@@ -203,6 +203,78 @@ let input = JSON.stringify({"ver": "1.2.1", "nam": { ... }});
 // Continue with example above with generator.encode()
 ```
 
+An alternative to calling `verfiy(qr)` is to call `verifyDataClass(qr)` which returns the `greenCertificate` as an JS object, like this:
+
+```JSON
+{
+  "schemaVersion": "1.0.0",
+  "subject": {
+    "familyName": "Musterfrau-Gößinger",
+    "familyNameTransliterated": "MUSTERFRAU<GOESSINGER",
+    "givenName": "Gabriele",
+    "givenNameTransliterated": "GABRIELE"
+  },
+  "dateOfBirthString": "1998-02-26",
+  "vaccinations": [
+    {
+      "target": {
+        "key": "840539006",
+        "valueSetEntry": {
+          "display": "COVID-19",
+          "lang": "en",
+          "active": true,
+          "system": "http://snomed.info/sct",
+          "version": "http://snomed.info/sct/900000000000207008/version/20210131",
+          "valueSetId": null
+        }
+      },
+      "vaccine": {
+        "key": "1119305005",
+        "valueSetEntry": {
+          "display": "SARS-CoV-2 antigen vaccine",
+          "lang": "en",
+          "active": true,
+          "system": "http://snomed.info/sct",
+          "version": "http://snomed.info/sct/900000000000207008/version/20210131",
+          "valueSetId": null
+        }
+      },
+      "medicinalProduct": {
+        "key": "EU/1/20/1528",
+        "valueSetEntry": {
+          "display": "Comirnaty",
+          "lang": "en",
+          "active": true,
+          "system": "https://ec.europa.eu/health/documents/community-register/html/",
+          "version": "",
+          "valueSetId": null
+        }
+      },
+      "authorizationHolder": {
+        "key": "ORG-100030215",
+        "valueSetEntry": {
+          "display": "Biontech Manufacturing GmbH",
+          "lang": "en",
+          "active": true,
+          "system": "https://spor.ema.europa.eu/v1/organisations",
+          "version": "",
+          "valueSetId": "vaccines-covid-19-auth-holders"
+        }
+      },
+      "doseNumber": 1,
+      "doseTotalNumber": 2,
+      "date": "2021-02-18T00:00:00.000Z",
+      "country": "AT",
+      "certificateIssuer": "BMSGPK Austria",
+      "certificateIdentifier": "urn:uvci:01:AT:10807843F94AEE0EE5093FBC254BD813P"
+    }
+  ],
+  "recoveryStatements": null,
+  "tests": null,
+  "dateOfBirth": "1998-02-26T00:00:00.000Z"
+}
+```
+
 ## Errors
 
 The field `error` in the resulting structure (`DecodeResult`) may contain the error code. The list of possible errors is the same as for [ValidationCore](https://github.com/ehn-dcc-development/ValidationCore):
@@ -269,6 +341,8 @@ These classes also use `ValueSetEntry` objects, that are loaded from the valuese
 
 This implementation is on purpose lenient when parsing HCERT data, since there may be some production data out there, that includes timestamps in date objects, or whitespaces in keys for value sets.
 
+For JS, you can call `verifyDataClass(qr)` (istead of `verify(qr)`) to get an instance of `GreenCertificateJs`. This class is essentially the same as `GreenCertificate` for the JVM target, but holds arrays instead of lists, and JS `Date` instead of the JVM types for dates and instants. In contrast to the simple call to `verify(qr)`, you'll get a `valueSetEntry` (if one is found) and descriptive property names.
+
 ## Configuration
 
 Nearly every object in this library can be configured using constructor parameters. Most of these parameters have opinionated, default values, e.g. `Clock.System` for `clock`, used to get the current timestamp.
@@ -324,6 +398,7 @@ If you are planning to use this library, we'll suggest to fork it (internally), 
 
 Version 1.2.0:
  - Split faulty implementations, sample data, to separate artifact: `ehn.techiop.hcert:hcert-kotlin-jvmdatagen`
+ - Add option to get a data class with "nice" names when validating in JS (equivalent to JVM)
 
 Version 1.1.0:
  - Try to parse as many dates and datetimes as possible
