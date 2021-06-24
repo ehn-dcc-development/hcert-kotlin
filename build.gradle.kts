@@ -7,7 +7,8 @@ plugins {
 }
 
 group = "ehn.techiop.hcert"
-version = "1.1.1-SNAPSHOT"
+version = "1.2.0-SNAPSHOT"
+
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 idea {
@@ -16,17 +17,25 @@ idea {
         isDownloadJavadoc = true
     }
 }
+
 licenseReport {
     allowedLicensesFile = File("$projectDir/allowed-licenses.json")
 }
-
-
 
 repositories {
     mavenLocal()
     jcenter()
     mavenCentral()
 }
+
+object customSrcDirs {
+    val commonShared = "src/commonShared/kotlin"
+    val jsMainGenerated = "src/jsMain/generated"
+    val jsTestGenerated = "src/jsTest/generated"
+    val jvmFaulty = "src/jvmMain/datagen"
+}
+
+val faultAttribute = Attribute.of("ehn.techiop.hcert.faults", String::class.java)
 
 kotlin {
     targets.all {
@@ -51,6 +60,7 @@ kotlin {
             useExperimentalAnnotation("kotlin.js.ExperimentalJsExport")
         }
     }
+
     jvm {
         compilations.all {
             kotlinOptions {
@@ -64,7 +74,21 @@ kotlin {
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
+        attributes.attribute(faultAttribute, "false")
     }
+
+    jvm("jvmDataGen") {
+        compilations {
+            val main by compilations.getting {
+                defaultSourceSet {
+                    dependsOn(sourceSets.getByName("jvmMain"))
+                    kotlin.srcDir(customSrcDirs.jvmFaulty)
+                }
+            }
+        }
+        attributes.attribute(faultAttribute, "true")
+    }
+
     js(LEGACY) {
         moduleName = "hcert"
         browser {
@@ -83,12 +107,15 @@ kotlin {
         useCommonJs()
     }
     sourceSets {
+        val commonShared by creating {
+            sourceSets { kotlin.srcDir(customSrcDirs.commonShared) }
+        }
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.datetime}")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:${Versions.serialization}")
-                implementation("io.github.aakira:napier:${Versions.logging}")
+                api("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.datetime}")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:${Versions.serialization}")
+                api("io.github.aakira:napier:${Versions.logging}")
             }
         }
         val commonTest by getting {
@@ -97,6 +124,7 @@ kotlin {
                 implementation("io.kotest:kotest-assertions-core:${Versions.kotest}")
                 implementation("io.kotest:kotest-framework-datatest:${Versions.kotest}")
             }
+            dependsOn(commonShared)
         }
         val jvmMain by getting {
             dependencies {
@@ -105,18 +133,22 @@ kotlin {
                 implementation("com.google.zxing:core:${Versions.jvm.zxing}")
                 implementation("com.google.zxing:javase:${Versions.jvm.zxing}")
                 implementation("org.bouncycastle:bcpkix-jdk15to18:${Versions.jvm.bcpkix}")
-                implementation("javax.validation:validation-api:${Versions.jvm.validation}") //??? what for ???
                 implementation("net.pwall.json:json-kotlin-schema:${Versions.jvm.jsonSchema}")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}") //explicit declaration to overrule subdependency version
             }
+        }
+        val jvmDataGenMain by getting {
+            dependsOn(commonShared)
         }
         val jvmTest by getting {
             dependencies {
                 implementation("io.kotest:kotest-runner-junit5:${Versions.kotest}")
             }
+            dependsOn(jvmDataGenMain)
         }
+
         val jsMain by getting {
-            sourceSets { kotlin.srcDir("src/jsMain/generated") }
+            sourceSets { kotlin.srcDir(customSrcDirs.jsMainGenerated) }
             dependencies {
                 implementation(npm("pako", Versions.js.pako))
                 //cannot overload chunked inflater due to conflicting overloads from generated externals
@@ -143,11 +175,10 @@ kotlin {
             }
         }
         val jsTest by getting {
-            sourceSets { kotlin.srcDir("src/jsTest/generated") }
+            sourceSets { kotlin.srcDir(customSrcDirs.jsTestGenerated) }
         }
     }
 }
-
 
 publishing {
     repositories {
@@ -163,6 +194,14 @@ publishing {
     }
 }
 
+/*
+ * Now setup the task dependencies between custom targets
+ */
+//disable this task, it won't work and we don't need it
+val jvmDataGenTest by tasks
+jvmDataGenTest.enabled = false
+val compileTestKotlinJvmDataGen by tasks
+compileTestKotlinJvmDataGen.enabled = false
 
 /*
 * KJS: No way to get test resources in a multiplatform project.
@@ -174,7 +213,6 @@ publishing {
 * Bonus Issue: this also affects main resources, bc test cases can obviously call code which already depends on resources
 * Therefore, we also use the trick in jsMain
 * */
-
 tasks.named("clean") { dependsOn(tasks.named("jsCleanResources")) }
 tasks.named("compileKotlinJs") { dependsOn(tasks.named("jsWrapMainResources")) }
 tasks.named("compileTestKotlinJs") { dependsOn(tasks.named("jsWrapTestResources")) }
@@ -182,8 +220,8 @@ tasks.named("compileTestKotlinJs") { dependsOn(tasks.named("jsWrapTestResources"
 tasks.register("jsWrapTestResources") { doFirst { wrapJsResources(test = true) } }
 tasks.register("jsWrapMainResources") { doFirst { wrapJsResources() } }
 tasks.register("jsCleanResources") {
-    File("${projectDir.absolutePath}/src/jsTest/generated").deleteRecursively()
-    File("${projectDir.absolutePath}/src/jsMain/generated").deleteRecursively()
+    File("${projectDir.absolutePath}/${customSrcDirs.jsTestGenerated}").deleteRecursively()
+    File("${projectDir.absolutePath}/${customSrcDirs.jsMainGenerated}").deleteRecursively()
 }
 
 

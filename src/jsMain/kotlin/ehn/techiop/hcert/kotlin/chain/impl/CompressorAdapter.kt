@@ -32,6 +32,8 @@ actual class CompressorAdapter {
             val inflator = object : Pako.Inflate() {
                 var numDecompressedBytes = 0
                 override fun onData(chunk: Uint8Array) {
+                    //one too many is not an issue
+                    super.onData(chunk)
                     numDecompressedBytes += chunk.length
                     if (numDecompressedBytes > MAX_DECOMPRESSED_SIZE) {
                         Napier.v(
@@ -44,7 +46,6 @@ actual class CompressorAdapter {
                         "Decompressed ${numDecompressedBytes.formatMag()}B from ${input.size.formatMag()}B input",
                         tag = tag
                     )
-                    super.onData(chunk)
                 }
             }.also { it.push(input.toUint8Array()) }
 

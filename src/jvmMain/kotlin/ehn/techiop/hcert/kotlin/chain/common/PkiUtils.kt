@@ -23,7 +23,7 @@ import java.util.Date
 import java.util.Random
 import kotlin.time.Duration
 
-actual class PkiUtils {
+actual object PkiUtils {
     actual fun selfSignCertificate(
         commonName: String,
         privateKey: PrivKey,

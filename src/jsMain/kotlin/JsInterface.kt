@@ -6,7 +6,6 @@ import ehn.techiop.hcert.kotlin.chain.DefaultChain
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
-import ehn.techiop.hcert.kotlin.chain.SampleData
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.from
@@ -125,12 +124,12 @@ fun main() {
         )
 
         val generatorEcRandom = Generator(256)
-        generatorEcRandom.encode(SampleData.vaccination)
-        generatorEcRandom.encodeToQrCode(SampleData.vaccination, 3, 2)
+        generatorEcRandom.encode("Baz")
+        generatorEcRandom.encodeToQrCode("Bar", 3, 2)
 
         val generatorFixed = Generator("foo", "bar")
-        generatorFixed.encode(SampleData.recovery)
-        generatorFixed.encodeToQrCode(SampleData.recovery, 2, 1)
+        generatorFixed.encode("foobar")
+        generatorFixed.encodeToQrCode("Baz", 2, 1)
     }
     console.info("DCC Chain Loaded")
 }

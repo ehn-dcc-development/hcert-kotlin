@@ -19,7 +19,7 @@ class RandomRsaKeyCryptoService constructor(
 
     private val cryptoAdapter = CryptoAdapter(KeyType.RSA, keySize)
     private val algorithm = CwtAlgorithm.RSA_PSS_256
-    private val certificate = PkiUtils().selfSignCertificate(
+    private val certificate = PkiUtils.selfSignCertificate(
         "RSA-Me",
         cryptoAdapter.privateKey,
         cryptoAdapter.publicKey,
