@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.data
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.js.JsName
 
 @Serializable
 data class Vaccination(

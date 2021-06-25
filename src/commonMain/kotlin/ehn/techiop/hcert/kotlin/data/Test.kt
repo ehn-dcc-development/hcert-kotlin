@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.data
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.js.JsName
 
 @Serializable
 data class Test constructor(

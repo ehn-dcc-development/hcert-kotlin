@@ -341,7 +341,7 @@ These classes also use `ValueSetEntry` objects, that are loaded from the valuese
 
 This implementation is on purpose lenient when parsing HCERT data, since there may be some production data out there, that includes timestamps in date objects, or whitespaces in keys for value sets.
 
-For JS, you can call `verifyDataClass(qr)` (istead of `verify(qr)`) to get an instance of `GreenCertificateJs`. This class is essentially the same as `GreenCertificate` for the JVM target, but holds arrays instead of lists, and JS `Date` instead of the JVM types for dates and instants. In contrast to the simple call to `verify(qr)`, you'll get a `valueSetEntry` (if one is found) and descriptive property names.
+For JS, you can call `verifyDataClass(qr)` (istead of `verify(qr)`) to get an instance of a monkey-patched `GreenCertificate`. This class is essentially the same as `GreenCertificate` for the JVM target, but holds JS `Date` objects instead of the JVM types for dates and instants. In contrast to the simple call to `verify(qr)`, you'll get a `valueSetEntry` (if one is found) and descriptive property names.
 
 ## Configuration
 
@@ -399,6 +399,7 @@ If you are planning to use this library, we'll suggest to fork it (internally), 
 Version 1.2.0:
  - Split faulty implementations, sample data, to separate artifact: `ehn.techiop.hcert:hcert-kotlin-jvmdatagen`
  - Add option to get a data class with "nice" names when validating in JS (equivalent to JVM)
+ - API change: GreenCertificate now uses arrays for test/vaccination/recovery
 
 Version 1.1.0:
  - Try to parse as many dates and datetimes as possible

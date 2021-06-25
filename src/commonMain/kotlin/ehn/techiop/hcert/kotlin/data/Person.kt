@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.js.JsName
 
 @Serializable
 data class Person(
