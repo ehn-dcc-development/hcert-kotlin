@@ -80,6 +80,13 @@ kotlin {
     jvm("jvmDataGen") {
         compilations {
             val main by compilations.getting {
+                kotlinOptions {
+                    jvmTarget = "1.8"
+                    freeCompilerArgs = listOf(
+                        "-Xjsr305=strict"
+                    )
+                }
+
                 defaultSourceSet {
                     dependsOn(sourceSets.getByName("jvmMain"))
                     kotlin.srcDir(customSrcDirs.jvmFaulty)
