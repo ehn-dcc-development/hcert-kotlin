@@ -65,6 +65,7 @@
             tError.value = JSON.stringify(result.error, null, 2);
             tMeta.value = JSON.stringify(result.metaInformation, null, 2);
             tEgc.value = JSON.stringify(result.greenCertificate, null, 2);
+            return result
         }
 
         function downloadBinary(requestUrl, callback) {

@@ -1,6 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import ehn.techiop.hcert.kotlin.data.JsDateSerializer
 import kotlinx.serialization.Serializable
+import kotlin.js.Date
 
 /**
  * This class contains "safe" objects for Javascript,
@@ -10,21 +12,25 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class VerificationResultJs(
-    val expirationTime: String? = null,
-    val issuedAt: String? = null,
+    @Serializable(with = JsDateSerializer::class)
+    val expirationTime: Date? = null,
+    @Serializable(with = JsDateSerializer::class)
+    val issuedAt: Date? = null,
     val issuer: String? = null,
-    val certificateValidFrom: String? = null,
-    val certificateValidUntil: String? = null,
+    @Serializable(with = JsDateSerializer::class)
+    val certificateValidFrom: Date? = null,
+    @Serializable(with = JsDateSerializer::class)
+    val certificateValidUntil: Date? = null,
     val certificateValidContent: Array<String>? = null,
     val content: Array<String>? = null,
     val error: String? = null
 ) {
     constructor(result: VerificationResult) : this(
-        result.expirationTime?.toString(),
-        result.issuedAt?.toString(),
+        result.expirationTime?.let { Date(it.toString()) },
+        result.issuedAt?.let { Date(it.toString()) },
         result.issuer,
-        result.certificateValidFrom?.toString(),
-        result.certificateValidUntil?.toString(),
+        result.certificateValidFrom?.let { Date(it.toString()) },
+        result.certificateValidUntil?.let { Date(it.toString()) },
         result.certificateValidContent.map { it.name }.toTypedArray(),
         result.content.map { it.name }.toTypedArray(),
         result.error?.toString()
