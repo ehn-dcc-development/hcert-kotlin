@@ -30,7 +30,7 @@ data class Test constructor(
     val resultPositive: ValueSetEntryAdapter,
 
     @SerialName("tc")
-    val testFacility: String,
+    val testFacility: String? = null,
 
     @SerialName("co")
     val country: String,

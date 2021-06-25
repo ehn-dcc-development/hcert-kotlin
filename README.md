@@ -317,6 +317,9 @@ If you are planning to use this library, we'll suggest to fork it (internally), 
 
 ## Changelog
 
+Version 1.1.1:
+ - Make `tc` (`testFacility`) in HCERT Test optional
+
 Version 1.1.0:
  - Try to parse as many dates and datetimes as possible
  - Perform a very relaxed schema validation by default
