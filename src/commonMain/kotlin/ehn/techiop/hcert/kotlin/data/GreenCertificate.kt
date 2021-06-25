@@ -9,27 +9,21 @@ import kotlin.js.JsName
 @Serializable
 data class GreenCertificate(
     @SerialName("ver")
-    @JsName("schemaVersion")
     val schemaVersion: String,
 
     @SerialName("nam")
-    @JsName("subject")
     val subject: Person,
 
     @SerialName("dob")
-    @JsName("dateOfBirthString")
     val dateOfBirthString: String,
 
     @SerialName("v")
-    @JsName("vaccinations")
     val vaccinations: Array<Vaccination?>? = null,
 
     @SerialName("r")
-    @JsName("recoveryStatements")
     val recoveryStatements: Array<RecoveryStatement?>? = null,
 
     @SerialName("t")
-    @JsName("tests")
     val tests: Array<Test?>? = null,
 ) {
 
@@ -38,7 +32,6 @@ data class GreenCertificate(
      * so we may not be able to get a valid [LocalDate] from it.
      * Be lenient, i.e. strip a timestamp, if it is included
      */
-    @JsName("dateOfBirth")
     @Transient
     val dateOfBirth: LocalDate? = try {
         LocalDate.parse(dateOfBirthString.substringBefore("T"))
