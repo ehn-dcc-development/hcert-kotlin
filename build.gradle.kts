@@ -180,6 +180,90 @@ kotlin {
     }
 }
 
+tasks {
+    /*
+     * KJS: No way to get test resources in a multiplatform project.
+     * https://youtrack.jetbrains.com/issue/KT-36824
+     *
+     * These tasks work around this glaring issue by wrapping test resources into code and providing accessors
+     * requires base64 decoding afterwards and can surely be optimized, but at least it provides access to test resources
+     *
+     * Bonus Issue: this also affects main resources, bc test cases can obviously call code which already depends on resources
+     * Therefore, we also use the trick in jsMain
+     */
+    fun wrapJsResources(test: Boolean = false) {
+        val (prefix, srcDir) = if (test) ("Test" to customSrcDirs.jsTestGenerated) else ("Main" to customSrcDirs.jsMainGenerated)
+        logger.info("Wrapping $prefix resources into ${prefix}ResourceHolder.kt")
+
+        val dir = File("${projectDir.absolutePath}/$srcDir")
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw Throwable("Could not create generated sources folder")
+            }
+        }
+        val f = File("${projectDir.absolutePath}/$srcDir/${prefix}ResourceHolder.kt")
+        f.delete()
+        f.createNewFile()
+        if (!f.canWrite()) {
+            throw Throwable("Could not write generated source file $f")
+        }
+        f.writer().use { w ->
+            if (!test) {
+                w.write("interface R { fun get(key: String): String?;fun allResourceNames():List<String>}")
+            }
+            w.write(
+                "object ${prefix}ResourceHolder:R{private val m = mutableMapOf<String,String>();init{\n"
+            )
+
+            val basePath = "${projectDir.absolutePath}/src/common${prefix}/resources"
+            val baseFile = File(basePath)
+            baseFile.walkBottomUp().filter { !it.isDirectory }.forEach {
+                val encodeBase64 =
+                    de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
+                val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
+                val safeKey = key.replace("\$", "\\\$").replace("\\", "/")
+                w.write(
+                    "m[\"$safeKey\"]=\"" + String(encodeBase64) + "\"\n"
+                )
+            }
+            w.write("}override fun get(key:String)=m[key];")
+            w.write("override fun allResourceNames()=m.keys.sorted()}")
+        }
+    }
+
+    /*
+     * Now setup the tasks accordingly
+     */
+    //define JS main resource wrapping task
+    val jsWrapMainResources by creating { doFirst { wrapJsResources() } }
+
+    //define JS test resource wrapping task
+    val jsWrapTestResources by creating { doFirst { wrapJsResources(test = true) } }
+
+    //we also want to clean up
+    val jsCleanResources by creating {
+        doFirst {
+            File("${projectDir.absolutePath}/${customSrcDirs.jsTestGenerated}").deleteRecursively()
+            File("${projectDir.absolutePath}/${customSrcDirs.jsMainGenerated}").deleteRecursively()
+        }
+    }
+
+    //now setup task dependencies
+    val clean by getting { dependsOn(jsCleanResources) }
+    val compileKotlinJs by getting { dependsOn(jsWrapMainResources) }
+    val compileTestKotlinJs by getting { dependsOn(jsWrapTestResources) }
+
+
+    /*
+     * We need to "tweak" test tasks and their dependencies due do our custom targets
+     */
+    //disable this task, it won't work and we don't need it
+    val jvmDataGenTest by getting { enabled = false }
+    //and also disable this one
+    val compileTestKotlinJvmDataGen by getting { enabled = false }
+
+}
+
 publishing {
     repositories {
         mavenLocal()
@@ -191,76 +275,5 @@ publishing {
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
             }
         }
-    }
-}
-
-/*
- * Now setup the task dependencies between custom targets
- */
-//disable this task, it won't work and we don't need it
-val jvmDataGenTest by tasks
-jvmDataGenTest.enabled = false
-val compileTestKotlinJvmDataGen by tasks
-compileTestKotlinJvmDataGen.enabled = false
-
-/*
-* KJS: No way to get test resources in a multiplatform project.
-* https://youtrack.jetbrains.com/issue/KT-36824
-*
-* These tasks work around this glaring issue by wrapping test resources into code and providing accessors
-* requires base64 decoding afterwards and can surely be optimized, but at least it provides access to test resources
-*
-* Bonus Issue: this also affects main resources, bc test cases can obviously call code which already depends on resources
-* Therefore, we also use the trick in jsMain
-* */
-tasks.named("clean") { dependsOn(tasks.named("jsCleanResources")) }
-tasks.named("compileKotlinJs") { dependsOn(tasks.named("jsWrapMainResources")) }
-tasks.named("compileTestKotlinJs") { dependsOn(tasks.named("jsWrapTestResources")) }
-
-tasks.register("jsWrapTestResources") { doFirst { wrapJsResources(test = true) } }
-tasks.register("jsWrapMainResources") { doFirst { wrapJsResources() } }
-tasks.register("jsCleanResources") {
-    File("${projectDir.absolutePath}/${customSrcDirs.jsTestGenerated}").deleteRecursively()
-    File("${projectDir.absolutePath}/${customSrcDirs.jsMainGenerated}").deleteRecursively()
-}
-
-
-fun wrapJsResources(test: Boolean = false) {
-    val prefix = if (test) "Test" else "Main"
-    println("Wrapping $prefix resources into ${prefix}ResourceHolder.kt")
-
-    val dir = File("${projectDir.absolutePath}/src/js${prefix}/generated")
-    if (!dir.exists()) {
-        if (!dir.mkdirs()) {
-            throw Throwable("Could not create generated sources folder")
-        }
-    }
-    val f = File("${projectDir.absolutePath}/src/js${prefix}/generated/${prefix}ResourceHolder.kt")
-    f.delete()
-    f.createNewFile()
-    if (!f.canWrite()) {
-        throw Throwable("Could not write generated source file $f")
-    }
-    f.writer().use { w ->
-        if (!test) {
-            w.write("interface R { fun get(key: String): String?;fun allResourceNames():List<String>}")
-        }
-        w.write(
-            "object ${prefix}ResourceHolder:R{private val m = mutableMapOf<String,String>();init{\n"
-        )
-
-        val basePath = "${projectDir.absolutePath}/src/common${prefix}/resources"
-        val baseFile = File(basePath)
-        baseFile.walkBottomUp().filter { !it.isDirectory }.forEach {
-            val encodeBase64 =
-                de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
-            val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
-            val safeKey = key.replace("\$", "\\\$").replace("\\", "/")
-            w.write(
-                "m[\"$safeKey\"]=\"" + String(encodeBase64) + "\"\n"
-            )
-        }
-        w.write("}override fun get(key:String)=m[key];")
-        w.write("override fun allResourceNames()=m.keys.sorted()}")
     }
 }
