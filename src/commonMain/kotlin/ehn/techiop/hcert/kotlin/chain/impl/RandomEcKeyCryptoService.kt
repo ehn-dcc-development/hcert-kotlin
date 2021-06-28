@@ -1,7 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.*
-import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.VerificationException
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CryptoAdapter
@@ -16,16 +19,8 @@ class RandomEcKeyCryptoService constructor(
     clock: Clock = Clock.System
 ) : CryptoService {
 
-    private val cryptoAdapter = CryptoAdapter(KeyType.EC, keySize)
-    private val certificate = PkiUtils.selfSignCertificate(
-        "EC-Me",
-        cryptoAdapter.privateKey,
-        cryptoAdapter.publicKey,
-        keySize,
-        contentType,
-        clock
-    )
-    private val keyId = certificate.kid
+    private val cryptoAdapter = CryptoAdapter(KeyType.EC, keySize, contentType, clock)
+    private val keyId = cryptoAdapter.certificate.kid
 
     override fun getCborHeaders() = listOf(
         Pair(CoseHeaderKeys.ALGORITHM, cryptoAdapter.algorithm),
@@ -38,18 +33,18 @@ class RandomEcKeyCryptoService constructor(
         if (!(keyId contentEquals kid))
             throw VerificationException(Error.KEY_NOT_IN_TRUST_LIST, "kid not known: $kid")
 
-        verificationResult.setCertificateData(certificate)
-        return cryptoAdapter.publicKey
+        verificationResult.setCertificateData(cryptoAdapter.certificate)
+        return cryptoAdapter.certificate.publicKey
     }
 
-    override fun getCertificate(): CertificateAdapter = certificate
+    override fun getCertificate(): CertificateAdapter = cryptoAdapter.certificate
 
     override fun exportPrivateKeyAsPem() = "-----BEGIN PRIVATE KEY-----\n" +
             base64forPem(cryptoAdapter.privateKeyEncoded) +
             "\n-----END PRIVATE KEY-----\n"
 
     override fun exportCertificateAsPem() = "-----BEGIN CERTIFICATE-----\n" +
-            base64forPem(certificate.encoded) +
+            base64forPem(cryptoAdapter.certificate.encoded) +
             "\n-----END CERTIFICATE-----\n"
 
     private fun base64forPem(encoded: ByteArray) =
