@@ -86,7 +86,6 @@ kotlin {
                         "-Xjsr305=strict"
                     )
                 }
-
                 defaultSourceSet {
                     dependsOn(sourceSets.getByName("jvmMain"))
                     kotlin.srcDir(customSrcDirs.jvmFaulty)
@@ -141,7 +140,8 @@ kotlin {
                 implementation("com.google.zxing:javase:${Versions.jvm.zxing}")
                 implementation("org.bouncycastle:bcpkix-jdk15to18:${Versions.jvm.bcpkix}")
                 implementation("net.pwall.json:json-kotlin-schema:${Versions.jvm.jsonSchema}")
-                implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}") //explicit declaration to overrule subdependency version
+                // explicit declaration to overrule subdependency version
+                implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}")
             }
         }
         val jvmDataGenMain by getting {
@@ -158,9 +158,6 @@ kotlin {
             sourceSets { kotlin.srcDir(customSrcDirs.jsMainGenerated) }
             dependencies {
                 implementation(npm("pako", Versions.js.pako))
-                //cannot overload chunked inflater due to conflicting overloads from generated externals
-                //…and so we patch again
-                //implementation(npm("@types/pako", Versions.js.pakoTypes, generateExternals = true))
                 implementation(npm("pkijs", Versions.js.pkijs))
                 implementation(npm("cose-js", File("${projectDir.absolutePath}/cose-js"), generateExternals = false))
                 implementation(npm("crypto-browserify", Versions.js.`crypto-browserify`))
@@ -202,25 +199,20 @@ tasks {
         val (prefix, srcDir) = if (test) ("Test" to customSrcDirs.jsTestGenerated) else ("Main" to customSrcDirs.jsMainGenerated)
         logger.info("Wrapping $prefix resources into ${prefix}ResourceHolder.kt")
 
-        val dir = File("${projectDir.absolutePath}/$srcDir")
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                throw Throwable("Could not create generated sources folder")
-            }
+        val dir = File("${projectDir.absolutePath}/$srcDir").also {
+            if (!it.exists() && !it.mkdirs())
+                throw Throwable("Could not create generated sources folder $it")
         }
-        val f = File("${projectDir.absolutePath}/$srcDir/${prefix}ResourceHolder.kt")
-        f.delete()
-        f.createNewFile()
-        if (!f.canWrite()) {
-            throw Throwable("Could not write generated source file $f")
+        val f = File("${projectDir.absolutePath}/$srcDir/${prefix}ResourceHolder.kt").also {
+            it.delete()
+            it.createNewFile()
+            if (!it.canWrite())
+                throw Throwable("Could not write generated source file $it")
         }
         f.writer().use { w ->
-            if (!test) {
-                w.write("interface R { fun get(key: String): String?;fun allResourceNames():List<String>}")
-            }
-            w.write(
-                "object ${prefix}ResourceHolder:R{private val m = mutableMapOf<String,String>();init{\n"
-            )
+            if (!test)
+                w.write("interface R { fun get(key: String): String?; fun allResourceNames():List<String> }\n")
+            w.write("object ${prefix}ResourceHolder:R {\nprivate val m = mutableMapOf<String,String>();\ninit{\n")
 
             val basePath = "${projectDir.absolutePath}/src/common${prefix}/resources"
             val baseFile = File(basePath)
@@ -229,25 +221,22 @@ tasks {
                     de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
                 val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
                 val safeKey = key.replace("\$", "\\\$").replace("\\", "/")
-                w.write(
-                    "m[\"$safeKey\"]=\"" + String(encodeBase64) + "\"\n"
-                )
+                w.write("m[\"$safeKey\"]=\"${String(encodeBase64)}\"\n")
             }
-            w.write("}override fun get(key:String)=m[key];")
-            w.write("override fun allResourceNames()=m.keys.sorted()}")
+            w.write("}\noverride fun get(key:String)=m[key];\n")
+            w.write("override fun allResourceNames()=m.keys.sorted()\n}")
         }
     }
 
     /*
-     * Now setup the tasks accordingly
+     * Define tasks
      */
-    //define JS main resource wrapping task
-    val jsWrapMainResources by creating { doFirst { wrapJsResources() } }
-
-    //define JS test resource wrapping task
-    val jsWrapTestResources by creating { doFirst { wrapJsResources(test = true) } }
-
-    //we also want to clean up
+    val jsWrapMainResources by creating {
+        doFirst { wrapJsResources() }
+    }
+    val jsWrapTestResources by creating {
+        doFirst { wrapJsResources(test = true) }
+    }
     val jsCleanResources by creating {
         doFirst {
             File("${projectDir.absolutePath}/${customSrcDirs.jsTestGenerated}").deleteRecursively()
@@ -255,7 +244,9 @@ tasks {
         }
     }
 
-    //now setup task dependencies
+    /**
+     * Task dependencies
+     */
     val clean by getting { dependsOn(jsCleanResources) }
     val compileKotlinJs by getting { dependsOn(jsWrapMainResources) }
     val compileTestKotlinJs by getting { dependsOn(jsWrapTestResources) }
@@ -264,9 +255,7 @@ tasks {
     /*
      * We need to "tweak" test tasks and their dependencies due do our custom targets
      */
-    //disable this task, it won't work and we don't need it
     val jvmDataGenTest by getting { enabled = false }
-    //and also disable this one
     val compileTestKotlinJvmDataGen by getting { enabled = false }
 
 }
