@@ -21,6 +21,10 @@ actual class CryptoAdapter actual constructor(keyType: KeyType, keySize: Int) {
 
     actual val privateKey: PrivKey = JvmPrivKey(keyPair.private)
     actual val publicKey: PubKey = JvmPubKey(keyPair.public)
+    actual val algorithm: CwtAlgorithm = when (keyType) {
+        KeyType.EC -> if (keySize == 384) CwtAlgorithm.ECDSA_384 else CwtAlgorithm.ECDSA_256
+        KeyType.RSA -> CwtAlgorithm.RSA_PSS_256
+    }
     actual val privateKeyBase64: String = JcaPKCS8Generator(keyPair.private, null).generate().content.asBase64()
 
 }

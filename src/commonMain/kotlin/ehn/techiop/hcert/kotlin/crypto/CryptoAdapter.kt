@@ -7,6 +7,7 @@ expect class CryptoAdapter constructor(
 
     val privateKey: PrivKey
     val publicKey: PubKey
+    val algorithm: CwtAlgorithm
     val privateKeyBase64: String
 
 }

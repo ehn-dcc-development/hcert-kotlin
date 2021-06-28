@@ -17,7 +17,7 @@ class FileBasedCryptoService constructor(pemEncodedPrivateKey: String, pemEncode
     private val cryptoAdapter = LoadedCryptoAdapter(pemEncodedPrivateKey, pemEncodedCertificate)
 
     override fun getCborHeaders() = listOf(
-        Pair(CoseHeaderKeys.ALGORITHM, cryptoAdapter.algorithmID),
+        Pair(CoseHeaderKeys.ALGORITHM, cryptoAdapter.algorithm),
         Pair(CoseHeaderKeys.KID, cryptoAdapter.certificate.kid)
     )
 
@@ -50,7 +50,7 @@ class FileBasedCryptoService constructor(pemEncodedPrivateKey: String, pemEncode
 expect class LoadedCryptoAdapter constructor(pemEncodedPrivateKey: String, pemEncodedCertificate: String) {
 
     val privateKey: PrivKey
-    val algorithmID: CwtAlgorithm
+    val algorithm: CwtAlgorithm
     val certificate: CertificateAdapter
     val exportPrivateKey: ByteArray
     val exportCertificate: ByteArray

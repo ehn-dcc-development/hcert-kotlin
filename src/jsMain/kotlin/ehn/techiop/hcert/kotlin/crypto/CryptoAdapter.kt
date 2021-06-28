@@ -16,11 +16,13 @@ actual class CryptoAdapter actual constructor(keyType: KeyType, keySize: Int) {
     private val privateKeyInfo: PrivateKeyInfo
     actual val privateKey: PrivKey
     actual val publicKey: PubKey
+    actual val algorithm: CwtAlgorithm
 
     init {
         when (keyType) {
             KeyType.EC -> {
                 val ellipticName = if (keySize == 384) "p384" else "p256"
+                algorithm = if (keySize == 384) CwtAlgorithm.ECDSA_384 else CwtAlgorithm.ECDSA_256
                 val keyPair = EC(ellipticName).genKeyPair()
                 privateKey = JsEcPrivKey(keyPair, keySize)
                 publicKey = JsEcPubKey(keyPair, keySize)
@@ -35,6 +37,7 @@ actual class CryptoAdapter actual constructor(keyType: KeyType, keySize: Int) {
                 privateKey = JsRsaPrivKey(keyPair.exportKey("components-private") as Json)
                 privateKeyInfo = PrivateKeyInfo()
                 privateKeyInfo.fromJSON(privateKey.toPlatformPrivateKey())
+                algorithm = CwtAlgorithm.RSA_PSS_256
             }
         }
     }
