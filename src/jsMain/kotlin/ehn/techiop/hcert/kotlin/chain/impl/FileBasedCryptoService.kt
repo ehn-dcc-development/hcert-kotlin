@@ -41,10 +41,15 @@ actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: Str
             val ecPrivateKey = fromBER(buffer.buffer).result.let {
                 ECPrivateKey(js("({'schema':it})"))
             }
+
             val content = Buffer(ecPrivateKey.privateKey.valueBlock.valueHex)
-            // TODO keySize!
-            privateKey = JsEcPrivKey(EC("p256").keyFromPrivate(content), 256)
-            algorithmID = CwtAlgorithm.ECDSA_256
+            if ((ecPrivateKey.namedCurve == "1.3.132.0.34" || content.length == 48)) {
+                privateKey = JsEcPrivKey(EC("p384").keyFromPrivate(content), 384)
+                algorithmID = CwtAlgorithm.ECDSA_384
+            } else {
+                privateKey = JsEcPrivKey(EC("p256").keyFromPrivate(content), 256)
+                algorithmID = CwtAlgorithm.ECDSA_256
+            }
         } else if (oid == "1.2.840.113549.1.1.1") {
             val buffer = Buffer(privateKeyInfo.privateKey.valueBlock.valueHex)
             val rsaPrivateKey = fromBER(buffer.buffer).result.let {
@@ -53,7 +58,7 @@ actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: Str
             privateKey = JsRsaPrivKey(rsaPrivateKey)
             algorithmID = CwtAlgorithm.RSA_PSS_256
         } else throw IllegalArgumentException("KeyType")
-        certificate = CertificateAdapter(cleanPem(pemEncodedCertificate))
+        certificate = CertificateAdapter(pemEncodedCertificate)
         publicKey = certificate.publicKey
         keyId = certificate.kid
     }
