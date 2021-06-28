@@ -21,17 +21,15 @@ class RandomRsaKeyCryptoService constructor(
 
     private val cryptoAdapter = CryptoAdapter(KeyType.RSA, keySize, contentType, clock)
 
-    private val keyId = cryptoAdapter.certificate.kid
-
     override fun getCborHeaders() = listOf(
         Pair(CoseHeaderKeys.ALGORITHM, cryptoAdapter.algorithm),
-        Pair(CoseHeaderKeys.KID, keyId)
+        Pair(CoseHeaderKeys.KID, cryptoAdapter.certificate.kid)
     )
 
     override fun getCborSigningKey() = cryptoAdapter.privateKey
 
     override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey {
-        if (!(keyId contentEquals kid))
+        if (!(cryptoAdapter.certificate.kid contentEquals kid))
             throw VerificationException(Error.KEY_NOT_IN_TRUST_LIST, "kid not known: $kid")
 
         verificationResult.setCertificateData(cryptoAdapter.certificate)
