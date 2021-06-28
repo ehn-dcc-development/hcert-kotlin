@@ -3,9 +3,9 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import Asn1js.Sequence
 import Asn1js.fromBER
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.fromBase64
+import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
@@ -18,15 +18,12 @@ import pkijs.src.ECPrivateKey.ECPrivateKey
 import pkijs.src.PrivateKeyInfo.PrivateKeyInfo
 import pkijs.src.RSAPrivateKey.RSAPrivateKey
 
-actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: String, pemEncodedCertificate: String) :
-    CryptoService {
+actual class LoadedCryptoAdapter actual constructor(pemEncodedPrivateKey: String, pemEncodedCertificate: String) {
 
     private val privateKeyInfo: PrivateKeyInfo
-    private val privateKey: PrivKey
-    private val publicKey: PubKey
-    private val algorithmID: CwtAlgorithm
-    private val certificate: CertificateAdapter
-    private val keyId: ByteArray
+    actual val privateKey: PrivKey
+    actual val algorithmID: CwtAlgorithm
+    actual val certificate: CertificateAdapter
 
     init {
         val array = cleanPem(pemEncodedPrivateKey).fromBase64().toTypedArray()
@@ -59,8 +56,6 @@ actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: Str
             algorithmID = CwtAlgorithm.RSA_PSS_256
         } else throw IllegalArgumentException("KeyType")
         certificate = CertificateAdapter(pemEncodedCertificate)
-        publicKey = certificate.publicKey
-        keyId = certificate.kid
     }
 
     private fun cleanPem(input: String) = input
@@ -70,36 +65,9 @@ actual class FileBasedCryptoService actual constructor(pemEncodedPrivateKey: Str
         .replace("-----END PRIVATE KEY-----", "")
         .lines().joinToString(separator = "")
 
-    override fun getCborHeaders() = listOf(
-        Pair(CoseHeaderKeys.ALGORITHM, algorithmID),
-        Pair(CoseHeaderKeys.KID, keyId)
-    )
 
-    override fun getCborSigningKey() = privateKey
-
-    override fun getCborVerificationKey(
-        kid: ByteArray,
-        verificationResult: VerificationResult
-    ): PubKey {
-        if (!(keyId contentEquals kid))
-            throw VerificationException(Error.KEY_NOT_IN_TRUST_LIST, "kid not known: $kid")
-
-        verificationResult.setCertificateData(certificate)
-        return publicKey
-    }
-
-    override fun getCertificate(): CertificateAdapter = certificate
-
-    override fun exportPrivateKeyAsPem() = "-----BEGIN PRIVATE KEY-----\n" +
-            base64forPem(Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()) +
-            "\n-----END PRIVATE KEY-----\n"
-
-    override fun exportCertificateAsPem() = "-----BEGIN CERTIFICATE-----\n" +
-            base64forPem(Buffer((certificate.cert.toSchema() as Sequence).toBER()).toByteArray()) +
-            "\n-----END CERTIFICATE-----\n"
-
-    private fun base64forPem(encoded: ByteArray) =
-        encoded.asBase64().chunked(64).joinToString(separator = "\n")
+    actual val exportPrivateKey: ByteArray = Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()
+    actual val exportCertificate: ByteArray = Buffer((certificate.cert.toSchema() as Sequence).toBER()).toByteArray()
 
 }
 
