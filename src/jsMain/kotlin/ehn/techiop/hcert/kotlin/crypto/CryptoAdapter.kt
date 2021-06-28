@@ -5,6 +5,7 @@ import Buffer
 import NodeRSA
 import cose.CosePrivateKey
 import cose.CosePublicKey
+import ehn.techiop.hcert.kotlin.chain.toByteArray
 import elliptic.EC
 import pkijs.src.PrivateKeyInfo.PrivateKeyInfo
 import tsstdlib.JsonWebKey
@@ -42,8 +43,8 @@ actual class CryptoAdapter actual constructor(keyType: KeyType, keySize: Int) {
         }
     }
 
-    actual val privateKeyBase64: String
-        get() = Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toString("base64")
+    actual val privateKeyEncoded: ByteArray
+        get() = Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()
 
 }
 
