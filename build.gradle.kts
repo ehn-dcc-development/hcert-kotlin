@@ -196,14 +196,17 @@ tasks {
      * Therefore, we also use the trick in jsMain
      */
     fun wrapJsResources(test: Boolean = false) {
-        val (prefix, srcDir) = if (test) ("Test" to customSrcDirs.jsTestGenerated) else ("Main" to customSrcDirs.jsMainGenerated)
-        logger.info("Wrapping $prefix resources into ${prefix}ResourceHolder.kt")
+        val (prefix, srcDir) = if (test)
+            ("Test" to customSrcDirs.jsTestGenerated)
+        else
+            ("Main" to customSrcDirs.jsMainGenerated)
+        logger.info("Wrapping $prefix resources into $srcDir/${prefix}ResourceHolder.kt")
 
         val dir = File("${projectDir.absolutePath}/$srcDir").also {
             if (!it.exists() && !it.mkdirs())
                 throw Throwable("Could not create generated sources folder $it")
         }
-        val f = File("${projectDir.absolutePath}/$srcDir/${prefix}ResourceHolder.kt").also {
+        val f = File(dir, "${prefix}ResourceHolder.kt").also {
             it.delete()
             it.createNewFile()
             if (!it.canWrite())
@@ -211,19 +214,19 @@ tasks {
         }
         f.writer().use { w ->
             if (!test)
-                w.write("interface R { fun get(key: String): String?; fun allResourceNames():List<String> }\n")
-            w.write("object ${prefix}ResourceHolder:R {\nprivate val m = mutableMapOf<String,String>();\ninit{\n")
+                w.write("interface R {\nfun get(key: String): String?\nfun allResourceNames(): List<String>\n}\n")
+            w.write("object ${prefix}ResourceHolder:R {\nprivate val m = mutableMapOf<String,String>()\ninit{\n")
 
             val basePath = "${projectDir.absolutePath}/src/common${prefix}/resources"
             val baseFile = File(basePath)
-            baseFile.walkBottomUp().filter { !it.isDirectory }.forEach {
+            baseFile.walkBottomUp().filter { !it.isDirectory }.filterNot { it.extension == "png" }.filterNot { it.extension == "jpg" }.forEach {
                 val encodeBase64 =
                     de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
                 val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
                 val safeKey = key.replace("\$", "\\\$").replace("\\", "/")
                 w.write("m[\"$safeKey\"] = \"${String(encodeBase64)}\"\n")
             }
-            w.write("}\noverride fun get(key:String) = m[key];\n")
+            w.write("}\noverride fun get(key:String) = m[key]\n")
             w.write("override fun allResourceNames() = m.keys.sorted()\n}")
         }
     }
@@ -231,11 +234,12 @@ tasks {
     /*
      * Define tasks
      */
-    val jsWrapMainResources by creating {
+    val jsWrapMainResources by registering {
         doFirst { wrapJsResources() }
     }
-    val jsWrapTestResources by creating {
+    val jsWrapTestResources by registering {
         doFirst { wrapJsResources(test = true) }
+        dependsOn (jsWrapMainResources)
     }
     val jsCleanResources by creating {
         doFirst {
@@ -251,13 +255,11 @@ tasks {
     val compileKotlinJs by getting { dependsOn(jsWrapMainResources) }
     val compileTestKotlinJs by getting { dependsOn(jsWrapTestResources) }
 
-
     /*
      * We need to "tweak" test tasks and their dependencies due do our custom targets
      */
     val jvmDataGenTest by getting { enabled = false }
     val compileTestKotlinJvmDataGen by getting { enabled = false }
-
 }
 
 publishing {
