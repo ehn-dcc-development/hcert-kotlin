@@ -7,14 +7,13 @@ import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
-import ehn.techiop.hcert.kotlin.crypto.PrivKey
+import ehn.techiop.hcert.kotlin.crypto.CryptoAdapter
 import ehn.techiop.hcert.kotlin.crypto.PubKey
 
 class FileBasedCryptoService constructor(pemEncodedPrivateKey: String, pemEncodedCertificate: String) :
     CryptoService {
 
-    private val cryptoAdapter = LoadedCryptoAdapter(pemEncodedPrivateKey, pemEncodedCertificate)
+    private val cryptoAdapter = CryptoAdapter(pemEncodedPrivateKey, pemEncodedCertificate)
 
     override fun getCborHeaders() = listOf(
         Pair(CoseHeaderKeys.ALGORITHM, cryptoAdapter.algorithm),
@@ -43,15 +42,5 @@ class FileBasedCryptoService constructor(pemEncodedPrivateKey: String, pemEncode
 
     private fun base64forPem(encoded: ByteArray) =
         encoded.asBase64().chunked(64).joinToString(separator = "\n")
-
-}
-
-
-expect class LoadedCryptoAdapter constructor(pemEncodedPrivateKey: String, pemEncodedCertificate: String) {
-
-    val privateKey: PrivKey
-    val algorithm: CwtAlgorithm
-    val certificate: CertificateAdapter
-    val privateKeyEncoded: ByteArray
 
 }
