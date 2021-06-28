@@ -11,7 +11,8 @@ import kotlin.time.Duration
 
 class FileBasedCryptoServiceTest : DescribeSpec({
 
-    timeout = Duration.seconds(50).inWholeMilliseconds //RSA key generation can take ages in JS
+    //RSA key generation can take ages in JS
+    timeout = Duration.seconds(50).inWholeMilliseconds
 
     it("importEc256Key") {
         val pemEncodedPrivateKey = "-----BEGIN PRIVATE KEY-----\n" +
@@ -29,8 +30,31 @@ class FileBasedCryptoServiceTest : DescribeSpec({
                 "zT4F0Pw48h7dfUeW6A==\n" +
                 "-----END CERTIFICATE-----\n"
         val service = FileBasedCryptoService(pemEncodedPrivateKey, pemEncodedCertificate)
-        service.exportCertificateAsPem() shouldBe pemEncodedCertificate
-        service.exportPrivateKeyAsPem() shouldBe pemEncodedPrivateKey
+        shouldBeIgnoringNewlines(service.exportCertificateAsPem(), pemEncodedCertificate)
+        shouldBeIgnoringNewlines(service.exportPrivateKeyAsPem(), pemEncodedPrivateKey)
+
+        assertEncodeDecode(service)
+    }
+
+    it("importEc384Key") {
+        val pemEncodedPrivateKey = "-----BEGIN PRIVATE KEY-----\n" +
+                "MFcCAQAwEAYHKoZIzj0CAQYFK4EEACIEQDA+AgEBBDBNXQ3opUJLPgWLnG2pSC7z\n" +
+                "WxWNH9eVPy+2C6a//3W06l3kDBqHYv/zyFN6P9/QsDmgBwYFK4EEACI=\n" +
+                "-----END PRIVATE KEY-----\n"
+        val pemEncodedCertificate = "-----BEGIN CERTIFICATE-----\n" +
+                "MIIBkzCCARmgAwIBAgIEd4CHhjAKBggqhkjOPQQDAjAQMQ4wDAYDVQQDDAVFQy1N\n" +
+                "ZTAeFw0yMTA2MjgwODUwMDFaFw0yMTA3MjgwODUwMDFaMBAxDjAMBgNVBAMMBUVD\n" +
+                "LU1lMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAED/IPvION844AAlXSjVbksLMVws9B\n" +
+                "6UlcGretod8oq3LidqHw0k/O6D3hBV/k6miYUW7bDty5iAm+6LEUPFjCvGml9rnZ\n" +
+                "5ysJxDCcFGXV1lmjaoZuPDNsFb5Bl/5VXQw7o0QwQjAOBgNVHQ8BAf8EBAMCBaAw\n" +
+                "MAYDVR0lBCkwJwYLKwYBBAGON49lAQEGCysGAQQBjjePZQECBgsrBgEEAY43j2UB\n" +
+                "AzAKBggqhkjOPQQDAgNoADBlAjEAykgQfGCjanRSKa6oE1cUgkz4wBzJvHVfeaFK\n" +
+                "r42v8iG/HQrUH5wEXyaFlHzzTSVjAjB+SDGyNjCipEs2pgxiTeCDQFnwqX9LoJHP\n" +
+                "bmnpoCd7Mdyiz0TkXkNAkvNg9qFgXPo=\n" +
+                "-----END CERTIFICATE-----\n"
+        val service = FileBasedCryptoService(pemEncodedPrivateKey, pemEncodedCertificate)
+        shouldBeIgnoringNewlines(service.exportCertificateAsPem(), pemEncodedCertificate)
+        shouldBeIgnoringNewlines(service.exportPrivateKeyAsPem(), pemEncodedPrivateKey)
 
         assertEncodeDecode(service)
     }
@@ -83,14 +107,84 @@ class FileBasedCryptoServiceTest : DescribeSpec({
                 "TQ0V07hdsexsYfHgEllbNCRcaeu5eVKwQvdN\n" +
                 "-----END CERTIFICATE-----\n"
         val service = FileBasedCryptoService(pemEncodedPrivateKey, pemEncodedCertificate)
-        service.exportCertificateAsPem() shouldBe pemEncodedCertificate
-        service.exportPrivateKeyAsPem() shouldBe pemEncodedPrivateKey
+        shouldBeIgnoringNewlines(service.exportCertificateAsPem(), pemEncodedCertificate)
+        shouldBeIgnoringNewlines(service.exportPrivateKeyAsPem(), pemEncodedPrivateKey)
+
+        assertEncodeDecode(service)
+    }
+
+    it("importRsa3072Key") {
+        val pemEncodedPrivateKey = "-----BEGIN PRIVATE KEY-----\n" +
+                "MIIG/AIBADANBgkqhkiG9w0BAQEFAASCBuYwggbiAgEAAoIBgQCSO4f64U09WEFO" +
+                "aC2y843UQKKZF0xavVuqtUfwGsWT+1RVauyTtWFth7SRg48++tsPUyXFHqdHn/su" +
+                "Lrpr2X6u94jJWjyuP42Ix9vmTPxWCPelfiSJb4ishspYugUVG6tDO+UhGuuRPlA8" +
+                "7rkcLenp6SlY3fZMI40rlQ14nPIHnIqjxW7+vx13bmL/xwY/qKYrXB7vs0JVznHN" +
+                "uZnxCa83m+I5YmRznz71wefOWHnRDi2N3NmaWinRqXhdibz8DjQsN4AAxj1C4ULw" +
+                "uiSZszQNByID6uZsbW7rLwdHMIZXW/zrCjRMvhxCmydpQwEr8/c/P4+l9CU9Y4qp" +
+                "/Sn38kq0nTusB+TiT5hPm3+TMgp/fLYrh4uJekrmMriRsI7F62wdvP8E5NIMptyA" +
+                "/HkmKwJ2ynZYt+v7ll5H3wBF1YJx8/v++V5jL2224+bv6xnM3LnFYrk6m6Kgk7C/" +
+                "w3Sk+Pt4VTzgxNCCAp7zmaHsBFb6EO2Yq4HIQnWmOvmsBo3Z1LMCAwEAAQKCAYAk" +
+                "EICJ1DT7cx+wGatjngOVnFc9kGxpWJgZ8tmKEuA1jd+PrW4pQ6uCmtxiouKaMr4B" +
+                "+oyvH887r+3/xtB9NseymSPoHNQoWU4rtLa8BrKY+V8yNnkGWDaJ7jhLR51nRkqn" +
+                "q0boMj50tLyPOoT2uTAeWz2ySBOtVXtEi18mJvbd/7KFj3S/aRz4ToYl9MzKuGo6" +
+                "+V472ab7iI2yohqgQrYu7cgORQDnLxgU/jyQPGvWrjt36EbWdXQo3DXuQ8ETHOFL" +
+                "dZxGCrcq0ND4Q9HCReq1J9a7snQZhc8p9xiuGrDCUJtfMVNzG3xO7PP+J77x+otn" +
+                "kr4g1paHCQNxMq/hvIfC2GT/qqMbXoBs85dej5zEi0+1O/Q5f/ae3nzSHKLwD+Wt" +
+                "X2oGrfXAY93DC0mtwDwpmgdIbmKy08njsDCzOeC9GJq7XyJeWfIrOCvR3xFpwgCC" +
+                "ytd3v/Eexsoc9G9UXTnUeAcMbNlFEs5QyGC/g8LY0Uhhert3mcon7G0SpcplJDEC" +
+                "gcEAz6gE0EweMrwyZsQWHJS6hsXmSg9qGtRhOTOJte1u3Z0neBvOwH9KYGDxlrDB" +
+                "5pZjU8L+Vs3rhQFYsFDstdULpMZXKI0/FZ2Sx9ZNbIIppIY6FEBRhZCjiAX7vmMi" +
+                "QOj0/YRlh+LtvZWk/151XCrRtwg8W2H4AQNq9GV1zZ1A3zVnYldpepfgv045smha" +
+                "y6PqUO6nypTig9pV9a/WQiWsdhY0k7ITbDiQXOHm0CCQaaYOwFw+/LKd0m1oZ9+8" +
+                "EzWpAoHBALRGwR9bCuhr9ja7gDFiP6IPDuj1YpDDiabsQmQdtvRtAB8WFADuASfR" +
+                "eHhHgMSjGnef5HwKYBZgmpIBwDim7H0z6ltpwFxjyC4bgu0AwtavZZt1AkWbweZ2" +
+                "7kOfc5KR86UfKAjc4sxztwZQB5sGUkQmoSe9tb7SrIECdbbiVQH1Pg3VY4y1AJYr" +
+                "7/O0VRgyfIr4aWVkY/u3vaiBgLEXWS6YwAm6mfTL0yMRm1acgwjqcpdy1doIynLA" +
+                "GsrAJxV4+wKBwB4PVXsNucVgZu9nbUf/46yE01xfNN3jZpuQMVwrncPo7wC9DcXh" +
+                "51NiVTaaKceGd6R1croAHxrm4f7MCCgeSgw1RgKxx7MKV2gkRprxkLOnVpr94I80" +
+                "K+gR7apW0WuSDXzxgH0WRZIPKo5pDxYjgK49O/eCjBMheoccdNwp6m0lXuzmeHdt" +
+                "qvQmj8Waw6H8/XtvwMxblxq9LXpeVObIa1nAxyWmPpeI7KT1cqMoQ593kWUZNWkB" +
+                "NkVy3w1CXwhs2QKBwDPys5HahVEmUyPAchdI7XdAiZZdp5J5lj/wks0QtvjGNCPB" +
+                "E/CUpOaZePKIADYpneXcwFVyE/A+1CvAr2hjyX/mpuDCn3jAFB4dNWQgNQTyNABQ" +
+                "/l+am4xStyPrXb1dq2zohnvPUteBfLsn8pkcgDY9P3EZPLcJNEZUtCEIJWDUD5ai" +
+                "5/XS7qFXdeSvEVpQqgzNumlKPXl6n/9fmfrt9Hf18libWePtnCDd4PpbTXMTRAQa" +
+                "Rj93Cwd4DgBg0KJiYwKBwF4oDgBvP1JLo2OFqj2Gruqab6B1Im8C4hGIq+VxiFni" +
+                "iJ2KEYQfykjDkMg1TnwlMCjCZgG1MZCr7oBvf5Fi/Gp4F87uIqjLGSYyGIuT4d5f" +
+                "naQZupSUfIIT3jpg4wnkG+kAXBovW6sHB1ZEBmILO6ucV+tybiFa77OYcuJJaXCr" +
+                "0YVQs0iIb3bLREPXz1/6r1PbfYuRv6HH00vocmA9/Y9n+5Q1bRZSOI/wX5kZcfPN" +
+                "K8DuMJ5PaJZfhWjsNmieqg==\n" +
+                "-----END PRIVATE KEY-----"
+        val pemEncodedCertificate = "-----BEGIN CERTIFICATE-----\n" +
+                "MIID5TCCAk2gAwIBAgIFAOw3iSMwDQYJKoZIhvcNAQELBQAwETEPMA0GA1UEAwwG\n" +
+                "UlNBLU1lMB4XDTIxMDYyODA4NTAwMloXDTIxMDcyODA4NTAwMlowETEPMA0GA1UE\n" +
+                "AwwGUlNBLU1lMIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAkjuH+uFN\n" +
+                "PVhBTmgtsvON1ECimRdMWr1bqrVH8BrFk/tUVWrsk7VhbYe0kYOPPvrbD1MlxR6n\n" +
+                "R5/7Li66a9l+rveIyVo8rj+NiMfb5kz8Vgj3pX4kiW+IrIbKWLoFFRurQzvlIRrr\n" +
+                "kT5QPO65HC3p6ekpWN32TCONK5UNeJzyB5yKo8Vu/r8dd25i/8cGP6imK1we77NC\n" +
+                "Vc5xzbmZ8QmvN5viOWJkc58+9cHnzlh50Q4tjdzZmlop0al4XYm8/A40LDeAAMY9\n" +
+                "QuFC8LokmbM0DQciA+rmbG1u6y8HRzCGV1v86wo0TL4cQpsnaUMBK/P3Pz+PpfQl\n" +
+                "PWOKqf0p9/JKtJ07rAfk4k+YT5t/kzIKf3y2K4eLiXpK5jK4kbCOxetsHbz/BOTS\n" +
+                "DKbcgPx5JisCdsp2WLfr+5ZeR98ARdWCcfP7/vleYy9ttuPm7+sZzNy5xWK5Opui\n" +
+                "oJOwv8N0pPj7eFU84MTQggKe85mh7ARW+hDtmKuByEJ1pjr5rAaN2dSzAgMBAAGj\n" +
+                "RDBCMA4GA1UdDwEB/wQEAwIFoDAwBgNVHSUEKTAnBgsrBgEEAY43j2UBAQYLKwYB\n" +
+                "BAGON49lAQIGCysGAQQBjjePZQEDMA0GCSqGSIb3DQEBCwUAA4IBgQBTPuiUgKOb\n" +
+                "iY3Di8BCA60igkQzI0sJZfOx0x19l5un29F6Dl/koAmbTlZCwCWuIZSJh2/4mATc\n" +
+                "c+GJbaQdbA+WycWGNA2Y/ALKoCzCuoCFY9NSXwkIJyL90xymrMGmn0YfNGbRY+L/\n" +
+                "GLIN7vSyCkUGTZFZyWdpJaWPoEL58lmaA4K2WgbRxMop/QcCiXVfVJBp11c2t3rE\n" +
+                "wKcVwp0j0m+BubcNWyT5y8D952VF8pu55XyYlE3I+veamH6HFGQAnwYBJdLsvsjd\n" +
+                "gkd7urvstuHfwiVFxDqS3xYgPN8IbkLpkacCZcrLKpkX0kPgwdp/xtASzdefohZj\n" +
+                "eLcxobdcXMmAl++ivJaMshksvkAYll1xe43CJgTKQ6HPbuZhugoW7Rcn5aezBm/y\n" +
+                "Ol3QQTu73pFLmaZ9rydAP1I3CIUWhP9VN1wKJtSp9HtKJufrF9NejcXodIO/5XwL\n" +
+                "yKTc2RyWZmS9usbAVjp54m/pNkfvKfbgfbFb4ztQRuMlOTE6ul6A7/w=\n" +
+                "-----END CERTIFICATE-----\n"
+        val service = FileBasedCryptoService(pemEncodedPrivateKey, pemEncodedCertificate)
+        shouldBeIgnoringNewlines(service.exportCertificateAsPem(), pemEncodedCertificate)
+        shouldBeIgnoringNewlines(service.exportPrivateKeyAsPem(), pemEncodedPrivateKey)
 
         assertEncodeDecode(service)
     }
 
     withData(nameFn = { "EC$it" }, 256, 384) { keySize ->
-
         val service = RandomEcKeyCryptoService(keySize)
 
         assertEncodeDecode(service)
@@ -103,6 +197,10 @@ class FileBasedCryptoServiceTest : DescribeSpec({
     }
 
 })
+
+private fun shouldBeIgnoringNewlines(actualValue: String, expectedValue: String) {
+    actualValue.replace("\n", "") shouldBe expectedValue.replace("\n", "")
+}
 
 private fun assertEncodeDecode(service: CryptoService) {
     service.exportPrivateKeyAsPem() shouldNotBe null
