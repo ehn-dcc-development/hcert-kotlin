@@ -3,16 +3,11 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.random.Random
-import kotlin.time.Duration
 
 class FileBasedCryptoServiceTest : DescribeSpec({
-
-    //RSA key generation can take ages in JS
-    timeout = Duration.seconds(50).inWholeMilliseconds
 
     it("importEc256Key") {
         val pemEncodedPrivateKey = "-----BEGIN PRIVATE KEY-----\n" +
@@ -180,18 +175,6 @@ class FileBasedCryptoServiceTest : DescribeSpec({
         val service = FileBasedCryptoService(pemEncodedPrivateKey, pemEncodedCertificate)
         shouldBeIgnoringNewlines(service.exportCertificateAsPem(), pemEncodedCertificate)
         shouldBeIgnoringNewlines(service.exportPrivateKeyAsPem(), pemEncodedPrivateKey)
-
-        assertEncodeDecode(service)
-    }
-
-    withData(nameFn = { "EC$it" }, 256, 384) { keySize ->
-        val service = RandomEcKeyCryptoService(keySize)
-
-        assertEncodeDecode(service)
-    }
-
-    withData(nameFn = { "RSA$it" }, 2048, 3072) { keySize ->
-        val service = RandomRsaKeyCryptoService(keySize)
 
         assertEncodeDecode(service)
     }
