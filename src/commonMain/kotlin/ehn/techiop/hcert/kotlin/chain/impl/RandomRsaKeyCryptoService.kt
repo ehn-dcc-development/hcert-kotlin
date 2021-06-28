@@ -1,11 +1,14 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.VerificationException
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CryptoAdapter
-import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.KeyType
 import ehn.techiop.hcert.kotlin.crypto.PubKey
 import ehn.techiop.hcert.kotlin.trust.ContentType
@@ -18,7 +21,6 @@ class RandomRsaKeyCryptoService constructor(
 ) : CryptoService {
 
     private val cryptoAdapter = CryptoAdapter(KeyType.RSA, keySize)
-    private val algorithm = CwtAlgorithm.RSA_PSS_256
     private val certificate = PkiUtils.selfSignCertificate(
         "RSA-Me",
         cryptoAdapter.privateKey,
@@ -30,7 +32,7 @@ class RandomRsaKeyCryptoService constructor(
     private val keyId = certificate.kid
 
     override fun getCborHeaders() = listOf(
-        Pair(CoseHeaderKeys.ALGORITHM, algorithm),
+        Pair(CoseHeaderKeys.ALGORITHM, cryptoAdapter.algorithm),
         Pair(CoseHeaderKeys.KID, keyId)
     )
 

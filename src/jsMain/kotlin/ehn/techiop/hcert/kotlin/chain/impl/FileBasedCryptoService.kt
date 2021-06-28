@@ -10,7 +10,6 @@ import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.JsEcPrivKey
 import ehn.techiop.hcert.kotlin.crypto.JsRsaPrivKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
-import ehn.techiop.hcert.kotlin.crypto.PubKey
 import elliptic.EC
 import org.khronos.webgl.Uint8Array
 import pkijs.src.AlgorithmIdentifier.AlgorithmIdentifier
@@ -22,7 +21,7 @@ actual class LoadedCryptoAdapter actual constructor(pemEncodedPrivateKey: String
 
     private val privateKeyInfo: PrivateKeyInfo
     actual val privateKey: PrivKey
-    actual val algorithmID: CwtAlgorithm
+    actual val algorithm: CwtAlgorithm
     actual val certificate: CertificateAdapter
 
     init {
@@ -42,10 +41,10 @@ actual class LoadedCryptoAdapter actual constructor(pemEncodedPrivateKey: String
             val content = Buffer(ecPrivateKey.privateKey.valueBlock.valueHex)
             if ((ecPrivateKey.namedCurve == "1.3.132.0.34" || content.length == 48)) {
                 privateKey = JsEcPrivKey(EC("p384").keyFromPrivate(content), 384)
-                algorithmID = CwtAlgorithm.ECDSA_384
+                algorithm = CwtAlgorithm.ECDSA_384
             } else {
                 privateKey = JsEcPrivKey(EC("p256").keyFromPrivate(content), 256)
-                algorithmID = CwtAlgorithm.ECDSA_256
+                algorithm = CwtAlgorithm.ECDSA_256
             }
         } else if (oid == "1.2.840.113549.1.1.1") {
             val buffer = Buffer(privateKeyInfo.privateKey.valueBlock.valueHex)
@@ -53,7 +52,7 @@ actual class LoadedCryptoAdapter actual constructor(pemEncodedPrivateKey: String
                 RSAPrivateKey(js("({'schema':it})"))
             }
             privateKey = JsRsaPrivKey(rsaPrivateKey)
-            algorithmID = CwtAlgorithm.RSA_PSS_256
+            algorithm = CwtAlgorithm.RSA_PSS_256
         } else throw IllegalArgumentException("KeyType")
         certificate = CertificateAdapter(pemEncodedCertificate)
     }

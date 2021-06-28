@@ -3,9 +3,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
 import ehn.techiop.hcert.kotlin.crypto.JvmPrivKey
-import ehn.techiop.hcert.kotlin.crypto.JvmPubKey
 import ehn.techiop.hcert.kotlin.crypto.PrivKey
-import ehn.techiop.hcert.kotlin.crypto.PubKey
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.PEMParser
@@ -22,14 +20,14 @@ actual class LoadedCryptoAdapter actual constructor(pemEncodedPrivateKey: String
 
     private val jvmPrivKey: PrivateKey
     actual val privateKey: PrivKey
-    actual val algorithmID: CwtAlgorithm
+    actual val algorithm: CwtAlgorithm
     actual val certificate: CertificateAdapter
 
     init {
         Security.addProvider(BouncyCastleProvider())
         val read = PEMParser(pemEncodedPrivateKey.reader()).readObject() as PrivateKeyInfo
         jvmPrivKey = JcaPEMKeyConverter().getPrivateKey(read)
-        algorithmID = when (jvmPrivKey) {
+        algorithm = when (jvmPrivKey) {
             is ECPrivateKey -> {
                 when (jvmPrivKey.params.curve.field.fieldSize) {
                     256 -> CwtAlgorithm.ECDSA_256

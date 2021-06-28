@@ -18,11 +18,6 @@ class RandomEcKeyCryptoService constructor(
 ) : CryptoService {
 
     private val cryptoAdapter = CryptoAdapter(KeyType.EC, keySize)
-    private val algorithm = when (keySize) {
-        256 -> CwtAlgorithm.ECDSA_256
-        384 -> CwtAlgorithm.ECDSA_384
-        else -> throw IllegalArgumentException("keySize: $keySize")
-    }
     private val certificate = PkiUtils.selfSignCertificate(
         "EC-Me",
         cryptoAdapter.privateKey,
@@ -34,7 +29,7 @@ class RandomEcKeyCryptoService constructor(
     private val keyId = certificate.kid
 
     override fun getCborHeaders() = listOf(
-        Pair(CoseHeaderKeys.ALGORITHM, algorithm),
+        Pair(CoseHeaderKeys.ALGORITHM, cryptoAdapter.algorithm),
         Pair(CoseHeaderKeys.KID, keyId)
     )
 
