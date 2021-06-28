@@ -65,7 +65,7 @@ actual class LoadedCryptoAdapter actual constructor(pemEncodedPrivateKey: String
         .lines().joinToString(separator = "")
 
 
-    actual val exportPrivateKey: ByteArray = Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()
+    actual val privateKeyEncoded: ByteArray = Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()
     actual val exportCertificate: ByteArray = Buffer((certificate.cert.toSchema() as Sequence).toBER()).toByteArray()
 
 }

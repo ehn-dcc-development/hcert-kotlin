@@ -49,7 +49,7 @@ class RandomRsaKeyCryptoService constructor(
     override fun getCertificate(): CertificateAdapter = certificate
 
     override fun exportPrivateKeyAsPem() = "-----BEGIN PRIVATE KEY-----\n" +
-            cryptoAdapter.privateKeyBase64 +
+            base64forPem(cryptoAdapter.privateKeyEncoded) +
             "\n-----END PRIVATE KEY-----\n"
 
     override fun exportCertificateAsPem() = "-----BEGIN CERTIFICATE-----\n" +

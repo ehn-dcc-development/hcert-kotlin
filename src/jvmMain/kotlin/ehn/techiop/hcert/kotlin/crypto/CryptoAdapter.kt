@@ -25,6 +25,6 @@ actual class CryptoAdapter actual constructor(keyType: KeyType, keySize: Int) {
         KeyType.EC -> if (keySize == 384) CwtAlgorithm.ECDSA_384 else CwtAlgorithm.ECDSA_256
         KeyType.RSA -> CwtAlgorithm.RSA_PSS_256
     }
-    actual val privateKeyBase64: String = JcaPKCS8Generator(keyPair.private, null).generate().content.asBase64()
+    actual val privateKeyEncoded: ByteArray = JcaPKCS8Generator(keyPair.private, null).generate().content
 
 }
