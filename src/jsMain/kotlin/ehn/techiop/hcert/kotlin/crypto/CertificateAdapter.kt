@@ -27,7 +27,7 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
         pemEncoded
             .replace("-----BEGIN CERTIFICATE-----", "")
             .replace("-----END CERTIFICATE-----", "")
-            .replace("\n", "")
+            .lines().joinToString(separator = "")
             .fromBase64()
     )
 

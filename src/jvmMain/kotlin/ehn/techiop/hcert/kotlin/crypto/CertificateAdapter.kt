@@ -15,7 +15,7 @@ actual class CertificateAdapter(val certificate: X509Certificate) {
             pemEncoded
                 .replace("-----BEGIN CERTIFICATE-----", "")
                 .replace("-----END CERTIFICATE-----", "")
-                .replace("\n", "")
+                .lines().joinToString(separator = "")
                 .fromBase64().inputStream()
         ) as X509Certificate
     )
