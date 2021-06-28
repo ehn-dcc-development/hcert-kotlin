@@ -13,8 +13,8 @@ class FileBasedCryptoServiceJvmTest : DescribeSpec({
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        (input.getCborSigningKey() as JvmPrivKey).toCoseRepresentation()
-            .EncodeToBytes() shouldBe parsed.getCborSigningKey().toCoseRepresentation().EncodeToBytes()
+        (input.getCborSigningKey() as JvmPrivKey).toCoseRepresentation().EncodeToBytes()
+            .shouldBe((parsed.getCborSigningKey() as JvmPrivKey).toCoseRepresentation().EncodeToBytes())
         input.getCertificate().kid shouldBe (parsed.getCertificate().kid)
 
         parsed.getCertificate().certificate.verify(parsed.getCertificate().certificate.publicKey)
@@ -26,8 +26,8 @@ class FileBasedCryptoServiceJvmTest : DescribeSpec({
         val certificatePem = input.exportCertificateAsPem()
         val parsed = FileBasedCryptoService(privateKeyPem, certificatePem)
 
-        (input.getCborSigningKey() as JvmPrivKey).toCoseRepresentation()
-            .EncodeToBytes() shouldBe parsed.getCborSigningKey().toCoseRepresentation().EncodeToBytes()
+        (input.getCborSigningKey() as JvmPrivKey).toCoseRepresentation().EncodeToBytes()
+            .shouldBe((parsed.getCborSigningKey() as JvmPrivKey).toCoseRepresentation().EncodeToBytes())
         input.getCertificate().kid shouldBe (parsed.getCertificate().kid)
 
         parsed.getCertificate().certificate.verify(parsed.getCertificate().certificate.publicKey)
