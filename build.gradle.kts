@@ -221,10 +221,10 @@ tasks {
                     de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
                 val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
                 val safeKey = key.replace("\$", "\\\$").replace("\\", "/")
-                w.write("m[\"$safeKey\"]=\"${String(encodeBase64)}\"\n")
+                w.write("m[\"$safeKey\"] = \"${String(encodeBase64)}\"\n")
             }
-            w.write("}\noverride fun get(key:String)=m[key];\n")
-            w.write("override fun allResourceNames()=m.keys.sorted()\n}")
+            w.write("}\noverride fun get(key:String) = m[key];\n")
+            w.write("override fun allResourceNames() = m.keys.sorted()\n}")
         }
     }
 

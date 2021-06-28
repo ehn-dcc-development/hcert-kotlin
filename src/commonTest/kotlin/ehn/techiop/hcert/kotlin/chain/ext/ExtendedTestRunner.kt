@@ -27,8 +27,6 @@ class CommonTests : ExtendedTestRunner(allOfficialTestCases()
 
 class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("common/") }
-    // Errors in context files:
-    .filterNot { it.key.contains("CZ/") } // Error in test context files: Version not an int
     // Logical errors in test files:
     .filterNot { it.key.contains("BG/2DCode/raw/4") } // Throwable: issuedAt<certValidFrom
     .filterNot { it.key.contains("ES/2DCode/raw/1101") } // Throwable: issuedAt>clock.now()
@@ -49,6 +47,7 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("LU/2DCode/raw/INCERT_R_DCC_Recovery") } // Throwable: issuedAt>clock.now()
     .filterNot { it.key.contains("PL/1.0.0/2DCode/raw/10") } // Throwable: issuedAt<certValidFrom
     .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/10") } // Throwable: issuedAt<certValidFrom
+    .filterNot { it.key.contains("PL/1.3.0/2DCode/raw/10") } // Throwable: issuedAt<certValidFrom
     .filterNot { it.key.contains("NL/2DCode/raw/006") } // Validates, but Testcase claims schema error
     .filterNot { it.key.contains("NL/2DCode/raw/014") } // Validates, but Testcase claims schema error
     .filterNot { it.key.contains("NL/2DCode/raw/022") } // Validates, but Testcase claims schema error
@@ -139,6 +138,9 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/7") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Entry for "ma"="9999" not in value set
     .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/8") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Country not valid" "co"="XY"
     .filterNot { it.key.contains("PL/1.2.1/2DCode/raw/9") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Entry for "ma"="ORG-99999999" not in value set
+    .filterNot { it.key.contains("PL/1.3.0/2DCode/raw/7") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Entry for "ma"="9999" not in value set
+    .filterNot { it.key.contains("PL/1.3.0/2DCode/raw/8") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Country not valid" "co"="XY"
+    .filterNot { it.key.contains("PL/1.3.0/2DCode/raw/9") } // Expected SCHEMA_VALIDATION_FAILED but actual was null: Entry for "ma"="ORG-99999999" not in value set
     .workaroundKotestNamingBug())
 
 abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
