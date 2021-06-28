@@ -45,7 +45,6 @@ actual class LoadedCryptoAdapter actual constructor(pemEncodedPrivateKey: String
     }
 
     actual val privateKeyEncoded: ByteArray = JcaPKCS8Generator(jvmPrivKey, null).generate().content
-    actual val exportCertificate: ByteArray = certificate.encoded
 
 }
 

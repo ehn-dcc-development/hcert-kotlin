@@ -38,7 +38,7 @@ class FileBasedCryptoService constructor(pemEncodedPrivateKey: String, pemEncode
             "\n-----END PRIVATE KEY-----\n"
 
     override fun exportCertificateAsPem() = "-----BEGIN CERTIFICATE-----\n" +
-            base64forPem(cryptoAdapter.exportCertificate) +
+            base64forPem(cryptoAdapter.certificate.encoded) +
             "\n-----END CERTIFICATE-----\n"
 
     private fun base64forPem(encoded: ByteArray) =
@@ -53,6 +53,5 @@ expect class LoadedCryptoAdapter constructor(pemEncodedPrivateKey: String, pemEn
     val algorithm: CwtAlgorithm
     val certificate: CertificateAdapter
     val privateKeyEncoded: ByteArray
-    val exportCertificate: ByteArray
 
 }
