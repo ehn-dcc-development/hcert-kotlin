@@ -28,25 +28,19 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
     actual fun getProtectedAttributeInt(key: Int) =
         sign1Message.protectedAttributes[key]?.AsInt32()
 
-    actual fun validate(kid: ByteArray, repository: CertificateRepository): Boolean {
-        repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
-            if (sign1Message.validate((it.publicKey as JvmPubKey).toCoseRepresentation())) {
-                return true
-            }
-        }
-        return false
-    }
+    actual fun validate(kid: ByteArray, repository: CertificateRepository) =
+        validate(kid, repository, VerificationResult())
 
     actual fun validate(
         kid: ByteArray,
         repository: CertificateRepository,
         verificationResult: VerificationResult
     ): Boolean {
-        repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
-            verificationResult.setCertificateData(trustedCert)
-            if (sign1Message.validate((trustedCert.publicKey as JvmPubKey).toCoseRepresentation())) {
+        repository.loadTrustedCertificates(kid, verificationResult).forEach {
+            if (sign1Message.validate((it.publicKey as JvmPubKey).toCoseRepresentation())) {
+                verificationResult.setCertificateData(it)
                 return true
-            }
+            } // else try next
         }
         return false
     }
@@ -57,8 +51,10 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         verificationResult: VerificationResult
     ): Boolean {
         val verificationKey = cryptoService.getCborVerificationKey(kid, verificationResult)
-        verificationResult.setCertificateData(cryptoService.getCertificate())
-        return sign1Message.validate((verificationKey as JvmPubKey).toCoseRepresentation())
+        return sign1Message.validate((verificationKey as JvmPubKey).toCoseRepresentation()).also {
+            if (it)
+                verificationResult.setCertificateData(cryptoService.getCertificate())
+        }
     }
 
     actual fun getContent() = sign1Message.GetContent()

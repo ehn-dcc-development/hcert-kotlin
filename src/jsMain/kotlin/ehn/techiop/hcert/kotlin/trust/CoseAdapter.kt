@@ -1,20 +1,24 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
+import ehn.techiop.hcert.kotlin.chain.VerificationException
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.toByteArray
+import ehn.techiop.hcert.kotlin.chain.toUint8Array
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import org.khronos.webgl.Uint8Array
 
 actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
-
     //work around inherent limitations of jsTry-Wrapper
     private val parsed = parse(input)
     val cborJson = parsed.cborJson
     val cose = parsed.cose
-
     val coseValue = parsed.coseValue
     val protectedHeader = parsed.protectedHeader
     val protectedHeaderCbor = parsed.protectedHeaderCbor
@@ -96,31 +100,24 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
     actual fun getProtectedAttributeInt(key: Int) =
         protectedHeaderCbor?.get(key) as Int?
 
-    actual fun validate(kid: ByteArray, repository: CertificateRepository): Boolean {
-        repository.loadTrustedCertificates(kid, VerificationResult()).forEach {
-            val result = jsTry {
-                Cose.verifySync(input, it.publicKey) !== undefined
-            }.catch {
-                false
-            }
-            if (result) return true // else try next
-        }
-        return false
-    }
+    actual fun validate(kid: ByteArray, repository: CertificateRepository) =
+        validate(kid, repository, VerificationResult())
 
     actual fun validate(
         kid: ByteArray,
         repository: CertificateRepository,
         verificationResult: VerificationResult
     ): Boolean {
-        repository.loadTrustedCertificates(kid, verificationResult).forEach { trustedCert ->
-            verificationResult.setCertificateData(trustedCert)
+        repository.loadTrustedCertificates(kid, verificationResult).forEach {
             val result = jsTry {
-                Cose.verifySync(augmentedInput(input), trustedCert.publicKey) !== undefined
+                Cose.verifySync(augmentedInput(input), it.publicKey) !== undefined
             }.catch {
                 false
             }
-            if (result) return true // else try next
+            if (result) {
+                verificationResult.setCertificateData(it)
+                return true
+            } // else try next
         }
         return false
     }
@@ -130,13 +127,16 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         cryptoService: CryptoService,
         verificationResult: VerificationResult
     ): Boolean {
-        verificationResult.setCertificateData(cryptoService.getCertificate())
         val pubKey = cryptoService.getCborVerificationKey(kid, verificationResult)
-        return jsTry {
+        val result = jsTry {
             Cose.verifySync(augmentedInput(input), pubKey) !== undefined
         }.catch {
             false
         }
+        if (result) {
+            verificationResult.setCertificateData(cryptoService.getCertificate())
+        }
+        return result
     }
 
     actual fun getContent() = content.toByteArray()
