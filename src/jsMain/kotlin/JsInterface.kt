@@ -48,13 +48,18 @@ class Verifier {
         }
     }
 
-
     /**
      * Returns a serialization of [DecodeResultJs]
      */
     fun verify(qrContent: String): jsJson {
-        val decodeResult = DecodeResultJs(chain.decode(qrContent))
-        return JSON.parse(jsonEncoder.encodeToString(decodeResult.also { it.greenCertificate?.replaceDatesWithKotlinTypes() }))
+        val extResult = chain.decode(qrContent)
+        val decodeResult = DecodeResultJs(
+            extResult.verificationResult.error == null,
+            extResult.verificationResult.error?.name,
+            VerificationResultJs(extResult.verificationResult),
+            extResult.chainDecodeResult.eudgc
+        )
+        return JSON.parse(jsonEncoder.encodeToString(decodeResult))
     }
 
     /**

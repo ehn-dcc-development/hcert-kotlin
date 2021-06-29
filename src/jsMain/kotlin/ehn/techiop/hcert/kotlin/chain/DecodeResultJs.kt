@@ -1,13 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.chain.DecodeResultJs.Companion.replaceDatesWithJsTypes
-import ehn.techiop.hcert.kotlin.chain.DecodeResultJs.Companion.replaceDatesWithKotlinTypes
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.data.RecoveryStatement
 import ehn.techiop.hcert.kotlin.data.Test
 import ehn.techiop.hcert.kotlin.data.Vaccination
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import kotlin.js.Date
 
@@ -36,10 +33,6 @@ data class DecodeResultJs(
 
         private fun Any.toJsDate() = Date(toString())
 
-        private fun Date.toInstant() = Instant.parse(toISOString())
-
-        private fun Date.toLocalDate() = LocalDate.parse(toISOString().substringBefore("T"))
-
         /**
          * we don't need custom deserializers, since the source is an object,
          * which already invoked them when parsing from the cbor source
@@ -51,11 +44,6 @@ data class DecodeResultJs(
             (timestamp)?.let { asDynamic[propertyName] = it.toJsDate() }
         }
 
-        internal fun Any.replaceDatesWithKotlinTypes(propertyName: String, isInstant: Boolean = false) {
-            val asDynamic = asDynamic()
-            val timestamp = asDynamic[propertyName] as? Date?
-            (timestamp)?.let { asDynamic[propertyName] = if (isInstant) it.toInstant() else it.toLocalDate() }
-        }
     }
 }
 
@@ -64,29 +52,14 @@ private fun Test.replaceDatesWithJsTypes() {
     replaceDatesWithJsTypes("dateTimeSample")
 }
 
-private fun Test.replaceDatesWithKotlinTypes() {
-    replaceDatesWithKotlinTypes("dateTimeResult", isInstant = true)
-    replaceDatesWithKotlinTypes("dateTimeSample", isInstant = true)
-}
-
 private fun RecoveryStatement.replaceDatesWithJsTypes() {
     replaceDatesWithJsTypes("certificateValidFrom")
     replaceDatesWithJsTypes("certificateValidUntil")
     replaceDatesWithJsTypes("dateOfFirstPositiveTestResult")
 }
 
-private fun RecoveryStatement.replaceDatesWithKotlinTypes() {
-    replaceDatesWithKotlinTypes("certificateValidFrom")
-    replaceDatesWithKotlinTypes("certificateValidUntil")
-    replaceDatesWithKotlinTypes("dateOfFirstPositiveTestResult")
-}
-
 private fun Vaccination.replaceDatesWithJsTypes() {
     replaceDatesWithJsTypes("date")
-}
-
-private fun Vaccination.replaceDatesWithKotlinTypes() {
-    replaceDatesWithKotlinTypes("date")
 }
 
 private fun GreenCertificate.replaceDatesWithJsTypes() {
@@ -98,14 +71,6 @@ private fun GreenCertificate.replaceDatesWithJsTypes() {
     tests?.filterNotNull()?.forEach { it.replaceDatesWithJsTypes() }
     recoveryStatements?.filterNotNull()?.forEach { it.replaceDatesWithJsTypes() }
     vaccinations?.filterNotNull()?.forEach { it.replaceDatesWithJsTypes() }
-}
-
-fun GreenCertificate.replaceDatesWithKotlinTypes() {
-    replaceDatesWithKotlinTypes("dateOfBirth")
-
-    tests?.filterNotNull()?.forEach { it.replaceDatesWithKotlinTypes() }
-    recoveryStatements?.filterNotNull()?.forEach { it.replaceDatesWithKotlinTypes() }
-    vaccinations?.filterNotNull()?.forEach { it.replaceDatesWithKotlinTypes() }
 }
 
 
