@@ -195,7 +195,7 @@ private fun assertEncodeDecode(service: CryptoService) {
 
     val verificationResult = VerificationResult()
     val repo = PrefilledCertificateRepository(service.exportCertificateAsPem())
-    val decoded = VerificationCoseService(repo).decode(encoded, verificationResult)
+    val decoded = DefaultCoseService(repo).decode(encoded, verificationResult)
     decoded shouldBe plaintext
 }
 

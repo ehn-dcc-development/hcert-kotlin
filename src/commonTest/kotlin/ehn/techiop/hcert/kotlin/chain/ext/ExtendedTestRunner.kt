@@ -1,10 +1,14 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.DefaultChain
+import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.fromHexString
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultHigherOrderValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
-import ehn.techiop.hcert.kotlin.chain.impl.VerificationCoseService
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.StringSpec
@@ -213,7 +217,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                         chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                     } else if (case.coseHex != null) {
                         val newResult = VerificationResult()
-                        VerificationCoseService(certificateRepository).decode(case.coseHex.fromHexString(), newResult)
+                        DefaultCoseService(certificateRepository).decode(case.coseHex.fromHexString(), newResult)
                         newResult.error shouldBe null
                     }
                 }

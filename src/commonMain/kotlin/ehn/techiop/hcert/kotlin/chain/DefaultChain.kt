@@ -14,7 +14,8 @@ object DefaultChain {
         DefaultCwtService(),
         DefaultCoseService(cryptoService),
         DefaultCompressorService(),
-        DefaultBase45Service(), DefaultContextIdentifierService()
+        DefaultBase45Service(),
+        DefaultContextIdentifierService()
     )
 
     /**
@@ -26,7 +27,7 @@ object DefaultChain {
         DefaultSchemaValidationService(),
         DefaultCborService(),
         DefaultCwtService(clock = clock),
-        VerificationCoseService(repository),
+        DefaultCoseService(repository),
         DefaultCompressorService(),
         DefaultBase45Service(),
         DefaultContextIdentifierService()
