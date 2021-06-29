@@ -218,11 +218,13 @@
         },
         "nm": {
           "description": "NAA Test Name",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "ma": {
           "description": "RAT Test name and manufacturer",
-          "$ref": "#/$defs/test-manf"
+          "additionalProperties": {
+            "$ref": "#/$defs/test-manf"
+          }
         },
         "sc": {
           "description": "Date/Time of Sample Collection",
@@ -234,7 +236,7 @@
         },
         "tc": {
           "description": "Testing Centre",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "co": {
           "description": "Country of Test",
