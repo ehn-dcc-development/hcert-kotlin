@@ -17,6 +17,8 @@ Several other git repositories are included as submodules. Please clone this rep
 
 This Kotlin library is a [mulitplatform project](https://kotlinlang.org/docs/multiplatform.html), with targets for JVM and JavaScript.
 
+[![](https://jitpack.io/v/ehn-dcc-development/hcert-kotlin.svg)](https://jitpack.io/#ehn-dcc-development/hcert-kotlin)
+
 ## Usage (JVM)
 
 The main class for encoding and decoding HCERT data is `ehn.techiop.hcert.kotlin.chain.Chain`. For encoding, pass an instance of a `GreenCertificate` (data class conforming to the DCC schema) and get a `ChainResult`. That object will contain all revelant intermediate results as well as the final result (`step5Prefixed`). This final result can be passed to a `DefaultTwoDimCodeService` that will encode it as a 2D QR Code.
@@ -376,9 +378,7 @@ On other platforms, Napier's respective default platform-specific logger should 
 
 ## Publishing
 
-To publish this package to GitHub, create a personal access token (read <https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages>), and add `gpr.user` and `gpr.key` in your `~/.gradle/gradle.properties` and run `./gradlew publish`
-
-The library is also published on jitpack.io: [![](https://jitpack.io/v/ehn-dcc-development/hcert-kotlin.svg)](https://jitpack.io/#ehn-dcc-development/hcert-kotlin).
+The library is also published on [jitpack.io](https://jitpack.io/#ehn-dcc-development/hcert-kotlin).
 
 Use it in your project like this:
 
@@ -388,8 +388,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.1.1-SNAPSHOT'
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.1.1-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.2.0'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.2.0'
 }
 ```
 
@@ -402,6 +402,10 @@ Version 1.2.0:
  - Add option to get a data class with "nice" names when validating in JS (equivalent to JVM)
  - API change: GreenCertificate now uses arrays for test/vaccination/recovery
  - Add `certificateSubjectCountry` to `VerificationResult`, to get the country of the HCERT's signature certificate
+ - Relax schema validation once more to allow explicit `null` values for `nm`, `ma` in HCERT Test entries
+
+Version 1.1.1:
+ - Change `tc` (`testingFacility`) in HCERT Test entries to optional, i.e. nullable String
 
 Version 1.1.0:
  - Try to parse as many dates and datetimes as possible
