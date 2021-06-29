@@ -6,7 +6,7 @@ import kotlin.math.roundToLong
 object Base45Encoder {
 
     // https://datatracker.ietf.org/doc/draft-faltstrom-base45/?include_text=1
-    private val alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:"
+    private const val ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:"
 
     fun encode(input: ByteArray) =
         input.asSequence().map { it.toUByte() }
@@ -24,7 +24,7 @@ object Base45Encoder {
 
     private fun encodeTwoChars(list: List<UByte>) =
         generateSequenceByDivRem(toTwoCharValue(list), 45)
-            .map { alphabet[it] }.toList()
+            .map { ALPHABET[it] }.toList()
 
     private fun toTwoCharValue(list: List<UByte>) =
         list.reversed().foldIndexed(0L) { index, acc, element ->
@@ -39,6 +39,7 @@ object Base45Encoder {
         val result = decodeThreeChars(input).toMutableList()
         when (input.length) {
             3 -> while (result.size < 2) result += 0U
+            1 -> throw IllegalArgumentException() // per spec
         }
         return result.reversed()
     }
@@ -48,10 +49,13 @@ object Base45Encoder {
             .map { it.toUByte() }.toList()
 
     private fun fromThreeCharValue(list: String): Long {
-        return list.foldIndexed(0L, { index, acc: Long, element ->
-            if (!alphabet.contains(element)) throw IllegalArgumentException()
-            pow(45, index) * alphabet.indexOf(element) + acc
-        })
+        return list.foldIndexed(0L) { index, acc: Long, element ->
+            if (!ALPHABET.contains(element)) throw IllegalArgumentException()
+           val result = pow(45, index) * ALPHABET.indexOf(element) + acc
+            if (list.length == 2 && result > 255) throw IllegalArgumentException() // per spec
+            if (result > 65535) throw IllegalArgumentException() // per spec
+            result
+        }
     }
 
     private fun generateSequenceByDivRem(seed: Long, divisor: Int) =
