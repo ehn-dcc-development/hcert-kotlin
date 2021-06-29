@@ -308,14 +308,17 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.1.0'
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.1.0'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.1.2'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.1.2'
 }
 ```
 
 If you are planning to use this library, we'll suggest to fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
 
 ## Changelog
+
+Version 1.1.2:
+ - Relax schema validation once more to allow explicit `null` values for `nm`, `ma` in HCERT Test entries
 
 Version 1.1.1:
  - Make `tc` (`testFacility`) in HCERT Test optional
