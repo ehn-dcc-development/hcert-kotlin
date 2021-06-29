@@ -18,6 +18,7 @@ fun setLogLevel(level: String?) =
 @JsName("Verifier")
 class Verifier {
 
+    private val jsonEncoder = Json { encodeDefaults = true }
     private lateinit var repo: CertificateRepository
     private lateinit var chain: Chain
 
@@ -47,20 +48,19 @@ class Verifier {
         }
     }
 
+
     /**
      * Returns a serialization of [DecodeResultJs]
      */
     fun verify(qrContent: String): jsJson {
         val decodeResult = DecodeResultJs(chain.decode(qrContent))
-        return JSON.parse(Json {
-            encodeDefaults = true
-        }.encodeToString(decodeResult.also { it.greenCertificate?.kotlinify() }))
+        return JSON.parse(jsonEncoder.encodeToString(decodeResult.also { it.greenCertificate?.replaceDatesWithKotlinTypes() }))
     }
 
     /**
      * We'll make sure, that [DecodeResultJs] contains only
      * types that export nicely to JavaScript, so it's okay
-     * to suppress the warning.ü0ü0
+     * to suppress the warning.
      */
     @Suppress("NON_EXPORTABLE_TYPE")
     fun verifyDataClass(qrContent: String): DecodeResultJs {
@@ -73,6 +73,7 @@ class Verifier {
 @JsName("Generator")
 class Generator {
 
+    private val jsonEncoder = Json { encodeDefaults = true }
     private val cryptoService: CryptoService
     private val chain: Chain
 
@@ -90,7 +91,7 @@ class Generator {
 
     fun encode(input: String): jsJson {
         val encodeResult = chain.encode(Json.decodeFromString(input))
-        return JSON.parse(Json { encodeDefaults = true }.encodeToString(encodeResult))
+        return JSON.parse(jsonEncoder.encodeToString(encodeResult))
     }
 
     fun encodeToQrCode(input: String, moduleSize: Int, marginSize: Int): String {
