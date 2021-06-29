@@ -25,7 +25,6 @@ import kotlin.time.Duration
 
 actual object PkiUtils {
     actual fun selfSignCertificate(
-        commonName: String,
         privateKey: PrivKey,
         publicKey: PubKey,
         keySize: Int,
@@ -42,11 +41,11 @@ actual object PkiUtils {
         val notAfter = notBefore.plus(Duration.days(30))
         val serialNumber = BigInteger(32, Random()).abs()
         val builder = X509v3CertificateBuilder(
-            X500Name("CN=$commonName"),
+            X500Name("CN=SelfSigned,C=XX"),
             serialNumber,
             Date(notBefore.toEpochMilliseconds()),
             Date(notAfter.toEpochMilliseconds()),
-            X500Name("CN=$commonName"),
+            X500Name("CN=SelfSigned,C=XX"),
             subjectPublicKeyInfo
         )
         listOf(keyUsageExt, testUsage).forEach<Extension> { builder.addExtension(it) }

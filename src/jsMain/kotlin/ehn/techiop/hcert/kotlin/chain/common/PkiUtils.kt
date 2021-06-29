@@ -30,7 +30,6 @@ actual object PkiUtils {
 
     @Suppress("unused")
     actual fun selfSignCertificate(
-        commonName: String,
         privateKey: PrivKey,
         publicKey: PubKey,
         keySize: Int,
@@ -45,19 +44,28 @@ actual object PkiUtils {
         certificate.serialNumber = Integer(object : IntegerParams {
             override var value: Number? = serialNumber
         })
-        val cn = PrintableString(object : LocalSimpleStringBlockParams {
-            override var value: String? = commonName
+        val commonName = PrintableString(object : LocalSimpleStringBlockParams {
+            override var value: String? = "SelfSigned"
         })
-        (certificate.subject as RelativeDistinguishedNames).typesAndValues +=
-            AttributeTypeAndValue(object {
-                val type = "2.5.4.3"
-                val value = cn
-            })
-        (certificate.issuer as RelativeDistinguishedNames).typesAndValues +=
-            AttributeTypeAndValue(object {
-                val type = "2.5.4.3"
-                val value = cn
-            })
+        val country = PrintableString(object : LocalSimpleStringBlockParams {
+            override var value: String? = "XX"
+        })
+        (certificate.subject as RelativeDistinguishedNames).typesAndValues += AttributeTypeAndValue(object {
+            val type = "2.5.4.3"
+            val value = commonName
+        })
+        (certificate.subject as RelativeDistinguishedNames).typesAndValues += AttributeTypeAndValue(object {
+            val type = "2.5.4.6"
+            val value = country
+        })
+        (certificate.issuer as RelativeDistinguishedNames).typesAndValues += AttributeTypeAndValue(object {
+            val type = "2.5.4.3"
+            val value = commonName
+        })
+        (certificate.issuer as RelativeDistinguishedNames).typesAndValues += AttributeTypeAndValue(object {
+            val type = "2.5.4.6"
+            val value = country
+        })
         (certificate.notBefore as Time).value = Date(clock.now().toEpochMilliseconds())
         (certificate.notAfter as Time).value = Date(clock.now().plus(Duration.days(30)).toEpochMilliseconds())
 

@@ -10,7 +10,6 @@ import kotlinx.datetime.Clock
 expect object PkiUtils {
 
     fun selfSignCertificate(
-        commonName: String,
         privateKey: PrivKey,
         publicKey: PubKey,
         keySize: Int,

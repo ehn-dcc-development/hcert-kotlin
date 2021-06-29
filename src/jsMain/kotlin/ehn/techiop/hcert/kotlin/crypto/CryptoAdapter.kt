@@ -42,7 +42,7 @@ actual class CryptoAdapter {
                 privateKeyInfo = PrivateKeyInfo()
                 privateKeyInfo.fromJSON(privateKey.toPlatformPrivateKey())
                 privateKeyEncoded = Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()
-                certificate = PkiUtils.selfSignCertificate("EC-Me", privateKey, publicKey, keySize, contentType, clock)
+                certificate = PkiUtils.selfSignCertificate(privateKey, publicKey, keySize, contentType, clock)
             }
             KeyType.RSA -> {
                 val keyPair = NodeRSA().generateKeyPair(keySize)
@@ -52,7 +52,7 @@ actual class CryptoAdapter {
                 privateKeyInfo.fromJSON(privateKey.toPlatformPrivateKey())
                 privateKeyEncoded = Buffer((privateKeyInfo.toSchema() as Sequence).toBER()).toByteArray()
                 algorithm = CwtAlgorithm.RSA_PSS_256
-                certificate = PkiUtils.selfSignCertificate("RSA-Me", privateKey, publicKey, keySize, contentType, clock)
+                certificate = PkiUtils.selfSignCertificate(privateKey, publicKey, keySize, contentType, clock)
             }
         }
     }

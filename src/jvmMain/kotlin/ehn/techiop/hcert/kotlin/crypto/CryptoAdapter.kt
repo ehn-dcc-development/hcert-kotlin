@@ -39,12 +39,8 @@ actual class CryptoAdapter {
             KeyType.RSA -> CwtAlgorithm.RSA_PSS_256
         }
         privateKeyEncoded = JcaPKCS8Generator(keyPair.private, null).generate().content
-        certificate = when (keyType) {
-            KeyType.EC -> PkiUtils.selfSignCertificate("EC-Me", privateKey, publicKey, keySize, contentType, clock)
-            KeyType.RSA -> PkiUtils.selfSignCertificate("RSA-Me", privateKey, publicKey, keySize, contentType, clock)
-        }
+        certificate = PkiUtils.selfSignCertificate(privateKey, publicKey, keySize, contentType, clock)
     }
-
 
     actual constructor(pemEncodedPrivateKey: String, pemEncodedCertificate: String) {
         Security.addProvider(BouncyCastleProvider())
