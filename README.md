@@ -388,14 +388,17 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.2.0'
-    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.2.0'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin:1.3.0-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development:hcert-kotlin-jvm:1.3.0-SNAPSHOT'
 }
 ```
 
 If you are planning to use this library, we'll suggest to fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
 
 ## Changelog
+
+Version 1.3.0:
+ - tbd
 
 Version 1.2.0:
  - Split faulty implementations, sample data, to separate artifact: `ehn.techiop.hcert:hcert-kotlin-jvmdatagen`
