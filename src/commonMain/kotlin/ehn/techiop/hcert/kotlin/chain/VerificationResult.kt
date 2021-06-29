@@ -4,8 +4,10 @@ import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlin.js.JsName
 
+/**
+ * See also VerificationResultJs
+ */
 @Serializable
 class VerificationResult {
 
@@ -42,6 +44,12 @@ class VerificationResult {
     var certificateValidContent: List<ContentType> = ContentType.values().toList()
 
     /**
+     * Contains the issuing country of the certificate that signed the HCERT data,
+     * i.e. the "C=" entry of the subject
+     */
+    var certificateSubjectCountry: String? = null
+
+    /**
      * Indicates, which content actually has been decoded
      */
     var content: MutableList<ContentType> = mutableListOf()
@@ -59,6 +67,7 @@ class VerificationResult {
                 "certificateValidFrom=$certificateValidFrom, " +
                 "certificateValidUntil=$certificateValidUntil, " +
                 "certificateValidContent=$certificateValidContent, " +
+                "certificateSubjectCountry=$certificateSubjectCountry, " +
                 "content=$content, " +
                 "error=$error, " +
                 ")"
@@ -68,6 +77,7 @@ class VerificationResult {
         certificateValidFrom = certificate.validFrom
         certificateValidUntil = certificate.validUntil
         certificateValidContent = certificate.validContentTypes
+        certificateSubjectCountry = certificate.subjectCountry
     }
 
 }

@@ -163,6 +163,7 @@ The meta information contains extracted data from the QR code contents, e.g.:
     "VACCINATION",
     "RECOVERY"
   ],
+  "certificateSubjectCountry": "AT",
   "content": [
     "VACCINATION"
   ],
@@ -400,6 +401,7 @@ Version 1.2.0:
  - Split faulty implementations, sample data, to separate artifact: `ehn.techiop.hcert:hcert-kotlin-jvmdatagen`
  - Add option to get a data class with "nice" names when validating in JS (equivalent to JVM)
  - API change: GreenCertificate now uses arrays for test/vaccination/recovery
+ - Add `certificateSubjectCountry` to `VerificationResult`, to get the country of the HCERT's signature certificate
 
 Version 1.1.0:
  - Try to parse as many dates and datetimes as possible

@@ -11,6 +11,7 @@ expect class CertificateAdapter(pemEncoded: String) {
     val validContentTypes: List<ContentType>
     val validFrom: Instant
     val validUntil: Instant
+    val subjectCountry: String?
     val publicKey: PubKey
     fun toTrustedCertificate(): TrustedCertificateV2
     val kid: ByteArray

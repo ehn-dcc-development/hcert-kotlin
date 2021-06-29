@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.crypto
 
+import Asn1js.PrintableString
 import Asn1js.fromBER
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.trust.ContentType
@@ -10,6 +11,7 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import pkijs.src.ExtKeyUsage.ExtKeyUsage
 import pkijs.src.RSAPublicKey.RSAPublicKey
+import pkijs.src.RelativeDistinguishedNames.RelativeDistinguishedNames
 import pkijs.src.Time.Time
 import kotlin.js.Json
 
@@ -69,11 +71,20 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
             return Instant.parse(date.toISOString())
         }
 
+    actual val subjectCountry: String?
+        get() {
+            for (tav in (cert.subject as RelativeDistinguishedNames).typesAndValues) {
+                if (tav.type.toString() == "2.5.4.6" && tav.value is PrintableString)
+                    return (tav.value as PrintableString).valueBlock.value
+            }
+            val input = cert.subject.toString()
+            return Regex("C=[^,]*").find(input)?.value
+        }
+
     actual val publicKey: PubKey
         get() {
             @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
             val publicKeyOID = ((cert.subjectPublicKeyInfo as Json)["algorithm"] as Json)["algorithmId"] as String
-            //TODO investigate asn1 lib to use proper OID objects
             val isEC = publicKeyOID == "1.2.840.10045.2.1"
             val isRSA = publicKeyOID.startsWith("1.2.840.113549")
 

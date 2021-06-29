@@ -22,6 +22,7 @@ data class VerificationResultJs(
     @Serializable(with = JsDateSerializer::class)
     val certificateValidUntil: Date? = null,
     val certificateValidContent: Array<String>? = null,
+    val certificateSubjectCountry: String? = null,
     val content: Array<String>? = null,
     val error: String? = null
 ) {
@@ -32,6 +33,7 @@ data class VerificationResultJs(
         result.certificateValidFrom?.let { Date(it.toString()) },
         result.certificateValidUntil?.let { Date(it.toString()) },
         result.certificateValidContent.map { it.name }.toTypedArray(),
+        result.certificateSubjectCountry,
         result.content.map { it.name }.toTypedArray(),
         result.error?.toString()
     )
