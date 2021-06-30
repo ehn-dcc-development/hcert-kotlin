@@ -31,7 +31,7 @@ fun ByteArray.toUint8ClampedArray(): Uint8ClampedArray {
     return Uint8ClampedArray(toTypedArray())
 }
 
-fun ByteArray.toBuffer(): Buffer = Buffer.from(toUint8Array())
+fun ByteArray.toBuffer(): Buffer = Buffer(toUint8Array())
 
 fun Uint8Array.toByteArray(): ByteArray {
     return ByteArray(this.length) { this[it] }

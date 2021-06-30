@@ -165,7 +165,7 @@ kotlin {
                 implementation(npm("util", Versions.js.util))
                 implementation(npm("buffer", Versions.js.buffer))
                 implementation(npm("process", Versions.js.process))
-                implementation(npm("cbor", File("${projectDir.absolutePath}/node-cbor/packages/cbor")))
+                implementation(npm("cbor", Versions.js.cbor))
                 implementation(npm("node-inspect-extracted", Versions.js.`node-inspect-extract`))
                 implementation(npm("fast-sha256", Versions.js.sha256, generateExternals = true))
                 implementation(npm("url", Versions.js.url))
@@ -219,7 +219,8 @@ tasks {
 
             val basePath = "${projectDir.absolutePath}/src/common${prefix}/resources"
             val baseFile = File(basePath)
-            baseFile.walkBottomUp().filter { !it.isDirectory }.filterNot { it.extension == "png" }.filterNot { it.extension == "jpg" }.forEach {
+            baseFile.walkBottomUp().filter { !it.isDirectory }.filterNot { it.extension == "png" }
+                .filterNot { it.extension == "jpg" }.forEach {
                 val encodeBase64 =
                     de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
                 val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
@@ -239,7 +240,7 @@ tasks {
     }
     val jsWrapTestResources by registering {
         doFirst { wrapJsResources(test = true) }
-        dependsOn (jsWrapMainResources)
+        dependsOn(jsWrapMainResources)
     }
     val jsCleanResources by creating {
         doFirst {

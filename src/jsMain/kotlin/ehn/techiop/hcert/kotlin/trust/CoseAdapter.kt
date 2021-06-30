@@ -1,19 +1,16 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import Buffer
-import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
-import ehn.techiop.hcert.kotlin.chain.VerificationException
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.toByteArray
-import ehn.techiop.hcert.kotlin.chain.toUint8Array
+import ehn.techiop.hcert.kotlin.chain.impl.CborHelper
 import ehn.techiop.hcert.kotlin.crypto.Cose
+import io.github.aakira.napier.Napier
 import org.khronos.webgl.Uint8Array
 
 actual class CoseAdapter actual constructor(private val input: ByteArray) {
+
 
     //work around inherent limitations of jsTry-Wrapper
     private val parsed = parse(input)
@@ -27,6 +24,8 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
     val signature = parsed.signature
 
     companion object {
+        private val debugTag = CoseAdapter::class.simpleName + hashCode().toString()
+
         private data class InitHelper(
             val cborJson: Array<Any>,
             val cose: Cbor.Tagged,
@@ -40,13 +39,23 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
 
         private fun parse(input: ByteArray) =
             jsTry {
-                val cborJson = Cbor.Decoder.decodeAllSync(Buffer(augmentedInput(input).toUint8Array()))
+                Napier.d(tag = debugTag, message = "CBOR-decoding input")
+                val cborJson = CborHelper.decodeAll(augmentedInput(input))
+                Napier.v(tag = debugTag, message = "CBOR-decoded input is\n${JSON.stringify(cborJson, null, 2)}")
+                Napier.d(tag = debugTag, message = "extracting tagged element")
                 val cose = cborJson[0] as Cbor.Tagged
 
                 @Suppress("UNCHECKED_CAST")
                 val coseValue = cose.value as Array<Buffer>
                 val protectedHeader = coseValue[0]
-                val protectedHeaderCbor = Cbor.Decoder.decodeAllSync(protectedHeader)[0].asDynamic()
+
+                Napier.d(tag = debugTag, message = "decoding protected header")
+                val protectedHeaderCbor = CborHelper.decodeFirst(protectedHeader)
+                Napier.d(
+                    tag = debugTag,
+                    message = "decoded protected header is\n${JSON.stringify(protectedHeaderCbor, null, 2)}"
+                )
+                Napier.d(tag = debugTag, message = "extracting unprotected header")
                 val unprotectedHeader = coseValue[1].asDynamic()
                 val content = coseValue[2]
                 val signature = coseValue[3]

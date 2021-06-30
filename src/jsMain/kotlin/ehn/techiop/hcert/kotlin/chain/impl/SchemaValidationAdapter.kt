@@ -7,6 +7,7 @@ import ehn.techiop.hcert.kotlin.data.CborObject
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.data.loadAsString
 import ehn.techiop.hcert.kotlin.trust.JsCwtAdapter
+import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromDynamic
 
@@ -74,6 +75,8 @@ actual class SchemaValidationAdapter actual constructor(private val cbor: CborOb
     }
 
     private fun validate(ajv: AJV2020, schema: dynamic): List<SchemaError> {
+        val tag = this::class.simpleName + hashCode().toString()
+        Napier.v(tag = tag, message = "validating schema on object\n" + JSON.stringify(json, null, 2))
         val result = ajv.validate(schema, json)
         if (result) return listOf()
         return (ajv.errors as Array<dynamic>).map { SchemaError(JSON.stringify(it)) }
