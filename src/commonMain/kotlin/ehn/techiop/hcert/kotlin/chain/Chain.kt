@@ -77,6 +77,7 @@ class Chain(
             eudgc = higherOrderValidationService.validate(schemaValidated, verificationResult)
         } catch (e: VerificationException) {
             verificationResult.error = e.error
+            verificationResult.errorDetails = e.details
             Napier.w(
                 message = e.message ?: "Decode Chain error",
                 throwable = if (globalLogLevel == Napier.Level.VERBOSE) e else null,

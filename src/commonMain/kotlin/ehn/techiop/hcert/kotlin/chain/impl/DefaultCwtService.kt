@@ -42,26 +42,48 @@ open class DefaultCwtService constructor(
             }
 
             val issuedAtSeconds = map.getNumber(CwtHeaderKeys.ISSUED_AT.intVal)
-                ?: throw VerificationException(Error.CWT_EXPIRED, "issuedAt null")
+                ?: throw VerificationException(Error.CWT_EXPIRED, details = mapOf("issuedAt" to "null"))
             val issuedAt = Instant.fromEpochSeconds(issuedAtSeconds.toLong())
             verificationResult.issuedAt = issuedAt
             verificationResult.certificateValidFrom?.let { certValidFrom ->
                 if (issuedAt < certValidFrom)
-                    throw VerificationException(Error.CWT_EXPIRED, "issuedAt<certValidFrom")
+                    throw VerificationException(
+                        Error.CWT_EXPIRED, details = mapOf(
+                            "issuedAt" to issuedAt.toString(),
+                            "certValidFrom" to certValidFrom.toString()
+                        )
+                    )
             }
-            if (issuedAt > clock.now())
-                throw VerificationException(Error.CWT_EXPIRED, "issuedAt>clock.now()")
+
+            val now = clock.now()
+            if (issuedAt > now)
+                throw VerificationException(
+                    Error.CWT_EXPIRED, details = mapOf(
+                        "issuedAt" to issuedAt.toString(),
+                        "currentTime" to now.toString()
+                    )
+                )
 
             val expirationSeconds = map.getNumber(CwtHeaderKeys.EXPIRATION.intVal)
-                ?: throw VerificationException(Error.CWT_EXPIRED, "expirationTime null")
+                ?: throw VerificationException(Error.CWT_EXPIRED, details = mapOf("expirationTime" to "null"))
             val expirationTime = Instant.fromEpochSeconds(expirationSeconds.toLong())
             verificationResult.expirationTime = expirationTime
             verificationResult.certificateValidUntil?.let { certValidUntil ->
                 if (expirationTime > certValidUntil)
-                    throw VerificationException(Error.CWT_EXPIRED, "expirationTime>certValidUntil")
+                    throw VerificationException(
+                        Error.CWT_EXPIRED, details = mapOf(
+                            "expirationTime" to expirationTime.toString(),
+                            "certValidUntil" to certValidUntil.toString()
+                        )
+                    )
             }
-            if (expirationTime < clock.now())
-                throw VerificationException(Error.CWT_EXPIRED, "expirationTime<clock.now()")
+            if (expirationTime < now)
+                throw VerificationException(
+                    Error.CWT_EXPIRED, details = mapOf(
+                        "expirationTime" to expirationTime.toString(),
+                        "currentTime" to now.toString()
+                    )
+                )
 
             val hcert: CwtAdapter = map.getMap(CwtHeaderKeys.HCERT.intVal)
                 ?: throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, "CWT contains no HCERT")
