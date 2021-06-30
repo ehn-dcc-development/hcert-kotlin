@@ -59,6 +59,11 @@ class VerificationResult {
      */
     var error: Error? = null
 
+    /**
+     * Holds details about the error, if any occurred and relevant details are available
+     */
+    var errorDetails: Map<String, String>? = null
+
     override fun toString(): String {
         return "VerificationResult(" +
                 "expirationTime=$expirationTime, " +
@@ -70,6 +75,7 @@ class VerificationResult {
                 "certificateSubjectCountry=$certificateSubjectCountry, " +
                 "content=$content, " +
                 "error=$error, " +
+                "errorDetails=$errorDetails" +
                 ")"
     }
 
