@@ -36,7 +36,7 @@ class TrustListTest : io.kotest.core.spec.style.StringSpec({
             "d28450a3182a0204487b400581fb6aea6e0126a0582ca3025820593fb23e0915d50be21029450e3051a026316c4826383edb184907f3e96038f7041a0002a30005005840cd0d5cba9a9c059dd25975cd4131884a7de4720957a48d88b9d8a5df8c956cf792c52811238ba49dfd9bfdbae33c4553c4c8a0536588b2c0b7fbc521a2c079b8".fromHexString()
         val clock = FixedClock(Instant.fromEpochMilliseconds(0))
 
-        verifyClientOperations(certificate, clock, ContentAndSignature(trustListEncoded, trustListSignature))
+        verifyClientOperations(certificate, clock, SignedData(trustListEncoded, trustListSignature))
     }
 
 
@@ -45,7 +45,7 @@ class TrustListTest : io.kotest.core.spec.style.StringSpec({
 private fun verifyClientOperations(
     certificateBase64: String,
     clock: Clock,
-    trustList: ContentAndSignature
+    trustList: SignedData
 ) {
     // might never happen on the client, that the trust list is loaded in this way
     val clientTrustRoot = PrefilledCertificateRepository(certificateBase64)

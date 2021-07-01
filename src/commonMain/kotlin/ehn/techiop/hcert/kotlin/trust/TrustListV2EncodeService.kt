@@ -18,7 +18,7 @@ class TrustListV2EncodeService constructor(
     clock: Clock = Clock.System,
 ) {
 
-    private val contentAndSignatureService = ContentAndSignatureEncodeService(signingService, validity, clock)
+    private val contentAndSignatureService = SignedDataEncodeService(signingService, validity, clock)
 
     /**
      * Content is a CBOR encoded [TrustListV2] object, i.e. a list of entries that contain
@@ -32,9 +32,9 @@ class TrustListV2EncodeService constructor(
     }
 
     /**
-     * See [ContentAndSignature] for details about returned structure
+     * See [SignedData] for details about returned structure
      */
-    fun encode(certificates: Set<CertificateAdapter>): ContentAndSignature {
+    fun encode(certificates: Set<CertificateAdapter>): SignedData {
         val content = encodeContent(certificates)
         return contentAndSignatureService.wrapWithSignature(content, mapOf(CoseHeaderKeys.TRUSTLIST_VERSION to 2))
     }

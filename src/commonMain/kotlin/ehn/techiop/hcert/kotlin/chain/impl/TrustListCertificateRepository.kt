@@ -5,13 +5,13 @@ import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.trust.ContentAndSignature
+import ehn.techiop.hcert.kotlin.trust.SignedData
 import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
 import kotlinx.datetime.Clock
 
 
 class TrustListCertificateRepository(
-    trustList: ContentAndSignature,
+    trustList: SignedData,
     certificateRepository: CertificateRepository,
     clock: Clock = Clock.System,
 ) : CertificateRepository {

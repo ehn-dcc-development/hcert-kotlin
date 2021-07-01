@@ -13,7 +13,7 @@ import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
  * - [CwtHeaderKeys.EXPIRATION]: seconds since UNIX epoch
  * - [CwtHeaderKeys.SUBJECT]: the SHA-256 hash of the content file
  */
-data class ContentAndSignature(
+data class SignedData(
     val content: ByteArray,
     val signature: ByteArray
 ) {
@@ -21,7 +21,7 @@ data class ContentAndSignature(
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as ContentAndSignature
+        other as SignedData
 
         if (!content.contentEquals(other.content)) return false
         if (!signature.contentEquals(other.signature)) return false

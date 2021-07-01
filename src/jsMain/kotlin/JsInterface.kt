@@ -5,7 +5,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.*
 import ehn.techiop.hcert.kotlin.log.BasicLogger
 import ehn.techiop.hcert.kotlin.log.JsLogger
 import io.github.aakira.napier.Antilog
-import ehn.techiop.hcert.kotlin.trust.ContentAndSignature
+import ehn.techiop.hcert.kotlin.trust.SignedData
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -68,7 +68,7 @@ class Verifier {
             val root = PrefilledCertificateRepository(rootPem)
             val sig = trustListSignature.toByteArray()
             val content = trustListContent.toByteArray()
-            val contentAndSig = ContentAndSignature(content, sig)
+            val contentAndSig = SignedData(content, sig)
             repo = TrustListCertificateRepository(contentAndSig, root)
             chain = DefaultChain.buildVerificationChain(repo)
         }.catch {
