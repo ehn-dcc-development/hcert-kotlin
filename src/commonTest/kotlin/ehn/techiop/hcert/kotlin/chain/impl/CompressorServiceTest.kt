@@ -1,7 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 import ehn.techiop.hcert.kotlin.chain.impl.CompressionConstants.MAX_DECOMPRESSED_SIZE
 import ehn.techiop.hcert.kotlin.chain.toHexString
 import io.kotest.assertions.throwables.shouldThrowExactly

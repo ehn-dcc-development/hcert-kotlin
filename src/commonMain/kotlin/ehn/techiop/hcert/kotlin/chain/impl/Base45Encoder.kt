@@ -1,4 +1,4 @@
-package ehn.techiop.hcert.kotlin.chain.common
+package ehn.techiop.hcert.kotlin.chain.impl
 
 import kotlin.math.pow
 import kotlin.math.roundToLong
