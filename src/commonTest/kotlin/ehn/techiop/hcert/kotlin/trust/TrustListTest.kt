@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.trust
 
+import ehn.techiop.hcert.kotlin.chain.CryptoServiceHolder
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.ext.FixedClock
@@ -8,24 +9,23 @@ import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
+import ehn.techiop.hcert.kotlin.crypto.KeyType
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 class TrustListTest : io.kotest.core.spec.style.StringSpec({
 
     "V2 Client-Server Exchange" {
-        val clock = FixedClock(Instant.fromEpochMilliseconds(0))
-        val cryptoService = RandomEcKeyCryptoService(clock = clock)
+        val cryptoService = RandomEcKeyCryptoService()
         val certificate = cryptoService.getCertificate().encoded.asBase64()
-        val encodeService = TrustListV2EncodeService(cryptoService, clock = clock)
-        val trustListEncoded = encodeService.encodeContent(randomCertificates(clock))
+        val encodeService = TrustListV2EncodeService(cryptoService)
+        val trustListEncoded = encodeService.encodeContent(randomCertificates())
         val trustListSignature = encodeService.encodeSignature(trustListEncoded)
 
-        verifyClientOperations(certificate, clock, trustListSignature, trustListEncoded)
+        verifyClientOperations(certificate, Clock.System, trustListSignature, trustListEncoded)
     }
 
     "V2 Client Loading" {
@@ -71,7 +71,7 @@ private fun verifyClientOperations(
 }
 
 
-private fun randomCertificates(clock: Clock): Set<CertificateAdapter> =
-    listOf(RandomEcKeyCryptoService(clock = clock), RandomEcKeyCryptoService(clock = clock))
-        .map { it.getCertificate() }
-        .toSet()
+private fun randomCertificates(): Set<CertificateAdapter> = listOf(
+    CryptoServiceHolder.getRandomCryptoService(KeyType.EC, 256, null),
+    CryptoServiceHolder.getRandomCryptoService(KeyType.RSA, 2048, null)
+).map { it.getCertificate() }.toSet()
