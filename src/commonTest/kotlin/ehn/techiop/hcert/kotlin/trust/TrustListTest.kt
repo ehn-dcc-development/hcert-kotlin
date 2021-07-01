@@ -22,10 +22,9 @@ class TrustListTest : io.kotest.core.spec.style.StringSpec({
         val cryptoService = RandomEcKeyCryptoService()
         val certificate = cryptoService.getCertificate().encoded.asBase64()
         val encodeService = TrustListV2EncodeService(cryptoService)
-        val trustListEncoded = encodeService.encodeContent(randomCertificates())
-        val trustListSignature = encodeService.encodeSignature(trustListEncoded)
+        val trustListEncoded = encodeService.encode(randomCertificates())
 
-        verifyClientOperations(certificate, Clock.System, trustListSignature, trustListEncoded)
+        verifyClientOperations(certificate, Clock.System, trustListEncoded)
     }
 
     "V2 Client Loading" {
@@ -37,7 +36,7 @@ class TrustListTest : io.kotest.core.spec.style.StringSpec({
             "d28450a3182a0204487b400581fb6aea6e0126a0582ca3025820593fb23e0915d50be21029450e3051a026316c4826383edb184907f3e96038f7041a0002a30005005840cd0d5cba9a9c059dd25975cd4131884a7de4720957a48d88b9d8a5df8c956cf792c52811238ba49dfd9bfdbae33c4553c4c8a0536588b2c0b7fbc521a2c079b8".fromHexString()
         val clock = FixedClock(Instant.fromEpochMilliseconds(0))
 
-        verifyClientOperations(certificate, clock, trustListSignature, trustListEncoded)
+        verifyClientOperations(certificate, clock, ContentAndSignature(trustListEncoded, trustListSignature))
     }
 
 
@@ -46,16 +45,14 @@ class TrustListTest : io.kotest.core.spec.style.StringSpec({
 private fun verifyClientOperations(
     certificateBase64: String,
     clock: Clock,
-    trustListSignature: ByteArray,
-    trustListEncoded: ByteArray? = null
+    trustList: ContentAndSignature
 ) {
     // might never happen on the client, that the trust list is loaded in this way
     val clientTrustRoot = PrefilledCertificateRepository(certificateBase64)
     val decodeService = TrustListDecodeService(clientTrustRoot, clock = clock)
-    val clientTrustList = decodeService.decode(trustListSignature, trustListEncoded)
+    val clientTrustList = decodeService.decode(trustList)
     // that's the way to go: Trust list used for verification of QR codes
-    val clientTrustListAdapter =
-        TrustListCertificateRepository(trustListSignature, trustListEncoded, clientTrustRoot, clock)
+    val clientTrustListAdapter = TrustListCertificateRepository(trustList, clientTrustRoot, clock)
 
     clientTrustList.size shouldBe 2
     for (cert in clientTrustList) {

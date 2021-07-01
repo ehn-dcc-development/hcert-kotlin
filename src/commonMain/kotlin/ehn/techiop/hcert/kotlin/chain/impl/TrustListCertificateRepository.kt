@@ -5,18 +5,18 @@ import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
+import ehn.techiop.hcert.kotlin.trust.ContentAndSignature
 import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
 import kotlinx.datetime.Clock
 
 
 class TrustListCertificateRepository(
-    trustListSignature: ByteArray,
-    trustListContent: ByteArray? = null,
+    trustList: ContentAndSignature,
     certificateRepository: CertificateRepository,
     clock: Clock = Clock.System,
 ) : CertificateRepository {
 
-    private val list = TrustListDecodeService(certificateRepository, clock).decode(trustListSignature, trustListContent)
+    private val list = TrustListDecodeService(certificateRepository, clock).decode(trustList)
 
     override fun loadTrustedCertificates(
         kid: ByteArray,
