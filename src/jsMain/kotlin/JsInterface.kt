@@ -2,6 +2,9 @@ import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
 import ehn.techiop.hcert.kotlin.chain.impl.*
+import ehn.techiop.hcert.kotlin.log.BasicLogger
+import ehn.techiop.hcert.kotlin.log.JsLogger
+import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -9,10 +12,35 @@ import kotlinx.serialization.json.Json
 import org.khronos.webgl.ArrayBuffer
 import kotlin.js.Json as jsJson
 
+
+@JsExport
+@JsName("defaultLogger")
+private val defaultLogger = BasicLogger()
+
+@JsExport
+@JsName("addLogger")
+fun addLogger(logger: Antilog) = Napier.base(logger)
+
+@JsExport
+@JsName("removeLogger")
+fun removeLogger(logger: Antilog) = Napier.takeLogarithm(logger)
+
 @JsExport
 @JsName("setLogLevel")
-fun setLogLevel(level: String?) =
+fun setLogLevel(level: String?) {
     ehn.techiop.hcert.kotlin.log.setLogLevel(Napier.Level.values().firstOrNull { it.name == level?.uppercase() })
+}
+
+@JsExport
+@JsName("setLogger")
+fun setLogger(
+    loggingFunction: (level: String, tag: String?, stackTrace: String?, message: String?) -> Unit,
+    keep: Boolean? = false
+): dynamic {
+    if (keep == null || keep === undefined || !keep) Napier.takeLogarithm()
+    return JsLogger(loggingFunction).also { Napier.base(it) }
+}
+
 
 @JsExport
 @JsName("Verifier")
@@ -113,6 +141,8 @@ class Generator {
  * https://stackoverflow.com/questions/60183300/how-to-call-kotlin-js-functions-from-regular-javascript#comment106601781_60184178
  */
 fun main() {
+    //is NOOP by default because log level is null by default
+    Napier.base(defaultLogger)
     if (false) {
         val directVerifier = Verifier("bar")
         directVerifier.verify("bar")

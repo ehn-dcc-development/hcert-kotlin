@@ -5,6 +5,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 
 //was once based on default JS debug Antilog
+
 actual open class BasicLogger actual constructor(protected val defaultTag: String?) : Antilog() {
 
     override fun performLog(priority: Napier.Level, tag: String?, throwable: Throwable?, message: String?) {
@@ -34,5 +35,13 @@ actual open class BasicLogger actual constructor(protected val defaultTag: Strin
             Napier.Level.ERROR, Napier.Level.ASSERT -> console.error(msg)
         }
     }
+}
 
+@JsExport
+class JsLogger(private val loggingFunction: (level: String, tag: String?, stackTrace: String?, message: String?) -> Unit) :
+    Antilog() {
+    override fun performLog(priority: Napier.Level, tag: String?, throwable: Throwable?, message: String?) {
+        if (globalLogLevel != null)
+            loggingFunction(priority.name, tag, throwable?.stackTraceToString(), message)
+    }
 }

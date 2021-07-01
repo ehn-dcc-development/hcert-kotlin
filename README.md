@@ -372,9 +372,22 @@ ChainResult result = chain.encode(input);
 
 Implementers may load values for constructor parameters from a configuration file, e.g. with [Spring Boot's configuration properties](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config).
 
+## Logging
 Configurability also holds true for logging, which is based on [Napier](https://github.com/AAkira/Napier) and is shipped with a JS+JVM basic debug logger (see [Enabling logging](src/commonTest/kotlin/ehn/techiop/hcert/kotlin/000InitTestContext.kt)).
 This should probably be configured differently in production.
-On other platforms, Napier's respective default platform-specific logger should be used.
+
+As for JS logging, the following functions are available:
+- `hcert.setLogLevel(level)`, where `level` is one of the following string values: VERBOSE, DEBUG, INFO, WARNING, ERROR, ASSERT<br>
+Setting any other value (or `null`/`undefined`) will disable logging, although it will not *remove* any loggers (see below). By default, a basic console logger is present. Therefore, a call to `setLogLevel` suffices to enable console-based logging.
+  The  default logger is exposed as `hcert.defaultLogger`.
+- `hcert.setLogger(loggingFunction: (level: String, tag: String?, stackTrace: String?, message: String?) -> Unit,
+  keep: Boolean? = false): JsLogger`, which allows for configuring custom logging callbacks.<br>If `keep` is omitted, existing loggers will be replaced, otherwise the newly added logger will be invoked *in addition* to existing loggers. As such, a call to this function without setting `keep=true` will result in the default  console logger to be replaced.<br>
+   This function returns the newly created logger instance, which allows for later removal of any added logging callback (see below).
+- `hcert.addLogger(logger:Antilog)`/`hcert.removeLogger(logger:Antilog)` functions enable adding/removing any logger created through `setLogger()`, as well as the default console logger exposed though `hcert.defaultLogger`.
+It is therefore sensible to store the return value of `setLogger` to cater tor complex logging setups.
+
+
+On other platforms, Napier's respective default (or custom) platform-specific loggers should be used according to the Napier API.
 
 ## Publishing
 
@@ -406,6 +419,7 @@ Version 1.2.0:
  - API change: GreenCertificate now uses arrays for test/vaccination/recovery
  - Add `certificateSubjectCountry` to `VerificationResult`, to get the country of the HCERT's signature certificate
  - Relax schema validation once more to allow explicit `null` values for `nm`, `ma` in HCERT Test entries
+ - JS: Fix logging API (previous implementation was incomplete, preventing any logging on JS)
 
 Version 1.1.1:
  - Change `tc` (`testingFacility`) in HCERT Test entries to optional, i.e. nullable String
