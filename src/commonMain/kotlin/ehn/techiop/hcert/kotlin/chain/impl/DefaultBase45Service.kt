@@ -4,7 +4,6 @@ import ehn.techiop.hcert.kotlin.chain.Base45Service
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.common.Base45Encoder
 
 /**
  * Encodes/decodes input in/from Base45
