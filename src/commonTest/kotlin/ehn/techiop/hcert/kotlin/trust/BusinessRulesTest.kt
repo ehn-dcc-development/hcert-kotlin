@@ -38,7 +38,7 @@ private fun verifyClientOperations(
     for (clientRule in clientRules.rules) {
         Json.parseToJsonElement(clientRule.rule) shouldBe Json.parseToJsonElement(ruleJson)
     }
-    clientSignedDataParsed.notBefore.epochSeconds shouldBeLessThanOrEqual Clock.System.now().epochSeconds
-    clientSignedDataParsed.notAfter.epochSeconds shouldBeGreaterThanOrEqual Clock.System.now().epochSeconds
+    clientSignedDataParsed.validFrom.epochSeconds shouldBeLessThanOrEqual Clock.System.now().epochSeconds
+    clientSignedDataParsed.validUntil.epochSeconds shouldBeGreaterThanOrEqual Clock.System.now().epochSeconds
     clientSignedDataParsed.content shouldBe signedData.content
 }
