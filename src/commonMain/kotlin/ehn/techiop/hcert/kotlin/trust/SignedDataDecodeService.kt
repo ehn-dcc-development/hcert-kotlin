@@ -56,12 +56,3 @@ class SignedDataDecodeService constructor(
     }
 
 }
-
-
-data class SignedDataParsed(
-    val notBefore: Instant,
-    val notAfter: Instant,
-    val content: ByteArray,
-    // TODO how to get protected headers to any type
-    val headers: Map<CoseHeaderKeys, Int?>
-)
