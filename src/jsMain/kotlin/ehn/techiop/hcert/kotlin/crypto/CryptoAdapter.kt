@@ -6,7 +6,7 @@ import Buffer
 import NodeRSA
 import cose.CosePrivateKey
 import cose.CosePublicKey
-import ehn.techiop.hcert.kotlin.chain.common.PkiUtils
+import ehn.techiop.hcert.kotlin.crypto.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.trust.ContentType

@@ -1,6 +1,5 @@
-package ehn.techiop.hcert.kotlin.chain.common
+package ehn.techiop.hcert.kotlin.crypto
 
-import ehn.techiop.hcert.kotlin.crypto.*
 import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Clock
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
