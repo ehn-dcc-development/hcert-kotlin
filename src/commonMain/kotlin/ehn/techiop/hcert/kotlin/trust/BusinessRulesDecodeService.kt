@@ -10,13 +10,13 @@ import kotlinx.serialization.decodeFromByteArray
 import kotlin.time.Duration
 
 /**
- * Decodes a [SignedData] blob, expected to contain the content and signature of a [TrustListV2]
+ * Decodes a [SignedData] blob, expected to contain the content and signature of a [BusinessRulesContainer]
  *
  * [repository] contains the trust anchor for the parsed file
  * [clock] defines the current time to use for validity checks
  * [clockSkew] defines the error margin when comparing time validity of the parsed file
  */
-class TrustListDecodeService(
+class BusinessRulesDecodeService(
     repository: CertificateRepository,
     clock: Clock = Clock.System,
     clockSkew: Duration = Duration.seconds(300)
@@ -26,14 +26,14 @@ class TrustListDecodeService(
 
     /**
      * See [SignedData] for details about the content
-     * If all checks succeed, [input.content] is parsed as a [TrustListV2], and the certificates are and returned
+     * If all checks succeed, [input.content] is parsed as a [BusinessRulesContainer]
      */
     @Throws(VerificationException::class)
-    fun decode(input: SignedData): List<TrustedCertificate> {
-        val parsed = decodeService.decode(input, listOf(CoseHeaderKeys.TRUSTLIST_VERSION))
-        when (parsed.headers[CoseHeaderKeys.TRUSTLIST_VERSION]) {
-            1 -> throw VerificationException(TRUST_SERVICE_ERROR, "Version 1")
-            2 -> return Cbor.decodeFromByteArray<TrustListV2>(parsed.content).certificates
+    fun decode(input: SignedData): Pair<SignedDataParsed, BusinessRulesContainer> {
+        // TODO Error codes
+        val parsed = decodeService.decode(input, listOf(CoseHeaderKeys.BUSINESS_RULES_VERSION))
+        when (parsed.headers[CoseHeaderKeys.BUSINESS_RULES_VERSION]) {
+            1 -> return Pair(parsed, Cbor.decodeFromByteArray(parsed.content))
             else -> throw VerificationException(TRUST_SERVICE_ERROR, "Version unknown")
         }
     }

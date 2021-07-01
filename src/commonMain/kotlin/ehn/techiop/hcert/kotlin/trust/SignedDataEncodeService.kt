@@ -8,7 +8,7 @@ import kotlin.time.Duration
 
 
 /**
- * Encodes a list of certificates as a content file plus separate signature file
+ * Encodes arbitrary content as a [SignedData] object
  */
 class SignedDataEncodeService constructor(
     private val signingService: CryptoService,
