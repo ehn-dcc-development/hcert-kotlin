@@ -4,6 +4,9 @@ import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 
+/**
+ * Adapter to deserialize COSE structures on all targets
+ */
 expect class CoseAdapter constructor(input: ByteArray) {
 
     fun getProtectedAttributeByteArray(key: Int): ByteArray?

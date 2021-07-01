@@ -1,7 +1,10 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.Error.TRUST_LIST_EXPIRED
+import ehn.techiop.hcert.kotlin.chain.Error.TRUST_LIST_NOT_YET_VALID
+import ehn.techiop.hcert.kotlin.chain.Error.TRUST_LIST_SIGNATURE_INVALID
+import ehn.techiop.hcert.kotlin.chain.Error.TRUST_SERVICE_ERROR
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
@@ -11,45 +14,66 @@ import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import kotlin.time.Duration
 
-class TrustListDecodeService(private val repository: CertificateRepository, private val clock: Clock = Clock.System) {
+/**
+ * Decodes two binary blobs, expected to contain the content and signature of a [TrustListV2]
+ * 
+ * [repository] contains the trust anchor for the parsed file
+ * [clock] defines the current time to use for validity checks
+ * [clockSkew] defines the error margin when comparing time validity of the parsed file
+ */
+class TrustListDecodeService(
+    private val repository: CertificateRepository,
+    private val clock: Clock = Clock.System,
+    private val clockSkew: Duration = Duration.seconds(300)
+) {
 
+    /**
+     * [input] contains the COSE structure, which is expected to hold the following protected attributes:
+     * - [CoseHeaderKeys.KID] to look up the signer's certificate in [repository]
+     * - [CoseHeaderKeys.TRUSTLIST_VERSION] to get the version of the content, expected to be `2`
+     * [input] is also expected to hold the following content as map keys:
+     * - [CwtHeaderKeys.SUBJECT] the signed hash of the TrustList content file ([optionalContent]) as bytes
+     * - [CwtHeaderKeys.NOT_BEFORE] the start of the validity period as the number of seconds since UNIX epoch
+     * - [CwtHeaderKeys.EXPIRATION] the end of the validity period as the number of seconds since UNIX epoch
+     * If all checks succeed, [optionalContent] is parsed as a [TrustListV2], and the certificates are and returned
+     */
     fun decode(input: ByteArray, optionalContent: ByteArray? = null): List<TrustedCertificate> {
         val cose = CoseAdapter(input)
         val kid = cose.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
-            ?: throw VerificationException(Error.TRUST_LIST_SIGNATURE_INVALID, "KID not defined")
+            ?: throw VerificationException(TRUST_LIST_SIGNATURE_INVALID, "KID not defined")
 
         val validated = cose.validate(kid, repository)
         if (!validated)
-            throw VerificationException(Error.TRUST_LIST_SIGNATURE_INVALID, "Not validated")
+            throw VerificationException(TRUST_LIST_SIGNATURE_INVALID, "Not validated")
 
-        val version = cose.getProtectedAttributeInt(42)
+        val version = cose.getProtectedAttributeInt(CoseHeaderKeys.TRUSTLIST_VERSION.intVal)
         if (version == 1) {
-            throw VerificationException(Error.TRUST_SERVICE_ERROR, "Version 1")
+            throw VerificationException(TRUST_SERVICE_ERROR, "Version 1")
         } else if (version == 2 && optionalContent != null) {
             val actualHash = Hash(optionalContent).calc()
 
             val map = cose.getContentMap()
             val expectedHash = map.getByteArray(CwtHeaderKeys.SUBJECT.intVal)
             if (!(expectedHash contentEquals actualHash))
-                throw VerificationException(Error.TRUST_LIST_SIGNATURE_INVALID, "Hash not matching")
+                throw VerificationException(TRUST_LIST_SIGNATURE_INVALID, "Hash not matching")
 
             val notBefore = map.getNumber(CwtHeaderKeys.NOT_BEFORE.intVal)
-                ?: throw VerificationException(Error.TRUST_LIST_NOT_YET_VALID, "NotBefore=null")
+                ?: throw VerificationException(TRUST_LIST_NOT_YET_VALID, "NotBefore=null")
 
             val validFrom = Instant.fromEpochSeconds(notBefore.toLong())
-            if (validFrom > clock.now().plus(Duration.seconds(300)))
-                throw VerificationException(Error.TRUST_LIST_NOT_YET_VALID, "NotBefore>clock.now()")
+            if (validFrom > clock.now().plus(clockSkew))
+                throw VerificationException(TRUST_LIST_NOT_YET_VALID, "NotBefore>clock.now()")
 
             val expiration = map.getNumber(CwtHeaderKeys.EXPIRATION.intVal)
-                ?: throw VerificationException(Error.TRUST_LIST_EXPIRED, "Expiration=null")
+                ?: throw VerificationException(TRUST_LIST_EXPIRED, "Expiration=null")
 
             val validUntil = Instant.fromEpochSeconds(expiration.toLong())
-            if (validUntil < clock.now().minus(Duration.seconds(300)))
-                throw VerificationException(Error.TRUST_LIST_EXPIRED, "Expiration<clock.now()")
+            if (validUntil < clock.now().minus(clockSkew))
+                throw VerificationException(TRUST_LIST_EXPIRED, "Expiration<clock.now()")
 
             return Cbor.decodeFromByteArray<TrustListV2>(optionalContent).certificates
         } else {
-            throw VerificationException(Error.TRUST_SERVICE_ERROR, "Version unknown")
+            throw VerificationException(TRUST_SERVICE_ERROR, "Version unknown")
         }
     }
 

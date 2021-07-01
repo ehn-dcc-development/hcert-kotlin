@@ -2,6 +2,9 @@ package ehn.techiop.hcert.kotlin.trust
 
 import ehn.techiop.hcert.kotlin.data.CborObject
 
+/**
+ * Adapter to deserialize CWT structures (CBOR maps) on all targets
+ */
 interface CwtAdapter {
 
     fun getByteArray(key: Int): ByteArray?
