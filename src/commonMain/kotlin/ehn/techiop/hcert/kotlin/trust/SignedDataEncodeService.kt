@@ -10,7 +10,7 @@ import kotlin.time.Duration
 /**
  * Encodes a list of certificates as a content file plus separate signature file
  */
-class ContentAndSignatureEncodeService constructor(
+class SignedDataEncodeService constructor(
     private val signingService: CryptoService,
     private val validity: Duration = Duration.hours(48),
     private val clock: Clock = Clock.System,
@@ -44,9 +44,9 @@ class ContentAndSignatureEncodeService constructor(
         return cose.encode()
     }
 
-    fun wrapWithSignature(content: ByteArray, coseHeaderKeys: Map<CoseHeaderKeys, Any> = mapOf()): ContentAndSignature {
+    fun wrapWithSignature(content: ByteArray, coseHeaderKeys: Map<CoseHeaderKeys, Any> = mapOf()): SignedData {
         val signature = encodeSignature(content, coseHeaderKeys)
-        return ContentAndSignature(content, signature)
+        return SignedData(content, signature)
     }
 
 

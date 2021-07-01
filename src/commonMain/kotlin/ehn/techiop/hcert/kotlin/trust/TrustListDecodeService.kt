@@ -10,7 +10,7 @@ import kotlinx.serialization.decodeFromByteArray
 import kotlin.time.Duration
 
 /**
- * Decodes two binary blobs, expected to contain the content and signature of a [TrustListV2]
+ * Decodes a [SignedData] blob, expected to contain the content and signature of a [TrustListV2]
  *
  * [repository] contains the trust anchor for the parsed file
  * [clock] defines the current time to use for validity checks
@@ -22,14 +22,14 @@ class TrustListDecodeService(
     clockSkew: Duration = Duration.seconds(300)
 ) {
 
-    private val decodeService = ContentAndSignatureDecodeService(repository, clock, clockSkew)
+    private val decodeService = SignedDataDecodeService(repository, clock, clockSkew)
 
     /**
-     * See [ContentAndSignature] for details about the content
+     * See [SignedData] for details about the content
      * If all checks succeed, [trustList.content] is parsed as a [TrustListV2], and the certificates are and returned
      */
     @Throws(VerificationException::class)
-    fun decode(trustList: ContentAndSignature): List<TrustedCertificate> {
+    fun decode(trustList: SignedData): List<TrustedCertificate> {
         val parsed = decodeService.decode(trustList, listOf(CoseHeaderKeys.TRUSTLIST_VERSION))
         when (parsed.headers[CoseHeaderKeys.TRUSTLIST_VERSION]) {
             1 -> throw VerificationException(TRUST_SERVICE_ERROR, "Version 1")

@@ -11,16 +11,16 @@ import kotlin.time.Duration
 
 
 /**
- * Decodes a [ContentAndSignature] structure, and verify the validity of it
+ * Decodes a [SignedData] structure, and verify the validity of it
  */
-class ContentAndSignatureDecodeService constructor(
+class SignedDataDecodeService constructor(
     private val repository: CertificateRepository,
     private val clock: Clock = Clock.System,
     private val clockSkew: Duration = Duration.seconds(300)
 ) {
 
     @Throws(VerificationException::class)
-    fun decode(input: ContentAndSignature, headersToParse: List<CoseHeaderKeys> = listOf()): ContentAndSignatureParsed {
+    fun decode(input: SignedData, headersToParse: List<CoseHeaderKeys> = listOf()): SignedDataParsed {
         // TODO Error Codes are for trust list
         val cose = CoseAdapter(input.signature)
         val kid = cose.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
@@ -52,13 +52,13 @@ class ContentAndSignatureDecodeService constructor(
         if (validUntil < clock.now().minus(clockSkew))
             throw VerificationException(Error.TRUST_LIST_EXPIRED, "Expiration<clock.now()")
 
-        return ContentAndSignatureParsed(validFrom, validUntil, input.content, headers)
+        return SignedDataParsed(validFrom, validUntil, input.content, headers)
     }
 
 }
 
 
-data class ContentAndSignatureParsed(
+data class SignedDataParsed(
     val notBefore: Instant,
     val notAfter: Instant,
     val content: ByteArray,
