@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.cbor.ByteString
 
 
+/**
+ * Current implementation of a "trusted" certificate, encoded inside a [TrustListV2]
+ */
 @Serializable
 data class TrustedCertificateV2(
     @SerialName("i")
