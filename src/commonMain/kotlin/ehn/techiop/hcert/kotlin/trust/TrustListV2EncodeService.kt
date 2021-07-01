@@ -3,7 +3,6 @@ package ehn.techiop.hcert.kotlin.trust
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
@@ -14,12 +13,12 @@ import kotlin.time.Duration
  * Encodes a list of certificates as a content file plus separate signature file
  */
 class TrustListV2EncodeService constructor(
-    private val signingService: CryptoService,
-    private val validity: Duration = Duration.hours(48),
-    private val clock: Clock = Clock.System,
+    signingService: CryptoService,
+    validity: Duration = Duration.hours(48),
+    clock: Clock = Clock.System,
 ) {
 
-    private val contentAndSignatureService = ContentAndSignatureService(signingService, validity, clock)
+    private val contentAndSignatureService = ContentAndSignatureEncodeService(signingService, validity, clock)
 
     /**
      * Content is a CBOR encoded [TrustListV2] object, i.e. a list of entries that contain
