@@ -16,7 +16,7 @@ import kotlin.time.Duration
 
 /**
  * Decodes two binary blobs, expected to contain the content and signature of a [TrustListV2]
- * 
+ *
  * [repository] contains the trust anchor for the parsed file
  * [clock] defines the current time to use for validity checks
  * [clockSkew] defines the error margin when comparing time validity of the parsed file
@@ -28,17 +28,12 @@ class TrustListDecodeService(
 ) {
 
     /**
-     * [input] contains the COSE structure, which is expected to hold the following protected attributes:
-     * - [CoseHeaderKeys.KID] to look up the signer's certificate in [repository]
-     * - [CoseHeaderKeys.TRUSTLIST_VERSION] to get the version of the content, expected to be `2`
-     * [input] is also expected to hold the following content as map keys:
-     * - [CwtHeaderKeys.SUBJECT] the signed hash of the TrustList content file ([optionalContent]) as bytes
-     * - [CwtHeaderKeys.NOT_BEFORE] the start of the validity period as the number of seconds since UNIX epoch
-     * - [CwtHeaderKeys.EXPIRATION] the end of the validity period as the number of seconds since UNIX epoch
-     * If all checks succeed, [optionalContent] is parsed as a [TrustListV2], and the certificates are and returned
+     * See [ContentAndSignature] for details about the content
+     * If all checks succeed, [trustList.content] is parsed as a [TrustListV2], and the certificates are and returned
      */
-    fun decode(input: ByteArray, optionalContent: ByteArray? = null): List<TrustedCertificate> {
-        val cose = CoseAdapter(input)
+    fun decode(trustList: ContentAndSignature): List<TrustedCertificate> {
+        val cose = CoseAdapter(trustList.signature)
+        val optionalContent = trustList.content
         val kid = cose.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
             ?: throw VerificationException(TRUST_LIST_SIGNATURE_INVALID, "KID not defined")
 
@@ -49,7 +44,7 @@ class TrustListDecodeService(
         val version = cose.getProtectedAttributeInt(CoseHeaderKeys.TRUSTLIST_VERSION.intVal)
         if (version == 1) {
             throw VerificationException(TRUST_SERVICE_ERROR, "Version 1")
-        } else if (version == 2 && optionalContent != null) {
+        } else if (version == 2) {
             val actualHash = Hash(optionalContent).calc()
 
             val map = cose.getContentMap()
