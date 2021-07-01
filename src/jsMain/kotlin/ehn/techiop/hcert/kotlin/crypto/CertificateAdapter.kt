@@ -78,7 +78,7 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
                     return (tav.value as PrintableString).valueBlock.value
             }
             val input = cert.subject.toString()
-            return Regex("C=[^,]*").find(input)?.value
+            return Regex("C=[^,]*").find(input)?.value?.replace("C=", "")
         }
 
     actual val publicKey: PubKey
