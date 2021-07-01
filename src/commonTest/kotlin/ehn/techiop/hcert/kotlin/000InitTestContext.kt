@@ -24,17 +24,14 @@ class A000InitTestContext : FunSpec({
     }
 
     withData(nameFn = { "prefill RandomCryptoService map for $it" }, ContentType.values().toList()) { ct ->
-
-
+        Napier.i(tag = "start", message = "Generating EC 256 key for $ct")
         CryptoServiceHolder.getRandomCryptoService(KeyType.EC, 256, ct)
+        Napier.i(tag = "start", message = "Generating EC 384 key for $ct")
         CryptoServiceHolder.getRandomCryptoService(KeyType.EC, 384, ct)
 
         Napier.i(tag = "start", message = "Generating RSA 2048 key for $ct")
         CryptoServiceHolder.getRandomCryptoService(KeyType.RSA, 2048, ct)
-        Napier.i(tag = "done", message = "Generating RSA 2048 key for $ct")
         Napier.i(tag = "start", message = "Generating RSA 3072 key for $ct")
         CryptoServiceHolder.getRandomCryptoService(KeyType.RSA, 3072, ct)
-        Napier.i(tag = "done", message = "Generating RSA 3072 key for $ct")
-
     }
 })
