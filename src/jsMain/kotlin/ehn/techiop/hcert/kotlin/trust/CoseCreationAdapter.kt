@@ -15,8 +15,6 @@ actual class CoseCreationAdapter actual constructor(private val content: ByteArr
 
     actual fun addProtectedAttribute(key: CoseHeaderKeys, value: Any) {
         val content = if (value is CwtAlgorithm) value.stringVal else value
-        //TODO Use CborMap
-        // val key = if (key == CoseHeaderKeys.TRUSTLIST_VERSION) key.intVal else key.stringVal
         protectedHeader.set(key.stringVal, content)
     }
 

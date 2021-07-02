@@ -30,7 +30,6 @@ class BusinessRulesDecodeService(
      */
     @Throws(VerificationException::class)
     fun decode(input: SignedData): Pair<SignedDataParsed, BusinessRulesContainer> {
-        // TODO Error codes
         val parsed = decodeService.decode(input, listOf(CoseHeaderKeys.BUSINESS_RULES_VERSION))
         when (parsed.headers[CoseHeaderKeys.BUSINESS_RULES_VERSION]) {
             1 -> return Pair(parsed, Cbor.decodeFromByteArray(parsed.content))

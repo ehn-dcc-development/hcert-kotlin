@@ -80,7 +80,8 @@ CertificateRepository trustAnchor = new PrefilledCertificateRepository(trustList
 byte[] trustListContent = new byte[0];
 // Download trust list signature, binary, e.g. from https://dgc.a-sit.at/ehn/cert/sigv2
 byte[] trustListSignature = new byte[0];
-CertificateRepository repository = new TrustListCertificateRepository(trustListSignature, trustListContent, trustAnchor);
+SignedData trustList = new SignedData(trustListContent, trustListSignature);
+CertificateRepository repository = new TrustListCertificateRepository(trustList, trustAnchor);
 Chain chain = DefaultChain.buildVerificationChain(repository);
 
 // Continue as in the example above ..
@@ -292,10 +293,10 @@ The field `error` in the resulting structure (`DecodeResult`) may contain the er
  - `QR_CODE_ERROR`: not used
  - `CERTIFICATE_QUERY_FAILED`: not used
  - `USER_CANCELLED`: not used
- - `TRUST_SERVICE_ERROR`: General error when loading Trust List
- - `TRUST_LIST_EXPIRED`: Trust List has expired
- - `TRUST_LIST_NOT_YET_VALID`: Trust List is not yet valid
- - `TRUST_LIST_SIGNATURE_INVALID`: Signature on trust list is not valid
+ - `TRUST_SERVICE_ERROR`: General error when loading Trust List or Business Rules
+ - `TRUST_LIST_EXPIRED`: Trust List (or Business Rules) has expired
+ - `TRUST_LIST_NOT_YET_VALID`: Trust List (or Business Rules) is not yet valid
+ - `TRUST_LIST_SIGNATURE_INVALID`: Signature on Trust List (or Business Rules) is not valid
  - `KEY_NOT_IN_TRUST_LIST`: Certificate with `KID` not found
  - `PUBLIC_KEY_EXPIRED`: Certificate used to sign the COSE structure has expired
  - `UNSUITABLE_PUBLIC_KEY_TYPE`: Certificate has not the correct extension for signing that content type, e.g. Vaccination entries
@@ -328,12 +329,61 @@ There is also an option to create (e.g. on a web service) a list of trusted cert
 String privateKeyPem = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADAN...";
 String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 CryptoService cryptoService = new FileBasedCryptoService(privateKeyPem, certificatePem);
-TrustListV2EncodeService trustListService = new TrustListV2EncodeService(cryptoService);
+Duration validity = Duration.hours(48);
+TrustListV2EncodeService trustListService = new TrustListV2EncodeService(cryptoService, validity);
 
 // Load the list of trusted certificates from somewhere ...
 Set<X509Certificate> trustedCerts = new HashSet<>(cert1, cert2, ...);
-byte[] trustListContent = trustListService.encodeContent(trustedCerts);
-byte[] trustListSignature = trustListService.encodeSignature(trustListContent);
+SignedData trustList = trustListService.encode(trustedCerts);
+// Write content file
+new FileOutputStream(new File("trustlist.bin")).write(trustList.getContent());
+// Write signature file
+new FileOutputStream(new File("trustlist.sig")).write(trustList.getSignature());
+```
+
+## Business Rules
+
+There is also an option to create (e.g. on a web service) a list of business rules, that may be used to further verify HCERTs:
+
+```Java
+// Load the private key and certificate from somewhere ...
+String privateKeyPem = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADAN...";
+String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
+CryptoService cryptoService = new FileBasedCryptoService(privateKeyPem, certificatePem);
+Duration validity = Duration.hours(48);
+BusinessRulesV1EncodeService rulesService = new BusinessRulesV1EncodeService(cryptoService, validity);
+
+// Load the list business rules
+List<String> inputStrings = new ArrayList<>();
+List<BusinessRule> input = inputStrings.stream().map(it -> new BusinessRule(it)).collect(Collectors.toList());
+SignedData rules = rulesService.encode(input);
+// Write content file
+new FileOutputStream(new File("rules.bin")).write(rules.getContent());
+// Write signature file
+new FileOutputStream(new File("rules.sig")).write(rules.getSignature());
+```
+
+Clients may load these files to get a list of trusted Business Rules:
+
+```Java
+// PEM-encoded signer certificate of the rules
+CertificateRepository trustAnchor = new PrefilledCertificateRepository("-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...");
+// Download rules content, binary, e.g. from https://dgc.a-sit.at/ehn/rules/v1/bin
+byte[] rulesContent = new byte[0];
+// Download rules signature, binary, e.g. from https://dgc.a-sit.at/ehn/rules/v1/sig
+byte[] rulesSignature = new byte[0];
+SignedData rules = new SignedData(rulesContent, rulesSignature);
+
+BusinessRulesDecodeService service = new BusinessRuleBusinessRulesDecodeService(trustAnchor);
+Pair<SignedDataParsed, BusinessRulesContainer> result = service.decode(rules);
+// Contains "validFrom", "validUntil"
+SignedDataParsed parsed = result.getFirst();
+// Contains a list of business rules as raw JSON
+BusinessRulesContainer rules = result.getSecond();
+for (BusinessRule rule : rules.getRules()) {
+    // Parse it into your own data class
+    System.out.println(rule.getRule());
+}
 ```
 
 ## Data Classes
@@ -442,6 +492,8 @@ See these links for details:
 
 Version 1.3.0:
  - Parse a missing `dr` value in HCERT Test entries correctly
+ - Add class `SignedData` to hold `content` and `signature` of a TrustList
+ - Add services to encode and decode Business Rules (also called Validation Rules)
 
 Version 1.2.0:
  - Split faulty implementations, sample data, to separate artifact: `ehn.techiop.hcert:hcert-kotlin-jvmdatagen`
