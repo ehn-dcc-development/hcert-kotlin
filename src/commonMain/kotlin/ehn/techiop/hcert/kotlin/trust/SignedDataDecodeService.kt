@@ -21,7 +21,6 @@ class SignedDataDecodeService constructor(
 
     @Throws(VerificationException::class)
     fun decode(input: SignedData, headersToParse: List<CoseHeaderKeys> = listOf()): SignedDataParsed {
-        // TODO Error Codes are for trust list
         val cose = CoseAdapter(input.signature)
         val kid = cose.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
             ?: throw VerificationException(Error.TRUST_LIST_SIGNATURE_INVALID, "KID not defined")
