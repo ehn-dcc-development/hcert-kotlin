@@ -1,7 +1,9 @@
-package ehn.techiop.hcert.kotlin.trust
+package ehn.techiop.hcert.kotlin.rules
 
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
+import ehn.techiop.hcert.kotlin.trust.SignedData
+import ehn.techiop.hcert.kotlin.trust.SignedDataEncodeService
 import kotlinx.datetime.Clock
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray

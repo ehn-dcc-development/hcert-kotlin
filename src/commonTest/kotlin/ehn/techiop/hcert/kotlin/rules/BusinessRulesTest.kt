@@ -1,15 +1,17 @@
-package ehn.techiop.hcert.kotlin.trust
+package ehn.techiop.hcert.kotlin.rules
 
 import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
+import ehn.techiop.hcert.kotlin.trust.SignedData
+import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 
-class BusinessRulesTest : io.kotest.core.spec.style.StringSpec({
+class BusinessRulesTest : StringSpec({
 
     "V1 Client-Server Exchange" {
         val cryptoService = RandomEcKeyCryptoService()
