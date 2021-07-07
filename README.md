@@ -408,10 +408,40 @@ dependencies {
 
 If you are planning to use this library, we'll suggest to fork it (internally), and review incoming changes. We can not guarantee non-breaking changes between releases.
 
+### Android
+
+If you plan to use this library on Android versions below 8, be sure to include the following snippet in your `build.gradle`:
+
+```
+android {
+    defaultConfig {
+        // Required when setting minSdkVersion to 20 or lower
+        multiDexEnabled true
+    }
+
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+}
+```
+
+See these links for details:
+ - [Issue 47: DateTime android](https://github.com/ehn-dcc-development/hcert-kotlin/issues/47)
+ - [Issue on kotlinx-datetime](https://github.com/Kotlin/kotlinx-datetime/issues/97)
+ - [Android documentation](https://developer.android.com/studio/write/java8-support#library-desugaring)
+
 ## Changelog
 
 Version 1.3.0:
- - tbd
+ - Parse a missing `dr` value in HCERT Test entries correctly
 
 Version 1.2.0:
  - Split faulty implementations, sample data, to separate artifact: `ehn.techiop.hcert:hcert-kotlin-jvmdatagen`
