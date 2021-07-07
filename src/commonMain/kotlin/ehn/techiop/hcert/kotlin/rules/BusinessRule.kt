@@ -8,6 +8,11 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class BusinessRule(
+
+    @SerialName("i")
+    val identifier: String,
+
     @SerialName("r")
     val rule: String
+
 )
