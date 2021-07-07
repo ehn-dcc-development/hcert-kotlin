@@ -10,9 +10,7 @@ import kotlinx.serialization.encoding.Encoder
 
 
 /**
- * Some countries encode Instants in a wrong format,
- * e.g. missing "Z" or the offset "+0200" instead of "+02:00",
- * so we'll try to work around those issues
+ * Tries to parse an [Instant], see [InstantParser.parseInstant]
  */
 object LenientInstantParser : KSerializer<Instant> {
 
@@ -20,10 +18,7 @@ object LenientInstantParser : KSerializer<Instant> {
         PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Instant {
-        val value = decoder.decodeString()
-        val fixOffset = value.replace(Regex("\\+(\\d{2})(\\d{2})")) { "+${it.groupValues[1]}:${it.groupValues[2]}" }
-        val fixZulu = if (fixOffset.contains('Z') || fixOffset.contains("+")) fixOffset else fixOffset + 'Z'
-        return Instant.parse(fixZulu)
+        return InstantParser.parseInstant(decoder.decodeString())
     }
 
     override fun serialize(encoder: Encoder, value: Instant) {
@@ -31,3 +26,45 @@ object LenientInstantParser : KSerializer<Instant> {
     }
 }
 
+
+/**
+ * Tries to parse an [Instant] that may be null, see [InstantParser.parseInstant]
+ */
+object LenientNullableInstantParser : KSerializer<Instant?> {
+
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("Instant?", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Instant? {
+        return try {
+            InstantParser.parseInstant(decoder.decodeString())
+        } catch (e: Throwable) {
+            null
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: Instant?) {
+        if (value != null) {
+            encoder.encodeString(value.toString())
+        } else {
+            encoder.encodeNull()
+        }
+    }
+
+}
+
+
+private object InstantParser {
+
+    /**
+     * Some countries encode Instants in a wrong format,
+     * e.g. missing "Z" or the offset "+0200" instead of "+02:00",
+     * so we'll try to work around those issues
+     */
+    fun parseInstant(value: String): Instant {
+        val fixOffset = value.replace(Regex("\\+(\\d{2})(\\d{2})")) { "+${it.groupValues[1]}:${it.groupValues[2]}" }
+        val fixZulu = if (fixOffset.contains('Z') || fixOffset.contains("+")) fixOffset else fixOffset + 'Z'
+        return Instant.parse(fixZulu)
+    }
+
+}

@@ -23,7 +23,7 @@ data class Test constructor(
     val dateTimeSample: Instant,
 
     @SerialName("dr")
-    @Serializable(with = LenientInstantParser::class)
+    @Serializable(with = LenientNullableInstantParser::class)
     val dateTimeResult: Instant? = null,
 
     @SerialName("tr")

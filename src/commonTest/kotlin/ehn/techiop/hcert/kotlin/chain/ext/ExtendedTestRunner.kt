@@ -198,9 +198,9 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         }
         case.expectedResult.compression?.let {
             withClue("ZLib Decompression") {
-                if (it) {
+                if (it && case.coseHex != null) {
                     chainResult.chainDecodeResult.step2Cose?.toHexString()
-                        ?.lowercase() shouldBe case.coseHex?.lowercase()
+                        ?.lowercase() shouldBe case.coseHex.lowercase()
                 }
                 if (!it) {
                     verificationResult.error shouldBe Error.DECOMPRESSION_FAILED
