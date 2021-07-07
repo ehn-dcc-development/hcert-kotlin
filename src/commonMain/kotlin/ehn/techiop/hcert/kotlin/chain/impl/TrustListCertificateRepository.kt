@@ -16,7 +16,7 @@ class TrustListCertificateRepository(
     clock: Clock = Clock.System,
 ) : CertificateRepository {
 
-    private val list = TrustListDecodeService(certificateRepository, clock).decode(trustList)
+    private val list = TrustListDecodeService(certificateRepository, clock).decode(trustList).second.certificates
 
     override fun loadTrustedCertificates(
         kid: ByteArray,

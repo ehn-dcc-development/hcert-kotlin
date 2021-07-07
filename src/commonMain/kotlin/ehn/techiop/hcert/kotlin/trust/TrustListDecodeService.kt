@@ -12,9 +12,9 @@ import kotlin.time.Duration
 /**
  * Decodes a [SignedData] blob, expected to contain the content and signature of a [TrustListV2]
  *
- * [repository] contains the trust anchor for the parsed file
- * [clock] defines the current time to use for validity checks
- * [clockSkew] defines the error margin when comparing time validity of the parsed file
+ * - [repository] contains the trust anchor for the parsed file
+ * - [clock] defines the current time to use for validity checks
+ * - [clockSkew] defines the error margin when comparing time validity of the parsed file
  */
 class TrustListDecodeService(
     repository: CertificateRepository,
@@ -29,11 +29,11 @@ class TrustListDecodeService(
      * If all checks succeed, [input.content] is parsed as a [TrustListV2], and the certificates are and returned
      */
     @Throws(VerificationException::class)
-    fun decode(input: SignedData): List<TrustedCertificate> {
+    fun decode(input: SignedData): Pair<SignedDataParsed, TrustListV2> {
         val parsed = decodeService.decode(input, listOf(CoseHeaderKeys.TRUSTLIST_VERSION))
         when (parsed.headers[CoseHeaderKeys.TRUSTLIST_VERSION]) {
             1 -> throw VerificationException(TRUST_SERVICE_ERROR, "Version 1")
-            2 -> return Cbor.decodeFromByteArray<TrustListV2>(parsed.content).certificates
+            2 -> return Pair(parsed, Cbor.decodeFromByteArray(parsed.content))
             else -> throw VerificationException(TRUST_SERVICE_ERROR, "Version unknown")
         }
     }

@@ -12,9 +12,9 @@ import kotlin.time.Duration
 /**
  * Decodes a [SignedData] blob, expected to contain the content and signature of a [BusinessRulesContainer]
  *
- * [repository] contains the trust anchor for the parsed file
- * [clock] defines the current time to use for validity checks
- * [clockSkew] defines the error margin when comparing time validity of the parsed file
+ * - [repository] contains the trust anchor for the parsed file
+ * - [clock] defines the current time to use for validity checks
+ * - [clockSkew] defines the error margin when comparing time validity of the parsed file
  */
 class BusinessRulesDecodeService(
     repository: CertificateRepository,

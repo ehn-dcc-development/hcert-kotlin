@@ -50,7 +50,7 @@ private fun verifyClientOperations(
     // might never happen on the client, that the trust list is loaded in this way
     val clientTrustRoot = PrefilledCertificateRepository(certificateBase64)
     val decodeService = TrustListDecodeService(clientTrustRoot, clock = clock)
-    val clientTrustList = decodeService.decode(trustList)
+    val clientTrustList = decodeService.decode(trustList).second.certificates
     // that's the way to go: Trust list used for verification of QR codes
     val clientTrustListAdapter = TrustListCertificateRepository(trustList, clientTrustRoot, clock)
 
