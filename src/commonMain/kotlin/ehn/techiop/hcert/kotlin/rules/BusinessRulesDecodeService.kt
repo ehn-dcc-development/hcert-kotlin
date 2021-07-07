@@ -1,9 +1,12 @@
-package ehn.techiop.hcert.kotlin.trust
+package ehn.techiop.hcert.kotlin.rules
 
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.Error.TRUST_SERVICE_ERROR
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
+import ehn.techiop.hcert.kotlin.trust.SignedData
+import ehn.techiop.hcert.kotlin.trust.SignedDataDecodeService
+import ehn.techiop.hcert.kotlin.trust.SignedDataParsed
 import kotlinx.datetime.Clock
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray

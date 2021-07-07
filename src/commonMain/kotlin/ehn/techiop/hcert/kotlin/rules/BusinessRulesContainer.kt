@@ -1,4 +1,4 @@
-package ehn.techiop.hcert.kotlin.trust
+package ehn.techiop.hcert.kotlin.rules
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
