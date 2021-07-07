@@ -409,6 +409,51 @@ for (BusinessRule rule : rules.getRules()) {
 }
 ```
 
+## Value Sets
+
+There is also an option to create (e.g. on a web service) a list of value sets, that may be used to enrich data in HCERTs:
+
+```Java
+// Load the private key and certificate from somewhere ...
+String privateKeyPem = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADAN...";
+String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
+CryptoService cryptoService = new FileBasedCryptoService(privateKeyPem, certificatePem);
+Duration validity = Duration.hours(48);
+ValueSetV1EncodeService valueSetService = new ValueSetV1EncodeService(cryptoService, validity);
+
+// Load the list value sets
+List<String> inputStrings = new ArrayList<>();
+List<ValueSet> input = inputStrings.stream().map(it -> new ValueSet(it)).collect(Collectors.toList());
+SignedData valueSet = valueSetService.encode(input);
+// Write content file
+new FileOutputStream(new File("valueSet.bin")).write(valueSet.getContent());
+// Write signature file
+new FileOutputStream(new File("valueSet.sig")).write(valueSet.getSignature());
+```
+
+Clients may load these files to get a list of trusted Business Rules plus meta information:
+
+```Java
+// PEM-encoded signer certificate of the valueSet
+CertificateRepository trustAnchor = new PrefilledCertificateRepository("-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...");
+// Download valueSet content, binary, e.g. from https://dgc.a-sit.at/ehn/valueSet/v1/bin
+byte[] valueSetContent = new byte[0];
+// Download valueSet signature, binary, e.g. from https://dgc.a-sit.at/ehn/valueSet/v1/sig
+byte[] valueSetSignature = new byte[0];
+SignedData valueSet = new SignedData(valueSetContent, valueSetSignature);
+
+ValueSetDecodeService service = new ValueSetDecodeService(trustAnchor);
+Pair<SignedDataParsed, ValueSetContainer> result = service.decode(valueSet);
+// Contains "validFrom", "validUntil"
+SignedDataParsed parsed = result.getFirst();
+// Contains a list of value sets as raw JSON
+ValueSetContainer valueSet = result.getSecond();
+for (ValueSet vs : valueSet.getValueSet()) {
+    // Parse it into your own data class
+    System.out.println(vs.getValueSet());
+}
+```
+
 ## Data Classes
 
 Classes in `ehn.techiop.hcert.kotlin.data` provide Kotlin data classes that conform to the JSON schema. They can be de-/serialized with [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), i.e. `Cbor.encodeToByteArray()` or `Cbor.decodeFromByteArray<GreenCertificate>()`.
@@ -517,6 +562,7 @@ Version 1.3.0:
  - Parse a missing `dr` value in HCERT Test entries correctly
  - Add class `SignedData` to hold `content` and `signature` of a TrustList
  - Add services to encode and decode Business Rules (also called Validation Rules)
+ - Add services to encode and decode Vaule Sets
 
 Version 1.2.0:
  - Split faulty implementations, sample data, to separate artifact: `ehn.techiop.hcert:hcert-kotlin-jvmdatagen`

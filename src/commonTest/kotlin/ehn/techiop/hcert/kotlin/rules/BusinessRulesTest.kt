@@ -17,9 +17,51 @@ class BusinessRulesTest : StringSpec({
         val cryptoService = RandomEcKeyCryptoService()
         val certificate = cryptoService.getCertificate().encoded.asBase64()
         val encodeService = BusinessRulesV1EncodeService(cryptoService)
-        val ruleJson =
-            "{\"Identifier\":\"GR-AT-0000\",\"Type\":\"Acceptance\",\"Country\":\"AT\",\"Region\":\"AT\",\"Version\":\"1.0.0\",\"SchemaVersion\":\"1.0.0\",\"Engine\":\"CERTLOGIC\",\"EngineVersion\":\"0.7.5\",\"CertificateType\":\"General\",\"Description\":[{\"lang\":\"en\",\"desc\":\"Exactly one type of event.\"}],\"ValidFrom\":\"2021-07-05T00:00:00Z\",\"ValidTo\":\"2030-06-01T00:00:00Z\",\"AffectedFields\":[\"r\",\"t\",\"v\"],\"Logic\":{\"===\":[{\"reduce\":[[{\"var\":\"payload.r\"},{\"var\":\"payload.t\"},{\"var\":\"payload.v\"}],{\"+\":[{\"var\":\"accumulator\"},{\"if\":[{\"var\":\"current.0\"},1,0]}]},0]},1]}}"
-        val signedData = encodeService.encode(listOf(BusinessRule(ruleJson)))
+        val ruleJson = """
+            {
+              "Identifier": "GR-DX-0001",
+              "Type": "Acceptance",
+              "Country": "DX",
+              "Version": "1.0.0",
+              "SchemaVersion": "1.0.0",
+              "Engine": "CERTLOGIC",
+              "EngineVersion": "2.0.1",
+              "CertificateType": "General",
+              "Description": [
+                {
+                  "lang": "en",
+                  "desc": "api-test-rule for use in api test"
+                }
+              ],
+              "ValidFrom": "2021-07-01T09:38:09+02:00",
+              "ValidTo": "2021-07-06T09:38:09+02:00",
+              "AffectedFields": [
+                "dt",
+                "nm"
+              ],
+              "Logic": {
+                "and": [
+                  {
+                    ">=": [
+                      {
+                        "var": "dt"
+                      },
+                      "23.12.2012"
+                    ]
+                  },
+                  {
+                    ">=": [
+                      {
+                        "var": "nm"
+                      },
+                      "ABC"
+                    ]
+                  }
+                ]
+              }
+            }
+        """.trimIndent()
+        val signedData = encodeService.encode(listOf(BusinessRule("GR-DX-0001", ruleJson)))
 
         verifyClientOperations(certificate, signedData, ruleJson)
     }
