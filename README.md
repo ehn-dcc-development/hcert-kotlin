@@ -341,6 +341,29 @@ new FileOutputStream(new File("trustlist.bin")).write(trustList.getContent());
 new FileOutputStream(new File("trustlist.sig")).write(trustList.getSignature());
 ```
 
+Clients may load these files to get the Trusted Certificates plus meta information:
+
+```Java
+// PEM-encoded signer certificate of the trustList
+CertificateRepository trustAnchor = new PrefilledCertificateRepository("-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...");
+// Download trust list content, binary, e.g. from https://dgc.a-sit.at/ehn/cert/listv2
+byte[] trustListContent = new byte[0];
+// Download trust list signature, binary, e.g. from https://dgc.a-sit.at/ehn/cert/listv2
+byte[] trustListSignature = new byte[0];
+SignedData trustList = new SignedData(trustListContent, trustListSignature);
+
+TrustListDecodeService service = new TrustListDecodeService(trustAnchor);
+Pair<SignedDataParsed, TrustListV2> result = service.decode(trustList);
+// Contains "validFrom", "validUntil"
+SignedDataParsed parsed = result.getFirst();
+// Contains a list of certificates in X.509 encoding
+TrustListV2 trustListContainer = result.getSecond();
+for (TrustedCertificateV2 cert : trustListContainer.getCertificates()) {
+    // Parse it into your own data class
+    System.out.println(cert.getCertificate().asBase64();
+}
+```
+
 ## Business Rules
 
 There is also an option to create (e.g. on a web service) a list of business rules, that may be used to further verify HCERTs:
@@ -363,7 +386,7 @@ new FileOutputStream(new File("rules.bin")).write(rules.getContent());
 new FileOutputStream(new File("rules.sig")).write(rules.getSignature());
 ```
 
-Clients may load these files to get a list of trusted Business Rules:
+Clients may load these files to get a list of trusted Business Rules plus meta information:
 
 ```Java
 // PEM-encoded signer certificate of the rules

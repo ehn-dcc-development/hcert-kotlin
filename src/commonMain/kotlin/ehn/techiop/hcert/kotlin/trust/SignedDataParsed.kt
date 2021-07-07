@@ -3,6 +3,9 @@ package ehn.techiop.hcert.kotlin.trust
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import kotlinx.datetime.Instant
 
+/**
+ * Information parsed from [SignedData]
+ */
 data class SignedDataParsed(
     val validFrom: Instant,
     val validUntil: Instant,
