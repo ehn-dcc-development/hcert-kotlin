@@ -5,6 +5,7 @@ import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.data.RecoveryStatement
 import ehn.techiop.hcert.kotlin.data.Test
 import ehn.techiop.hcert.kotlin.data.Vaccination
+import ehn.techiop.hcert.kotlin.trust.SignedDataParsed
 import kotlinx.serialization.Serializable
 import kotlin.js.Date
 
@@ -71,6 +72,12 @@ private fun GreenCertificate.replaceDatesWithJsTypes() {
     tests?.filterNotNull()?.forEach { it.replaceDatesWithJsTypes() }
     recoveryStatements?.filterNotNull()?.forEach { it.replaceDatesWithJsTypes() }
     vaccinations?.filterNotNull()?.forEach { it.replaceDatesWithJsTypes() }
+}
+
+
+fun SignedDataParsed.replaceDatesWithJsTypes() {
+    replaceDatesWithJsTypes("validFrom")
+    replaceDatesWithJsTypes("validUntil")
 }
 
 

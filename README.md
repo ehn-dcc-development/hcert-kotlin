@@ -348,7 +348,7 @@ Clients may load these files to get the Trusted Certificates plus meta informati
 CertificateRepository trustAnchor = new PrefilledCertificateRepository("-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...");
 // Download trust list content, binary, e.g. from https://dgc.a-sit.at/ehn/cert/listv2
 byte[] trustListContent = new byte[0];
-// Download trust list signature, binary, e.g. from https://dgc.a-sit.at/ehn/cert/listv2
+// Download trust list signature, binary, e.g. from https://dgc.a-sit.at/ehn/cert/sigv2
 byte[] trustListSignature = new byte[0];
 SignedData trustList = new SignedData(trustListContent, trustListSignature);
 
@@ -362,6 +362,23 @@ for (TrustedCertificateV2 cert : trustListContainer.getCertificates()) {
     // Parse it into your own data class
     System.out.println(cert.getCertificate().asBase64();
 }
+```
+
+or in JavaScript:
+
+```JavaScript
+// PEM-encoded signer certificate of the trust list
+let trustListAnchor = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
+// Download trust list content, binary, e.g. from https://dgc.a-sit.at/ehn/cert/listv2
+let trustListContent = new ArrayBuffer(8);
+// Download trust list signature, binary,, e.g. from https://dgc.a-sit.at/ehn/cert/sigv2
+let trustListSignature = new ArrayBuffer(8);
+
+let result = hcert.SignedDataDownloader.loadTrustList(trustListAnchor, trustListContent, trustListSignature);
+// Contains "validFrom" and "validUntil" as JS Dates
+console.log(result.first);
+// Contains an array of "certificates", each with "kid" and "certificate" as Int8Array
+console.log(result.second);
 ```
 
 ## Business Rules
@@ -409,6 +426,23 @@ for (BusinessRule rule : rules.getRules()) {
 }
 ```
 
+or in JavaScript:
+
+```JavaScript
+// PEM-encoded signer certificate of the rules
+let rulesAnchor = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
+// Download rules content, binary, e.g. from https://dgc.a-sit.at/ehn/rules/v1/bin
+let rulesContent = new ArrayBuffer(8);
+// Download rules signature, binary,, e.g. from https://dgc.a-sit.at/ehn/rules/v1/sig
+let rulesSignature = new ArrayBuffer(8);
+
+let result = hcert.SignedDataDownloader.loadBusinessRules(rulesAnchor, rulesContent, rulesSignature);
+// Contains "validFrom" and "validUntil" as JS Dates
+console.log(result.first);
+// Contains an array of "rules", each with a "identifier" and "rule" (raw JSON string)
+console.log(result.second);
+```
+
 ## Value Sets
 
 There is also an option to create (e.g. on a web service) a list of value sets, that may be used to enrich data in HCERTs:
@@ -431,14 +465,14 @@ new FileOutputStream(new File("valueSet.bin")).write(valueSet.getContent());
 new FileOutputStream(new File("valueSet.sig")).write(valueSet.getSignature());
 ```
 
-Clients may load these files to get a list of trusted Business Rules plus meta information:
+Clients may load these files to get a list of trusted Value Sets plus meta information:
 
 ```Java
 // PEM-encoded signer certificate of the valueSet
 CertificateRepository trustAnchor = new PrefilledCertificateRepository("-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...");
-// Download valueSet content, binary, e.g. from https://dgc.a-sit.at/ehn/valueSet/v1/bin
+// Download valueSet content, binary, e.g. from https://dgc.a-sit.at/ehn/values/v1/bin
 byte[] valueSetContent = new byte[0];
-// Download valueSet signature, binary, e.g. from https://dgc.a-sit.at/ehn/valueSet/v1/sig
+// Download valueSet signature, binary, e.g. from https://dgc.a-sit.at/ehn/values/v1/sig
 byte[] valueSetSignature = new byte[0];
 SignedData valueSet = new SignedData(valueSetContent, valueSetSignature);
 
@@ -452,6 +486,23 @@ for (ValueSet vs : valueSet.getValueSet()) {
     // Parse it into your own data class
     System.out.println(vs.getValueSet());
 }
+```
+
+or in JavaScript:
+
+```JavaScript
+// PEM-encoded signer certificate of the rules
+let vaulesAnchor = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
+// Download values content, binary, e.g. from https://dgc.a-sit.at/ehn/values/v1/bin
+let valuesContent = new ArrayBuffer(8);
+// Download values signature, binary,, e.g. from https://dgc.a-sit.at/ehn/values/v1/sig
+let valuesSignature = new ArrayBuffer(8);
+
+let result = hcert.SignedDataDownloader.loadBusinessValues(valuesAnchor, valuesContent, valuesSignature);
+// Contains "validFrom" and "validUntil" as JS Dates
+console.log(result.first);
+// Contains an array of "valueSets", each with a "name" and "valueSet" (raw JSON string)
+console.log(result.second);
 ```
 
 ## Data Classes

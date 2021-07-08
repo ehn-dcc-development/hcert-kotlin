@@ -1,11 +1,29 @@
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.Chain
+import ehn.techiop.hcert.kotlin.chain.CryptoService
+import ehn.techiop.hcert.kotlin.chain.DecodeResultJs
+import ehn.techiop.hcert.kotlin.chain.DefaultChain
+import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
-import ehn.techiop.hcert.kotlin.chain.impl.*
+import ehn.techiop.hcert.kotlin.chain.VerificationException
+import ehn.techiop.hcert.kotlin.chain.VerificationResultJs
+import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.from
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultTwoDimCodeService
+import ehn.techiop.hcert.kotlin.chain.impl.FileBasedCryptoService
+import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
+import ehn.techiop.hcert.kotlin.chain.impl.TrustListCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.replaceDatesWithJsTypes
+import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.log.BasicLogger
 import ehn.techiop.hcert.kotlin.log.JsLogger
-import io.github.aakira.napier.Antilog
+import ehn.techiop.hcert.kotlin.rules.BusinessRulesDecodeService
 import ehn.techiop.hcert.kotlin.trust.SignedData
+import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
+import ehn.techiop.hcert.kotlin.valueset.ValueSetDecodeService
+import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -134,6 +152,52 @@ class Generator {
         val encode = DefaultTwoDimCodeService(moduleSize, marginSize).encode(encodeResult.step5Prefixed)
         return "data:image/gif;base64,${encode.asBase64()}"
     }
+}
+
+@Suppress("NON_EXPORTABLE_TYPE")
+@JsExport
+@JsName("SignedDataDownloader")
+object SignedDataDownloader {
+
+    @JsName("loadTrustList")
+    fun loadTrustList(rootPem: String, content: ArrayBuffer, signature: ArrayBuffer) = jsTry {
+        val root = PrefilledCertificateRepository(rootPem)
+        val contentAndSig = SignedData(content.toByteArray(), signature.toByteArray())
+        TrustListDecodeService(root).decode(contentAndSig).also {
+            it.first.replaceDatesWithJsTypes()
+        }
+    }.catch {
+        if (it is VerificationException)
+            throw it
+        throw VerificationException(Error.TRUST_SERVICE_ERROR, it.message, it)
+    }
+
+    @JsName("loadBusinessRules")
+    fun loadBusinessRules(rootPem: String, content: ArrayBuffer, signature: ArrayBuffer) = jsTry {
+        val root = PrefilledCertificateRepository(rootPem)
+        val contentAndSig = SignedData(content.toByteArray(), signature.toByteArray())
+        BusinessRulesDecodeService(root).decode(contentAndSig).also {
+            it.first.replaceDatesWithJsTypes()
+        }
+    }.catch {
+        if (it is VerificationException)
+            throw it
+        throw VerificationException(Error.TRUST_SERVICE_ERROR, it.message, it)
+    }
+
+    @JsName("loadValueSets")
+    fun loadValueSets(rootPem: String, content: ArrayBuffer, signature: ArrayBuffer) = jsTry {
+        val root = PrefilledCertificateRepository(rootPem)
+        val contentAndSig = SignedData(content.toByteArray(), signature.toByteArray())
+        ValueSetDecodeService(root).decode(contentAndSig).also {
+            it.first.replaceDatesWithJsTypes()
+        }
+    }.catch {
+        if (it is VerificationException)
+            throw it
+        throw VerificationException(Error.TRUST_SERVICE_ERROR, it.message, it)
+    }
+
 }
 
 /**

@@ -25,7 +25,7 @@ class ValueSetV1EncodeService constructor(
      * Content is a CBOR encoded [ValueSetContainer] object, i.e. a list of value sets
      */
     private fun encodeContent(input: List<ValueSet>): ByteArray {
-        val content = ValueSetContainer(input)
+        val content = ValueSetContainer(input.toTypedArray())
         return Cbor.encodeToByteArray(content)
     }
 

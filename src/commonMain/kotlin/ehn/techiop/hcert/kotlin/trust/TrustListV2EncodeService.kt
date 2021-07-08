@@ -26,7 +26,7 @@ class TrustListV2EncodeService constructor(
      */
     private fun encodeContent(input: Set<CertificateAdapter>): ByteArray {
         val content = TrustListV2(
-            certificates = input.map { it.toTrustedCertificate() }
+            certificates = input.map { it.toTrustedCertificate() }.toTypedArray()
         )
         return Cbor.encodeToByteArray(content)
     }

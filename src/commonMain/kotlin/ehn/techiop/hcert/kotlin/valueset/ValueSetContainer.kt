@@ -11,6 +11,21 @@ import kotlinx.serialization.Serializable
 data class ValueSetContainer(
 
     @SerialName("v")
-    val valueSets: List<ValueSet>
+    val valueSets: Array<ValueSet>
 
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ValueSetContainer
+
+        if (!valueSets.contentEquals(other.valueSets)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return valueSets.contentHashCode()
+    }
+}
