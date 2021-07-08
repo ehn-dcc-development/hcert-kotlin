@@ -25,7 +25,7 @@ class BusinessRulesV1EncodeService constructor(
      * Content is a CBOR encoded [BusinessRulesContainer] object, i.e. a list of business rules
      */
     private fun encodeContent(input: List<BusinessRule>): ByteArray {
-        val content = BusinessRulesContainer(input)
+        val content = BusinessRulesContainer(input.toTypedArray())
         return Cbor.encodeToByteArray(content)
     }
 

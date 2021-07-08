@@ -12,6 +12,21 @@ import kotlinx.serialization.Serializable
 data class TrustListV2(
 
     @SerialName("c")
-    val certificates: List<TrustedCertificateV2>
+    val certificates: Array<TrustedCertificateV2>
 
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as TrustListV2
+
+        if (!certificates.contentEquals(other.certificates)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return certificates.contentHashCode()
+    }
+}
