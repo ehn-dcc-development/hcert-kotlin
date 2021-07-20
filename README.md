@@ -598,6 +598,8 @@ android {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    // may be needed to make desugaring work in release builds too
+    implementation 'org.jetbrains.kotlinx:kotlinx-datetime:0.2.1'
 }
 ```
 
