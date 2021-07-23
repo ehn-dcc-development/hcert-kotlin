@@ -23,7 +23,11 @@ class SignedDataDecodeService constructor(
     fun decode(input: SignedData, headersToParse: List<CoseHeaderKeys> = listOf()): SignedDataParsed {
         val cose = CoseAdapter(input.signature)
         val kid = cose.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
-            ?: throw VerificationException(Error.TRUST_LIST_SIGNATURE_INVALID, "KID not defined")
+            ?: throw VerificationException(
+                Error.TRUST_LIST_SIGNATURE_INVALID,
+                "KID not defined",
+                details = mapOf("kid" to "null")
+            )
 
         val validated = cose.validate(kid, repository)
         if (!validated)
@@ -38,18 +42,32 @@ class SignedDataDecodeService constructor(
             throw VerificationException(Error.TRUST_LIST_SIGNATURE_INVALID, "Hash not matching")
 
         val notBefore = map.getNumber(CwtHeaderKeys.NOT_BEFORE.intVal)
-            ?: throw VerificationException(Error.TRUST_LIST_NOT_YET_VALID, "NotBefore=null")
+            ?: throw VerificationException(
+                Error.TRUST_LIST_NOT_YET_VALID,
+                "NotBefore=null",
+                details = mapOf("validFrom" to "null")
+            )
 
         val validFrom = Instant.fromEpochSeconds(notBefore.toLong())
         if (validFrom > clock.now().plus(clockSkew))
-            throw VerificationException(Error.TRUST_LIST_NOT_YET_VALID, "NotBefore>clock.now()")
+            throw VerificationException(
+                Error.TRUST_LIST_NOT_YET_VALID,
+                "NotBefore>clock.now()",
+                details = mapOf("validFrom" to validFrom.toString(), "currentTime" to clock.now().toString())
+            )
 
         val expiration = map.getNumber(CwtHeaderKeys.EXPIRATION.intVal)
-            ?: throw VerificationException(Error.TRUST_LIST_EXPIRED, "Expiration=null")
+            ?: throw VerificationException(
+                Error.TRUST_LIST_EXPIRED, "Expiration=null",
+                details = mapOf("expirationTime" to "null")
+            )
 
         val validUntil = Instant.fromEpochSeconds(expiration.toLong())
         if (validUntil < clock.now().minus(clockSkew))
-            throw VerificationException(Error.TRUST_LIST_EXPIRED, "Expiration<clock.now()")
+            throw VerificationException(
+                Error.TRUST_LIST_EXPIRED, "Expiration<clock.now()",
+                details = mapOf("expirationTime" to validUntil.toString(), "currentTime" to clock.now().toString())
+            )
 
         return SignedDataParsed(validFrom, validUntil, input.content, headers)
     }

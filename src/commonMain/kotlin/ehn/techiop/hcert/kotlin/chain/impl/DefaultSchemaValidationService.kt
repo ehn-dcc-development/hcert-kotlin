@@ -19,24 +19,28 @@ class DefaultSchemaValidationService(private val useFallback: Boolean = true) : 
 
         val versionString = cbor.getVersionString() ?: throw VerificationException(
             Error.CBOR_DESERIALIZATION_FAILED,
-            "No schema version specified"
+            "No schema version specified",
+            details = mapOf("schemaVersion" to "null")
         )
         if (!adapter.hasValidator(versionString)) throw VerificationException(
             Error.SCHEMA_VALIDATION_FAILED,
-            "Schema version $versionString is not supported"
+            "Schema version $versionString is not supported",
+            details = mapOf("schemaVersion" to versionString)
         )
 
         if (useFallback) {
             val fallbackErrors = adapter.validateWithFallback()
             if (fallbackErrors.isNotEmpty()) throw VerificationException(
                 Error.SCHEMA_VALIDATION_FAILED,
-                "Data does not follow fallback schema: $fallbackErrors}"
+                "Data does not follow fallback schema: $fallbackErrors}",
+                details = mapOf("schemaErrors" to fallbackErrors.joinToString())
             )
         } else {
             val errors = adapter.validateBasic(versionString)
             if (errors.isNotEmpty()) throw VerificationException(
                 Error.SCHEMA_VALIDATION_FAILED,
-                "Data does not follow fallback schema: $errors}"
+                "Data does not follow fallback schema: $errors}",
+                details = mapOf("schemaErrors" to errors.joinToString())
             )
         }
 

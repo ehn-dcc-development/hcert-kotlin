@@ -38,10 +38,12 @@ private val defaultLogger = BasicLogger()
 
 @JsExport
 @JsName("addLogger")
+@Suppress("NON_EXPORTABLE_TYPE")
 fun addLogger(logger: Antilog) = Napier.base(logger)
 
 @JsExport
 @JsName("removeLogger")
+@Suppress("NON_EXPORTABLE_TYPE")
 fun removeLogger(logger: Antilog) = Napier.takeLogarithm(logger)
 
 @JsExport

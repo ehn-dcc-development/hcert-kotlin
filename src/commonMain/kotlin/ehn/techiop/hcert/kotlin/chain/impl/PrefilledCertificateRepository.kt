@@ -2,6 +2,7 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
@@ -28,7 +29,11 @@ class PrefilledCertificateRepository : CertificateRepository {
     ): List<CertificateAdapter> {
         val certList = list.filter { it.kid contentEquals kid }
         if (certList.isEmpty())
-            throw VerificationException(Error.KEY_NOT_IN_TRUST_LIST, "kid not found")
+            throw VerificationException(
+                Error.KEY_NOT_IN_TRUST_LIST,
+                "kid not found",
+                details = mapOf("hexEncodedKid" to kid.toHexString())
+            )
 
         return certList
     }
