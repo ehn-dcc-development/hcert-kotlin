@@ -115,7 +115,7 @@ external interface EncoderOptions {
         set(value) = definedExternally
 }
 
-external open class Encoder(options: EncoderOptions = definedExternally) {
+open external class Encoder(options: EncoderOptions = definedExternally) {
     open fun <T> addSemanticType(
         type: Any,
         encodeFunction: (encoder: Encoder, t: T) -> Boolean
@@ -135,7 +135,7 @@ external open class Encoder(options: EncoderOptions = definedExternally) {
     }
 }
 
-external open class Simple(value: Number) {
+open external class Simple(value: Number) {
     override fun toString(): String
     open fun encodeCBOR(gen: Encoder): Boolean
 
@@ -164,7 +164,7 @@ external interface CommentOptions {
         set(value) = definedExternally
 }
 
-external open class Commented(options: CommentedOptions = definedExternally) {
+open external class Commented(options: CommentedOptions = definedExternally) {
     companion object {
         fun comment(input: String, cb: (error: Error, commented: String) -> Unit)
         fun comment(input: Buffer, cb: (error: Error, commented: String) -> Unit)
@@ -184,7 +184,7 @@ external open class Commented(options: CommentedOptions = definedExternally) {
     }
 }
 
-external open class Tagged(tag: Number, value: Any = definedExternally, err: Error = definedExternally) {
+open external class Tagged(tag: Number, value: Any = definedExternally, err: Error = definedExternally) {
     override fun toString(): String
     open fun encodeCBOR(gen: Encoder): Boolean
     open fun convert(converters: `T$1` = definedExternally): Any
@@ -203,7 +203,7 @@ external interface DiagnoseOptions {
         set(value) = definedExternally
 }
 
-external open class Diagnose(options: DiagnoseOptions = definedExternally) {
+open external class Diagnose(options: DiagnoseOptions = definedExternally) {
     companion object {
         fun diagnose(input: String, encoding: String = definedExternally): Promise<String>
         fun diagnose(input: Buffer, encoding: String = definedExternally): Promise<String>

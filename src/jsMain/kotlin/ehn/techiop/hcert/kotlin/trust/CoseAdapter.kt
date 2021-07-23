@@ -1,10 +1,11 @@
 package ehn.techiop.hcert.kotlin.trust
 
 import Buffer
+import Cbor.Wrappers.decodeAll
+import Cbor.Wrappers.decodeFirst
 import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
-import ehn.techiop.hcert.kotlin.chain.impl.CborHelper
 import ehn.techiop.hcert.kotlin.crypto.Cose
 import io.github.aakira.napier.Napier
 import org.khronos.webgl.Uint8Array
@@ -40,8 +41,16 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
         private fun parse(input: ByteArray) =
             jsTry {
                 Napier.d(tag = debugTag, message = "CBOR-decoding input")
-                val cborJson = CborHelper.decodeAll(augmentedInput(input))
-                Napier.v(tag = debugTag, message = "CBOR-decoded input is\n${JSON.stringify(cborJson, null, 2)}")
+                val cborJson = decodeAll(augmentedInput(input))
+                Napier.v(
+                    tag = debugTag, message = "CBOR-decoded input is\n${
+                        JSON.stringify(cborJson, { k, v ->
+                            if ("data" == k && v is Array<*>) Uint8Array(v.unsafeCast<Array<Byte>>()).toByteArray()
+                                .toHexString()
+                            else v
+                        }, 2)
+                    }"
+                )
                 Napier.d(tag = debugTag, message = "extracting tagged element")
                 val cose = cborJson[0] as Cbor.Tagged
 
@@ -50,13 +59,19 @@ actual class CoseAdapter actual constructor(private val input: ByteArray) {
                 val protectedHeader = coseValue[0]
 
                 Napier.d(tag = debugTag, message = "decoding protected header")
-                val protectedHeaderCbor = CborHelper.decodeFirst(protectedHeader)
+                val protectedHeaderCbor = decodeFirst(protectedHeader)
                 Napier.d(
                     tag = debugTag,
-                    message = "decoded protected header is\n${JSON.stringify(protectedHeaderCbor, null, 2)}"
+                    message = "decoded protected header is\n${
+                        JSON.stringify(protectedHeaderCbor, { k, v ->
+                            if ("data" == k && v is Array<*>) Uint8Array(v.unsafeCast<Array<Byte>>()).toByteArray()
+                                .toHexString()
+                            else v
+                        }, 2)
+                    }"
                 )
                 Napier.d(tag = debugTag, message = "extracting unprotected header")
-                val unprotectedHeader = coseValue[1].asDynamic()
+                val unprotectedHeader = coseValue[1]
                 val content = coseValue[2]
                 val signature = coseValue[3]
                 InitHelper(

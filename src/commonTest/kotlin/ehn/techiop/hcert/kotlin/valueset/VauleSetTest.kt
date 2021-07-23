@@ -4,6 +4,7 @@ import ehn.techiop.hcert.kotlin.chain.asBase64
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
 import ehn.techiop.hcert.kotlin.trust.SignedData
+import ehn.techiop.hcert.kotlin.trust.content
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeLessThanOrEqual

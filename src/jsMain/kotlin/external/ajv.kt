@@ -17,11 +17,11 @@ open external class AJV {
 
 @JsNonModule
 @JsModule("ajv/dist/2019")
-external class AJV2019 : AJV {}
+external class AJV2019 : AJV
 
 @JsNonModule
 @JsModule("ajv/dist/2020")
-external class AJV2020 : AJV {}
+external class AJV2020 : AJV
 
 @JsNonModule
 @JsModule("ajv-formats")

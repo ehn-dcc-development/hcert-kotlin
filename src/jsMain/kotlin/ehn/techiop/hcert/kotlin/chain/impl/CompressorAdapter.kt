@@ -20,7 +20,7 @@ actual class CompressorAdapter {
         Napier.v("Deflating ${input.size.formatMag()}B input using compression level $level", tag = tag)
         val compressed = (deflate(input.toUint8Array(),
             object : DeflateFunctionOptions {
-                override var level: dynamic = level
+                override var level = level
             }) as Uint8Array).toByteArray()
         Napier.v("... was deflated to ${compressed.size.formatMag()}B", tag = tag)
         return compressed

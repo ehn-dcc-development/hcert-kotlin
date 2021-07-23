@@ -58,7 +58,7 @@ external interface Signer {
     val key: CosePrivateKey
 }
 
-external open class sign {
+open external class sign {
     companion object {
         fun verifySync(message: Buffer, verifier: Verifier): Buffer
         fun createSync(headers: dynamic, data: Buffer, signer: Signer): Buffer
