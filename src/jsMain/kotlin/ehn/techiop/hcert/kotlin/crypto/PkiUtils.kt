@@ -93,7 +93,7 @@ actual object PkiUtils {
 
         Napier.v(
             tag = logTag,
-            message = "Setting algorithmIdentifier to $algorithmIdentifier ((privateKey is EcPrivKey) = ${privateKey is JsEcPrivKey})"
+            message = "Setting algorithmIdentifier to ${algorithmIdentifier.algorithmId} ((privateKey is EcPrivKey) = ${privateKey is JsEcPrivKey})"
         )
         certificate.signature = algorithmIdentifier
         certificate.signatureAlgorithm = algorithmIdentifier

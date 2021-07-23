@@ -44,7 +44,6 @@ data class DecodeResultJs(
             val timestamp = asDynamic[propertyName] as? Any? //not useless at all!
             (timestamp)?.let { asDynamic[propertyName] = it.toJsDate() }
         }
-
     }
 }
 

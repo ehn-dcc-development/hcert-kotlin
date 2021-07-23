@@ -13,25 +13,7 @@ import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
  * - [CwtHeaderKeys.EXPIRATION]: seconds since UNIX epoch
  * - [CwtHeaderKeys.SUBJECT]: the SHA-256 hash of the content file
  */
-data class SignedData(
-    val content: ByteArray,
-    val signature: ByteArray
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
+typealias SignedData = Pair<ByteArray,ByteArray>
+val SignedData.content: ByteArray get() = this.first
+val SignedData.signature: ByteArray get() = this.second
 
-        other as SignedData
-
-        if (!content.contentEquals(other.content)) return false
-        if (!signature.contentEquals(other.signature)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = content.contentHashCode()
-        result = 31 * result + signature.contentHashCode()
-        return result
-    }
-}

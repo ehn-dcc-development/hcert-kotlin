@@ -1,15 +1,15 @@
 package ehn.techiop.hcert.kotlin.trust
 
+import Cbor.Wrappers.decodeFirst
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
-import ehn.techiop.hcert.kotlin.chain.impl.CborHelper
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.data.CborObject
 import org.khronos.webgl.Uint8Array
 
 actual object CwtHelper {
     actual fun fromCbor(input: ByteArray): CwtAdapter =
-        JsCwtAdapter(CborHelper.decodeFirst(input))
+        JsCwtAdapter(decodeFirst(input))
 }
 
 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")

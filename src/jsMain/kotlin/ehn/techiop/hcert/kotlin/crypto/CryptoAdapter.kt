@@ -6,7 +6,6 @@ import Buffer
 import NodeRSA
 import cose.CosePrivateKey
 import cose.CosePublicKey
-import ehn.techiop.hcert.kotlin.crypto.PkiUtils
 import ehn.techiop.hcert.kotlin.chain.fromBase64
 import ehn.techiop.hcert.kotlin.chain.toByteArray
 import ehn.techiop.hcert.kotlin.trust.ContentType
@@ -62,14 +61,20 @@ actual class CryptoAdapter {
         privateKeyEncoded = array.toByteArray()
         privateKeyInfo = Uint8Array(array).let { bytes ->
             fromBER(bytes.buffer).result.let {
-                PrivateKeyInfo(js("({'schema':it})"))
+                PrivateKeyInfo(object {
+                    @Suppress("UNUSED")
+                    val schema = it
+                })
             }
         }
         val oid = (privateKeyInfo.privateKeyAlgorithm as AlgorithmIdentifier).algorithmId
         if (oid == "1.2.840.10045.2.1") {
             val buffer = Buffer(privateKeyInfo.privateKey.valueBlock.valueHex)
             val ecPrivateKey = fromBER(buffer.buffer).result.let {
-                ECPrivateKey(js("({'schema':it})"))
+                ECPrivateKey(object {
+                    @Suppress("UNUSED")
+                    val schema = it
+                })
             }
 
             val content = Buffer(ecPrivateKey.privateKey.valueBlock.valueHex)
@@ -83,7 +88,10 @@ actual class CryptoAdapter {
         } else if (oid == "1.2.840.113549.1.1.1") {
             val buffer = Buffer(privateKeyInfo.privateKey.valueBlock.valueHex)
             val rsaPrivateKey = fromBER(buffer.buffer).result.let {
-                RSAPrivateKey(js("({'schema':it})"))
+                RSAPrivateKey(object {
+                    @Suppress("UNUSED")
+                    val schema = it
+                })
             }
             privateKey = JsRsaPrivKey(rsaPrivateKey)
             algorithm = CwtAlgorithm.RSA_PSS_256

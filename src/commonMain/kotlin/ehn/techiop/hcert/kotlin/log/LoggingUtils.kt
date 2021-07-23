@@ -11,7 +11,7 @@ fun setLogLevel(level: Napier.Level?) {
     globalLogLevel = level
 }
 
-open expect class BasicLogger(defaultTag: String? = null) : Antilog
+expect open class BasicLogger(defaultTag: String? = null) : Antilog
 
 
 fun Int.formatMag() = toLong().formatMag()
