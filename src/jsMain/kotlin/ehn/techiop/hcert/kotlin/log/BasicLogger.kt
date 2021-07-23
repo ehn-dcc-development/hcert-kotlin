@@ -38,6 +38,7 @@ actual open class BasicLogger actual constructor(protected val defaultTag: Strin
 }
 
 @JsExport
+@Suppress("NON_EXPORTABLE_TYPE")
 class JsLogger(private val loggingFunction: (level: String, tag: String?, stackTrace: String?, message: String?) -> Unit) :
     Antilog() {
     override fun performLog(priority: Napier.Level, tag: String?, throwable: Throwable?, message: String?) {

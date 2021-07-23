@@ -31,10 +31,16 @@ class TrustListDecodeService(
     @Throws(VerificationException::class)
     fun decode(input: SignedData): Pair<SignedDataParsed, TrustListV2> {
         val parsed = decodeService.decode(input, listOf(CoseHeaderKeys.TRUSTLIST_VERSION))
-        when (parsed.headers[CoseHeaderKeys.TRUSTLIST_VERSION]) {
-            1 -> throw VerificationException(TRUST_SERVICE_ERROR, "Version 1")
+        when (val version = parsed.headers[CoseHeaderKeys.TRUSTLIST_VERSION]) {
+            1 -> throw VerificationException(
+                TRUST_SERVICE_ERROR, "Version 1",
+                details = mapOf("trustListVersion" to version.toString())
+            )
             2 -> return Pair(parsed, Cbor.decodeFromByteArray(parsed.content))
-            else -> throw VerificationException(TRUST_SERVICE_ERROR, "Version unknown")
+            else -> throw VerificationException(
+                TRUST_SERVICE_ERROR, "Version unknown",
+                details = mapOf("trustListVersion" to (version ?: "null").toString())
+            )
         }
     }
 

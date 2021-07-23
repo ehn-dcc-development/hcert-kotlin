@@ -15,27 +15,52 @@ class DefaultHigherOrderValidationService : HigherOrderValidationService {
         if (numberNonNullTests > 0) {
             verificationResult.content.add(ContentType.TEST)
             if (!verificationResult.certificateValidContent.contains(ContentType.TEST))
-                throw VerificationException(Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Test not valid")
+                throw VerificationException(
+                    Error.UNSUITABLE_PUBLIC_KEY_TYPE,
+                    "Type Test not valid",
+                    details = mapOf(
+                        "ContentType" to ContentType.TEST.oid,
+                        "certificateValidContent" to verificationResult.certificateValidContent.joinToString { it.oid }
+                    )
+                )
         }
         val numberNonNullVaccinations = input.vaccinations?.filterNotNull()?.size ?: 0
         if (numberNonNullVaccinations > 0) {
             if (numberNonNullTests > 0)
-                throw VerificationException(SCHEMA_VALIDATION_FAILED, "Vaccination and test entry found")
+                throw VerificationException(
+                    SCHEMA_VALIDATION_FAILED,
+                    "Vaccination and test entry found",
+                    details = mapOf("conflictingEntryTypes" to "['TEST','VACCINATION']")
+                )
 
             verificationResult.content.add(ContentType.VACCINATION)
             if (!verificationResult.certificateValidContent.contains(ContentType.VACCINATION))
-                throw VerificationException(Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Vaccination not valid")
+                throw VerificationException(Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Vaccination not valid",
+                    details = mapOf(
+                        "ContentType" to ContentType.VACCINATION.oid,
+                        "certificateValidContent" to verificationResult.certificateValidContent.joinToString { it.oid }
+                    ))
         }
         val numberNonNullRecoveryStatements = input.recoveryStatements?.filterNotNull()?.size ?: 0
         if (numberNonNullRecoveryStatements > 0) {
             if (numberNonNullTests > 0)
-                throw VerificationException(SCHEMA_VALIDATION_FAILED, "Recovery and test entry found")
+                throw VerificationException(
+                    SCHEMA_VALIDATION_FAILED, "Recovery and test entry found",
+                    details = mapOf("conflictingEntryTypes" to "['TEST','RECOVERY']")
+                )
             if (numberNonNullVaccinations > 0)
-                throw VerificationException(SCHEMA_VALIDATION_FAILED, "Recovery and vaccination entry found")
+                throw VerificationException(
+                    SCHEMA_VALIDATION_FAILED, "Recovery and vaccination entry found",
+                    details = mapOf("conflictingEntryTypes" to "['RECOVERY','VACCINATION']")
+                )
 
             verificationResult.content.add(ContentType.RECOVERY)
             if (!verificationResult.certificateValidContent.contains(ContentType.RECOVERY))
-                throw VerificationException(Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Recovery not valid")
+                throw VerificationException(Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Recovery not valid",
+                    details = mapOf(
+                        "ContentType" to ContentType.RECOVERY.oid,
+                        "certificateValidContent" to verificationResult.certificateValidContent.joinToString { it.oid }
+                    ))
         }
         if (numberNonNullTests == 0 && numberNonNullVaccinations == 0 && numberNonNullRecoveryStatements == 0) {
             throw VerificationException(SCHEMA_VALIDATION_FAILED, "No test, vaccination, or recovery entry")

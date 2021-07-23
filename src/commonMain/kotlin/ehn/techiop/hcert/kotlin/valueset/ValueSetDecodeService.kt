@@ -34,9 +34,12 @@ class ValueSetDecodeService(
     @Throws(VerificationException::class)
     fun decode(input: SignedData): Pair<SignedDataParsed, ValueSetContainer> {
         val parsed = decodeService.decode(input, listOf(CoseHeaderKeys.VALUE_SET_VERSION))
-        when (parsed.headers[CoseHeaderKeys.VALUE_SET_VERSION]) {
+        when (val version = parsed.headers[CoseHeaderKeys.VALUE_SET_VERSION]) {
             1 -> return Pair(parsed, Cbor.decodeFromByteArray(parsed.content))
-            else -> throw VerificationException(TRUST_SERVICE_ERROR, "Version unknown")
+            else -> throw VerificationException(
+                TRUST_SERVICE_ERROR, "Version unknown",
+                details = mapOf("valueSetVersion" to (version ?: "null").toString())
+            )
         }
     }
 

@@ -1,10 +1,6 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.Error
-import ehn.techiop.hcert.kotlin.chain.VerificationException
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
-import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CryptoAdapter
@@ -23,7 +19,11 @@ open class DefaultCryptoService internal constructor(
 
     override fun getCborVerificationKey(kid: ByteArray, verificationResult: VerificationResult): PubKey {
         if (!(cryptoAdapter.certificate.kid contentEquals kid))
-            throw VerificationException(Error.KEY_NOT_IN_TRUST_LIST, "kid not known: $kid")
+            throw VerificationException(
+                Error.KEY_NOT_IN_TRUST_LIST,
+                "kid not known: $kid",
+                details = mapOf("hexEncodedKid" to kid.toHexString())
+            )
 
         verificationResult.setCertificateData(cryptoAdapter.certificate)
         return cryptoAdapter.certificate.publicKey

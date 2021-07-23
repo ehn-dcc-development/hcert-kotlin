@@ -16,7 +16,11 @@ open class DefaultContextIdentifierService(private val prefix: String = "HC1:") 
 
     override fun decode(input: String, verificationResult: VerificationResult) = when {
         input.startsWith(prefix) -> input.drop(prefix.length)
-        else -> throw VerificationException(Error.INVALID_SCHEME_PREFIX, "No context prefix '$prefix'")
+        else -> throw VerificationException(
+            Error.INVALID_SCHEME_PREFIX,
+            "No context prefix '$prefix'",
+            details = mapOf("prefix" to prefix)
+        )
     }
 
 }

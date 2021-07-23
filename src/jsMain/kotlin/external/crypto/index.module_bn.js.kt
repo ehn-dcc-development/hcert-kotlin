@@ -190,10 +190,10 @@ open external class BN {
     }
 }
 
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE", "EXTENSION_SHADOWED_BY_MEMBER")
 inline operator fun BN.ReductionContext.get(key: String): Any? = asDynamic()[key]
 
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE", "EXTENSION_SHADOWED_BY_MEMBER")
 inline operator fun BN.ReductionContext.set(key: String, value: Any) {
     asDynamic()[key] = value
 }
