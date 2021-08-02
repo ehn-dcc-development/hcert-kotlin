@@ -14,6 +14,7 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.collections.shouldBeOneOf
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -303,7 +304,12 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.expirationCheck?.let {
             withClue("Expiration Check") {
                 if (!errorExpected && !it) {
-                    verificationResult.error shouldBe Error.CWT_EXPIRED
+                    verificationResult.error shouldBeOneOf listOf(
+                        Error.CWT_EXPIRED,
+                        Error.CWT_NOT_YET_VALID,
+                        Error.PUBLIC_KEY_EXPIRED,
+                        Error.PUBLIC_KEY_NOT_YET_VALID
+                    )
                     errorExpected = true
                 }
             }

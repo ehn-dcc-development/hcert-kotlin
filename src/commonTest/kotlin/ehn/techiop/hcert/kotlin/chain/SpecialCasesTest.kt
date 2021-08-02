@@ -11,6 +11,7 @@ import ehn.techiop.hcert.kotlin.trust.CoseAdapter
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.datetime.Instant
 
 class SpecialCasesTest : DescribeSpec({
 
@@ -45,7 +46,10 @@ private class NullCoseService : CoseService {
 
     override fun encode(input: ByteArray) = throw NotImplementedError()
 
-    override fun decode(input: ByteArray, verificationResult: VerificationResult) =
-        CoseAdapter(input).getContent()
+    override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
+        verificationResult.certificateValidFrom = Instant.parse("2021-01-01T12:00:00Z")
+        verificationResult.certificateValidUntil = Instant.parse("2025-01-01T12:00:00Z")
+        return CoseAdapter(input).getContent()
+    }
 
 }

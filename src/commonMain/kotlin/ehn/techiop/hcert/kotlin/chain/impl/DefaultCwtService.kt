@@ -35,6 +35,7 @@ open class DefaultCwtService constructor(
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): CborObject {
         try {
+            val now = clock.now()
             val map = CwtHelper.fromCbor(input)
             // issuer is truly optional
             map.getString(CwtHeaderKeys.ISSUER.intVal)?.let {
@@ -45,21 +46,21 @@ open class DefaultCwtService constructor(
                 ?: throw VerificationException(Error.CWT_EXPIRED, details = mapOf("issuedAt" to "null"))
             val issuedAt = Instant.fromEpochSeconds(issuedAtSeconds.toLong())
             verificationResult.issuedAt = issuedAt
-            verificationResult.certificateValidFrom?.let { certValidFrom ->
-                if (issuedAt < certValidFrom)
-                    throw VerificationException(
-                        Error.CWT_EXPIRED, details = mapOf(
-                            "issuedAt" to issuedAt.toString(),
-                            "certValidFrom" to certValidFrom.toString()
-                        )
-                    )
-            }
+            val certValidFrom = verificationResult.certificateValidFrom
+                ?: throw VerificationException(Error.PUBLIC_KEY_NOT_YET_VALID, details = mapOf("certValidFrom" to "null"))
 
-            val now = clock.now()
             if (issuedAt > now)
                 throw VerificationException(
-                    Error.CWT_EXPIRED, details = mapOf(
+                    Error.CWT_NOT_YET_VALID, details = mapOf(
                         "issuedAt" to issuedAt.toString(),
+                        "currentTime" to now.toString()
+                    )
+                )
+
+            if (certValidFrom > now)
+                throw VerificationException(
+                    Error.PUBLIC_KEY_NOT_YET_VALID, details = mapOf(
+                        "certValidFrom" to certValidFrom.toString(),
                         "currentTime" to now.toString()
                     )
                 )
@@ -68,15 +69,17 @@ open class DefaultCwtService constructor(
                 ?: throw VerificationException(Error.CWT_EXPIRED, details = mapOf("expirationTime" to "null"))
             val expirationTime = Instant.fromEpochSeconds(expirationSeconds.toLong())
             verificationResult.expirationTime = expirationTime
-            verificationResult.certificateValidUntil?.let { certValidUntil ->
-                if (expirationTime > certValidUntil)
-                    throw VerificationException(
-                        Error.CWT_EXPIRED, details = mapOf(
-                            "expirationTime" to expirationTime.toString(),
-                            "certValidUntil" to certValidUntil.toString()
-                        )
+            val certValidUntil = verificationResult.certificateValidUntil
+                ?: throw VerificationException(Error.PUBLIC_KEY_EXPIRED, details = mapOf("certValidUntil" to "null"))
+
+            if (certValidUntil < now)
+                throw VerificationException(
+                    Error.PUBLIC_KEY_EXPIRED, details = mapOf(
+                        "certValidUntil" to certValidUntil.toString(),
+                        "currentTime" to now.toString()
                     )
-            }
+                )
+
             if (expirationTime < now)
                 throw VerificationException(
                     Error.CWT_EXPIRED, details = mapOf(
