@@ -572,7 +572,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:master-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:1.3.1'
 }
 ```
 
@@ -612,7 +612,7 @@ See these links for details:
 
 ## Changelog
 
-Version NEXT:
+Version 1.3.1:
  - Rework verification of timestamps in the HCERT CWT, to work around some weird codes appearing in production
  - New error codes `CWT_NOT_YET_VALID` and `PUBLIC_KEY_NOT_YET_VALID`, see above
 
