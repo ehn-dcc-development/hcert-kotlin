@@ -572,7 +572,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:master-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:1.3.2'
 }
 ```
 
@@ -612,8 +612,8 @@ See these links for details:
 
 ## Changelog
 
-Version NEXT:
- - tbd
+Version 1.3.2:
+ - Export `SignedDataDownloader` to JS
 
 Version 1.3.1:
  - Rework verification of timestamps in the HCERT CWT, to work around some weird codes appearing in production
