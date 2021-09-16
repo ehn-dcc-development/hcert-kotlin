@@ -24,7 +24,6 @@ licenseReport {
 
 repositories {
     mavenLocal()
-    jcenter()
     mavenCentral()
 }
 
