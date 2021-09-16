@@ -30,11 +30,11 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         with:
            name: hcert-kotlin.js
-           path: build/distributions/hcert-kotlin.js
+           path: build/distributions/hcert-kotlin.js*
       - name: Build jsBrowserProductionWebpack
         run: ./gradlew clean jsBrowserProductionWebpack
       - name: Upload hcert-kotlin-prod.js
         uses: actions/upload-artifact@v2.2.3
         with:
            name: hcert-kotlin-prod.js
-           path: build/distributions/hcert-kotlin.js
+           path: build/distributions/hcert-kotlin.js*
