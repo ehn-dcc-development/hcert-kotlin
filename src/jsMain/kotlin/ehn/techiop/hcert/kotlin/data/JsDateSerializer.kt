@@ -16,11 +16,11 @@ object JsDateSerializer : KSerializer<Date> {
 
     override fun deserialize(decoder: Decoder): Date {
         val value = decoder.decodeString()
-        return Date(value.substringBefore("T"))
+        return Date(value)
     }
 
     override fun serialize(encoder: Encoder, value: Date) {
-        encoder.encodeString(value.toISOString().substringBefore("T"))
+        encoder.encodeString(value.toISOString())
     }
 }
 
