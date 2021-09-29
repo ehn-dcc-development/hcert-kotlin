@@ -6,6 +6,7 @@ import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import kotlinx.datetime.Clock
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
+import kotlin.jvm.JvmOverloads
 import kotlin.time.Duration
 
 
@@ -17,6 +18,10 @@ class TrustListV2EncodeService constructor(
     validity: Duration = Duration.hours(48),
     clock: Clock = Clock.System,
 ) {
+
+    @JvmOverloads
+    constructor(signingService: CryptoService, validityHours: Int = 48)
+            : this(signingService, Duration.hours(validityHours), Clock.System)
 
     private val signedDataService = SignedDataEncodeService(signingService, validity, clock)
 

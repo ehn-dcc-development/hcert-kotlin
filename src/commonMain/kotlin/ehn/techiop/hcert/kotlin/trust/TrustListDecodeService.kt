@@ -7,6 +7,7 @@ import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import kotlinx.datetime.Clock
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
+import kotlin.jvm.JvmOverloads
 import kotlin.time.Duration
 
 /**
@@ -14,15 +15,15 @@ import kotlin.time.Duration
  *
  * - [repository] contains the trust anchor for the parsed file
  * - [clock] defines the current time to use for validity checks
- * - [clockSkew] defines the error margin when comparing time validity of the parsed file
+ * - [clockSkewSeconds] defines the error margin when comparing time validity of the parsed file in seconds
  */
-class TrustListDecodeService(
+class TrustListDecodeService @JvmOverloads constructor(
     repository: CertificateRepository,
     clock: Clock = Clock.System,
-    clockSkew: Duration = Duration.seconds(300)
+    clockSkewSeconds: Int = 300
 ) {
 
-    private val decodeService = SignedDataDecodeService(repository, clock, clockSkew)
+    private val decodeService = SignedDataDecodeService(repository, clock, clockSkewSeconds)
 
     /**
      * See [SignedData] for details about the content

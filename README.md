@@ -36,14 +36,14 @@ Chain chain = DefaultChain.buildCreationChain(cryptoService);
 
 // Load the input data from somewhere ...
 String json = "{ \"sub\": { \"gn\": \"Gabriele\", ...";
-String input = Json.decodeFromString<GreenCertificate>(json);
+GreenCertificate input = Json.Default.decodeFromString(GreenCertificate.Companion.serializer(), json);
 
 // Apply all encoding steps from the Chain
 ChainResult result = chain.encode(input);
 
 // Optionally encode it as a QR-Code with 350 pixel in width and height
 TwoDimCodeService qrCodeService = new DefaultTwoDimCodeService(350);
-String encodedImage = qrCodeService.encode(result.step5Prefixed);
+byte[] encodedImage = qrCodeService.encode(result.getStep5Prefixed());
 String encodedBase64QrCode = Base64.getEncoder().encodeToString(encodedImage);
 
 // Then include in an HTML page or something ...
@@ -63,7 +63,7 @@ String input = "HC1:NCFC:MVIMAP2SQ20MU...";
 
 DecodeResult result = chain.decode(input);
 // Read metaInformation like expirationTime, issuedAt, issuer
-VerificationResult verificationResult = result.getVerificationResult()
+VerificationResult verificationResult = result.getVerificationResult();
 boolean isValid = verificationResult.getError() == null;
 // See list below for possible Errors, may be null
 Error error = verificationResult.getError();
@@ -331,11 +331,11 @@ There is also an option to create (e.g. on a web service) a list of trusted cert
 String privateKeyPem = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADAN...";
 String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 CryptoService cryptoService = new FileBasedCryptoService(privateKeyPem, certificatePem);
-Duration validity = Duration.hours(48);
-TrustListV2EncodeService trustListService = new TrustListV2EncodeService(cryptoService, validity);
+int validityHours = 48;
+TrustListV2EncodeService trustListService = new TrustListV2EncodeService(cryptoService, validityHours);
 
 // Load the list of trusted certificates from somewhere ...
-Set<X509Certificate> trustedCerts = new HashSet<>(cert1, cert2, ...);
+Set<CertificateAdapter> trustedCerts = new HashSet<>(cert1, cert2, ...);
 SignedData trustList = trustListService.encode(trustedCerts);
 // Write content file
 new FileOutputStream(new File("trustlist.bin")).write(trustList.getContent());
@@ -362,7 +362,7 @@ SignedDataParsed parsed = result.getFirst();
 TrustListV2 trustListContainer = result.getSecond();
 for (TrustedCertificateV2 cert : trustListContainer.getCertificates()) {
     // Parse it into your own data class
-    System.out.println(cert.getCertificate().asBase64();
+    System.out.println(ExtensionsKt.asBase64(cert.getCertificate()));
 }
 ```
 
@@ -392,12 +392,12 @@ There is also an option to create (e.g. on a web service) a list of business rul
 String privateKeyPem = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADAN...";
 String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 CryptoService cryptoService = new FileBasedCryptoService(privateKeyPem, certificatePem);
-Duration validity = Duration.hours(48);
-BusinessRulesV1EncodeService rulesService = new BusinessRulesV1EncodeService(cryptoService, validity);
+int validityHours = 48;
+BusinessRulesV1EncodeService rulesService = new BusinessRulesV1EncodeService(cryptoService, validityHours);
 
 // Load the list business rules
 List<String> inputStrings = new ArrayList<>();
-List<BusinessRule> input = inputStrings.stream().map(it -> new BusinessRule(it)).collect(Collectors.toList());
+List<BusinessRule> input = inputStrings.stream().map(it -> new BusinessRule("identifier", it)).collect(Collectors.toList());
 SignedData rules = rulesService.encode(input);
 // Write content file
 new FileOutputStream(new File("rules.bin")).write(rules.getContent());
@@ -414,10 +414,10 @@ CertificateRepository trustAnchor = new PrefilledCertificateRepository("-----BEG
 byte[] rulesContent = new byte[0];
 // Download rules signature, binary, e.g. from https://dgc.a-sit.at/ehn/rules/v1/sig
 byte[] rulesSignature = new byte[0];
-SignedData rules = new SignedData(rulesContent, rulesSignature);
+SignedData rulesSigned = new SignedData(rulesContent, rulesSignature);
 
-BusinessRulesDecodeService service = new BusinessRuleBusinessRulesDecodeService(trustAnchor);
-Pair<SignedDataParsed, BusinessRulesContainer> result = service.decode(rules);
+BusinessRulesDecodeService service = new BusinessRulesDecodeService(trustAnchor);
+Pair<SignedDataParsed, BusinessRulesContainer> result = service.decode(rulesSigned);
 // Contains "validFrom", "validUntil"
 SignedDataParsed parsed = result.getFirst();
 // Contains a list of business rules as raw JSON
@@ -454,8 +454,8 @@ There is also an option to create (e.g. on a web service) a list of value sets, 
 String privateKeyPem = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADAN...";
 String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 CryptoService cryptoService = new FileBasedCryptoService(privateKeyPem, certificatePem);
-Duration validity = Duration.hours(48);
-ValueSetV1EncodeService valueSetService = new ValueSetV1EncodeService(cryptoService, validity);
+        int validityHours = 48;
+ValueSetV1EncodeService valueSetService = new ValueSetV1EncodeService(cryptoService, validityHours);
 
 // Load the list value sets
 List<String> inputStrings = new ArrayList<>();
@@ -476,15 +476,15 @@ CertificateRepository trustAnchor = new PrefilledCertificateRepository("-----BEG
 byte[] valueSetContent = new byte[0];
 // Download valueSet signature, binary, e.g. from https://dgc.a-sit.at/ehn/values/v1/sig
 byte[] valueSetSignature = new byte[0];
-SignedData valueSet = new SignedData(valueSetContent, valueSetSignature);
+SignedData valueSetSigned = new SignedData(valueSetContent, valueSetSignature);
 
 ValueSetDecodeService service = new ValueSetDecodeService(trustAnchor);
-Pair<SignedDataParsed, ValueSetContainer> result = service.decode(valueSet);
+Pair<SignedDataParsed, ValueSetContainer> result = service.decode(valueSetSigned);
 // Contains "validFrom", "validUntil"
 SignedDataParsed parsed = result.getFirst();
 // Contains a list of value sets as raw JSON
 ValueSetContainer valueSet = result.getSecond();
-for (ValueSet vs : valueSet.getValueSet()) {
+for (ValueSet vs : valueSet.getValueSets()) {
     // Parse it into your own data class
     System.out.println(vs.getValueSet());
 }
@@ -527,10 +527,10 @@ One example: The validity for the TrustList, as well as the validity of the HCER
 
 ```Java
 CryptoService cryptoService = new RandomEcKeyCryptoService(256); // or some fixed key crypto service
-HigherOrderValidationService higherOrdeValidationService = new DefaultHigherOrderValidationService();
+HigherOrderValidationService higherOrderValidationService = new DefaultHigherOrderValidationService();
 SchemaValidationService schemaValidationService = new DefaultSchemaValidationService(); // pass "false" to disable fallback schema validation
 CborService cborService = new DefaultCborService();
-CwtService cwtService = new DefaultCwtService("AT", Duration.hours(24)); // validity for HCERT content
+CwtService cwtService = new DefaultCwtService("AT", 24); // validity for HCERT content
 CoseService coseService = new DefaultCoseService(cryptoService);
 CompressorService compressorService = new DefaultCompressorService(9); // level of compression
 Base45Service base45Service = new DefaultBase45Service();
@@ -613,7 +613,7 @@ See these links for details:
 ## Changelog
 
 Version NEXT:
- - tbd
+ - Fix constructors and overloads fro Java callers
 
 Version 1.3.2:
  - Export `SignedDataDownloader` to JS

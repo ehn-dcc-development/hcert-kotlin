@@ -4,11 +4,12 @@ import ehn.techiop.hcert.kotlin.chain.CompressorService
 import ehn.techiop.hcert.kotlin.chain.Error
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import kotlin.jvm.JvmOverloads
 
 /**
  * Compresses/decompresses input with ZLIB, [level] specifies the compression level (0-9)
  */
-open class DefaultCompressorService(private val level: Int = 9) : CompressorService {
+open class DefaultCompressorService @JvmOverloads constructor(private val level: Int = 9) : CompressorService {
 
     private val adapter = CompressorAdapter()
 

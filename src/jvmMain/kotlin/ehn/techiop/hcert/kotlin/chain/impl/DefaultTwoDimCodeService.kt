@@ -22,7 +22,7 @@ import javax.imageio.ImageIO
  * Output depends on [size] (in pixels), [marginSize] (in "units" acc. to ZXing implementation),
  * and of course [format] (either [BarcodeFormat.AZTEC] or [BarcodeFormat.QR_CODE]).
  */
-class DefaultTwoDimCodeService(
+class DefaultTwoDimCodeService @JvmOverloads constructor(
     private val size: Int,
     private val format: BarcodeFormat = BarcodeFormat.QR_CODE,
     private val marginSize: Int = 2

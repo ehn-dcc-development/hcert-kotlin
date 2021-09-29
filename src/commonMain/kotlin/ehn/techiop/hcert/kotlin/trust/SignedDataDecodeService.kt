@@ -7,16 +7,17 @@ import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlin.jvm.JvmOverloads
 import kotlin.time.Duration
 
 
 /**
  * Decodes a [SignedData] structure, and verify the validity of it
  */
-class SignedDataDecodeService constructor(
+class SignedDataDecodeService @JvmOverloads constructor(
     private val repository: CertificateRepository,
     private val clock: Clock = Clock.System,
-    private val clockSkew: Duration = Duration.seconds(300)
+    private val clockSkewSeconds: Int = 300
 ) {
 
     @Throws(VerificationException::class)
@@ -49,7 +50,7 @@ class SignedDataDecodeService constructor(
             )
 
         val validFrom = Instant.fromEpochSeconds(notBefore.toLong())
-        if (validFrom > clock.now().plus(clockSkew))
+        if (validFrom > clock.now().plus(Duration.seconds(clockSkewSeconds)))
             throw VerificationException(
                 Error.TRUST_LIST_NOT_YET_VALID,
                 "NotBefore>clock.now()",
@@ -63,7 +64,7 @@ class SignedDataDecodeService constructor(
             )
 
         val validUntil = Instant.fromEpochSeconds(expiration.toLong())
-        if (validUntil < clock.now().minus(clockSkew))
+        if (validUntil < clock.now().minus(Duration.seconds(clockSkewSeconds)))
             throw VerificationException(
                 Error.TRUST_LIST_EXPIRED, "Expiration<clock.now()",
                 details = mapOf("expirationTime" to validUntil.toString(), "currentTime" to clock.now().toString())

@@ -6,13 +6,15 @@ import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.data.CborObject
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
+import kotlin.jvm.JvmOverloads
 
 /**
  * Validates the HCERT data against the JSON schema.
  * Beware: By default [useFallback] is true, so we are trying to verify
  * the data against a very relaxed schema.
  */
-class DefaultSchemaValidationService(private val useFallback: Boolean = true) : SchemaValidationService {
+class DefaultSchemaValidationService @JvmOverloads constructor(private val useFallback: Boolean = true) :
+    SchemaValidationService {
 
     override fun validate(cbor: CborObject, verificationResult: VerificationResult): GreenCertificate {
         val adapter = SchemaValidationAdapter(cbor)

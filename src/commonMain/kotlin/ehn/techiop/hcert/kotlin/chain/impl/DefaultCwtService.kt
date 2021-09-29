@@ -22,6 +22,9 @@ open class DefaultCwtService constructor(
     private val clock: Clock = Clock.System,
 ) : CwtService {
 
+    constructor(countryCode: String, validityHours: Int)
+            : this(countryCode, Duration.hours(validityHours), Clock.System)
+
     override fun encode(input: ByteArray): ByteArray {
         val issueTime = clock.now()
         val expirationTime = issueTime + validity
@@ -47,7 +50,10 @@ open class DefaultCwtService constructor(
             val issuedAt = Instant.fromEpochSeconds(issuedAtSeconds.toLong())
             verificationResult.issuedAt = issuedAt
             val certValidFrom = verificationResult.certificateValidFrom
-                ?: throw VerificationException(Error.PUBLIC_KEY_NOT_YET_VALID, details = mapOf("certValidFrom" to "null"))
+                ?: throw VerificationException(
+                    Error.PUBLIC_KEY_NOT_YET_VALID,
+                    details = mapOf("certValidFrom" to "null")
+                )
 
             if (issuedAt > now)
                 throw VerificationException(
