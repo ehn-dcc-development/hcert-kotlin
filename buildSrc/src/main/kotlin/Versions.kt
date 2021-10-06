@@ -18,6 +18,7 @@ object Versions {
     }
 
     object Js {
+        const val cose = "0.7.0"
         const val pako = "2.0.3"
         const val pakoTypes = "1.0.1"
         const val pkijs = "2.1.95"

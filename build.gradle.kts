@@ -158,7 +158,7 @@ kotlin {
             dependencies {
                 implementation(npm("pako", Versions.js.pako))
                 implementation(npm("pkijs", Versions.js.pkijs))
-                implementation(npm("cose-js", File("${projectDir.absolutePath}/cose-js"), generateExternals = false))
+                implementation(npm("cose-js", Versions.js.cose, generateExternals = false))
                 implementation(npm("crypto-browserify", Versions.js.`crypto-browserify`))
                 implementation(npm("stream-browserify", Versions.js.`stream-browserify`))
                 implementation(npm("util", Versions.js.util))
