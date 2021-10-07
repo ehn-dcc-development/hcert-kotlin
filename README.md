@@ -614,6 +614,7 @@ See these links for details:
 
 Version NEXT:
  - Fix constructors and overloads fro Java callers
+ - JS: Switch to upstream cose-js 0.7.0 (deprecates forked version)
 
 Version 1.3.2:
  - Export `SignedDataDownloader` to JS
