@@ -614,6 +614,24 @@ See these links for details:
 
 Version NEXT:
  - Fix constructors and overloads fro Java callers
+ - Update dependencies:
+   - Common:
+     - Kotlin: 1.5.31
+     - kotlinx.serialization: 1.3.0
+     - kotlinx.datetime: 0.3.0
+     - Kotest: 4.6.3
+     - Napier (Logging): 2.1.0
+   - JVM:
+     - Bouncy Castle PKIX: 1.69
+     - Json Schema Validation Lib: 2.1.0
+   - JS:
+     - pako (ZLib): 2.0.4
+     - pkijs: 2.1.97
+     - util: 0.12.4
+     - cbor: 8.0.2
+     - node-inspect-extracted: 1.0.8
+     - ajv (JSON schema validator): 8.6.3
+     - ajv-formats: 2.1.1
 
 Version 1.3.2:
  - Export `SignedDataDownloader` to JS

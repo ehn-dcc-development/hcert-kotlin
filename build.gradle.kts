@@ -120,7 +120,7 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.datetime}")
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}")
                 api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:${Versions.serialization}")
-                api("io.github.aakira:napier:${Versions.logging}")
+                api("io.github.aakira:napier:${Versions.napier}")
             }
         }
         val commonTest by getting {
@@ -165,7 +165,7 @@ kotlin {
                 implementation(npm("buffer", Versions.js.buffer))
                 implementation(npm("process", Versions.js.process))
                 implementation(npm("cbor", Versions.js.cbor))
-                implementation(npm("node-inspect-extracted", Versions.js.`node-inspect-extract`))
+                implementation(npm("node-inspect-extracted", Versions.js.`node-inspect-extracted`))
                 implementation(npm("fast-sha256", Versions.js.sha256, generateExternals = true))
                 implementation(npm("url", Versions.js.url))
                 implementation(npm("elliptic", Versions.js.elliptic))

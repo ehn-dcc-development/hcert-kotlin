@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.log
 
 import io.github.aakira.napier.Antilog
+import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 
@@ -8,7 +9,7 @@ import kotlinx.datetime.Clock
 
 actual open class BasicLogger actual constructor(protected val defaultTag: String?) : Antilog() {
 
-    override fun performLog(priority: Napier.Level, tag: String?, throwable: Throwable?, message: String?) {
+    override fun performLog(priority: LogLevel, tag: String?, throwable: Throwable?, message: String?) {
         if (tag != null && defaultTag != null && tag != defaultTag)
             return
 
@@ -22,17 +23,17 @@ actual open class BasicLogger actual constructor(protected val defaultTag: Strin
         }
     }
 
-    private fun setupTag(priority: Napier.Level, tag: String?): String {
+    private fun setupTag(priority: LogLevel, tag: String?): String {
         val logTag = tag ?: defaultTag ?: ""
         return Clock.System.now().toString() + if (logTag.isEmpty()) " $priority:" else " $priority $logTag:"
     }
 
-    private fun log(priority: Napier.Level, msg: String) {
+    private fun log(priority: LogLevel, msg: String) {
         when (priority) {
-            Napier.Level.VERBOSE, Napier.Level.DEBUG -> console.log(msg)
-            Napier.Level.INFO -> console.info(msg)
-            Napier.Level.WARNING -> console.warn(msg)
-            Napier.Level.ERROR, Napier.Level.ASSERT -> console.error(msg)
+            LogLevel.VERBOSE, LogLevel.DEBUG -> console.log(msg)
+            LogLevel.INFO -> console.info(msg)
+            LogLevel.WARNING -> console.warn(msg)
+            LogLevel.ERROR, LogLevel.ASSERT -> console.error(msg)
         }
     }
 }
@@ -41,7 +42,7 @@ actual open class BasicLogger actual constructor(protected val defaultTag: Strin
 @Suppress("NON_EXPORTABLE_TYPE")
 class JsLogger(private val loggingFunction: (level: String, tag: String?, stackTrace: String?, message: String?) -> Unit) :
     Antilog() {
-    override fun performLog(priority: Napier.Level, tag: String?, throwable: Throwable?, message: String?) {
+    override fun performLog(priority: LogLevel, tag: String?, throwable: Throwable?, message: String?) {
         if (globalLogLevel != null)
             loggingFunction(priority.name, tag, throwable?.stackTraceToString(), message)
     }

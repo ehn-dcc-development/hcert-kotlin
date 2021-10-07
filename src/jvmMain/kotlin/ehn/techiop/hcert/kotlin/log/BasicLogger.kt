@@ -1,6 +1,7 @@
 package ehn.techiop.hcert.kotlin.log
 
 import io.github.aakira.napier.Antilog
+import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -36,7 +37,7 @@ actual open class BasicLogger actual constructor(protected val defaultTag: Strin
 
     private val anonymousClass = Pattern.compile("(\\$\\d+)+$")
 
-    override fun performLog(priority: Napier.Level, tag: String?, throwable: Throwable?, message: String?) {
+    override fun performLog(priority: LogLevel, tag: String?, throwable: Throwable?, message: String?) {
         if (tag != null && defaultTag != null && tag != defaultTag)
             return
         val debugTag = tag ?: performTag(defaultTag ?: "")
@@ -52,12 +53,12 @@ actual open class BasicLogger actual constructor(protected val defaultTag: Strin
         globalLogLevel?.let { setLevel ->
             if (setLevel.ordinal <= priority.ordinal)
                 when (priority) {
-                    Napier.Level.VERBOSE -> logger.finest(buildLog(debugTag, fullMessage))
-                    Napier.Level.DEBUG -> logger.fine(buildLog(debugTag, fullMessage))
-                    Napier.Level.INFO -> logger.info(buildLog(debugTag, fullMessage))
-                    Napier.Level.WARNING -> logger.warning(buildLog(debugTag, fullMessage))
-                    Napier.Level.ERROR -> logger.severe(buildLog(debugTag, fullMessage))
-                    Napier.Level.ASSERT -> logger.severe(buildLog(debugTag, fullMessage))
+                    LogLevel.VERBOSE -> logger.finest(buildLog(debugTag, fullMessage))
+                    LogLevel.DEBUG -> logger.fine(buildLog(debugTag, fullMessage))
+                    LogLevel.INFO -> logger.info(buildLog(debugTag, fullMessage))
+                    LogLevel.WARNING -> logger.warning(buildLog(debugTag, fullMessage))
+                    LogLevel.ERROR -> logger.severe(buildLog(debugTag, fullMessage))
+                    LogLevel.ASSERT -> logger.severe(buildLog(debugTag, fullMessage))
                 }
         }
     }
