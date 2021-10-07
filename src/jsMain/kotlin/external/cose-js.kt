@@ -10,6 +10,7 @@
 package cose
 
 import Buffer
+import kotlin.js.Json
 
 external interface CosePublicKey
 
@@ -56,6 +57,12 @@ external interface Headers {
 
 external interface Signer {
     val key: CosePrivateKey
+}
+
+open external class common {
+    companion object {
+        val HeaderParameters: Json
+    }
 }
 
 open external class sign {
