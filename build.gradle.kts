@@ -111,6 +111,7 @@ kotlin {
         binaries.executable()
         useCommonJs()
     }
+
     sourceSets {
         val commonShared by creating {
             sourceSets { kotlin.srcDir(customSrcDirs.commonShared) }
@@ -153,31 +154,41 @@ kotlin {
             dependsOn(jvmDataGenMain)
         }
 
-        val jsMain by getting {
+        val jsNode by creating {
             sourceSets { kotlin.srcDir(customSrcDirs.jsMainGenerated) }
             dependencies {
                 implementation(npm("pako", Versions.js.pako))
                 implementation(npm("pkijs", Versions.js.pkijs))
                 implementation(npm("cose-js", Versions.js.cose, generateExternals = false))
-                implementation(npm("crypto-browserify", Versions.js.`crypto-browserify`))
-                implementation(npm("stream-browserify", Versions.js.`stream-browserify`))
-                implementation(npm("util", Versions.js.util))
-                implementation(npm("buffer", Versions.js.buffer))
-                implementation(npm("process", Versions.js.process))
                 implementation(npm("cbor", Versions.js.cbor))
-                implementation(npm("node-inspect-extracted", Versions.js.`node-inspect-extracted`))
-                implementation(npm("bignumber.js", Versions.js.bignumber))
                 implementation(npm("fast-sha256", Versions.js.sha256, generateExternals = true))
-                implementation(npm("url", Versions.js.url))
+                implementation(npm("bignumber.js", Versions.js.bignumber))
                 implementation(npm("elliptic", Versions.js.elliptic))
                 implementation(npm("node-rsa", Versions.js.rsa))
-                implementation(npm("constants-browserify", Versions.js.`constants-browserify`))
-                implementation(npm("assert", Versions.js.assert))
                 implementation(npm("ajv", Versions.js.ajv))
                 implementation(npm("ajv-formats", Versions.js.`ajv-formats`))
                 implementation(npm("@nuintun/qrcode", Versions.js.qrcode))
             }
         }
+
+        val jsBrowser by creating {
+            dependencies {
+                implementation(npm("crypto-browserify", Versions.js.`crypto-browserify`))
+                implementation(npm("stream-browserify", Versions.js.`stream-browserify`))
+                implementation(npm("util", Versions.js.util))
+                implementation(npm("buffer", Versions.js.buffer))
+                implementation(npm("process", Versions.js.process))
+                implementation(npm("node-inspect-extracted", Versions.js.`node-inspect-extracted`))
+                implementation(npm("url", Versions.js.url))
+                implementation(npm("constants-browserify", Versions.js.`constants-browserify`))
+                implementation(npm("assert", Versions.js.assert))
+            }
+        }
+        val jsMain by getting {
+            dependsOn(jsNode)
+            dependsOn(jsBrowser)
+        }
+
         val jsTest by getting {
             sourceSets { kotlin.srcDir(customSrcDirs.jsTestGenerated) }
         }
@@ -221,12 +232,12 @@ tasks {
             val baseFile = File(basePath)
             baseFile.walkBottomUp().filter { !it.isDirectory }.filterNot { it.extension == "png" }
                 .filterNot { it.extension == "jpg" }.forEach {
-                val encodeBase64 =
-                    de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
-                val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
-                val safeKey = key.replace("\$", "\\\$").replace("\\", "/")
-                w.write("m[\"$safeKey\"] = \"${String(encodeBase64)}\"\n")
-            }
+                    val encodeBase64 =
+                        de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.Base64.encodeBase64(it.readBytes())
+                    val key = it.absolutePath.substring(baseFile.absolutePath.length + 1)
+                    val safeKey = key.replace("\$", "\\\$").replace("\\", "/")
+                    w.write("m[\"$safeKey\"] = \"${String(encodeBase64)}\"\n")
+                }
             w.write("}\noverride fun get(key:String) = m[key]\n")
             w.write("override fun allResourceNames() = m.keys.sorted()\n}")
         }
