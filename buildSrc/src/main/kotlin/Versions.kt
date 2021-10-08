@@ -38,5 +38,6 @@ object Versions {
         const val ajv = "8.5.0"
         const val `ajv-formats` = "2.1.0"
         const val qrcode = "3.0.1"
+        const val bignumber = "9.0.1"
     }
 }

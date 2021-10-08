@@ -165,6 +165,7 @@ kotlin {
                 implementation(npm("buffer", Versions.js.buffer))
                 implementation(npm("process", Versions.js.process))
                 implementation(npm("cbor", Versions.js.cbor))
+                implementation(npm("bignumber.js", Versions.js.bignumber))
                 implementation(npm("node-inspect-extracted", Versions.js.`node-inspect-extract`))
                 implementation(npm("fast-sha256", Versions.js.sha256, generateExternals = true))
                 implementation(npm("url", Versions.js.url))
