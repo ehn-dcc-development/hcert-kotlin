@@ -158,7 +158,7 @@ kotlin {
             dependencies {
                 implementation(npm("pako", Versions.js.pako))
                 implementation(npm("pkijs", Versions.js.pkijs))
-                implementation(npm("cose-js", File("${projectDir.absolutePath}/cose-js"), generateExternals = false))
+                implementation(npm("cose-js", Versions.js.cose, generateExternals = false))
                 implementation(npm("crypto-browserify", Versions.js.`crypto-browserify`))
                 implementation(npm("stream-browserify", Versions.js.`stream-browserify`))
                 implementation(npm("util", Versions.js.util))
@@ -166,6 +166,7 @@ kotlin {
                 implementation(npm("process", Versions.js.process))
                 implementation(npm("cbor", Versions.js.cbor))
                 implementation(npm("node-inspect-extracted", Versions.js.`node-inspect-extracted`))
+                implementation(npm("bignumber.js", Versions.js.bignumber))
                 implementation(npm("fast-sha256", Versions.js.sha256, generateExternals = true))
                 implementation(npm("url", Versions.js.url))
                 implementation(npm("elliptic", Versions.js.elliptic))

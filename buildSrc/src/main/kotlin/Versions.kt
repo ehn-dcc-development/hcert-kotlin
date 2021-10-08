@@ -17,6 +17,7 @@ object Versions {
     }
 
     object Js {
+        const val cose = "0.7.0"
         const val pako = "2.0.4"
         const val pkijs = "2.1.97"
         const val `crypto-browserify` = "3.12.0"
@@ -35,5 +36,6 @@ object Versions {
         const val ajv = "8.6.3"
         const val `ajv-formats` = "2.1.1"
         const val qrcode = "3.0.1"
+        const val bignumber = "9.0.1"
     }
 }

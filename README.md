@@ -632,6 +632,7 @@ Version NEXT:
      - node-inspect-extracted: 1.0.8
      - ajv (JSON schema validator): 8.6.3
      - ajv-formats: 2.1.1
+ - JS: Switch to upstream cose-js 0.7.0 (deprecates forked version)
 
 Version 1.3.2:
  - Export `SignedDataDownloader` to JS

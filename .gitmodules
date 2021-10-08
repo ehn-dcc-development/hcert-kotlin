@@ -1,6 +1,3 @@
-[submodule "cose-js"]
-	path = cose-js
-	url = https://github.com/JesusMcCloud/cose-js
 [submodule "src/commonTest/resources/dgc-testdata"]
 	path = src/commonTest/resources/dgc-testdata
 	url = https://github.com/eu-digital-green-certificates/dgc-testdata.git
