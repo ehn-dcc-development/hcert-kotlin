@@ -104,6 +104,10 @@ kotlin {
                 }
             }
             webpackTask {
+                val src =
+                    File("${projectDir.absolutePath}/webpack-templates/patch-${if (project.hasProperty("node")) "node" else "browser"}.js")
+                src.copyTo(File("${projectDir.absolutePath}/webpack.config.d/patch.js"), overwrite = true)
+
                 output.library = "hcert"
                 output.libraryTarget = "umd"
             }
@@ -186,7 +190,7 @@ kotlin {
         }
         val jsMain by getting {
             dependsOn(jsNode)
-            dependsOn(jsBrowser)
+            if (!project.hasProperty("node")) dependsOn(jsBrowser)
         }
 
         val jsTest by getting {
