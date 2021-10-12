@@ -96,12 +96,20 @@ Sample data objects are provided in `SampleData`, with special thanks to Christi
 ## Usage (JS)
 
 The build result of this library for JS is a module in UMD format, located under `build/distributions/hcert-kotlin.js`. This script runs in a web browser environment and can be used in the following way (see [demo.html](demo.html)).
+In addition, we also (experimentally) support node as target environment (also based on a bundled UMD) by passing the `node` flag to gradle (see the [sample node project](node-demo)).
 
-Build the module either for development or production:
+Build the module either for development or production for a **browser** target:
 ```
 ./gradlew jsBrowserDevelopmentWebpack
 ./gradlew jsBrowserProductionWebpack
 ```
+
+Build the module either for development or production (**NodeJS** target):
+```
+./gradlew -Pnode jsBrowserDevelopmentWebpack
+./gradlew -Pnode jsBrowserProductionWebpack
+```
+
 
 To verify a single QR code content:
 
@@ -613,7 +621,7 @@ See these links for details:
 ## Changelog
 
 Version NEXT:
- - Fix constructors and overloads fro Java callers
+ - Fix constructors and overloads for Java callers
  - Update dependencies:
    - Common:
      - Kotlin: 1.5.31
@@ -632,7 +640,13 @@ Version NEXT:
      - node-inspect-extracted: 1.0.8
      - ajv (JSON schema validator): 8.6.3
      - ajv-formats: 2.1.1
- - JS: Switch to upstream cose-js 0.7.0 (deprecates forked version)
+ - JS:
+   - Switch to upstream cose-js 0.7.0 (deprecates forked version)
+   - Fix deprecated calls to `Buffer` constructor (possibly not all calls yet)
+   - Switch intermediate (=node) output from CommonJS to UMD 
+   - Experimental NodeJS support
+     - Enable outputting a bundled js module (UMD) targeting NodeJS if desired
+     - the Gradle [npm-publish](https://github.com/mpetuska/npm-publish) plugin does not work as desired
 
 Version 1.3.2:
  - Export `SignedDataDownloader` to JS

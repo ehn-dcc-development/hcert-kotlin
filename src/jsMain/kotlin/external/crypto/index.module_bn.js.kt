@@ -12,7 +12,7 @@ external interface `T$2` {
     var b: BN
     var gcd: BN
 }
-
+@JsNonModule
 @JsModule("bn.js")
 open external class BN {
     constructor(number: Number, base: Number = definedExternally, endian: String = definedExternally)

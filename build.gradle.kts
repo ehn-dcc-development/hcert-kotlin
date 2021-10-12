@@ -1,5 +1,4 @@
 plugins {
-    id("lt.petuska.npm.publish") version "1.1.4"
     kotlin("multiplatform") version Versions.kotlin
     kotlin("plugin.serialization") version Versions.kotlin
     id("idea")
@@ -105,15 +104,16 @@ kotlin {
                 }
             }
             webpackTask {
-                val src =
-                    File("${projectDir.absolutePath}/webpack-templates/patch-${if (project.hasProperty("node")) "node" else "browser"}.js")
-                src.copyTo(File("${projectDir.absolutePath}/webpack.config.d/patch.js"), overwrite = true)
+                val currentTemplate = if (project.hasProperty("node")) "node" else "browser"
+                val templateSrc = "${projectDir.absolutePath}/webpack-templates/patch-$currentTemplate.js"
+
+                //we want to overwrite, else we could end up in a messy state if we switch profiles
+                File(templateSrc).copyTo(File("${projectDir.absolutePath}/webpack.config.d/patch.js"), overwrite = true)
                 output.library = "hcert"
                 output.libraryTarget = "umd"
             }
         }
         binaries.executable()
-        useCommonJs()
     }
 
     sourceSets {
@@ -287,32 +287,6 @@ publishing {
             credentials {
                 username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-            }
-        }
-    }
-}
-
-npmPublishing {
-    repositories {
-        repository("npmjs") {
-            registry = uri("https://registry.npmjs.org")
-            authToken = "asdhkjsdfjvhnsdrishdl"
-        }
-    }
-    publications {
-        val js by getting {
-            dependencies {
-                npm("pako", Versions.js.pako)
-                npm("pkijs", Versions.js.pkijs)
-                npm("cose-js", Versions.js.cose)
-                npm("cbor", Versions.js.cbor)
-                npm("fast-sha256", Versions.js.sha256)
-                npm("bignumber.js", Versions.js.bignumber)
-                npm("elliptic", Versions.js.elliptic)
-                npm("node-rsa", Versions.js.rsa)
-                npm("ajv", Versions.js.ajv)
-                npm("ajv-formats", Versions.js.`ajv-formats`)
-                npm("@nuintun/qrcode", Versions.js.qrcode)
             }
         }
     }
