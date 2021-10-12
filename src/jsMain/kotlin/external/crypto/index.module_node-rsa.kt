@@ -4,7 +4,7 @@
     "RETURN_TYPE_MISMATCH_ON_OVERRIDE",
     "CONFLICTING_OVERLOADS"
 )
-
+@JsNonModule
 @JsModule("node-rsa")
 open external class NodeRSA {
     constructor(key: KeyBits = definedExternally)

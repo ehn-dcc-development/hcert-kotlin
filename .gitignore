@@ -10,3 +10,4 @@
 !src/**/build/
 src/jsTest/generated
 src/jsMain/generated
+webpack.config.d/
