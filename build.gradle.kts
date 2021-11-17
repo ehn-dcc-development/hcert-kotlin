@@ -102,7 +102,7 @@ kotlin {
         browser {
             testTask {
                 useKarma {
-                    useChromeHeadless()
+                    useChromiumHeadless()
                     webpackConfig.cssSupport.enabled = false
                 }
             }
@@ -298,7 +298,7 @@ publishing {
 
 
 /*******FIX JS DEPS******** https://blog.jetbrains.com/kotlin/2021/10/control-over-npm-dependencies-in-kotlin-js/ *****/
-rootProject.plugins.withType(org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin::class.java) {
+/*rootProject.plugins.withType(org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin::class.java) {
     rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension>().disableGranularWorkspaces()
 }
 tasks.register("backupYarnLock") {
@@ -356,6 +356,6 @@ allprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask> {
         args += "--ignore-scripts"
     }
-}
+}*/
 
 /**********************************************************************************************************************/
