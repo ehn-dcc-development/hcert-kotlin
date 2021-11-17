@@ -5,6 +5,8 @@ import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
+typealias ErrorDetails = Map<String, String>
+
 /**
  * See also VerificationResultJs
  */
@@ -57,12 +59,12 @@ class VerificationResult {
     /**
      * Holds the error, if any occurred
      */
-    var error: Error? = null
+    val error: MutableList<Error> = mutableListOf()
 
     /**
      * Holds details about the error, if any occurred and relevant details are available
      */
-    var errorDetails: Map<String, String>? = null
+    val errorDetails: MutableMap<String,String> = mutableMapOf()
 
     override fun toString(): String {
         return "VerificationResult(" +

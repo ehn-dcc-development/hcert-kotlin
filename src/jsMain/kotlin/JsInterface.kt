@@ -1,6 +1,7 @@
 import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
+import ehn.techiop.hcert.kotlin.chain.debug.DebugChain
 import ehn.techiop.hcert.kotlin.chain.impl.*
 import ehn.techiop.hcert.kotlin.log.BasicLogger
 import ehn.techiop.hcert.kotlin.log.JsLogger
@@ -40,8 +41,8 @@ fun setLogLevel(level: String?) {
 @JsExport
 @JsName("setLogger")
 fun setLogger(
-    loggingFunction: (level: String, tag: String?, stackTrace: String?, message: String?) -> Unit,
-    keep: Boolean? = false
+        loggingFunction: (level: String, tag: String?, stackTrace: String?, message: String?) -> Unit,
+        keep: Boolean? = false
 ): dynamic {
     if (keep == null || keep === undefined || !keep) Napier.takeLogarithm()
     return JsLogger(loggingFunction).also { Napier.base(it) }
@@ -50,20 +51,20 @@ fun setLogger(
 
 @JsExport
 @JsName("Verifier")
-class Verifier {
+class Verifier(private val debug: Boolean) {
 
     private val jsonEncoder = Json { encodeDefaults = true }
     private lateinit var repo: CertificateRepository
     private lateinit var chain: Chain
 
     @JsName("VerifierDirect")
-    constructor(vararg pemEncodedCertCertificates: String) {
+    constructor(debug:Boolean,vararg pemEncodedCertCertificates: String) : this(debug) {
         repo = PrefilledCertificateRepository(pemEncodedCertificates = pemEncodedCertCertificates)
-        chain = DefaultChain.buildVerificationChain(repo)
+        chain = if (debug) DebugChain.buildVerificationChain(repo) else DefaultChain.buildVerificationChain(repo)
     }
 
     @JsName("VerifierTrustList")
-    constructor(rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer) {
+    constructor(debug:Boolean,rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer) : this(debug){
         updateTrustList(rootPem, trustListContent, trustListSignature)
     }
 
@@ -75,7 +76,7 @@ class Verifier {
             val content = trustListContent.toByteArray()
             val contentAndSig = SignedData(content, sig)
             repo = TrustListCertificateRepository(contentAndSig, root)
-            chain = DefaultChain.buildVerificationChain(repo)
+            chain = if (debug) DebugChain.buildVerificationChain(repo) else DefaultChain.buildVerificationChain(repo)
         }.catch {
             if (it is VerificationException)
                 throw it
@@ -89,10 +90,10 @@ class Verifier {
     fun verify(qrContent: String): jsJson {
         val extResult = chain.decode(qrContent)
         val decodeResult = DecodeResultJs(
-            extResult.verificationResult.error == null,
-            extResult.verificationResult.error?.name,
-            VerificationResultJs(extResult.verificationResult),
-            extResult.chainDecodeResult.eudgc
+                extResult.verificationResult.error.isEmpty(),
+                extResult.verificationResult.error.map {  it.name},
+                VerificationResultJs(extResult.verificationResult),
+                extResult.chainDecodeResult.eudgc
         )
         return JSON.parse(jsonEncoder.encodeToString(decodeResult))
     }
@@ -197,20 +198,20 @@ fun main() {
     //is NOOP by default because log level is null by default
     Napier.base(defaultLogger)
     if (false) {
-        val directVerifier = Verifier("bar")
+        val directVerifier = Verifier(debug=false,"bar")
         directVerifier.verify("bar")
         directVerifier.verifyDataClass("bar")
-        val trustListVerifier = Verifier(
-            "bar",
-            ArrayBuffer.from("content".encodeToByteArray()),
-            ArrayBuffer.from("signature".encodeToByteArray())
+        val trustListVerifier = Verifier(debug=true,
+                "bar",
+                ArrayBuffer.from("content".encodeToByteArray()),
+                ArrayBuffer.from("signature".encodeToByteArray())
         )
         trustListVerifier.verify("bar")
         trustListVerifier.verifyDataClass("bar")
         trustListVerifier.updateTrustList(
-            "bar",
-            ArrayBuffer.from("content".encodeToByteArray()),
-            ArrayBuffer.from("signature".encodeToByteArray())
+                "bar",
+                ArrayBuffer.from("content".encodeToByteArray()),
+                ArrayBuffer.from("signature".encodeToByteArray())
         )
 
         SignedDataDownloader.loadBusinessRules("", ArrayBuffer(0), ArrayBuffer(0))

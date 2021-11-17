@@ -11,14 +11,14 @@ import kotlin.js.JsName
  * @see [GreenCertificate]
  */
 class Chain(
-    private val higherOrderValidationService: HigherOrderValidationService,
-    private val schemaValidationService: SchemaValidationService,
-    private val cborService: CborService,
-    private val cwtService: CwtService,
-    private val coseService: CoseService,
-    private val compressorService: CompressorService,
-    private val base45Service: Base45Service,
-    private val contextIdentifierService: ContextIdentifierService
+        private val higherOrderValidationService: HigherOrderValidationService,
+        private val schemaValidationService: SchemaValidationService,
+        private val cborService: CborService,
+        private val cwtService: CwtService,
+        private val coseService: CoseService,
+        private val compressorService: CompressorService,
+        private val base45Service: Base45Service,
+        private val contextIdentifierService: ContextIdentifierService
 ) {
     private val logTag = "Chain${hashCode()}"
 
@@ -67,26 +67,41 @@ class Chain(
         var encoded: String? = null
 
         try {
-            encoded = contextIdentifierService.decode(input, verificationResult)
-            compressed = base45Service.decode(encoded, verificationResult)
-            cose = compressorService.decode(compressed, verificationResult)
-            cwt = coseService.decode(cose, verificationResult)
-            val cborObj = cwtService.decode(cwt, verificationResult)
+            encoded = verificationResult.let { it.withRecovery { contextIdentifierService.decode(input, it) } }
+            compressed = verificationResult.let { it.withRecovery { base45Service.decode(encoded, it) } }
+            cose = verificationResult.let { it.withRecovery { compressorService.decode(compressed, it) } }
+            cwt = verificationResult.let { it.withRecovery { coseService.decode(cose, it) } }
+            val cborObj = verificationResult.let { it.withRecovery { cwtService.decode(cwt, it) } }
             rawEuGcc = cborObj.toJsonString()
-            val schemaValidated = schemaValidationService.validate(cborObj, verificationResult)
-            eudgc = higherOrderValidationService.validate(schemaValidated, verificationResult)
+            val schemaValidated = verificationResult.let { it.withRecovery { schemaValidationService.validate(cborObj, it) } }
+            eudgc = verificationResult.let { it.withRecovery { higherOrderValidationService.validate(schemaValidated, it) } }
         } catch (e: VerificationException) {
-            verificationResult.error = e.error
-            verificationResult.errorDetails = e.details
+            verificationResult.addError(e)
             Napier.w(
-                message = e.message ?: "Decode Chain error",
-                throwable = if (globalLogLevel == Napier.Level.VERBOSE) e else null,
-                tag = logTag
+                    message = e.message ?: "Decode Chain error",
+                    throwable = if (globalLogLevel == Napier.Level.VERBOSE) e else null,
+                    tag = logTag
             )
         }
 
         val chainDecodeResult = ChainDecodeResult(eudgc, rawEuGcc, cwt, cose, compressed, encoded)
         return DecodeResult(verificationResult, chainDecodeResult)
+    }
+
+    private inline fun <reified T> VerificationResult.withRecovery(verify: () -> T): T {
+        return try {
+            verify()
+        } catch (e: Throwable) {
+            if (e is NonFatalVerificationException) {
+                addError(e)
+                e.result as T
+            } else throw e
+        }
+    }
+
+    private fun VerificationResult.addError(e: VerificationException) {
+        error += e.error
+        e.details?.forEach { (k, v) -> errorDetails[k] = v }
     }
 }
 

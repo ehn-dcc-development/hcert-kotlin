@@ -10,6 +10,7 @@
     </style>
     <script src="build/distributions/hcert-kotlin.js"></script>
     <script>
+        var debug=false;
      var verifier;
 
      document.onload = function () {
@@ -57,7 +58,7 @@
          let qr = tQR.value.trim();
          let pemCert = tCert.value.trim();
          tRes.value = "Verifying ...";
-         verifier = new hcert.VerifierDirect([pemCert]);
+         verifier = new hcert.VerifierDirect(debug,[pemCert]);
          let result = callVerifier(showDataClass, qr);
          console.info(result);
          tRes.value = JSON.stringify(result, null, 2);
@@ -92,7 +93,7 @@
          downloadBinary(contentUrl, function (resultContent) {
              downloadBinary(signatureUrl, function (resultSignature) {
                  try {
-                     verifier = new hcert.VerifierTrustList(pemCert, resultContent, resultSignature);
+                     verifier = new hcert.VerifierTrustList(debug,pemCert, resultContent, resultSignature);
                      let result = callVerifier(showDataClass, qr);
                      console.info(result);
                      tRes.value = JSON.stringify(result, null, 2);

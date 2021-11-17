@@ -9,6 +9,7 @@ import ehn.techiop.hcert.kotlin.chain.impl.DefaultHigherOrderValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
 import ehn.techiop.hcert.kotlin.trust.CoseAdapter
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.datetime.Instant
@@ -32,7 +33,7 @@ class SpecialCasesTest : DescribeSpec({
         )
 
         val result = decodingChain.decode(input)
-        result.verificationResult.error shouldBe null
+        result.verificationResult.error shouldHaveSize  0
         result.chainDecodeResult.eudgc shouldNotBe null
         println(result.chainDecodeResult.eudgc)
     }

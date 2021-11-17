@@ -66,7 +66,7 @@ class ContentTypeChainTest : DescribeSpec({
 
         val result = decodingChain.decode(output.step5Prefixed)
         val expectedOutcome = input.dataType == input.certContentType
-        (result.verificationResult.error == null) shouldBe expectedOutcome
+        (result.verificationResult.error.isEmpty()) shouldBe expectedOutcome
         if (expectedOutcome) // our chain exits early on an error
             result.chainDecodeResult.eudgc shouldBe dataInput
         else
