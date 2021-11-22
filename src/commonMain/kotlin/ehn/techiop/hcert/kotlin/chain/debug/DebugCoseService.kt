@@ -30,19 +30,35 @@ open class DebugCoseService private constructor(
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         val coseAdapter = CoseAdapter(input)
-        val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
-            ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
-            //TODO: this is hacky!
-            ?: throw NonFatalVerificationException(
+        val kid = try {
+            coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
+                ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
+                //TODO: this is hacky!
+                ?: throw NonFatalVerificationException(
+                    coseAdapter.getContent(),
+                    Error.KEY_NOT_IN_TRUST_LIST,
+                    "KID not found"
+                )
+        } catch (t: Throwable) {
+            throw NonFatalVerificationException(
                 coseAdapter.getContent(),
-                Error.KEY_NOT_IN_TRUST_LIST,
-                "KID not found"
+                if (t is VerificationException) t.error else Error.KEY_NOT_IN_TRUST_LIST,
+                cause = t
             )
+        }
         // TODO is the algorithm relevant?
         //val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
         if (verificationRepo != null) {
-            if (!coseAdapter.validate(kid, verificationRepo, verificationResult))
-                throw NonFatalVerificationException(coseAdapter.getContent(), Error.SIGNATURE_INVALID, "Not validated")
+           try{
+               if (!coseAdapter.validate(kid, verificationRepo, verificationResult))
+                   throw NonFatalVerificationException(coseAdapter.getContent(), Error.SIGNATURE_INVALID, "Not validated")
+           }catch (t:Throwable){
+               throw NonFatalVerificationException(
+                   coseAdapter.getContent(),
+                   if (t is VerificationException) t.error else Error.SIGNATURE_INVALID,
+                   cause = t
+               )
+           }
         } else if (signingService != null) {
             if (!coseAdapter.validate(kid, signingService, verificationResult))
                 throw NonFatalVerificationException(coseAdapter.getContent(), Error.SIGNATURE_INVALID, "Not validated")
