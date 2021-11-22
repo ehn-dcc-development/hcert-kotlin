@@ -90,8 +90,8 @@ class Verifier(private val debug: Boolean) {
     fun verify(qrContent: String): jsJson {
         val extResult = chain.decode(qrContent)
         val decodeResult = DecodeResultJs(
-                extResult.verificationResult.error.isEmpty(),
-                extResult.verificationResult.error.map {  it.name},
+                extResult.verificationResult.error==null,
+                extResult.chainDecodeResult.errors?.map {  it.name},
                 VerificationResultJs(extResult.verificationResult),
                 extResult.chainDecodeResult.eudgc
         )

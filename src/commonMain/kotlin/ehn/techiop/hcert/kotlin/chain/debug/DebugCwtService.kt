@@ -43,55 +43,72 @@ open class DebugCwtService constructor(
             }
 
             val issuedAtSeconds = map.getNumber(CwtHeaderKeys.ISSUED_AT.intVal)
-                ?: throw NonFatalVerificationException(map.getDgc(), Error.CWT_EXPIRED, details = mapOf("issuedAt" to "null"))
+                ?: throw NonFatalVerificationException(
+                    map.getDgc(),
+                    Error.CWT_EXPIRED,
+                    details = mapOf("issuedAt" to "null")
+                )
             val issuedAt = Instant.fromEpochSeconds(issuedAtSeconds.toLong())
             verificationResult.issuedAt = issuedAt
             val certValidFrom = verificationResult.certificateValidFrom
-                ?: throw NonFatalVerificationException(map.getDgc(),
-            Error.PUBLIC_KEY_NOT_YET_VALID,
+                ?: throw NonFatalVerificationException(
+                    map.getDgc(),
+                    Error.PUBLIC_KEY_NOT_YET_VALID,
                     details = mapOf("certValidFrom" to "null")
                 )
 
             if (issuedAt > now)
-                throw NonFatalVerificationException(map.getDgc(),
-                        Error.CWT_NOT_YET_VALID, details = mapOf(
+                throw NonFatalVerificationException(
+                    map.getDgc(),
+                    Error.CWT_NOT_YET_VALID, details = mapOf(
                         "issuedAt" to issuedAt.toString(),
                         "currentTime" to now.toString()
                     )
                 )
 
             if (certValidFrom > now)
-                throw NonFatalVerificationException(map.getDgc(),
-                        Error.PUBLIC_KEY_NOT_YET_VALID, details = mapOf(
+                throw NonFatalVerificationException(
+                    map.getDgc(),
+                    Error.PUBLIC_KEY_NOT_YET_VALID, details = mapOf(
                         "certValidFrom" to certValidFrom.toString(),
                         "currentTime" to now.toString()
                     )
                 )
 
             val expirationSeconds = map.getNumber(CwtHeaderKeys.EXPIRATION.intVal)
-                ?: throw NonFatalVerificationException(map.getDgc(), Error.CWT_EXPIRED, details = mapOf("expirationTime" to "null"))
+                ?: throw NonFatalVerificationException(
+                    map.getDgc(),
+                    Error.CWT_EXPIRED,
+                    details = mapOf("expirationTime" to "null")
+                )
             val expirationTime = Instant.fromEpochSeconds(expirationSeconds.toLong())
             verificationResult.expirationTime = expirationTime
             val certValidUntil = verificationResult.certificateValidUntil
-                ?: throw NonFatalVerificationException(map.getDgc(), Error.PUBLIC_KEY_EXPIRED, details = mapOf("certValidUntil" to "null"))
+                ?: throw NonFatalVerificationException(
+                    map.getDgc(),
+                    Error.PUBLIC_KEY_EXPIRED,
+                    details = mapOf("certValidUntil" to "null")
+                )
 
             if (certValidUntil < now)
-                throw NonFatalVerificationException(map.getDgc(),
-                        Error.PUBLIC_KEY_EXPIRED, details = mapOf(
+                throw NonFatalVerificationException(
+                    map.getDgc(),
+                    Error.PUBLIC_KEY_EXPIRED, details = mapOf(
                         "certValidUntil" to certValidUntil.toString(),
                         "currentTime" to now.toString()
                     )
                 )
 
             if (expirationTime < now)
-                throw NonFatalVerificationException(map.getDgc(),
-                        Error.CWT_EXPIRED, details = mapOf(
+                throw NonFatalVerificationException(
+                    map.getDgc(),
+                    Error.CWT_EXPIRED, details = mapOf(
                         "expirationTime" to expirationTime.toString(),
                         "currentTime" to now.toString()
                     )
                 )
 
-           return map.getDgc()
+            return map.getDgc()
         } catch (e: VerificationException) {
             throw e
         } catch (e: Throwable) {
@@ -100,11 +117,11 @@ open class DebugCwtService constructor(
     }
 
     private fun CwtAdapter.getDgc(): CborObject {
-        val hcert: CwtAdapter =getMap(CwtHeaderKeys.HCERT.intVal)
-                ?: throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, "CWT contains no HCERT")
+        val hcert: CwtAdapter = getMap(CwtHeaderKeys.HCERT.intVal)
+            ?: throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, "CWT contains no HCERT")
 
         val dgc = hcert.getMap(CwtHeaderKeys.EUDGC_IN_HCERT.intVal)
-                ?: throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, "CWT contains no EUDGC")
+            ?: throw VerificationException(Error.CBOR_DESERIALIZATION_FAILED, "CWT contains no EUDGC")
 
         return dgc.toCborObject()
     }

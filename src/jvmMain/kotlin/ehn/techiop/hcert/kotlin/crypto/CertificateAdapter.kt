@@ -49,6 +49,7 @@ actual class CertificateAdapter(val certificate: X509Certificate) {
     actual val kid = certificate.kid
 
     actual val encoded = certificate.encoded
+    actual fun prettyPrint() = certificate.toString()
 
 }
 

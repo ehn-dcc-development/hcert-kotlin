@@ -19,13 +19,13 @@ import kotlin.js.Date
 @Serializable
 data class DecodeResultJs(
     val isValid: Boolean,
-    val error: List<String>,
+    val errors: List<String>?,
     val metaInformation: VerificationResultJs,
     val greenCertificate: GreenCertificate?,
 ) {
     constructor(extResult: DecodeResult) : this(
-        extResult.verificationResult.error.isEmpty(),
-        extResult.verificationResult.error.map { it.name},
+        extResult.verificationResult.error==null,
+        extResult.chainDecodeResult.errors?.map { it.name },
         VerificationResultJs(extResult.verificationResult),
         extResult.chainDecodeResult.eudgc?.apply { replaceDatesWithJsTypes() },
     )

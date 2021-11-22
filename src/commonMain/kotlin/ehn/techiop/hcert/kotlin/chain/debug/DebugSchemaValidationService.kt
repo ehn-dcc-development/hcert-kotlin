@@ -17,12 +17,14 @@ class DebugSchemaValidationService @JvmOverloads constructor(private val useFall
     override fun validate(cbor: CborObject, verificationResult: VerificationResult): GreenCertificate {
         val adapter = SchemaValidationAdapter(cbor)
 
-        val versionString = cbor.getVersionString() ?: throw NonFatalVerificationException(adapter.toJson(),
+        val versionString = cbor.getVersionString() ?: throw NonFatalVerificationException(
+            adapter.toJson(),
             Error.CBOR_DESERIALIZATION_FAILED,
             "No schema version specified",
             details = mapOf("schemaVersion" to "null")
         )
-        if (!adapter.hasValidator(versionString)) throw NonFatalVerificationException(adapter.toJson(),
+        if (!adapter.hasValidator(versionString)) throw NonFatalVerificationException(
+            adapter.toJson(),
             Error.SCHEMA_VALIDATION_FAILED,
             "Schema version $versionString is not supported",
             details = mapOf("schemaVersion" to versionString)
@@ -30,14 +32,16 @@ class DebugSchemaValidationService @JvmOverloads constructor(private val useFall
 
         if (useFallback) {
             val fallbackErrors = adapter.validateWithFallback()
-            if (fallbackErrors.isNotEmpty()) throw NonFatalVerificationException(adapter.toJson(),
+            if (fallbackErrors.isNotEmpty()) throw NonFatalVerificationException(
+                adapter.toJson(),
                 Error.SCHEMA_VALIDATION_FAILED,
                 "Data does not follow fallback schema: $fallbackErrors}",
                 details = mapOf("schemaErrors" to fallbackErrors.joinToString())
             )
         } else {
             val errors = adapter.validateBasic(versionString)
-            if (errors.isNotEmpty()) throw NonFatalVerificationException(adapter.toJson(),
+            if (errors.isNotEmpty()) throw NonFatalVerificationException(
+                adapter.toJson(),
                 Error.SCHEMA_VALIDATION_FAILED,
                 "Data does not follow fallback schema: $errors}",
                 details = mapOf("schemaErrors" to errors.joinToString())

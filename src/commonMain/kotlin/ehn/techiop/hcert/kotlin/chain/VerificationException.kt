@@ -5,6 +5,12 @@ open class VerificationException(
     message: String? = null,
     cause: Throwable? = null,
     val details: ErrorDetails? = null
-) : Exception(message, cause)
+) : Throwable(message, cause)
 
-class NonFatalVerificationException(val result:Any,error: Error,message: String?=null,cause: Throwable?=null,details: ErrorDetails?=null):VerificationException(error, message, cause, details)
+class NonFatalVerificationException(
+    val result: Any,
+    error: Error,
+    message: String? = null,
+    cause: Throwable? = null,
+    details: ErrorDetails? = null
+) : VerificationException(error, message, cause, details)

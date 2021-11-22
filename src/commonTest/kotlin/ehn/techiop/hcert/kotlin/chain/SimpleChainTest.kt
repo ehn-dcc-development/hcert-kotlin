@@ -56,7 +56,7 @@ class SimpleChainTest : DescribeSpec({
         val output = encodingChain.encode(dataInput)
 
         val result = decodingChain.decode(output.step5Prefixed)
-        (result.verificationResult.error.isEmpty()) shouldBe true
+        (result.verificationResult.error == null) shouldBe true
         result.chainDecodeResult.eudgc shouldBe dataInput
     }
 

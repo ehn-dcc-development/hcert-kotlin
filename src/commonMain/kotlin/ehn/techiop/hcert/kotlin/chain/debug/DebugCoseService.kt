@@ -32,16 +32,20 @@ open class DebugCoseService private constructor(
         val coseAdapter = CoseAdapter(input)
         val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
             ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
-                    //TODO: this is hacky!
-            ?: throw NonFatalVerificationException(coseAdapter.getContent(),Error.KEY_NOT_IN_TRUST_LIST, "KID not found")
+            //TODO: this is hacky!
+            ?: throw NonFatalVerificationException(
+                coseAdapter.getContent(),
+                Error.KEY_NOT_IN_TRUST_LIST,
+                "KID not found"
+            )
         // TODO is the algorithm relevant?
         //val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
         if (verificationRepo != null) {
             if (!coseAdapter.validate(kid, verificationRepo, verificationResult))
-                throw NonFatalVerificationException(coseAdapter.getContent(),Error.SIGNATURE_INVALID, "Not validated")
+                throw NonFatalVerificationException(coseAdapter.getContent(), Error.SIGNATURE_INVALID, "Not validated")
         } else if (signingService != null) {
             if (!coseAdapter.validate(kid, signingService, verificationResult))
-                throw NonFatalVerificationException(coseAdapter.getContent(),Error.SIGNATURE_INVALID, "Not validated")
+                throw NonFatalVerificationException(coseAdapter.getContent(), Error.SIGNATURE_INVALID, "Not validated")
         } else {
             // safe to throw this "ugly" error, as it should not happen
             throw NotImplementedError()
@@ -49,4 +53,5 @@ open class DebugCoseService private constructor(
         return coseAdapter.getContent()
     }
 
+    override fun getVerificationRepo() = verificationRepo
 }

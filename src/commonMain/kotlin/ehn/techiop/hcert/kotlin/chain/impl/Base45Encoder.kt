@@ -51,7 +51,7 @@ object Base45Encoder {
     private fun fromThreeCharValue(list: String): Long {
         return list.foldIndexed(0L) { index, acc: Long, element ->
             if (!ALPHABET.contains(element)) throw IllegalArgumentException()
-           val result = pow(45, index) * ALPHABET.indexOf(element) + acc
+            val result = pow(45, index) * ALPHABET.indexOf(element) + acc
             if (list.length == 2 && result > 255) throw IllegalArgumentException() // per spec
             if (result > 65535) throw IllegalArgumentException() // per spec
             result

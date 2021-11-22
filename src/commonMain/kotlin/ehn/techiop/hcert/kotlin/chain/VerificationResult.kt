@@ -13,6 +13,8 @@ typealias ErrorDetails = Map<String, String>
 @Serializable
 class VerificationResult {
 
+    var encodedCertificate: ByteArray? = null
+
     /**
      * `exp` claim SHALL hold a timestamp.
      * Verifier MUST reject the payload after expiration.
@@ -59,12 +61,12 @@ class VerificationResult {
     /**
      * Holds the error, if any occurred
      */
-    val error: MutableList<Error> = mutableListOf()
+    var error: Error? = null
 
     /**
      * Holds details about the error, if any occurred and relevant details are available
      */
-    val errorDetails: MutableMap<String,String> = mutableMapOf()
+    val errorDetails: MutableMap<String, String> = mutableMapOf()
 
     override fun toString(): String {
         return "VerificationResult(" +
@@ -86,6 +88,7 @@ class VerificationResult {
         certificateValidUntil = certificate.validUntil
         certificateValidContent = certificate.validContentTypes
         certificateSubjectCountry = certificate.subjectCountry
+        encodedCertificate = certificate.encoded
     }
 
 }

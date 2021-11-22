@@ -53,4 +53,5 @@ open class DefaultCoseService private constructor(
         return coseAdapter.getContent()
     }
 
+    override fun getVerificationRepo() = verificationRepo
 }

@@ -13,7 +13,8 @@ import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.withData
-import io.kotest.matchers.collections.*
+import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.collections.shouldBeOneOf
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -179,7 +180,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     chainResult.chainDecodeResult.step4Encoded shouldBe case.base45
                 }
                 if (!it) {
-                    verificationResult.error shouldHaveSingleElement  Error.INVALID_SCHEME_PREFIX
+                    verificationResult.error shouldBe Error.INVALID_SCHEME_PREFIX
                     errorExpected = true
                 }
             }
@@ -191,7 +192,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                         ?.lowercase() shouldBe case.compressedHex.lowercase()
                 }
                 if (!it) {
-                    verificationResult.error shouldHaveSingleElement  Error.BASE_45_DECODING_FAILED
+                    verificationResult.error shouldBe Error.BASE_45_DECODING_FAILED
                     errorExpected = true
                 }
             }
@@ -203,7 +204,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                         ?.lowercase() shouldBe case.coseHex.lowercase()
                 }
                 if (!it) {
-                    verificationResult.error shouldHaveSingleElement  Error.DECOMPRESSION_FAILED
+                    verificationResult.error shouldBe Error.DECOMPRESSION_FAILED
                     errorExpected = true
                 }
             }
@@ -218,11 +219,11 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     } else if (case.coseHex != null) {
                         val newResult = VerificationResult()
                         DefaultCoseService(certificateRepository).decode(case.coseHex.fromHexString(), newResult)
-                        newResult.error shouldHaveSize 0
+                        newResult.error shouldBe null
                     }
                 }
                 if (!it) {
-                    verificationResult.error shouldContainAnyOf  listOf(
+                    verificationResult.error shouldBeIn listOf(
                         Error.SIGNATURE_INVALID,
                         Error.KEY_NOT_IN_TRUST_LIST
                     )
@@ -244,14 +245,14 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                                 newResult
                             ), newResult
                         )
-                        newResult.error shouldHaveSize 0
+                        newResult.error shouldBe null
                     }
                 } else {
                     if (it) {
                         chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                     }
                     if (!it) {
-                        verificationResult.error shouldHaveSingleElement  Error.CBOR_DESERIALIZATION_FAILED
+                        verificationResult.error shouldBe Error.CBOR_DESERIALIZATION_FAILED
                         errorExpected = true
                     }
                 }
@@ -278,7 +279,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                 }
                 if (!it) {
-                    verificationResult.error shouldHaveSingleElement  Error.CBOR_DESERIALIZATION_FAILED
+                    verificationResult.error shouldBe Error.CBOR_DESERIALIZATION_FAILED
                     errorExpected = true
                 }
             }
@@ -291,11 +292,11 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     DefaultSchemaValidationService().validate(
                         CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), newResult
                     )
-                    if (it) newResult.error shouldHaveSize 0
-                    if (!it) newResult.error shouldHaveSingleElement  Error.SCHEMA_VALIDATION_FAILED
+                    if (it) newResult.error shouldBe null
+                    if (!it) newResult.error shouldBe Error.SCHEMA_VALIDATION_FAILED
                 }
                 if (!it) {
-                    verificationResult.error shouldHaveSingleElement  Error.SCHEMA_VALIDATION_FAILED
+                    verificationResult.error shouldBe Error.SCHEMA_VALIDATION_FAILED
                     errorExpected = true
                 }
             }
@@ -303,7 +304,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.expirationCheck?.let {
             withClue("Expiration Check") {
                 if (!errorExpected && !it) {
-                    verificationResult.error shouldContainAnyOf  listOf(
+                    verificationResult.error shouldBeOneOf listOf(
                         Error.CWT_EXPIRED,
                         Error.CWT_NOT_YET_VALID,
                         Error.PUBLIC_KEY_EXPIRED,
@@ -316,13 +317,13 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         case.expectedResult.keyUsage?.let {
             withClue("Key Usage") {
                 if (!errorExpected && !it) {
-                    verificationResult.error shouldHaveSingleElement  Error.UNSUITABLE_PUBLIC_KEY_TYPE
+                    verificationResult.error shouldBe Error.UNSUITABLE_PUBLIC_KEY_TYPE
                     errorExpected = true
                 }
             }
         }
         if (!errorExpected)
-            verificationResult.error shouldHaveSize 0
+            verificationResult.error shouldBe null
     }
 })
 

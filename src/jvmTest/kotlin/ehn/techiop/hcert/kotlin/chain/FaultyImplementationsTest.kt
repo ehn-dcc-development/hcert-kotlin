@@ -7,7 +7,6 @@ import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.collections.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -229,7 +228,7 @@ private fun assertVerification(
     val verificationResult = result.verificationResult
     if (error != null) {
         result.chainDecodeResult.eudgc shouldNotBe input
-        verificationResult.error shouldHaveSingleElement error
+        verificationResult.error shouldBe error
     } else {
         result.chainDecodeResult.eudgc shouldBe input
     }

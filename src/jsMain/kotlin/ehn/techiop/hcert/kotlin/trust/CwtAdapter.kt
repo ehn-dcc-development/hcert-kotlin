@@ -1,5 +1,6 @@
 package ehn.techiop.hcert.kotlin.trust
 
+import Buffer
 import Cbor.Wrappers.decodeFirst
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry

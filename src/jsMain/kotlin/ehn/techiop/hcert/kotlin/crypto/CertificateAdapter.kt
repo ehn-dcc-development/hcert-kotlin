@@ -115,4 +115,7 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
     actual val kid: ByteArray
         get() = Hash(encoded).calc().copyOf(8)
 
+    actual fun prettyPrint() = JSON.stringify(cert, null, 2)
+
+
 }

@@ -15,7 +15,8 @@ open class DebugContextIdentifierService @JvmOverloads constructor(private val p
 
     override fun decode(input: String, verificationResult: VerificationResult) = when {
         input.startsWith(prefix) -> input.drop(prefix.length)
-        else -> throw NonFatalVerificationException(input,
+        else -> throw NonFatalVerificationException(
+            input,
             Error.INVALID_SCHEME_PREFIX,
             "No context prefix '$prefix'",
             details = mapOf("prefix" to prefix)

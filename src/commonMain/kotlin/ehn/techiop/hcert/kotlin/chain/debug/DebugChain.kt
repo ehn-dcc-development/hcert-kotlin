@@ -11,10 +11,7 @@ import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 
-object DebugChain{
-    @JvmStatic
-    @JsName("buildCreationChain")
-    fun buildCreationChain(cryptoService: CryptoService) = DefaultChain.buildCreationChain(cryptoService)
+object DebugChain {
 
     /**
      * Builds a "default" chain for verifying, i.e. one with the implementation according to spec.

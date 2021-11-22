@@ -24,7 +24,8 @@ class DebugHigherOrderValidationService : HigherOrderValidationService {
         val numberNonNullVaccinations = input.vaccinations?.filterNotNull()?.size ?: 0
         if (numberNonNullVaccinations > 0) {
             if (numberNonNullTests > 0)
-                throw NonFatalVerificationException(input,
+                throw NonFatalVerificationException(
+                    input,
                     SCHEMA_VALIDATION_FAILED,
                     "Vaccination and test entry found",
                     details = mapOf("conflictingEntryTypes" to "['TEST','VACCINATION']")
@@ -32,7 +33,9 @@ class DebugHigherOrderValidationService : HigherOrderValidationService {
 
             verificationResult.content.add(ContentType.VACCINATION)
             if (!verificationResult.certificateValidContent.contains(ContentType.VACCINATION))
-                throw NonFatalVerificationException(input, Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Vaccination not valid",
+                throw NonFatalVerificationException(input,
+                    Error.UNSUITABLE_PUBLIC_KEY_TYPE,
+                    "Type Vaccination not valid",
                     details = mapOf(
                         "ContentType" to ContentType.VACCINATION.oid,
                         "certificateValidContent" to verificationResult.certificateValidContent.joinToString { it.oid }
@@ -41,7 +44,8 @@ class DebugHigherOrderValidationService : HigherOrderValidationService {
         val numberNonNullRecoveryStatements = input.recoveryStatements?.filterNotNull()?.size ?: 0
         if (numberNonNullRecoveryStatements > 0) {
             if (numberNonNullTests > 0)
-                throw NonFatalVerificationException(input,
+                throw NonFatalVerificationException(
+                    input,
                     SCHEMA_VALIDATION_FAILED, "Recovery and test entry found",
                     details = mapOf("conflictingEntryTypes" to "['TEST','RECOVERY']")
                 )
@@ -53,17 +57,25 @@ class DebugHigherOrderValidationService : HigherOrderValidationService {
 
             verificationResult.content.add(ContentType.RECOVERY)
             if (!verificationResult.certificateValidContent.contains(ContentType.RECOVERY))
-                throw NonFatalVerificationException(input,Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Recovery not valid",
+                throw NonFatalVerificationException(input, Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Recovery not valid",
                     details = mapOf(
                         "ContentType" to ContentType.RECOVERY.oid,
                         "certificateValidContent" to verificationResult.certificateValidContent.joinToString { it.oid }
                     ))
         }
         if (numberNonNullTests == 0 && numberNonNullVaccinations == 0 && numberNonNullRecoveryStatements == 0) {
-            throw NonFatalVerificationException(input,SCHEMA_VALIDATION_FAILED, "No test, vaccination, or recovery entry")
+            throw NonFatalVerificationException(
+                input,
+                SCHEMA_VALIDATION_FAILED,
+                "No test, vaccination, or recovery entry"
+            )
         }
         if (numberNonNullTests + numberNonNullVaccinations + numberNonNullRecoveryStatements > 1) {
-            throw NonFatalVerificationException(input,SCHEMA_VALIDATION_FAILED, "More than one test, vaccination, and recovery entry")
+            throw NonFatalVerificationException(
+                input,
+                SCHEMA_VALIDATION_FAILED,
+                "More than one test, vaccination, and recovery entry"
+            )
         }
         return input
     }

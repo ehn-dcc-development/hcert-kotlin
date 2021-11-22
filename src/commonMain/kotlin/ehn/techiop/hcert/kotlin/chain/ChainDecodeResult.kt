@@ -7,6 +7,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 
 @Serializable
 data class ChainDecodeResult(
+    val errors: List<Error>?,
     val eudgc: GreenCertificate?,
     val step0rawEuGcc: String?,
     val step1Cwt: ByteArray?,
@@ -20,6 +21,7 @@ data class ChainDecodeResult(
 
         other as ChainDecodeResult
 
+        if (errors != other.errors) return false
         if (eudgc != other.eudgc) return false
         if (!step0rawEuGcc.contentEquals(other.step0rawEuGcc)) return false
         if (!step1Cwt.contentEquals(other.step1Cwt)) return false
