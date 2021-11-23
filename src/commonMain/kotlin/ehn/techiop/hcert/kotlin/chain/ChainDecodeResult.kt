@@ -42,7 +42,6 @@ data class ChainDecodeResult(
         return result
     }
 
-    fun toJson() = Json.encodeToJsonElement(this)
-    fun toJsonString() = toJson().toString()
+
 
 }

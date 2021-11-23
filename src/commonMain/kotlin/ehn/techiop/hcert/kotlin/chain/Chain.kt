@@ -87,10 +87,10 @@ class Chain(
             """.trimIndent()
             )
             cose = verificationResult.let { it.withRecovery(errors) { compressorService.decode(compressed, it) } }
-            Napier.d("COSE structure: ${CwtHelper.fromCbor(cose).toCborObject().toJsonString()}")
+            Napier.d("COSE structure: ${CwtHelper.fromCbor(cose)}")
             cwt = verificationResult.let { it.withRecovery(errors) { coseService.decode(cose, it) } }
 
-            Napier.d("CWT structure: ${CwtHelper.fromCbor(cwt).toCborObject().toJsonString()}")
+           // Napier.d("CWT structure: ${CwtHelper.fromCbor(cwt).toCborObject().toJsonString()}")
             val cborObj = verificationResult.let { it.withRecovery(errors) { cwtService.decode(cwt, it) } }
             rawEuGcc = cborObj.toJsonString()
 
@@ -150,4 +150,3 @@ class Chain(
         e.details?.forEach { (k, v) -> errorDetails[k] = v }
     }
 }
-
