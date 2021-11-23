@@ -73,5 +73,8 @@ data class GreenCertificate(
         return result
     }
 
+    @Transient
+    val anonymizedCopy by lazy { GreenCertificate(schemaVersion, Person("***","***","***","***") , "***", vaccinations, recoveryStatements, tests) }
+
 
 }

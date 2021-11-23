@@ -36,7 +36,7 @@ EkhRcgdlVfUb
 
         val result = decodingChain.decode(input)
 
-        println(result)
+        println(result.toJsonString(anonymized = true))
     }
 
 })

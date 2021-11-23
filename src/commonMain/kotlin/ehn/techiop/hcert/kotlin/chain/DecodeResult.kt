@@ -12,9 +12,15 @@ private val json = Json { prettyPrint = true }
 data class DecodeResult(
     val verificationResult: VerificationResult,
     val chainDecodeResult: ChainDecodeResult
-){
+) {
 
-    fun toJson() = json.encodeToJsonElement(this)
-    fun toJsonString() = json.encodeToString(this)
-    override fun toString()=toJsonString()
+    fun toJson(anonymized: Boolean = false) = json.encodeToJsonElement(
+        if (anonymized) (DecodeResult(
+            verificationResult,
+            chainDecodeResult.anonymizedCopy
+        )) else this
+    )
+
+    fun toJsonString(anonymized: Boolean = false) = json.encodeToString(toJson(anonymized))
+    override fun toString() = toJsonString()
 }

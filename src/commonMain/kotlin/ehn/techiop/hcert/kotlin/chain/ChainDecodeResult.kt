@@ -3,6 +3,7 @@ package ehn.techiop.hcert.kotlin.chain
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -59,5 +60,9 @@ data class ChainDecodeResult(
         return result
     }
 
+    @Transient
+    val anonymizedCopy by lazy {
+        ChainDecodeResult(errors, eudgc?.anonymizedCopy, "***", step1Cwt, step2Cose, step3Compressed, step4Encoded)
+    }
 
 }
