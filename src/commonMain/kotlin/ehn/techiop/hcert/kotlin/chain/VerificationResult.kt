@@ -43,6 +43,12 @@ class VerificationResult {
     var certificateValidUntil: Instant? = null
 
     /**
+     * KID of the certificate
+     */
+    @Serializable(with = HexSerializer::class)
+    var certificateKid: ByteArray? = null
+
+    /**
      * Indicates, which content may be signed with the certificate, defaults to all content types
      */
     var certificateValidContent: List<ContentType> = ContentType.values().toList()
@@ -76,6 +82,7 @@ class VerificationResult {
                 "certificateValidFrom=$certificateValidFrom, " +
                 "certificateValidUntil=$certificateValidUntil, " +
                 "certificateValidContent=$certificateValidContent, " +
+                "certificateKid=${certificateKid?.toHexString()}, " +
                 "certificateSubjectCountry=$certificateSubjectCountry, " +
                 "content=$content, " +
                 "error=$error, " +
@@ -88,6 +95,7 @@ class VerificationResult {
         certificateValidUntil = certificate.validUntil
         certificateValidContent = certificate.validContentTypes
         certificateSubjectCountry = certificate.subjectCountry
+        certificateKid = certificate.kid
         encodedCertificate = certificate.encoded
     }
 

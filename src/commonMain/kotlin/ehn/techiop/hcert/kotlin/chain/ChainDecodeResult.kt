@@ -20,6 +20,14 @@ object Base64EncodeSerializer : KSerializer<ByteArray> {
     override fun serialize(encoder: Encoder, value: ByteArray) = encoder.encodeString(value.asBase64())
 }
 
+object HexSerializer : KSerializer<ByteArray> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("HexByteArray", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): ByteArray = decoder.decodeString().fromHexString()
+    override fun serialize(encoder: Encoder, value: ByteArray) = encoder.encodeString(value.toHexString())
+}
+
 @Serializable
 data class ChainDecodeResult(
     val errors: List<Error>?,
