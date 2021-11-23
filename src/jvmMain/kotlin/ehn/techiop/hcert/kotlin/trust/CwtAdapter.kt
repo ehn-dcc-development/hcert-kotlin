@@ -94,14 +94,10 @@ class JvmCwtAdapter(input: ByteArray) : CwtAdapter {
                         .toString()
                 val value = if (parserHeaderKey == CoseHeaderKeys.ALGORITHM.stringVal) {
 
-                    CwtAlgorithm.fromIntVal(attributes[key].AsInt32())?.stringVal ?: attributes[key].EncodeToBytes()
-                        .toHexString()
-                } else attributes[key].EncodeToBytes().toHexString()
+                    CwtAlgorithm.fromIntVal(attributes[key].AsInt32())?.stringVal ?: attributes[key].AsInt32().toString()
+                } else attributes[key].Untag().GetByteString().toHexString()
                 unprotecedHeader[parserHeaderKey] = value
             }
-        }
-        attributes?.let {
-            unprotecedHeader["rawHeader"] = it.EncodeToBytes().toHexString()
         }
         return unprotecedHeader
     }
