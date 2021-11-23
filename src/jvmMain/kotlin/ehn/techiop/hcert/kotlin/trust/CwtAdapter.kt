@@ -43,13 +43,27 @@ class JvmCwtAdapter(input: ByteArray) : CwtAdapter {
     }
 
     override fun toString(): String {
+        try {
+
+
         val msg = Message.DecodeFromBytes(map.EncodeToBytes())
         val payload = msg.GetContent()
 
-
-        val unprotecedHeader = extractMap(msg.unprotectedAttributes)
-        val protecedHeader = extractMap(msg.protectedAttributes)
-
+        val unprotecedHeader =
+            try {
+                extractMap(msg.unprotectedAttributes)
+            } catch (t: Throwable) {
+                mapOf(
+                    "Decoding Error" to t.message
+                )
+            }
+        val protecedHeader =  try {
+            extractMap(msg.protectedAttributes)
+        } catch (t: Throwable) {
+            mapOf(
+                "Decoding Error" to t.message
+            )
+        }
 
         val json = JsonObject(
             mapOf(
@@ -66,6 +80,9 @@ class JvmCwtAdapter(input: ByteArray) : CwtAdapter {
         )
 
         return jsonHelper.encodeToString(json)
+        }catch (t:Throwable){
+            return "Decoding Error: ${t.message}"
+        }
     }
 
     private fun extractMap(attributes: CBORObject?): MutableMap<String, String> {

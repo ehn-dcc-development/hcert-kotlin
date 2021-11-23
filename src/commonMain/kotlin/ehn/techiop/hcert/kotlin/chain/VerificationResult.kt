@@ -12,7 +12,7 @@ typealias ErrorDetails = Map<String, String>
  */
 @Serializable
 class VerificationResult {
-
+    @Serializable(with = Base64EncodeSerializer::class)
     var encodedCertificate: ByteArray? = null
 
     /**

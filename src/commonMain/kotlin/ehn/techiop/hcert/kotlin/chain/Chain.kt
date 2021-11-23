@@ -113,7 +113,7 @@ class Chain(
                     ${it.toHexString()}
                     Base64:
                     ${it.asBase64()}
-                    Certificate Descrption: ${CertificateAdapter(it).prettyPrint()}
+                    Certificate Description: ${CertificateAdapter(it).prettyPrint()}
                 """.trimMargin()
                 )
             }
