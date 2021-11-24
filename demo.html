@@ -58,7 +58,7 @@
          let qr = tQR.value.trim();
          let pemCert = tCert.value.trim();
          tRes.value = "Verifying ...";
-         verifier = new hcert.VerifierDirect(debug,[pemCert]);
+         verifier = new hcert.VerifierDirect([pemCert], debug);
          let result = callVerifier(showDataClass, qr);
          console.info(result);
          tRes.value = JSON.stringify(result, null, 2);
@@ -93,7 +93,7 @@
          downloadBinary(contentUrl, function (resultContent) {
              downloadBinary(signatureUrl, function (resultSignature) {
                  try {
-                     verifier = new hcert.VerifierTrustList(debug,pemCert, resultContent, resultSignature);
+                     verifier = new hcert.VerifierTrustList(pemCert, resultContent, resultSignature, debug);
                      let result = callVerifier(showDataClass, qr);
                      console.info(result);
                      tRes.value = JSON.stringify(result, null, 2);
@@ -131,7 +131,7 @@
          else
              return verifier.verify(qr);
      }
-     
+
      function loadTrustList() {
          let pemCert = document.getElementById("tSignedDataRoot").value.trim();
          document.getElementById("tSignedData").value = "Loading ...";
@@ -150,7 +150,7 @@
              })
          });
      }
-     
+
      function loadBusinessRules() {
          let pemCert = document.getElementById("tSignedDataRoot").value.trim();
          document.getElementById("tSignedData").value = "Loading ...";
@@ -169,7 +169,7 @@
              })
          });
      }
-     
+
      function loadValueSets() {
          let pemCert = document.getElementById("tSignedDataRoot").value.trim();
          document.getElementById("tSignedData").value = "Loading ...";

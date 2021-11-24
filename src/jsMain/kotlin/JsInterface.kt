@@ -41,8 +41,8 @@ fun setLogLevel(level: String?) {
 @JsExport
 @JsName("setLogger")
 fun setLogger(
-        loggingFunction: (level: String, tag: String?, stackTrace: String?, message: String?) -> Unit,
-        keep: Boolean? = false
+    loggingFunction: (level: String, tag: String?, stackTrace: String?, message: String?) -> Unit,
+    keep: Boolean? = false
 ): dynamic {
     if (keep == null || keep === undefined || !keep) Napier.takeLogarithm()
     return JsLogger(loggingFunction).also { Napier.base(it) }
@@ -58,13 +58,15 @@ class Verifier(private val debug: Boolean) {
     private lateinit var chain: Chain
 
     @JsName("VerifierDirect")
-    constructor(debug:Boolean,vararg pemEncodedCertCertificates: String) : this(debug) {
+    constructor(vararg pemEncodedCertCertificates: String, debug: Boolean) : this(debug) {
         repo = PrefilledCertificateRepository(pemEncodedCertificates = pemEncodedCertCertificates)
         chain = if (debug) DebugChain.buildVerificationChain(repo) else DefaultChain.buildVerificationChain(repo)
     }
 
     @JsName("VerifierTrustList")
-    constructor(debug:Boolean,rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer) : this(debug){
+    constructor(rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer, debug: Boolean) : this(
+        debug
+    ) {
         updateTrustList(rootPem, trustListContent, trustListSignature)
     }
 
@@ -90,10 +92,10 @@ class Verifier(private val debug: Boolean) {
     fun verify(qrContent: String): jsJson {
         val extResult = chain.decode(qrContent)
         val decodeResult = DecodeResultJs(
-                extResult.verificationResult.error==null,
-                extResult.chainDecodeResult.errors?.map {  it.name},
-                VerificationResultJs(extResult.verificationResult),
-                extResult.chainDecodeResult.eudgc
+            extResult.verificationResult.error == null,
+            extResult.chainDecodeResult.errors?.map { it.name },
+            VerificationResultJs(extResult.verificationResult),
+            extResult.chainDecodeResult.eudgc
         )
         return JSON.parse(jsonEncoder.encodeToString(decodeResult))
     }
@@ -198,20 +200,21 @@ fun main() {
     //is NOOP by default because log level is null by default
     Napier.base(defaultLogger)
     if (false) {
-        val directVerifier = Verifier(debug=false,"bar")
+        val directVerifier = Verifier("bar", debug = false)
         directVerifier.verify("bar")
         directVerifier.verifyDataClass("bar")
-        val trustListVerifier = Verifier(debug=true,
-                "bar",
-                ArrayBuffer.from("content".encodeToByteArray()),
-                ArrayBuffer.from("signature".encodeToByteArray())
+        val trustListVerifier = Verifier(
+            "bar",
+            ArrayBuffer.from("content".encodeToByteArray()),
+            ArrayBuffer.from("signature".encodeToByteArray()),
+            debug = true
         )
         trustListVerifier.verify("bar")
         trustListVerifier.verifyDataClass("bar")
         trustListVerifier.updateTrustList(
-                "bar",
-                ArrayBuffer.from("content".encodeToByteArray()),
-                ArrayBuffer.from("signature".encodeToByteArray())
+            "bar",
+            ArrayBuffer.from("content".encodeToByteArray()),
+            ArrayBuffer.from("signature".encodeToByteArray())
         )
 
         SignedDataDownloader.loadBusinessRules("", ArrayBuffer(0), ArrayBuffer(0))

@@ -93,6 +93,24 @@ The usage of interfaces for all services (CBOR, CWT, COSE, ZLib, Context) in the
 
 Sample data objects are provided in `SampleData`, with special thanks to Christian Baumann.
 
+### Debug Chain
+In addition to the default (spec-compliant) verification behaviour, it is possible to continue verification even after certain errors.
+While a faulty encoding or garbled CBOR structure will still result in fatal errors, an expired certificate, or unknown KID, will not terminate the verification procedure, when using the debug chain.
+For details, see [`DebugChain.kt`](src/commonMain/kotlin/ehn/techiop/hcert/kotlin/chain/debug/DebugChain.kt).
+
+### Anyonymising Personal Data (JVM only)
+Both the `ChainDecodeResult` and the `GreenCertificate` classes allow for blanking personal information (name, date of birth), through the lazy-initialised `anonymizedCopy` property.
+For debugging purposes, the `DecodeResult` features a `toJsonString(anonymize: Boolean)` method.
+
+**NOTE:** This is blanking of personal data is limited to humanly comprehensible representations of processed data.
+As such, even anonymised `DecodeResults` and `ChainDecodeResults` will contain unaltered QR code content, the vanilla CWT and so forth.
+All such unmodified data can thus be parsed without issue and will still yield all personal data.
+<hr>
+
+**DO LOG OR PROCESS THIS DATA, EVEN WHEN USING ANONYMISED COPIES! YOU HAVE BEEN WARNED.**
+
+<hr>
+
 ## Usage (JS)
 
 The build result of this library for JS is a module in UMD format, located under `build/distributions/hcert-kotlin.js`. This script runs in a web browser environment and can be used in the following way (see [demo.html](demo.html)).
@@ -286,6 +304,14 @@ An alternative to calling `verfiy(qr)` is to call `verifyDataClass(qr)` which re
   "dateOfBirth": "1998-02-26T00:00:00.000Z"
 }
 ```
+
+### Debug Chain
+In addition to the default (spec-compliant) verification behaviour, it is possible to continue verification even after certain errors.
+While a faulty encoding or garbled CBOR structure will still result in fatal errors, an expired certificate, or unknown KID, will not terminate the verification procedure, when using the debug chain.
+Simply add a `true` as the additional parameter to verifier  constructor calls, such as `new hcert.VerifierDirect([pemCert], true)`.
+
+
+
 
 ## Errors
 
@@ -622,6 +648,8 @@ See these links for details:
 
 Version NEXT:
  - Fix constructors and overloads for Java callers
+ - Introduce a debug verification chain
+ - Introduce possibility to anonymise personal data (JVM only)
  - Update dependencies:
    - Common:
      - Kotlin: 1.5.31
