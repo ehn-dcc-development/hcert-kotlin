@@ -13,11 +13,14 @@ import kotlin.jvm.JvmOverloads
  * Beware: By default [useFallback] is true, so we are trying to verify
  * the data against a very relaxed schema.
  */
-class DefaultSchemaValidationService @JvmOverloads constructor(private val useFallback: Boolean = true) :
+class DefaultSchemaValidationService @JvmOverloads constructor(
+    private val useFallback: Boolean = true,
+    private val knownVersions: Array<String>? = null
+) :
     SchemaValidationService {
 
     override fun validate(cbor: CborObject, verificationResult: VerificationResult): GreenCertificate {
-        val adapter = SchemaValidationAdapter(cbor)
+        val adapter = knownVersions?.let { SchemaValidationAdapter(cbor, it) } ?: SchemaValidationAdapter(cbor)
 
         val versionString = cbor.getVersionString() ?: throw VerificationException(
             Error.CBOR_DESERIALIZATION_FAILED,

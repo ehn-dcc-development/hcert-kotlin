@@ -16,7 +16,7 @@ import kotlinx.serialization.json.decodeFromDynamic
  * We configure AJV to ignore the keyword, but that still means we are not checking
  * field values against the allowed options from the linked value sets.
  */
-internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
+internal class JsSchemaLoader(vararg validVersions: String) : SchemaLoader<Pair<AJV2020, dynamic>>(*validVersions) {
 
     override fun loadSchema(version: String): Pair<AJV2020, dynamic> {
         loadAjv().apply {
@@ -49,9 +49,9 @@ internal class JsSchemaLoader : SchemaLoader<Pair<AJV2020, dynamic>>() {
 
 }
 
-actual class SchemaValidationAdapter actual constructor(private val cbor: CborObject) {
+actual class SchemaValidationAdapter actual constructor(private val cbor: CborObject, validVersions: Array<String>) {
 
-    private val schemaLoader = JsSchemaLoader()
+    private val schemaLoader = JsSchemaLoader(*validVersions)
 
     //AJV operates directly on JS objects, if all properties check out, it validates nicely
     //we are working on the raw parsed CBOR structure for schema validation, which is actually the
