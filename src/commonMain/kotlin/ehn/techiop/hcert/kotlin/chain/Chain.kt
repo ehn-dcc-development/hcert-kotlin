@@ -12,6 +12,36 @@ import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import kotlin.js.JsName
 
+interface IChain {
+    /**
+     * Process the [input], apply encoding in this order:
+     * - [CborService]
+     * - [CwtService]
+     * - [CoseService]
+     * - [CompressorService]
+     * - [Base45Service]
+     * - [ContextIdentifierService]
+     *
+     * The result ([ChainResult]) will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
+     */
+    @JsName("encode")
+    fun encode(input: GreenCertificate): ChainResult
+
+    /**
+     * Process the [input], apply decoding in this order:
+     * - [ContextIdentifierService]
+     * - [Base45Service]
+     * - [CompressorService]
+     * - [CoseService]
+     * - [CwtService]
+     * - [CborService]
+     * - [SchemaValidationService]
+     * The result ([ChainDecodeResult]) will contain the parsed data, as well as intermediate results.
+     */
+    @JsName("decode")
+    fun decode(input: String): DecodeResult
+}
+
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes
  *
@@ -26,7 +56,7 @@ class Chain(
     private val compressorService: CompressorService,
     private val base45Service: Base45Service,
     private val contextIdentifierService: ContextIdentifierService
-) {
+) : IChain {
     private val logTag = "Chain${hashCode()}"
 
     /**
@@ -41,7 +71,7 @@ class Chain(
      * The result ([ChainResult]) will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
      */
     @JsName("encode")
-    fun encode(input: GreenCertificate): ChainResult {
+    override fun encode(input: GreenCertificate): ChainResult {
         val cbor = cborService.encode(input)
         val cwt = cwtService.encode(cbor)
         val cose = coseService.encode(cwt)
@@ -63,7 +93,7 @@ class Chain(
      * The result ([ChainDecodeResult]) will contain the parsed data, as well as intermediate results.
      */
     @JsName("decode")
-    fun decode(input: String): DecodeResult {
+    override fun decode(input: String): DecodeResult {
         val verificationResult = VerificationResult()
 
         var eudgc: GreenCertificate? = null
