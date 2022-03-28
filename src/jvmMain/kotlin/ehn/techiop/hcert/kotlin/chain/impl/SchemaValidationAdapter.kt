@@ -30,7 +30,7 @@ class JvmSchemaLoader(vararg validVersions: String) : SchemaLoader<JSONSchema>(*
 
 }
 
-actual class SchemaValidationAdapter actual constructor(private val cbor: CborObject, vararg validVersions: String) {
+actual class SchemaValidationAdapter actual constructor(private val cbor: CborObject, validVersions: Array<String>) {
 
     private val schemaLoader = JvmSchemaLoader(*validVersions)
     private val json = (cbor as JvmCwtAdapter.JvmCborObject).toJsonString()

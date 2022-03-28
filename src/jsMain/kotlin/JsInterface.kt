@@ -55,7 +55,7 @@ class Verifier(private val debug: Boolean) {
 
     private val jsonEncoder = Json { encodeDefaults = true }
     private lateinit var repo: CertificateRepository
-    private lateinit var chain: Chain
+    private lateinit var chain: IChain
 
     @JsName("VerifierDirect")
     constructor(vararg pemEncodedCertCertificates: String, debug: Boolean) : this(debug) {

@@ -70,7 +70,6 @@ class Chain(
      *
      * The result ([ChainResult]) will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
      */
-    @JsName("encode")
     override fun encode(input: GreenCertificate): ChainResult {
         val cbor = cborService.encode(input)
         val cwt = cwtService.encode(cbor)
@@ -92,7 +91,6 @@ class Chain(
      * - [SchemaValidationService]
      * The result ([ChainDecodeResult]) will contain the parsed data, as well as intermediate results.
      */
-    @JsName("decode")
     override fun decode(input: String): DecodeResult {
         val verificationResult = VerificationResult()
 
