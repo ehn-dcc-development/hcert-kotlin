@@ -16,7 +16,6 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 
-//@Disabled("Don't want to generate test case files every time")
 class ExtendedTestGenerator : FunSpec() {
 
 
@@ -27,6 +26,7 @@ class ExtendedTestGenerator : FunSpec() {
     private val eudgcTestRat = Json.decodeFromString<GreenCertificate>(SampleData.testRat)
     private val clock = FixedClock(Instant.parse("2021-05-03T18:00:00Z"))
     private val cryptoService = RandomEcKeyCryptoService(clock = clock)
+    private val atCryptoService = RandomEcKeyCryptoService(clock = clock)
 
     init {
 
@@ -48,16 +48,30 @@ class ExtendedTestGenerator : FunSpec() {
             test("Write Gen01Exemption") {
                 // TODO Would also need to specify validity, country code!
                 val chain =
-                    ChainBuilder.good(clock, cryptoService).with(DefaultContextIdentifierService(prefix = "AT1"))
+                    ChainBuilder.good(clock, atCryptoService).with(DefaultContextIdentifierService(prefix = "AT1:"))
                 val result = chain.encode(atVe)
 
-                createGenerationTestCaseJson(
-                    clock, atVe, result, "Success, exemption", "gentestcaseat01",
+                createVerificationTestCaseJson(
+                    clock,
+                    certificate = cryptoService.getCertificate(),
+                    ChainResultAdapter.from(atVe, result),
+                    "Success, exemption",
+                    "gentestcaseat01",
                     TestExpectedResults(
                         schemaGeneration = true,
+                        schemaValidation = true,
                         encodeGeneration = true,
+                        cborDecode = true,
+                        coseSignature = true,
+                        prefix = true,
+                        json = true,
+                        compression = true,
+                        base45Decode = true,
+                        qrDecode = true,
+                        expirationCheck = true
                     ),
-                    schema = "AT-1.0.0"
+                    schema = "AT-1.0.0",
+                    atCertificate = atCryptoService.getCertificate()
                 )
             }
 
@@ -948,16 +962,19 @@ class ExtendedTestGenerator : FunSpec() {
 
     private fun createVerificationTestCaseJson(
         clock: Clock,
-        certificate: CertificateAdapter,
+        certificate: CertificateAdapter?,
         result: ChainResultAdapter,
         description: String,
         filename: String,
         expectedResult: TestExpectedResults,
+        schema: String = "1.0.0",
+        atCertificate: CertificateAdapter? = null
     ) {
         val context = TestContext(
             version = 1,
-            schema = "1.0.0",
-            certificate = certificate.encoded.asBase64(),
+            schema = schema,
+            certificate = certificate?.encoded?.asBase64(),
+            atCertificate = atCertificate?.encoded?.asBase64(),
             validationClock = clock.now(),
             description = description
         )
@@ -990,6 +1007,7 @@ class ExtendedTestGenerator : FunSpec() {
             version = 1,
             schema = schema,
             certificate = null,
+            atCertificate = null,
             validationClock = clock.now(),
             description = description
         )

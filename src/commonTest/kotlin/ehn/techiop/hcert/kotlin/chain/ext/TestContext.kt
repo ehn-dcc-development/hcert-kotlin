@@ -17,6 +17,9 @@ data class TestContext(
     @SerialName("CERTIFICATE")
     val certificate: String?,
 
+    @SerialName("AT_CERTIFICATE")
+    val atCertificate: String?,
+
     @SerialName("VALIDATIONCLOCK")
     @Serializable(with = LenientInstantParser::class)
     val validationClock: Instant,

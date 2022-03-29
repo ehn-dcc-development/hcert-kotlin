@@ -3,7 +3,7 @@
   "$id": "https://id.uvci.eu/DCC.combined-schema.json",
   "title": "AT DCC",
   "description": "AT Digital Covid Certificate",
-  "$comment": "Schema version 1.3.0-at",
+  "$comment": "Schema version AT-1.0.0",
   "type": "object",
   "oneOf": [
     {
@@ -20,7 +20,7 @@
       "title": "Schema version",
       "description": "Version of the schema, according to Semantic versioning (ISO, https://semver.org/ version 2.0.0 or newer)",
       "type": "string",
-      "pattern": "^\\d+.\\d+.\\d+$",
+      "pattern": "^AT-\\d+.\\d+.\\d+$",
       "examples": [
         "1.3.0"
       ]
@@ -52,7 +52,7 @@
     }
   },
   "$defs": {
-    "e": {
+    "issuer": {
       "description": "Certificate Issuer",
       "type": "string",
       "maxLength": 80

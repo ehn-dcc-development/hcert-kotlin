@@ -62,10 +62,13 @@ class DefaultHigherOrderValidationService : HigherOrderValidationService {
                         "certificateValidContent" to verificationResult.certificateValidContent.joinToString { it.oid }
                     ))
         }
-        if (numberNonNullTests == 0 && numberNonNullVaccinations == 0 && numberNonNullRecoveryStatements == 0) {
+
+        val numberExemptions = input.vaccinationExemption?.filterNotNull()?.size ?: 0
+
+        if (numberExemptions == 0 && numberNonNullTests == 0 && numberNonNullVaccinations == 0 && numberNonNullRecoveryStatements == 0) {
             throw VerificationException(SCHEMA_VALIDATION_FAILED, "No test, vaccination, or recovery entry")
         }
-        if (numberNonNullTests + numberNonNullVaccinations + numberNonNullRecoveryStatements > 1) {
+        if (numberExemptions + numberNonNullTests + numberNonNullVaccinations + numberNonNullRecoveryStatements > 1) {
             throw VerificationException(SCHEMA_VALIDATION_FAILED, "More than one test, vaccination, and recovery entry")
         }
         return input

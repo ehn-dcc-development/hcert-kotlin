@@ -55,7 +55,7 @@ object DefaultChain {
 
         val atChain = Chain(
             DefaultHigherOrderValidationService(),
-            DefaultSchemaValidationService(false, arrayOf("1.3.0-at")),
+            DefaultSchemaValidationService(false, arrayOf("AT-1.0.0")),
             DefaultCborService(),
             DefaultCwtService(clock = clock),
             DefaultCoseService(atRepository),
