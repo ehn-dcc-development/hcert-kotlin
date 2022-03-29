@@ -145,13 +145,18 @@ class MemberstateTests : ExtendedTestRunner(allOfficialTestCases()
     .workaroundKotestNamingBug())
 
 abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
-    withData(cases.workaroundKotestNamingBug()) {
-        val case = json.decodeFromString<TestCase>(it)
+    withData(cases.workaroundKotestNamingBug()) { testcase ->
+        val case = json.decodeFromString<TestCase>(testcase)
         val clock = FixedClock(case.context.validationClock)
-        if (case.context.certificate == null) throw IllegalArgumentException("certificate")
-        val certificateRepository = PrefilledCertificateRepository(case.context.certificate)
+        if (case.context.certificate == null && case.context.atCertificate == null) throw IllegalArgumentException("certificate")
+        val certificateRepository = case.context.certificate?.let { it1 -> PrefilledCertificateRepository(it1) }
         val atCertificateRepository = case.context.atCertificate?.let { it1 -> PrefilledCertificateRepository(it1) }
-        val decodingChain = DefaultChain.buildVerificationChain(certificateRepository, clock, atCertificateRepository)
+        val emptyRepository = PrefilledCertificateRepository(*emptyArray<String>())
+        val decodingChain = DefaultChain.buildVerificationChain(
+            certificateRepository ?: emptyRepository,
+            clock,
+            atCertificateRepository
+        )
         val qrCodeContent = case.base45WithPrefix ?: if (case.qrCodePng != null) {
             try {
                 // TODO decode QRCode?
@@ -216,7 +221,8 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     } else if (case.coseHex != null) {
                         val newResult = VerificationResult()
                         DefaultCoseService(
-                            atCertificateRepository ?: certificateRepository
+                            verificationRepo = (if (case.base45WithPrefix?.startsWith("AT1:") == true) atCertificateRepository else certificateRepository)
+                                ?: emptyRepository
                         ).decode(case.coseHex.fromHexString(), newResult)
                         newResult.error shouldBe null
                     }
@@ -288,9 +294,13 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                 // Our implementation exits early with a COSE error
                 if (errorExpected && case.cborHex != null) {
                     val newResult = VerificationResult()
-                    DefaultSchemaValidationService().validate(
-                        CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), newResult
-                    )
+                    (if (case.base45WithPrefix?.startsWith("AT1:") == true) DefaultSchemaValidationService(
+                        false,
+                        arrayOf("AT-1.0.0")
+                    ) else DefaultSchemaValidationService())
+                        .validate(
+                            CwtHelper.fromCbor(case.cborHex.fromHexString()).toCborObject(), newResult
+                        )
                     if (it) newResult.error shouldBe null
                     if (!it) newResult.error shouldBe Error.SCHEMA_VALIDATION_FAILED
                 }

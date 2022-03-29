@@ -73,6 +73,34 @@ class SampleData {
             ]
         }
         """.trimIndent()
+        val exemptionBad = """
+        {
+            "ver": "AT-1.0.0",
+            "nam": {
+                "fn": "Musterfrau-G\u00f6\u00dfinger",
+                "gn": "Gabriele",
+                "fnt": "MUSTERFRAU<GOESSINGER",
+                "gnt": "GABRIELE"
+            },
+            "dob": "1998-02-26",
+            "ve": [
+                {
+                    "tg": "840539006",
+                    "du": "2021-02-18",
+                    "co": "AT",
+                    "is": "Ministry of Health, Austria",
+                    "ci": "URN:UVCI:01:AT:71EE2559DE38C6BF7304FB65A1A451EC#3"
+                },
+                {
+                    "tg": "840539007",
+                    "du": "2021-02-19",
+                    "co": "AT",
+                    "is": "Ministry of Health, Austria",
+                    "ci": "URN:UVCI:01:AT:71EE2559DE38C6BF7304FB65A1A451EC#3"
+                }
+            ]
+        }
+        """.trimIndent()
         val testRat = """
         {
             "ver": "1.2.1",

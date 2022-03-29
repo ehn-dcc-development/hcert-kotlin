@@ -21,14 +21,209 @@ class ExtendedTestGenerator : FunSpec() {
 
     private val eudgcVac = Json.decodeFromString<GreenCertificate>(SampleData.vaccination)
     private val atVe = Json.decodeFromString<GreenCertificate>(SampleData.exemption)
+    private val atVeBad = Json.decodeFromString<GreenCertificate>(SampleData.exemptionBad)
     private val eudgcRec = Json.decodeFromString<GreenCertificate>(SampleData.recovery)
     private val eudgcTest = Json.decodeFromString<GreenCertificate>(SampleData.testNaa)
     private val eudgcTestRat = Json.decodeFromString<GreenCertificate>(SampleData.testRat)
     private val clock = FixedClock(Instant.parse("2021-05-03T18:00:00Z"))
     private val cryptoService = RandomEcKeyCryptoService(clock = clock)
-    private val atCryptoService = RandomEcKeyCryptoService(clock = clock)
+    private val atCryptoService = RandomEcKeyCryptoService(clock = clock, contentType = emptyList())
 
     init {
+
+        xcontext("Vaccination Exemption"){
+
+            test("Good (AT1 + 1x VE + passende KID im AT Trust store ohne T/R/V OID = SUCCESS, AT_CERTIFICATE correct)") {
+                // TODO Would also need to specify validity, country code!
+                val chain =
+                    ChainBuilder.good(clock, atCryptoService).with(DefaultContextIdentifierService(prefix = "AT1:"))
+                val result = chain.encode(atVe)
+
+                createVerificationTestCaseJson(
+                    clock,
+                    certificate = atCryptoService.getCertificate(),
+                    ChainResultAdapter.from(atVe, result),
+                    testCase.displayName,
+                    "ve_good",
+                    TestExpectedResults(
+                        schemaGeneration = true,
+                        schemaValidation = true,
+                        encodeGeneration = true,
+                        cborDecode = true,
+                        coseSignature = true,
+                        prefix = true,
+                        json = true,
+                        compression = true,
+                        base45Decode = true,
+                        qrDecode = true,
+                        expirationCheck = true,
+                        keyUsage = true
+                    ),
+                    schema = "AT-1.0.0",
+                    atCertificate = atCryptoService.getCertificate()
+                )
+            }
+            test("Bad (AT1 + keine passende KID in AT Trust store = KEY_NOT_IN_TRUST_LIST, AT_CERTIFICATE=RANDOM, unpassend)") {
+                // TODO Would also need to specify validity, country code!
+                val chain =
+                    ChainBuilder.good(clock, atCryptoService).with(DefaultContextIdentifierService(prefix = "AT1:"))
+                val result = chain.encode(atVe)
+
+                createVerificationTestCaseJson(
+                    clock,
+                    certificate =atCryptoService.getCertificate(),
+                    ChainResultAdapter.from(atVe, result),
+                    testCase.displayName,
+                    "ve_bad_wrongcert",
+                    TestExpectedResults(
+                        schemaGeneration = true,
+                        schemaValidation = true,
+                        encodeGeneration = true,
+                        coseSignature = false,
+                        prefix = true,
+                        compression = true,
+                        base45Decode = true,
+                        qrDecode = true,
+                        expirationCheck = true,
+                    ),
+                    schema = "AT-1.0.0",
+                    atCertificate =  RandomEcKeyCryptoService(clock = clock, contentType = emptyList()).getCertificate()
+                )
+            }
+            test("Bad (HC1 signiert mit AT-impfausnahme-zert = KEY_NOT_IN_TRUST_LIST") {
+                // TODO Would also need to specify validity, country code!
+                val chain =
+                    ChainBuilder.good(clock, atCryptoService).with(DefaultContextIdentifierService())
+                val result = chain.encode(eudgcVac)
+
+                createVerificationTestCaseJson(
+                    clock,
+                    certificate = cryptoService.getCertificate(),
+                    ChainResultAdapter.from(eudgcVac, result),
+                    testCase.displayName,
+                    "ve_bad_hc1",
+                    TestExpectedResults(
+                        schemaGeneration = true,
+                        schemaValidation = true,
+                        encodeGeneration = true,
+                        cborDecode = true,
+                        coseSignature = false,
+                        prefix = true,
+                        json = true,
+                        compression = true,
+                        base45Decode = true,
+                        qrDecode = true,
+                        expirationCheck = true
+                    ),
+                )
+            }
+            test("Bad AT1 + V/R/T OID in Zert = UNSUITABLE_PUBLIC_KEY_TYPE\n") {
+                // TODO Would also need to specify validity, country code!
+                val oidCryptoService = RandomEcKeyCryptoService(clock=clock)
+                val chain =
+                    ChainBuilder.good(clock, oidCryptoService).with(DefaultContextIdentifierService(prefix = "AT1:"))
+                val result = chain.encode(atVe)
+
+                createVerificationTestCaseJson(
+                    clock,
+                    certificate = oidCryptoService.getCertificate(),
+                    ChainResultAdapter.from(atVe, result),
+                    testCase.displayName,
+                    "ve_bad_oid_in_cert",
+                    TestExpectedResults(
+                        schemaGeneration = true,
+                        schemaValidation = true,
+                        encodeGeneration = true,
+                        prefix = true,
+                        compression = true,
+                        base45Decode = true,
+                        qrDecode = true,
+                        expirationCheck = true,
+                        keyUsage = false
+                    ),
+                    schema = "AT-1.0.0",
+                    atCertificate = oidCryptoService.getCertificate()
+                )
+            }
+            test("Bad AT1 + T/R/V = SCHEMA_VALIDATION_FAILED / CBOR_DESERIALIZATION_FAILED") {
+                // TODO Would also need to specify validity, country code!
+                val chain =
+                    ChainBuilder.good(clock, atCryptoService).with(DefaultContextIdentifierService(prefix = "AT1:"))
+                val result = chain.encode(eudgcVac)
+
+                createVerificationTestCaseJson(
+                    clock,
+                    certificate = atCryptoService.getCertificate(),
+                    ChainResultAdapter.from(eudgcVac, result),
+                    testCase.displayName,
+                    "ve_bad_vac_in_at1",
+                    TestExpectedResults(
+                        schemaGeneration = true,
+                        schemaValidation = false,
+                        encodeGeneration = true,
+                        prefix = true,
+                        compression = true,
+                        base45Decode = true,
+                        qrDecode = true,
+                        expirationCheck = true,
+                        keyUsage = true
+                    ),
+                    schema = "AT-1.0.0",
+                    atCertificate = atCryptoService.getCertificate()
+                )
+            }
+            test("Bad HC1 + VE = SCHEMA_VALIDATION_FAILED / CBOR_DESERIALIZATION_FAILED\n") {
+                // TODO Would also need to specify validity, country code!
+                val chain =
+                    ChainBuilder.good(clock, cryptoService).with(DefaultContextIdentifierService())
+                val result = chain.encode(atVe)
+
+                createVerificationTestCaseJson(
+                    clock,
+                    certificate = cryptoService.getCertificate(),
+                    ChainResultAdapter.from(atVe, result),
+                    testCase.displayName,
+                    "ve_bad_ve_in_hc1",
+                    TestExpectedResults(
+                        schemaGeneration = true,
+                        schemaValidation = false,
+                        encodeGeneration = true,
+                        prefix = true,
+                        compression = true,
+                        base45Decode = true,
+                        qrDecode = true,
+                        expirationCheck = true
+                    ),
+                    atCertificate = atCryptoService.getCertificate()
+                )
+            }
+            test("Bad AT1 + >1 VE = SCHEMA_VALIDATION_FAILED / CBOR_DESERIALIZATION_FAILED") {
+                // TODO Would also need to specify validity, country code!
+                val chain =
+                    ChainBuilder.good(clock, atCryptoService).with(DefaultContextIdentifierService(prefix = "AT1:"))
+                val result = chain.encode(atVeBad)
+
+                createVerificationTestCaseJson(
+                    clock,
+                    certificate = atCryptoService.getCertificate(),
+                    ChainResultAdapter.from(atVeBad, result),
+                    testCase.displayName,
+                    "ve_bad_multi_ve",
+                    TestExpectedResults(
+                        schemaGeneration = true,
+                        schemaValidation = false,
+                        encodeGeneration = true,
+                        prefix = true,
+                        compression = true,
+                        base45Decode = true,
+                        qrDecode = true,
+                        expirationCheck = true
+                    ),
+                    schema = "AT-1.0.0",
+                    atCertificate = atCryptoService.getCertificate()
+                )
+            }
+        }
 
         xcontext("Don't want to generate test case files every time") {
             test("Write Gen01Vaccination") {
@@ -45,35 +240,6 @@ class ExtendedTestGenerator : FunSpec() {
                 )
             }
 
-            test("Write Gen01Exemption") {
-                // TODO Would also need to specify validity, country code!
-                val chain =
-                    ChainBuilder.good(clock, atCryptoService).with(DefaultContextIdentifierService(prefix = "AT1:"))
-                val result = chain.encode(atVe)
-
-                createVerificationTestCaseJson(
-                    clock,
-                    certificate = cryptoService.getCertificate(),
-                    ChainResultAdapter.from(atVe, result),
-                    "Success, exemption",
-                    "gentestcaseat01",
-                    TestExpectedResults(
-                        schemaGeneration = true,
-                        schemaValidation = true,
-                        encodeGeneration = true,
-                        cborDecode = true,
-                        coseSignature = true,
-                        prefix = true,
-                        json = true,
-                        compression = true,
-                        base45Decode = true,
-                        qrDecode = true,
-                        expirationCheck = true
-                    ),
-                    schema = "AT-1.0.0",
-                    atCertificate = atCryptoService.getCertificate()
-                )
-            }
 
             test("Write Gen02Recovery") {
                 val eudgc = Json.decodeFromString<GreenCertificate>(SampleData.recovery)

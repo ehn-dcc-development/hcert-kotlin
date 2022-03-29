@@ -18,7 +18,7 @@ data class TestContext(
     val certificate: String?,
 
     @SerialName("AT_CERTIFICATE")
-    val atCertificate: String?,
+    val atCertificate: String?=null,
 
     @SerialName("VALIDATIONCLOCK")
     @Serializable(with = LenientInstantParser::class)

@@ -64,6 +64,17 @@ class DefaultHigherOrderValidationService : HigherOrderValidationService {
         }
 
         val numberExemptions = input.vaccinationExemption?.filterNotNull()?.size ?: 0
+        if (numberExemptions > 0) {
+            if (verificationResult.certificateValidContent.contains(ContentType.VACCINATION) || verificationResult.certificateValidContent.contains(
+                    ContentType.RECOVERY
+                ) || verificationResult.certificateValidContent.contains(ContentType.TEST)
+            )
+                throw VerificationException(Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Vaccination not valid",
+                    details = mapOf(
+                        "ContentType" to "Exemption",
+                        "certificateValidContent" to verificationResult.certificateValidContent.joinToString { it.oid }
+                    ))
+        }
 
         if (numberExemptions == 0 && numberNonNullTests == 0 && numberNonNullVaccinations == 0 && numberNonNullRecoveryStatements == 0) {
             throw VerificationException(SCHEMA_VALIDATION_FAILED, "No test, vaccination, or recovery entry")
