@@ -65,10 +65,7 @@ class DebugHigherOrderValidationService : HigherOrderValidationService {
         }
         val numberExemptions = input.vaccinationExemption?.filterNotNull()?.size ?: 0
         if (numberExemptions > 0) {
-            if (verificationResult.certificateValidContent.contains(ContentType.VACCINATION) || verificationResult.certificateValidContent.contains(
-                    ContentType.RECOVERY
-                ) || verificationResult.certificateValidContent.contains(ContentType.TEST)
-            )
+            if (verificationResult.certificateValidContent.isNotEmpty())
                 throw NonFatalVerificationException(input, Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Vaccination not valid",
                     details = mapOf(
                         "ContentType" to "Exemption",

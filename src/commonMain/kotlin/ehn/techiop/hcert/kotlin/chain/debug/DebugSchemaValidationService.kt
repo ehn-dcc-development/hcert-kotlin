@@ -1,6 +1,9 @@
 package ehn.techiop.hcert.kotlin.chain.debug
 
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.NonFatalVerificationException
+import ehn.techiop.hcert.kotlin.chain.SchemaValidationService
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.impl.SchemaValidationAdapter
 import ehn.techiop.hcert.kotlin.data.CborObject
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
@@ -11,11 +14,14 @@ import kotlin.jvm.JvmOverloads
  * Beware: By default [useFallback] is true, so we are trying to verify
  * the data against a very relaxed schema.
  */
-class DebugSchemaValidationService @JvmOverloads constructor(private val useFallback: Boolean = true) :
+class DebugSchemaValidationService @JvmOverloads constructor(
+    private val useFallback: Boolean = true,
+    private val knownVersions: Array<String>? = null
+) :
     SchemaValidationService {
 
     override fun validate(cbor: CborObject, verificationResult: VerificationResult): GreenCertificate {
-        val adapter = SchemaValidationAdapter(cbor)
+        val adapter = knownVersions?.let { SchemaValidationAdapter(cbor, it) } ?: SchemaValidationAdapter(cbor)
 
         val versionString = cbor.getVersionString() ?: throw NonFatalVerificationException(
             adapter.toJson(),

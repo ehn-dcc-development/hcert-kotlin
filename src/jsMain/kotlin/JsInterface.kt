@@ -55,30 +55,48 @@ class Verifier(private val debug: Boolean) {
 
     private val jsonEncoder = Json { encodeDefaults = true }
     private lateinit var repo: CertificateRepository
+    private var atRepo: CertificateRepository? = null
     private lateinit var chain: IChain
 
     @JsName("VerifierDirect")
-    constructor(vararg pemEncodedCertCertificates: String, debug: Boolean) : this(debug) {
+    constructor(
+        vararg pemEncodedCertCertificates: String,
+        debug: Boolean,
+        atPemEncodedCertCertificates: Array<String>? = null
+    ) : this(debug) {
         repo = PrefilledCertificateRepository(pemEncodedCertificates = pemEncodedCertCertificates)
-        chain = if (debug) DebugChain.buildVerificationChain(repo) else DefaultChain.buildVerificationChain(repo)
+        atRepo = atPemEncodedCertCertificates?.let { PrefilledCertificateRepository(pemEncodedCertificates = *it) }
+        chain = if (debug) DebugChain.buildVerificationChain(
+            repository = repo,
+            atRepository = atRepo
+        ) else DefaultChain.buildVerificationChain(repository = repo, atRepository = atRepo)
     }
 
     @JsName("VerifierTrustList")
     constructor(rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer, debug: Boolean) : this(
         debug
     ) {
-        updateTrustList(rootPem, trustListContent, trustListSignature)
+        updateTrustList(rootPem, trustListContent, trustListSignature, false)
     }
 
     @JsName("updateTrustList")
-    fun updateTrustList(rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer) {
+    fun updateTrustList(
+        rootPem: String,
+        trustListContent: ArrayBuffer,
+        trustListSignature: ArrayBuffer,
+        isAT: Boolean? = null
+    ) {
         jsTry {
             val root = PrefilledCertificateRepository(rootPem)
             val sig = trustListSignature.toByteArray()
             val content = trustListContent.toByteArray()
             val contentAndSig = SignedData(content, sig)
-            repo = TrustListCertificateRepository(contentAndSig, root)
-            chain = if (debug) DebugChain.buildVerificationChain(repo) else DefaultChain.buildVerificationChain(repo)
+            if (isAT == true) atRepo = TrustListCertificateRepository(contentAndSig, root)
+            else repo = TrustListCertificateRepository(contentAndSig, root)
+            chain = if (debug) DebugChain.buildVerificationChain(
+                repo,
+                atRepository = atRepo
+            ) else DefaultChain.buildVerificationChain(repo, atRepository = atRepo)
         }.catch {
             if (it is VerificationException)
                 throw it

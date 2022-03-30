@@ -56,7 +56,7 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
                     ContentType.findByOid(oidStr)?.let { contentTypes.add(it) }
                 }
             }
-            return contentTypes.ifEmpty { ContentType.values().toList() }.toList()
+            return contentTypes.toList()
         }
 
     actual val validFrom: Instant

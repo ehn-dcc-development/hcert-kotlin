@@ -7,6 +7,7 @@
         textarea, button, input {
             display: block;
         }
+
     </style>
     <script src="build/distributions/hcert-kotlin.js"></script>
     <script>
@@ -16,6 +17,8 @@
      document.onload = function () {
          let tQR = document.getElementById("tQR");
          let tCert = document.getElementById("tCert");
+         let atTCert = document.getElementById("atTCert");
+         let atTrust = document.getElementById("tlAT");
          let tGenCert = document.getElementById("tGenCert");
          let tGenKey = document.getElementById("tGenKey");
          let tRes = document.getElementById("tRes");
@@ -57,8 +60,9 @@
      function validate(showDataClass) {
          let qr = tQR.value.trim();
          let pemCert = tCert.value.trim();
+         let atPemCert = atTCert.value.trim();
          tRes.value = "Verifying ...";
-         verifier = new hcert.VerifierDirect([pemCert], debug);
+         verifier = new hcert.VerifierDirect([pemCert], debug,[atPemCert]);
          let result = callVerifier(showDataClass, qr);
          console.info(result);
          tRes.value = JSON.stringify(result, null, 2);
@@ -116,7 +120,7 @@
          downloadBinary(contentUrl, function (resultContent) {
              downloadBinary(signatureUrl, function (resultSignature) {
                  try {
-                     verifier.updateTrustList(pemCert, resultContent, resultSignature);
+                     verifier.updateTrustList(pemCert, resultContent, resultSignature,atTrust.checked);
                      tRes.value = "Updated TrustList!";
                  } catch (error) {
                      tRes.value = error.name + ": " + JSON.stringify(error, null, 2);
@@ -218,6 +222,22 @@ IwQYMBaAFP7JKEOflGEvef2iMdtopsetwGGeMAoGCCqGSM49BAMCA0gAMEUCIQDG
 bkUQuVHW6fQbONd731/M4nc=
 -----END CERTIFICATE-----
 </textarea>
+
+    <label for="atTCert">AT PEM-encoded DSC</label>
+    <textarea rows="10" cols="100" id="atTCert">
+-----BEGIN CERTIFICATE-----
+MIIBvTCCAWOgAwIBAgIKAXk8i88OleLsuTAKBggqhkjOPQQDAjA2MRYwFAYDVQQD
+DA1BVCBER0MgQ1NDQSAxMQswCQYDVQQGEwJBVDEPMA0GA1UECgwGQk1TR1BLMB4X
+DTIxMDUwNTEyNDEwNloXDTIzMDUwNTEyNDEwNlowPTERMA8GA1UEAwwIQVQgRFND
+IDExCzAJBgNVBAYTAkFUMQ8wDQYDVQQKDAZCTVNHUEsxCjAIBgNVBAUTATEwWTAT
+BgcqhkjOPQIBBggqhkjOPQMBBwNCAASt1Vz1rRuW1HqObUE9MDe7RzIk1gq4XW5G
+TyHuHTj5cFEn2Rge37+hINfCZZcozpwQKdyaporPUP1TE7UWl0F3o1IwUDAOBgNV
+HQ8BAf8EBAMCB4AwHQYDVR0OBBYEFO49y1ISb6cvXshLcp8UUp9VoGLQMB8GA1Ud
+IwQYMBaAFP7JKEOflGEvef2iMdtopsetwGGeMAoGCCqGSM49BAMCA0gAMEUCIQDG
+2opotWG8tJXN84ZZqT6wUBz9KF8D+z9NukYvnUEQ3QIgdBLFSTSiDt0UJaDF6St2
+bkUQuVHW6fQbONd731/M4nc=
+-----END CERTIFICATE-----
+</textarea>
 </p>
 <p>
     <button onClick="validate(false)">Validate</button>
@@ -255,8 +275,9 @@ EkhRcgdlVfUb
 <p>
     <button onClick="validateTrustList(true)">Validate with TrustList, show Data Class</button>
 </p>
-<p>
-    <button onClick="updateTrustList()">Update TrustList</button>
+<p >
+    <button style="display: inline" onClick="updateTrustList()">Update TrustList</button> <label style="display:inline-block; white-space: nowrap" for="tlAT"> <input style="display: inline" type="checkbox" id="tlAT" name="tlAT" checked="">AT-Specific Trustlist</label>
+
 </p>
 
 

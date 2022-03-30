@@ -56,7 +56,7 @@ Example for the verification side, i.e. in apps:
 // Load the certificate from somewhere ...
 String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 CertificateRepository repository = new PrefilledCertificateRepository(certificatePem);
-Chain chain = DefaultChain.buildVerificationChain(repository);
+Chain chain = DefaultChain.buildVerificationChain(repository);  //optional parameter atCryptoService to verify vaccination exemptions (prefix AT1:) against
 
 // Scan the QR code from somewhere ...
 String input = "HC1:NCFC:MVIMAP2SQ20MU...";
@@ -135,7 +135,7 @@ To verify a single QR code content:
 // PEM-encoded DSC
 let pemCert = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 // Would also accept more than one DSC
-let verifier = new hcert.VerifierDirect([pemCert]);
+let verifier = new hcert.VerifierDirect([pemCert]); //optional third parameter: array of pem encoded certs to verify vaccination exemptions (prefix AT1:) against
 
 // Scan the QR code from somewhere ...
 let qr = "HC1:NCFC:MVIMAP2SQ20MU...";
@@ -160,7 +160,9 @@ let trustListContent = new ArrayBuffer(8);
 // Download trust list signature, e.g. from https://dgc.a-sit.at/ehn/cert/sigv2
 let trustListSignature = new ArrayBuffer(8);
 
-let verifier = new hcert.VerifierTrustList(trustListAnchor, trustListContent, trustListSignature);
+let verifier = new hcert.VerifierTrustList(trustListAnchor, trustListContent, trustListSignature);  //optional isAT flag as fourth parameter to
+                                                                                                    //update AT-specific trust ancors to verify
+                                                                                                    //vaccination exemptions (prefix AT1:) against
 // Continue with example above with verifier.verify()
 ```
 
@@ -647,6 +649,7 @@ See these links for details:
 ## Changelog
 
 Version NEXT:
+ - Add second respository for trust anchors to verify AT-specific vaccination exemptions (prefix AT1:) against (see `buildVerificationChain`)
  - Fix constructors and overloads for Java callers
  - Introduce a debug verification chain
  - Introduce possibility to anonymise personal data (JVM only)
