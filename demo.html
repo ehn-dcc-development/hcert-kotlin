@@ -7,191 +7,189 @@
         textarea, button, input {
             display: block;
         }
-
     </style>
     <script src="build/distributions/hcert-kotlin.js"></script>
     <script>
-        var debug=false;
-     var verifier;
+        var debug = false;
+        var verifier;
 
-     document.onload = function () {
-         let tQR = document.getElementById("tQR");
-         let tCert = document.getElementById("tCert");
-         let atTCert = document.getElementById("atTCert");
-         let atTrust = document.getElementById("tlAT");
-         let tGenCert = document.getElementById("tGenCert");
-         let tGenKey = document.getElementById("tGenKey");
-         let tRes = document.getElementById("tRes");
-         let tGenRes = document.getElementById("tGenRes");
-         let tValid = document.getElementById("tValid");
-         let tError = document.getElementById("tError");
-         let tMeta = document.getElementById("tMeta");
-         let tEgc = document.getElementById("tEgc");
-         tRes.value = "";
-         tGenRes.value = "";
-         tValid.value = "";
-         tError.value = "";
-         tMeta.value = "";
-         tEgc.value = "";
-     }
+        document.onload = function () {
+            let tQR = document.getElementById("tQR");
+            let tCert = document.getElementById("tCert");
+            let atTCert = document.getElementById("atTCert");
+            let tGenCert = document.getElementById("tGenCert");
+            let tGenKey = document.getElementById("tGenKey");
+            let tRes = document.getElementById("tRes");
+            let tGenRes = document.getElementById("tGenRes");
+            let tValid = document.getElementById("tValid");
+            let tError = document.getElementById("tError");
+            let tMeta = document.getElementById("tMeta");
+            let tEgc = document.getElementById("tEgc");
+            tRes.value = "";
+            tGenRes.value = "";
+            tValid.value = "";
+            tError.value = "";
+            tMeta.value = "";
+            tEgc.value = "";
+        }
 
-     function generateRandom() {
-         let input = tGenInput.value.trim();
-         tGenRes.value = "Generating ...";
-         let generator = new hcert.GeneratorEcRandom(256);
-         let result = generator.encode(input);
-         console.info(result);
-         tGenRes.value = result.step5Prefixed;
-         document.getElementById("tGenQr").src = generator.encodeToQrCode(input, 4, 2);
-     }
+        function generateRandom() {
+            let input = tGenInput.value.trim();
+            tGenRes.value = "Generating ...";
+            let generator = new hcert.GeneratorEcRandom(256);
+            let result = generator.encode(input);
+            console.info(result);
+            tGenRes.value = result.step5Prefixed;
+            document.getElementById("tGenQr").src = generator.encodeToQrCode(input, 4, 2);
+        }
 
-     function generateFixed() {
-         let input = tGenInput.value.trim();
-         let key = tGenKey.value.trim();
-         let cert = tGenCert.value.trim();
-         tGenRes.value = "Generating ...";
-         let generator = new hcert.GeneratorFixed(key, cert);
-         let result = generator.encode(input);
-         console.info(result);
-         tGenRes.value = result.step5Prefixed;
-         document.getElementById("tGenQr").src = generator.encodeToQrCode(input, 4, 2);
-     }
+        function generateFixed() {
+            let input = tGenInput.value.trim();
+            let key = tGenKey.value.trim();
+            let cert = tGenCert.value.trim();
+            tGenRes.value = "Generating ...";
+            let generator = new hcert.GeneratorFixed(key, cert);
+            let result = generator.encode(input);
+            console.info(result);
+            tGenRes.value = result.step5Prefixed;
+            document.getElementById("tGenQr").src = generator.encodeToQrCode(input, 4, 2);
+        }
 
-     function validate(showDataClass) {
-         let qr = tQR.value.trim();
-         let pemCert = tCert.value.trim();
-         let atPemCert = atTCert.value.trim();
-         tRes.value = "Verifying ...";
-         verifier = new hcert.VerifierDirect([pemCert], debug,[atPemCert]);
-         let result = callVerifier(showDataClass, qr);
-         console.info(result);
-         tRes.value = JSON.stringify(result, null, 2);
-         tValid.value = JSON.stringify(result.isValid, null, 2);
-         tError.value = JSON.stringify(result.error, null, 2);
-         tMeta.value = JSON.stringify(result.metaInformation, null, 2);
-         tEgc.value = JSON.stringify(result.greenCertificate, null, 2);
-         return result
-     }
+        function validate(showDataClass) {
+            let qr = tQR.value.trim();
+            let pemCert = tCert.value.trim();
+            let atPemCert = atTCert.value.trim();
+            tRes.value = "Verifying ...";
+            verifier = new hcert.VerifierDirect([pemCert], [atPemCert], debug);
+            let result = callVerifier(showDataClass, qr);
+            console.info(result);
+            tRes.value = JSON.stringify(result, null, 2);
+            tValid.value = JSON.stringify(result.isValid, null, 2);
+            tError.value = JSON.stringify(result.error, null, 2);
+            tMeta.value = JSON.stringify(result.metaInformation, null, 2);
+            tEgc.value = JSON.stringify(result.greenCertificate, null, 2);
+            return result
+        }
 
-     function downloadBinary(requestUrl, callback) {
-         console.log("Downloading " + requestUrl + " ...")
-         var xhr = new XMLHttpRequest();
-         xhr.open("GET", requestUrl);
-         xhr.responseType = "arraybuffer";
-         xhr.onload = function () {
-             if (this.status === 200) {
-                 callback(xhr.response);
-             } else {
-                 console.warn(this);
-             }
-         };
-         xhr.send();
-     }
+        function downloadBinary(requestUrl, callback) {
+            console.log("Downloading " + requestUrl + " ...")
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", requestUrl);
+            xhr.responseType = "arraybuffer";
+            xhr.onload = function () {
+                if (this.status === 200) {
+                    callback(xhr.response);
+                } else {
+                    console.warn(this);
+                }
+            };
+            xhr.send();
+        }
 
-     function validateTrustList(showDataClass) {
-         let qr = tQR.value.trim();
-         let pemCert = tTrustListRoot.value.trim();
-         tRes.value = "Verifying ...";
-         let contentUrl = document.getElementById("tTrustListContentUrl").value.trim();
-         let signatureUrl = document.getElementById("tTrustListSignatureUrl").value.trim();
-         downloadBinary(contentUrl, function (resultContent) {
-             downloadBinary(signatureUrl, function (resultSignature) {
-                 try {
-                     verifier = new hcert.VerifierTrustList(pemCert, resultContent, resultSignature, debug);
-                     let result = callVerifier(showDataClass, qr);
-                     console.info(result);
-                     tRes.value = JSON.stringify(result, null, 2);
-                     tValid.value = JSON.stringify(result.isValid, null, 2);
-                     tError.value = JSON.stringify(result.error, null, 2);
-                     tMeta.value = JSON.stringify(result.metaInformation, null, 2);
-                     tEgc.value = JSON.stringify(result.greenCertificate, null, 2);
-                 } catch (error) {
-                     tRes.value = error.name + ": " + JSON.stringify(error, null, 2);
-                 }
-             })
-         });
-     }
+        function validateTrustList(showDataClass) {
+            let qr = tQR.value.trim();
+            let pemCert = tTrustListRoot.value.trim();
+            tRes.value = "Verifying ...";
+            let contentUrl = document.getElementById("tTrustListContentUrl").value.trim();
+            let signatureUrl = document.getElementById("tTrustListSignatureUrl").value.trim();
+            downloadBinary(contentUrl, function (resultContent) {
+                downloadBinary(signatureUrl, function (resultSignature) {
+                    try {
+                        verifier = new hcert.VerifierTrustList(pemCert, resultContent, resultSignature, debug);
+                        let result = callVerifier(showDataClass, qr);
+                        console.info(result);
+                        tRes.value = JSON.stringify(result, null, 2);
+                        tValid.value = JSON.stringify(result.isValid, null, 2);
+                        tError.value = JSON.stringify(result.error, null, 2);
+                        tMeta.value = JSON.stringify(result.metaInformation, null, 2);
+                        tEgc.value = JSON.stringify(result.greenCertificate, null, 2);
+                    } catch (error) {
+                        tRes.value = error.name + ": " + JSON.stringify(error, null, 2);
+                    }
+                })
+            });
+        }
 
-     function updateTrustList() {
-         let pemCert = tTrustListRoot.value.trim();
-         tRes.value = "Updating TrustList ...";
-         let contentUrl = document.getElementById("tTrustListContentUrl").value.trim();
-         let signatureUrl = document.getElementById("tTrustListSignatureUrl").value.trim();
-         downloadBinary(contentUrl, function (resultContent) {
-             downloadBinary(signatureUrl, function (resultSignature) {
-                 try {
-                     verifier.updateTrustList(pemCert, resultContent, resultSignature,atTrust.checked);
-                     tRes.value = "Updated TrustList!";
-                 } catch (error) {
-                     tRes.value = error.name + ": " + JSON.stringify(error, null, 2);
-                 }
-             })
-         });
-     }
+        function updateTrustList() {
+            let pemCert = tTrustListRoot.value.trim();
+            tRes.value = "Updating TrustList ...";
+            let contentUrl = document.getElementById("tTrustListContentUrl").value.trim();
+            let signatureUrl = document.getElementById("tTrustListSignatureUrl").value.trim();
+            downloadBinary(contentUrl, function (resultContent) {
+                downloadBinary(signatureUrl, function (resultSignature) {
+                    try {
+                        verifier.updateTrustList(pemCert, resultContent, resultSignature, document.getElementById("tlAT").checked);
+                        tRes.value = "Updated TrustList!";
+                    } catch (error) {
+                        tRes.value = error.name + ": " + JSON.stringify(error, null, 2);
+                    }
+                })
+            });
+        }
 
-     function callVerifier(showDataClass, qr) {
-         if (showDataClass)
-             return verifier.verifyDataClass(qr);
-         else
-             return verifier.verify(qr);
-     }
+        function callVerifier(showDataClass, qr) {
+            if (showDataClass)
+                return verifier.verifyDataClass(qr);
+            else
+                return verifier.verify(qr);
+        }
 
-     function loadTrustList() {
-         let pemCert = document.getElementById("tSignedDataRoot").value.trim();
-         document.getElementById("tSignedData").value = "Loading ...";
-         let contentUrl = document.getElementById("tTrustListBinUrl").value.trim();
-         let signatureUrl = document.getElementById("tTrustListSigUrl").value.trim();
-         downloadBinary(contentUrl, function (resultContent) {
-             downloadBinary(signatureUrl, function (resultSignature) {
-                 try {
-                     let result = hcert.SignedDataDownloader.loadTrustList(pemCert, resultContent, resultSignature);
-                     console.info(result);
-                     document.getElementById("tSignedData").value = JSON.stringify(result.first, ["validFrom", "validUntil"], 2);
-                 } catch (error) {
-                     console.error(error);
-                     document.getElementById("tSignedData").value = error.name + ": " + JSON.stringify(error, null, 2);
-                 }
-             })
-         });
-     }
+        function loadTrustList() {
+            let pemCert = document.getElementById("tSignedDataRoot").value.trim();
+            document.getElementById("tSignedData").value = "Loading ...";
+            let contentUrl = document.getElementById("tTrustListBinUrl").value.trim();
+            let signatureUrl = document.getElementById("tTrustListSigUrl").value.trim();
+            downloadBinary(contentUrl, function (resultContent) {
+                downloadBinary(signatureUrl, function (resultSignature) {
+                    try {
+                        let result = hcert.SignedDataDownloader.loadTrustList(pemCert, resultContent, resultSignature);
+                        console.info(result);
+                        document.getElementById("tSignedData").value = JSON.stringify(result.first, ["validFrom", "validUntil"], 2);
+                    } catch (error) {
+                        console.error(error);
+                        document.getElementById("tSignedData").value = error.name + ": " + JSON.stringify(error, null, 2);
+                    }
+                })
+            });
+        }
 
-     function loadBusinessRules() {
-         let pemCert = document.getElementById("tSignedDataRoot").value.trim();
-         document.getElementById("tSignedData").value = "Loading ...";
-         let contentUrl = document.getElementById("tBusinessRulesBinUrl").value.trim();
-         let signatureUrl = document.getElementById("tBusinessRulesSigUrl").value.trim();
-         downloadBinary(contentUrl, function (resultContent) {
-             downloadBinary(signatureUrl, function (resultSignature) {
-                 try {
-                     let result = hcert.SignedDataDownloader.loadBusinessRules(pemCert, resultContent, resultSignature);
-                     console.info(result);
-                     document.getElementById("tSignedData").value = JSON.stringify(result.first, ["validFrom", "validUntil"], 2);
-                 } catch (error) {
-                     console.error(error);
-                     document.getElementById("tSignedData").value = error.name + ": " + JSON.stringify(error, null, 2);
-                 }
-             })
-         });
-     }
+        function loadBusinessRules() {
+            let pemCert = document.getElementById("tSignedDataRoot").value.trim();
+            document.getElementById("tSignedData").value = "Loading ...";
+            let contentUrl = document.getElementById("tBusinessRulesBinUrl").value.trim();
+            let signatureUrl = document.getElementById("tBusinessRulesSigUrl").value.trim();
+            downloadBinary(contentUrl, function (resultContent) {
+                downloadBinary(signatureUrl, function (resultSignature) {
+                    try {
+                        let result = hcert.SignedDataDownloader.loadBusinessRules(pemCert, resultContent, resultSignature);
+                        console.info(result);
+                        document.getElementById("tSignedData").value = JSON.stringify(result.first, ["validFrom", "validUntil"], 2);
+                    } catch (error) {
+                        console.error(error);
+                        document.getElementById("tSignedData").value = error.name + ": " + JSON.stringify(error, null, 2);
+                    }
+                })
+            });
+        }
 
-     function loadValueSets() {
-         let pemCert = document.getElementById("tSignedDataRoot").value.trim();
-         document.getElementById("tSignedData").value = "Loading ...";
-         let contentUrl = document.getElementById("tValueSetsBinUrl").value.trim();
-         let signatureUrl = document.getElementById("tValueSetsSigUrl").value.trim();
-         downloadBinary(contentUrl, function (resultContent) {
-             downloadBinary(signatureUrl, function (resultSignature) {
-                 try {
-                     let result = hcert.SignedDataDownloader.loadValueSets(pemCert, resultContent, resultSignature);
-                     console.info(result);
-                     document.getElementById("tSignedData").value = JSON.stringify(result.first, ["validFrom", "validUntil"], 2);
-                 } catch (error) {
-                     console.error(error);
-                     document.getElementById("tSignedData").value = error.name + ": " + JSON.stringify(error, null, 2);
-                 }
-             })
-         });
-     }
+        function loadValueSets() {
+            let pemCert = document.getElementById("tSignedDataRoot").value.trim();
+            document.getElementById("tSignedData").value = "Loading ...";
+            let contentUrl = document.getElementById("tValueSetsBinUrl").value.trim();
+            let signatureUrl = document.getElementById("tValueSetsSigUrl").value.trim();
+            downloadBinary(contentUrl, function (resultContent) {
+                downloadBinary(signatureUrl, function (resultSignature) {
+                    try {
+                        let result = hcert.SignedDataDownloader.loadValueSets(pemCert, resultContent, resultSignature);
+                        console.info(result);
+                        document.getElementById("tSignedData").value = JSON.stringify(result.first, ["validFrom", "validUntil"], 2);
+                    } catch (error) {
+                        console.error(error);
+                        document.getElementById("tSignedData").value = error.name + ": " + JSON.stringify(error, null, 2);
+                    }
+                })
+            });
+        }
 
     </script>
 </head>
@@ -275,8 +273,10 @@ EkhRcgdlVfUb
 <p>
     <button onClick="validateTrustList(true)">Validate with TrustList, show Data Class</button>
 </p>
-<p >
-    <button style="display: inline" onClick="updateTrustList()">Update TrustList</button> <label style="display:inline-block; white-space: nowrap" for="tlAT"> <input style="display: inline" type="checkbox" id="tlAT" name="tlAT" checked="">AT-Specific Trustlist</label>
+<p>
+    <button style="display: inline" onClick="updateTrustList()">Update TrustList</button>
+    <label style="display:inline-block; white-space: nowrap" for="tlAT">AT-Specific Trustlist</label> <input
+        style="display: inline" type="checkbox" id="tlAT" name="tlAT">
 
 </p>
 

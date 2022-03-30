@@ -61,8 +61,8 @@ class Verifier(private val debug: Boolean) {
     @JsName("VerifierDirect")
     constructor(
         vararg pemEncodedCertCertificates: String,
-        debug: Boolean,
-        atPemEncodedCertCertificates: Array<String>? = null
+        atPemEncodedCertCertificates: Array<String>? = null,
+        debug: Boolean
     ) : this(debug) {
         repo = PrefilledCertificateRepository(pemEncodedCertificates = pemEncodedCertCertificates)
         atRepo = atPemEncodedCertCertificates?.let { PrefilledCertificateRepository(pemEncodedCertificates = *it) }

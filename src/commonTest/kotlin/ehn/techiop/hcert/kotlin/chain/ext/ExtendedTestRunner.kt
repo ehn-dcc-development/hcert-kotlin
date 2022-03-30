@@ -154,8 +154,8 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
         val emptyRepository = PrefilledCertificateRepository(*emptyArray<String>())
         val decodingChain = DefaultChain.buildVerificationChain(
             certificateRepository ?: emptyRepository,
-            clock,
-            atCertificateRepository
+            atCertificateRepository,
+            clock
         )
         val qrCodeContent = case.base45WithPrefix ?: if (case.qrCodePng != null) {
             try {
