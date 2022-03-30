@@ -1,15 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain
 
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
-import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.data.CborObject
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.log.globalLogLevel
-import ehn.techiop.hcert.kotlin.trust.CoseAdapter
 import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import io.github.aakira.napier.Napier
-import kotlinx.serialization.cbor.Cbor
-import kotlinx.serialization.decodeFromByteArray
 import kotlin.js.JsName
 
 interface IChain {
@@ -115,10 +110,14 @@ class Chain(
             """.trimIndent()
             )
             cose = verificationResult.let { it.withRecovery(errors) { compressorService.decode(compressed, it) } }
-            Napier.d("COSE structure: ${CwtHelper.fromCbor(cose)}")
+            try {
+                Napier.d("COSE structure: ${CwtHelper.fromCbor(cose)}")
+            } catch (_: Throwable) {
+                Napier.d("COSE structure cannot be decoded")
+            }
             cwt = verificationResult.let { it.withRecovery(errors) { coseService.decode(cose, it) } }
 
-           // Napier.d("CWT structure: ${CwtHelper.fromCbor(cwt).toCborObject().toJsonString()}")
+            // Napier.d("CWT structure: ${CwtHelper.fromCbor(cwt).toCborObject().toJsonString()}")
             val cborObj = verificationResult.let { it.withRecovery(errors) { cwtService.decode(cwt, it) } }
             rawEuGcc = cborObj.toJsonString()
 

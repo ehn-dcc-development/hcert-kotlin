@@ -14,7 +14,7 @@ class DefaultHigherOrderValidationService : HigherOrderValidationService {
         val numberNonNullTests = input.tests?.filterNotNull()?.size ?: 0
         if (numberNonNullTests > 0) {
             verificationResult.content.add(ContentType.TEST)
-            if (!verificationResult.certificateValidContent.contains(ContentType.TEST))
+            if (verificationResult.certificateValidContent.isNotEmpty() && !verificationResult.certificateValidContent.contains(ContentType.TEST))
                 throw VerificationException(
                     Error.UNSUITABLE_PUBLIC_KEY_TYPE,
                     "Type Test not valid",
@@ -34,7 +34,7 @@ class DefaultHigherOrderValidationService : HigherOrderValidationService {
                 )
 
             verificationResult.content.add(ContentType.VACCINATION)
-            if (!verificationResult.certificateValidContent.contains(ContentType.VACCINATION))
+            if (verificationResult.certificateValidContent.isNotEmpty() && !verificationResult.certificateValidContent.contains(ContentType.VACCINATION))
                 throw VerificationException(Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Vaccination not valid",
                     details = mapOf(
                         "ContentType" to ContentType.VACCINATION.oid,
@@ -55,7 +55,7 @@ class DefaultHigherOrderValidationService : HigherOrderValidationService {
                 )
 
             verificationResult.content.add(ContentType.RECOVERY)
-            if (!verificationResult.certificateValidContent.contains(ContentType.RECOVERY))
+            if (verificationResult.certificateValidContent.isNotEmpty() && !verificationResult.certificateValidContent.contains(ContentType.RECOVERY))
                 throw VerificationException(Error.UNSUITABLE_PUBLIC_KEY_TYPE, "Type Recovery not valid",
                     details = mapOf(
                         "ContentType" to ContentType.RECOVERY.oid,
@@ -77,10 +77,10 @@ class DefaultHigherOrderValidationService : HigherOrderValidationService {
         }
 
         if (numberExemptions == 0 && numberNonNullTests == 0 && numberNonNullVaccinations == 0 && numberNonNullRecoveryStatements == 0) {
-            throw VerificationException(SCHEMA_VALIDATION_FAILED, "No test, vaccination, or recovery entry")
+            throw VerificationException(SCHEMA_VALIDATION_FAILED, "No test, vaccination, exemption, or recovery entry")
         }
         if (numberExemptions + numberNonNullTests + numberNonNullVaccinations + numberNonNullRecoveryStatements > 1) {
-            throw VerificationException(SCHEMA_VALIDATION_FAILED, "More than one test, vaccination, and recovery entry")
+            throw VerificationException(SCHEMA_VALIDATION_FAILED, "More than one test, vaccination, exemption, and recovery entry")
         }
         return input
     }

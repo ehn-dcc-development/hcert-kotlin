@@ -37,16 +37,7 @@ internal class JsSchemaLoader(vararg validVersions: String) : SchemaLoader<Pair<
     }
 
     private fun getSchema(version: String): dynamic =
-        JSON.parse(
-            MainResourceHolder.loadAsString(
-                "json/schema/${
-                    version.replace(
-                        '-',
-                        '_'
-                    )
-                }/DCC.combined-schema.json"
-            )!!
-        )
+        JSON.parse(MainResourceHolder.loadAsString("json/schema/$version/DCC.combined-schema.json")!!)
 
     private fun getFallbackSchema(): dynamic =
         JSON.parse(MainResourceHolder.loadAsString("json/schema/fallback/DCC.combined-schema.json")!!)

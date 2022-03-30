@@ -33,7 +33,7 @@ actual class CertificateAdapter(val certificate: X509Certificate) {
                     ContentType.findByOid(oid)?.let { contentTypes.add(it) }
                 }
             }
-            return contentTypes.ifEmpty { ContentType.values().toList() }.toList()
+            return contentTypes.toList()
         }
 
     actual val validFrom = Instant.fromEpochMilliseconds(certificate.notBefore.time)

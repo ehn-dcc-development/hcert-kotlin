@@ -19,7 +19,7 @@ class JvmSchemaLoader(vararg validVersions: String) : SchemaLoader<JSONSchema>(*
     private fun parse(resource: InputStream) = Parser(uriResolver = { resource }).parse(URI.create("dummy:///"))
 
     private fun getSchemaResource(version: String) =
-        classLoader().getResourceAsStream("json/schema/${version.replace('-','_')}/DCC.combined-schema.json")
+        classLoader().getResourceAsStream("json/schema/$version/DCC.combined-schema.json")
             ?: throw IllegalArgumentException("Schema not found: $version")
 
     private fun getFallbackSchema() =
