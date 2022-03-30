@@ -2,9 +2,9 @@ package ehn.techiop.hcert.kotlin.chain.impl
 
 import ehn.techiop.hcert.kotlin.chain.CertificateRepository
 import ehn.techiop.hcert.kotlin.chain.Error
-import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.chain.VerificationException
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 
 class PrefilledCertificateRepository : CertificateRepository {
@@ -22,6 +22,8 @@ class PrefilledCertificateRepository : CertificateRepository {
     constructor(pemEncoded: String) {
         list += CertificateAdapter(pemEncoded)
     }
+
+    constructor() {}
 
     override fun loadTrustedCertificates(
         kid: ByteArray,

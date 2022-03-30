@@ -148,15 +148,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
     withData(cases.workaroundKotestNamingBug()) { testcase ->
         val case = json.decodeFromString<TestCase>(testcase)
         val clock = FixedClock(case.context.validationClock)
-        if (case.context.certificate == null && case.context.atCertificate == null) throw IllegalArgumentException("certificate")
-        val certificateRepository = case.context.certificate?.let { it1 -> PrefilledCertificateRepository(it1) }
-        val atCertificateRepository = case.context.atCertificate?.let { it1 -> PrefilledCertificateRepository(it1) }
-        val emptyRepository = PrefilledCertificateRepository(*emptyArray<String>())
-        val decodingChain = DefaultChain.buildVerificationChain(
-            certificateRepository ?: emptyRepository,
-            atCertificateRepository,
-            clock
-        )
+        val decodingChain = buildDecodingChain(case, clock)
         val qrCodeContent = case.base45WithPrefix ?: if (case.qrCodePng != null) {
             try {
                 // TODO decode QRCode?
@@ -221,8 +213,8 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     } else if (case.coseHex != null) {
                         val newResult = VerificationResult()
                         DefaultCoseService(
-                            verificationRepo = (if (case.base45WithPrefix?.startsWith("AT1:") == true) atCertificateRepository else certificateRepository)
-                                ?: emptyRepository
+                            // TODO choose correct repo
+                            verificationRepo = PrefilledCertificateRepository()
                         ).decode(case.coseHex.fromHexString(), newResult)
                         newResult.error shouldBe null
                     }
@@ -335,5 +327,32 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
             verificationResult.error shouldBe null
     }
 })
+
+private fun buildDecodingChain(
+    case: TestCase,
+    clock: FixedClock
+): IChain {
+    if (case.context.certificate != null && case.context.atCertificate != null) {
+        return DefaultChain.buildVerificationChain(
+            repository = PrefilledCertificateRepository(case.context.certificate),
+            atRepository = PrefilledCertificateRepository(case.context.atCertificate),
+            clock = clock
+        )
+    } else if (case.context.atCertificate != null) {
+        return DefaultChain.buildVerificationChain(
+            repository = PrefilledCertificateRepository(),
+            atRepository = PrefilledCertificateRepository(case.context.atCertificate),
+            clock = clock
+        )
+    } else if (case.context.certificate != null) {
+        return DefaultChain.buildVerificationChain(
+            repository = PrefilledCertificateRepository(case.context.certificate),
+            atRepository = PrefilledCertificateRepository(),
+            clock = clock
+        )
+    } else {
+        throw IllegalArgumentException("certificate")
+    }
+}
 
 

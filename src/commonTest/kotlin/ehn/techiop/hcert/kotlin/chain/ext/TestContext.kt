@@ -15,10 +15,10 @@ data class TestContext(
     val schema: String,
 
     @SerialName("CERTIFICATE")
-    val certificate: String?,
+    val certificate: String? = null,
 
     @SerialName("AT_CERTIFICATE")
-    val atCertificate: String?=null,
+    val atCertificate: String? = null,
 
     @SerialName("VALIDATIONCLOCK")
     @Serializable(with = LenientInstantParser::class)
