@@ -148,7 +148,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
     withData(cases.workaroundKotestNamingBug()) { testcase ->
         val case = json.decodeFromString<TestCase>(testcase)
         val clock = FixedClock(case.context.validationClock)
-        val decodingChain = buildDecodingChain(case, clock)
+        val (decodingChain, repo, atRepo) = buildDecodingChain(case, clock)
         val qrCodeContent = case.base45WithPrefix ?: if (case.qrCodePng != null) {
             try {
                 // TODO decode QRCode?
@@ -213,8 +213,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                     } else if (case.coseHex != null) {
                         val newResult = VerificationResult()
                         DefaultCoseService(
-                            // TODO choose correct repo
-                            verificationRepo = PrefilledCertificateRepository()
+                            verificationRepo = if (case.base45WithPrefix?.startsWith("AT1:") == true) atRepo else repo
                         ).decode(case.coseHex.fromHexString(), newResult)
                         newResult.error shouldBe null
                     }
@@ -331,24 +330,36 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
 private fun buildDecodingChain(
     case: TestCase,
     clock: FixedClock
-): IChain {
+): Triple<IChain, CertificateRepository, CertificateRepository> {
     if (case.context.certificate != null && case.context.atCertificate != null) {
-        return DefaultChain.buildVerificationChain(
-            repository = PrefilledCertificateRepository(case.context.certificate),
-            atRepository = PrefilledCertificateRepository(case.context.atCertificate),
-            clock = clock
+        val repository = PrefilledCertificateRepository(case.context.certificate)
+        val atRepository = PrefilledCertificateRepository(case.context.atCertificate)
+        return Triple(
+            DefaultChain.buildVerificationChain(
+                repository = repository,
+                atRepository = atRepository,
+                clock = clock
+            ), repository, atRepository
         )
     } else if (case.context.atCertificate != null) {
-        return DefaultChain.buildVerificationChain(
-            repository = PrefilledCertificateRepository(),
-            atRepository = PrefilledCertificateRepository(case.context.atCertificate),
-            clock = clock
+        val repository = PrefilledCertificateRepository()
+        val atRepository = PrefilledCertificateRepository(case.context.atCertificate)
+        return Triple(
+            DefaultChain.buildVerificationChain(
+                repository = repository,
+                atRepository = atRepository,
+                clock = clock
+            ), repository, atRepository
         )
     } else if (case.context.certificate != null) {
-        return DefaultChain.buildVerificationChain(
-            repository = PrefilledCertificateRepository(case.context.certificate),
-            atRepository = PrefilledCertificateRepository(),
-            clock = clock
+        val repository = PrefilledCertificateRepository(case.context.certificate)
+        val atRepository = PrefilledCertificateRepository()
+        return Triple(
+            DefaultChain.buildVerificationChain(
+                repository = repository,
+                atRepository = atRepository,
+                clock = clock
+            ), repository, atRepository
         )
     } else {
         throw IllegalArgumentException("certificate")

@@ -23,7 +23,7 @@ class PrefilledCertificateRepository : CertificateRepository {
         list += CertificateAdapter(pemEncoded)
     }
 
-    constructor() {}
+    constructor()
 
     override fun loadTrustedCertificates(
         kid: ByteArray,

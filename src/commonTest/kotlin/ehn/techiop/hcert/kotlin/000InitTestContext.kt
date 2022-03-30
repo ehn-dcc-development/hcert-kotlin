@@ -14,7 +14,7 @@ import io.kotest.datatest.withData
 class A000InitTestContext : FunSpec({
 
     test("Enabling logging") {
-        setLogLevel(Napier.Level.VERBOSE)
+        setLogLevel(Napier.Level.ERROR)
 
         //This is pretty awesome, as it supports an arbitrary number of arbitrary loggers
         //So we could create a custom test logger, which collects all log messages their parameters
