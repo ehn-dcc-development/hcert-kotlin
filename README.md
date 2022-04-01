@@ -608,7 +608,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:master-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:1.4.0'
 }
 ```
 
@@ -654,23 +654,9 @@ Version 1.4.0:
  - Introduce a debug verification chain
  - Introduce possibility to anonymise personal data (JVM only)
  - Update dependencies:
-   - Common:
-     - Kotlin: 1.5.31
-     - kotlinx.serialization: 1.3.0
-     - kotlinx.datetime: 0.3.0
-     - Kotest: 4.6.3
-     - Napier (Logging): 2.1.0
-   - JVM:
-     - Bouncy Castle PKIX: 1.69
-     - Json Schema Validation Lib: 2.1.0
-   - JS:
-     - pako (ZLib): 2.0.4
-     - pkijs: 2.1.97
-     - util: 0.12.4
-     - cbor: 8.0.2
-     - node-inspect-extracted: 1.0.8
-     - ajv (JSON schema validator): 8.6.3
-     - ajv-formats: 2.1.1
+   - Common: Kotlin: 1.5.31, kotlinx.serialization: 1.3.0, kotlinx.datetime: 0.3.0, Kotest: 4.6.3, Napier (Logging): 2.1.0
+   - JVM: Bouncy Castle: 1.69, Json Schema Validation Lib: 2.1.0
+   - JS: pako (ZLib): 2.0.4, pkijs: 2.1.97, util: 0.12.4, cbor: 8.0.2, node-inspect-extracted: 1.0.8, ajv (JSON schema validator): 8.6.3, ajv-formats: 2.1.1
  - JS:
    - Switch to upstream cose-js 0.7.0 (deprecates forked version)
    - Fix deprecated calls to `Buffer` constructor (possibly not all calls yet)
