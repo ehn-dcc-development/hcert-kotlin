@@ -7,10 +7,10 @@ import ehn.techiop.hcert.kotlin.data.GreenCertificate
 
 
 //we need to work around Duplicate JVM class name bug → we can skip expect definitions altogether
-abstract class SchemaLoader<T> {
+abstract class SchemaLoader<T>(vararg validVersions: String = KNOWN_VERSIONS) {
+
     companion object {
-        private const val BASE_VERSION = "1.3.0"
-        private val KNOWN_VERSIONS = arrayOf(
+        internal val KNOWN_VERSIONS = arrayOf(
             "1.0.0",
             "1.0.1",
             "1.1.0",
@@ -20,8 +20,8 @@ abstract class SchemaLoader<T> {
         )
     }
 
-    internal val validators = KNOWN_VERSIONS.mapIndexed { i, version ->
-        KNOWN_VERSIONS[i] to loadSchema(version)
+    internal val validators = validVersions.mapIndexed { i, version ->
+        validVersions[i] to loadSchema(version)
     }.toMap()
 
     internal abstract fun loadSchema(version: String): T
@@ -30,7 +30,7 @@ abstract class SchemaLoader<T> {
 
 }
 
-expect class SchemaValidationAdapter(cbor: CborObject) {
+expect class SchemaValidationAdapter(cbor: CborObject, validVersions: Array<String> = SchemaLoader.KNOWN_VERSIONS) {
 
     fun hasValidator(versionString: String): Boolean
     fun validateBasic(versionString: String): Collection<SchemaError>

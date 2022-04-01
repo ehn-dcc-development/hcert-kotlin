@@ -1,11 +1,6 @@
-package ehn.techiop.hcert.kotlin.chain.impl
+package ehn.techiop.hcert.kotlin.chain.debug
 
-import ehn.techiop.hcert.kotlin.chain.CertificateRepository
-import ehn.techiop.hcert.kotlin.chain.CoseService
-import ehn.techiop.hcert.kotlin.chain.CryptoService
-import ehn.techiop.hcert.kotlin.chain.Error
-import ehn.techiop.hcert.kotlin.chain.VerificationException
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.trust.CoseAdapter
 import ehn.techiop.hcert.kotlin.trust.CoseCreationAdapter
@@ -14,7 +9,7 @@ import ehn.techiop.hcert.kotlin.trust.CoseCreationAdapter
 /**
  * Encodes/decodes input as a Sign1Message according to COSE specification (RFC8152)
  */
-open class DefaultCoseService private constructor(
+open class DebugCoseService private constructor(
     private val signingService: CryptoService?,
     private val verificationRepo: CertificateRepository?
 ) : CoseService {
@@ -35,17 +30,38 @@ open class DefaultCoseService private constructor(
 
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         val coseAdapter = CoseAdapter(input)
-        val kid = coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
-            ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
-            ?: throw VerificationException(Error.KEY_NOT_IN_TRUST_LIST, "KID not found")
+        val kid = try {
+            coseAdapter.getProtectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
+                ?: coseAdapter.getUnprotectedAttributeByteArray(CoseHeaderKeys.KID.intVal)
+                //TODO: this is hacky!
+                ?: throw NonFatalVerificationException(
+                    coseAdapter.getContent(),
+                    Error.KEY_NOT_IN_TRUST_LIST,
+                    "KID not found"
+                )
+        } catch (t: Throwable) {
+            throw NonFatalVerificationException(
+                coseAdapter.getContent(),
+                if (t is VerificationException) t.error else Error.KEY_NOT_IN_TRUST_LIST,
+                cause = t
+            )
+        }
         // TODO is the algorithm relevant?
         //val algorithm = coseAdapter.getProtectedAttributeInt(CoseHeaderKeys.Algorithm.value)
         if (verificationRepo != null) {
-            if (!coseAdapter.validate(kid, verificationRepo, verificationResult))
-                throw VerificationException(Error.SIGNATURE_INVALID, "Not validated")
+           try{
+               if (!coseAdapter.validate(kid, verificationRepo, verificationResult))
+                   throw NonFatalVerificationException(coseAdapter.getContent(), Error.SIGNATURE_INVALID, "Not validated")
+           }catch (t:Throwable){
+               throw NonFatalVerificationException(
+                   coseAdapter.getContent(),
+                   if (t is VerificationException) t.error else Error.SIGNATURE_INVALID,
+                   cause = t
+               )
+           }
         } else if (signingService != null) {
             if (!coseAdapter.validate(kid, signingService, verificationResult))
-                throw VerificationException(Error.SIGNATURE_INVALID, "Not validated")
+                throw NonFatalVerificationException(coseAdapter.getContent(), Error.SIGNATURE_INVALID, "Not validated")
         } else {
             // safe to throw this "ugly" error, as it should not happen
             throw NotImplementedError()

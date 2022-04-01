@@ -19,6 +19,9 @@ data class GreenCertificate(
     @SerialName("v")
     val vaccinations: Array<Vaccination?>? = null,
 
+    @SerialName("ve")
+    val vaccinationExemption: Array<VaccinationExemption?>? = null,
+
     @SerialName("r")
     val recoveryStatements: Array<RecoveryStatement?>? = null,
 
@@ -31,12 +34,16 @@ data class GreenCertificate(
      * so we may not be able to get a valid [LocalDate] from it.
      * Be lenient, i.e. strip a timestamp, if it is included
      */
+    @Suppress("unused")
     @Transient
     val dateOfBirth: LocalDate? = try {
         LocalDate.parse(dateOfBirthString.substringBefore("T"))
     } catch (e: Throwable) {
         null
     }
+
+    @Transient
+    val anonymizedCopy by lazy { GreenCertificate(schemaVersion, Person("***","***","***","***") , "***", vaccinations, vaccinationExemption, recoveryStatements, tests) }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -51,6 +58,10 @@ data class GreenCertificate(
             if (other.vaccinations == null) return false
             if (!vaccinations.contentEquals(other.vaccinations)) return false
         } else if (other.vaccinations != null) return false
+        if (vaccinationExemption != null) {
+            if (other.vaccinationExemption == null) return false
+            if (!vaccinationExemption.contentEquals(other.vaccinationExemption)) return false
+        } else if (other.vaccinationExemption != null) return false
         if (recoveryStatements != null) {
             if (other.recoveryStatements == null) return false
             if (!recoveryStatements.contentEquals(other.recoveryStatements)) return false
@@ -59,6 +70,7 @@ data class GreenCertificate(
             if (other.tests == null) return false
             if (!tests.contentEquals(other.tests)) return false
         } else if (other.tests != null) return false
+        if (dateOfBirth != other.dateOfBirth) return false
 
         return true
     }
@@ -68,8 +80,10 @@ data class GreenCertificate(
         result = 31 * result + subject.hashCode()
         result = 31 * result + dateOfBirthString.hashCode()
         result = 31 * result + (vaccinations?.contentHashCode() ?: 0)
+        result = 31 * result + (vaccinationExemption?.contentHashCode() ?: 0)
         result = 31 * result + (recoveryStatements?.contentHashCode() ?: 0)
         result = 31 * result + (tests?.contentHashCode() ?: 0)
+        result = 31 * result + (dateOfBirth?.hashCode() ?: 0)
         return result
     }
 

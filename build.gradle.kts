@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "ehn.techiop.hcert"
-version = "1.4.0-SNAPSHOT"
+version = "1.4.0"
 
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -55,11 +55,11 @@ kotlin {
     }
     sourceSets.all {
         languageSettings.apply {
-            useExperimentalAnnotation("kotlin.time.ExperimentalTime")
-            useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
-            useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
-            useExperimentalAnnotation("io.kotest.common.ExperimentalKotest")
-            useExperimentalAnnotation("kotlin.js.ExperimentalJsExport")
+            optIn("kotlin.time.ExperimentalTime")
+            optIn("kotlin.ExperimentalUnsignedTypes")
+            optIn("kotlinx.serialization.ExperimentalSerializationApi")
+            optIn("io.kotest.common.ExperimentalKotest")
+            optIn("kotlin.js.ExperimentalJsExport")
         }
     }
 
@@ -102,7 +102,7 @@ kotlin {
         browser {
             testTask {
                 useKarma {
-                    useChromeHeadless()
+                    useChromiumHeadless()
                     webpackConfig.cssSupport.enabled = false
                 }
             }

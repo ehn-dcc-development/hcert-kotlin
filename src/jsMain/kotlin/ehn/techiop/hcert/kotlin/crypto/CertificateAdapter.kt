@@ -56,7 +56,7 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
                     ContentType.findByOid(oidStr)?.let { contentTypes.add(it) }
                 }
             }
-            return contentTypes.ifEmpty { ContentType.values().toList() }.toList()
+            return contentTypes.toList()
         }
 
     actual val validFrom: Instant
@@ -114,5 +114,8 @@ actual class CertificateAdapter actual constructor(_encoded: ByteArray) {
 
     actual val kid: ByteArray
         get() = Hash(encoded).calc().copyOf(8)
+
+    actual fun prettyPrint() = JSON.stringify(cert, null, 2)
+
 
 }

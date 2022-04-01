@@ -11,3 +11,4 @@
 src/jsTest/generated
 src/jsMain/generated
 webpack.config.d/
+local.properties

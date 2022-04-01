@@ -1,9 +1,7 @@
 package ehn.techiop.hcert.kotlin.chain.impl
 
-import ehn.techiop.hcert.kotlin.chain.CompressorService
-import ehn.techiop.hcert.kotlin.chain.Error
-import ehn.techiop.hcert.kotlin.chain.VerificationException
-import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.*
+import io.github.aakira.napier.Napier
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -25,7 +23,15 @@ open class DefaultCompressorService @JvmOverloads constructor(private val level:
      */
     override fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray {
         try {
-            return adapter.decode(input)
+            return adapter.decode(input).also {
+                Napier.d(
+                    """
+                Data is decompressable
+                Base64: ${it.asBase64()}
+                Hex: ${it.toHexString()}
+            """.trimIndent()
+                )
+            }
         } catch (e: Throwable) {
             throw VerificationException(Error.DECOMPRESSION_FAILED, cause = e)
         }

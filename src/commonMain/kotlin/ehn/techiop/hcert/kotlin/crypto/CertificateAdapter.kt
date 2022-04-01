@@ -16,6 +16,8 @@ expect class CertificateAdapter(pemEncoded: String) {
     fun toTrustedCertificate(): TrustedCertificateV2
     val kid: ByteArray
     val encoded: ByteArray
+
+    fun prettyPrint(): String
 }
 
 interface PrivKey

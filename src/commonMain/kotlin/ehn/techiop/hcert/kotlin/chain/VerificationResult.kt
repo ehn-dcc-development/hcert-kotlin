@@ -5,11 +5,15 @@ import ehn.techiop.hcert.kotlin.trust.ContentType
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
+typealias ErrorDetails = Map<String, String>
+
 /**
  * See also VerificationResultJs
  */
 @Serializable
 class VerificationResult {
+    @Serializable(with = Base64EncodeSerializer::class)
+    var encodedCertificate: ByteArray? = null
 
     /**
      * `exp` claim SHALL hold a timestamp.
@@ -39,6 +43,12 @@ class VerificationResult {
     var certificateValidUntil: Instant? = null
 
     /**
+     * KID of the certificate
+     */
+    @Serializable(with = HexSerializer::class)
+    var certificateKid: ByteArray? = null
+
+    /**
      * Indicates, which content may be signed with the certificate, defaults to all content types
      */
     var certificateValidContent: List<ContentType> = ContentType.values().toList()
@@ -62,7 +72,7 @@ class VerificationResult {
     /**
      * Holds details about the error, if any occurred and relevant details are available
      */
-    var errorDetails: Map<String, String>? = null
+    val errorDetails: MutableMap<String, String> = mutableMapOf()
 
     override fun toString(): String {
         return "VerificationResult(" +
@@ -72,6 +82,7 @@ class VerificationResult {
                 "certificateValidFrom=$certificateValidFrom, " +
                 "certificateValidUntil=$certificateValidUntil, " +
                 "certificateValidContent=$certificateValidContent, " +
+                "certificateKid=${certificateKid?.toHexString()}, " +
                 "certificateSubjectCountry=$certificateSubjectCountry, " +
                 "content=$content, " +
                 "error=$error, " +
@@ -84,6 +95,8 @@ class VerificationResult {
         certificateValidUntil = certificate.validUntil
         certificateValidContent = certificate.validContentTypes
         certificateSubjectCountry = certificate.subjectCountry
+        certificateKid = certificate.kid
+        encodedCertificate = certificate.encoded
     }
 
 }

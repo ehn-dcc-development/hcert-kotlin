@@ -1,7 +1,9 @@
 import ehn.techiop.hcert.kotlin.chain.*
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
+import ehn.techiop.hcert.kotlin.chain.debug.DebugChain
 import ehn.techiop.hcert.kotlin.chain.impl.*
+import ehn.techiop.hcert.kotlin.data.InstantParser
 import ehn.techiop.hcert.kotlin.log.BasicLogger
 import ehn.techiop.hcert.kotlin.log.JsLogger
 import ehn.techiop.hcert.kotlin.rules.BusinessRulesDecodeService
@@ -10,6 +12,7 @@ import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
 import ehn.techiop.hcert.kotlin.valueset.ValueSetDecodeService
 import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.Napier
+import kotlinx.datetime.Clock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -50,32 +53,55 @@ fun setLogger(
 
 @JsExport
 @JsName("Verifier")
-class Verifier {
+class Verifier(private val debug: Boolean) {
 
     private val jsonEncoder = Json { encodeDefaults = true }
     private lateinit var repo: CertificateRepository
-    private lateinit var chain: Chain
+    private var atRepo: CertificateRepository? = null
+    private lateinit var chain: IChain
 
     @JsName("VerifierDirect")
-    constructor(vararg pemEncodedCertCertificates: String) {
+    constructor(
+        vararg pemEncodedCertCertificates: String,
+        atPemEncodedCertCertificates: Array<String>? = null,
+        dateString: String? = null,
+        debug: Boolean
+    ) : this(debug) {
         repo = PrefilledCertificateRepository(pemEncodedCertificates = pemEncodedCertCertificates)
-        chain = DefaultChain.buildVerificationChain(repo)
+        atRepo = atPemEncodedCertCertificates?.let { PrefilledCertificateRepository(pemEncodedCertificates = it) }
+        chain = if (debug) DebugChain.buildVerificationChain(
+            repository = repo,
+            clock = if (dateString == null || dateString == undefined) Clock.System
+            else FixedClock(InstantParser.parseInstant(dateString)),
+            atRepository = atRepo
+        ) else DefaultChain.buildVerificationChain(repository = repo, atRepository = atRepo)
     }
 
     @JsName("VerifierTrustList")
-    constructor(rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer) {
-        updateTrustList(rootPem, trustListContent, trustListSignature)
+    constructor(rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer, debug: Boolean) : this(
+        debug
+    ) {
+        updateTrustList(rootPem, trustListContent, trustListSignature, false)
     }
 
     @JsName("updateTrustList")
-    fun updateTrustList(rootPem: String, trustListContent: ArrayBuffer, trustListSignature: ArrayBuffer) {
+    fun updateTrustList(
+        rootPem: String,
+        trustListContent: ArrayBuffer,
+        trustListSignature: ArrayBuffer,
+        isAT: Boolean? = null
+    ) {
         jsTry {
             val root = PrefilledCertificateRepository(rootPem)
             val sig = trustListSignature.toByteArray()
             val content = trustListContent.toByteArray()
             val contentAndSig = SignedData(content, sig)
-            repo = TrustListCertificateRepository(contentAndSig, root)
-            chain = DefaultChain.buildVerificationChain(repo)
+            if (isAT == true) atRepo = TrustListCertificateRepository(contentAndSig, root)
+            else repo = TrustListCertificateRepository(contentAndSig, root)
+            chain = if (debug) DebugChain.buildVerificationChain(
+                repo,
+                atRepository = atRepo
+            ) else DefaultChain.buildVerificationChain(repo, atRepository = atRepo)
         }.catch {
             if (it is VerificationException)
                 throw it
@@ -90,7 +116,7 @@ class Verifier {
         val extResult = chain.decode(qrContent)
         val decodeResult = DecodeResultJs(
             extResult.verificationResult.error == null,
-            extResult.verificationResult.error?.name,
+            extResult.chainDecodeResult.errors?.map { it.name },
             VerificationResultJs(extResult.verificationResult),
             extResult.chainDecodeResult.eudgc
         )
@@ -197,13 +223,14 @@ fun main() {
     //is NOOP by default because log level is null by default
     Napier.base(defaultLogger)
     if (false) {
-        val directVerifier = Verifier("bar")
+        val directVerifier = Verifier("bar", debug = false)
         directVerifier.verify("bar")
         directVerifier.verifyDataClass("bar")
         val trustListVerifier = Verifier(
             "bar",
             ArrayBuffer.from("content".encodeToByteArray()),
-            ArrayBuffer.from("signature".encodeToByteArray())
+            ArrayBuffer.from("signature".encodeToByteArray()),
+            debug = true
         )
         trustListVerifier.verify("bar")
         trustListVerifier.verifyDataClass("bar")

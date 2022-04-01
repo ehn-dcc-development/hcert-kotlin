@@ -32,7 +32,7 @@ Example for creation services:
 String privateKeyPem = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADAN...";
 String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 CryptoService cryptoService = new FileBasedCryptoService(privateKeyPem, certificatePem);
-Chain chain = DefaultChain.buildCreationChain(cryptoService);
+Chain chain = DefaultChain.buildCreationChain(cryptoService); //optional custom prefix, e.g. "AT1:" to support AT-specific exemption certificates
 
 // Load the input data from somewhere ...
 String json = "{ \"sub\": { \"gn\": \"Gabriele\", ...";
@@ -56,7 +56,7 @@ Example for the verification side, i.e. in apps:
 // Load the certificate from somewhere ...
 String certificatePem = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 CertificateRepository repository = new PrefilledCertificateRepository(certificatePem);
-Chain chain = DefaultChain.buildVerificationChain(repository);
+Chain chain = DefaultChain.buildVerificationChain(repository);  //optional parameter atRepository to verify vaccination exemptions (prefix AT1:) against
 
 // Scan the QR code from somewhere ...
 String input = "HC1:NCFC:MVIMAP2SQ20MU...";
@@ -93,6 +93,24 @@ The usage of interfaces for all services (CBOR, CWT, COSE, ZLib, Context) in the
 
 Sample data objects are provided in `SampleData`, with special thanks to Christian Baumann.
 
+### Debug Chain
+In addition to the default (spec-compliant) verification behaviour, it is possible to continue verification even after certain errors.
+While a faulty encoding or garbled CBOR structure will still result in fatal errors, an expired certificate, or unknown KID, will not terminate the verification procedure, when using the debug chain.
+For details, see [`DebugChain.kt`](src/commonMain/kotlin/ehn/techiop/hcert/kotlin/chain/debug/DebugChain.kt).
+
+### Anyonymising Personal Data (JVM only)
+Both the `ChainDecodeResult` and the `GreenCertificate` classes allow for blanking personal information (name, date of birth), through the lazy-initialised `anonymizedCopy` property.
+For debugging purposes, the `DecodeResult` features a `toJsonString(anonymize: Boolean)` method.
+
+**NOTE:** This is blanking of personal data is limited to humanly comprehensible representations of processed data.
+As such, even anonymised `DecodeResults` and `ChainDecodeResults` will contain unaltered QR code content, the vanilla CWT and so forth.
+All such unmodified data can thus be parsed without issue and will still yield all personal data.
+<hr>
+
+**DO LOG OR PROCESS THIS DATA, EVEN WHEN USING ANONYMISED COPIES! YOU HAVE BEEN WARNED.**
+
+<hr>
+
 ## Usage (JS)
 
 The build result of this library for JS is a module in UMD format, located under `build/distributions/hcert-kotlin.js`. This script runs in a web browser environment and can be used in the following way (see [demo.html](demo.html)).
@@ -117,7 +135,7 @@ To verify a single QR code content:
 // PEM-encoded DSC
 let pemCert = "-----BEGIN CERTIFICATE-----\nMIICsjCCAZq...";
 // Would also accept more than one DSC
-let verifier = new hcert.VerifierDirect([pemCert]);
+let verifier = new hcert.VerifierDirect([pemCert]); //optional second parameter: array of pem encoded certs to verify vaccination exemptions (prefix AT1:) against
 
 // Scan the QR code from somewhere ...
 let qr = "HC1:NCFC:MVIMAP2SQ20MU...";
@@ -142,7 +160,9 @@ let trustListContent = new ArrayBuffer(8);
 // Download trust list signature, e.g. from https://dgc.a-sit.at/ehn/cert/sigv2
 let trustListSignature = new ArrayBuffer(8);
 
-let verifier = new hcert.VerifierTrustList(trustListAnchor, trustListContent, trustListSignature);
+let verifier = new hcert.VerifierTrustList(trustListAnchor, trustListContent, trustListSignature);  //optional isAT flag as fourth parameter to
+                                                                                                    //update AT-specific trust ancors to verify
+                                                                                                    //vaccination exemptions (prefix AT1:) against
 // Continue with example above with verifier.verify()
 ```
 
@@ -286,6 +306,14 @@ An alternative to calling `verfiy(qr)` is to call `verifyDataClass(qr)` which re
   "dateOfBirth": "1998-02-26T00:00:00.000Z"
 }
 ```
+
+### Debug Chain
+In addition to the default (spec-compliant) verification behaviour, it is possible to continue verification even after certain errors.
+While a faulty encoding or garbled CBOR structure will still result in fatal errors, an expired certificate, or unknown KID, will not terminate the verification procedure, when using the debug chain.
+Simply add a `true` as the additional parameter to verifier  constructor calls, such as `new hcert.VerifierDirect([pemCert], true)`.
+
+
+
 
 ## Errors
 
@@ -580,7 +608,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:master-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:1.4.0'
 }
 ```
 
@@ -620,26 +648,15 @@ See these links for details:
 
 ## Changelog
 
-Version NEXT:
+Version 1.4.0:
+ - Add second respository for trust anchors to verify AT-specific vaccination exemptions (prefix AT1:) against (see `buildVerificationChain`)
  - Fix constructors and overloads for Java callers
+ - Introduce a debug verification chain
+ - Introduce possibility to anonymise personal data (JVM only)
  - Update dependencies:
-   - Common:
-     - Kotlin: 1.5.31
-     - kotlinx.serialization: 1.3.0
-     - kotlinx.datetime: 0.3.0
-     - Kotest: 4.6.3
-     - Napier (Logging): 2.1.0
-   - JVM:
-     - Bouncy Castle PKIX: 1.69
-     - Json Schema Validation Lib: 2.1.0
-   - JS:
-     - pako (ZLib): 2.0.4
-     - pkijs: 2.1.97
-     - util: 0.12.4
-     - cbor: 8.0.2
-     - node-inspect-extracted: 1.0.8
-     - ajv (JSON schema validator): 8.6.3
-     - ajv-formats: 2.1.1
+   - Common: Kotlin: 1.5.31, kotlinx.serialization: 1.3.0, kotlinx.datetime: 0.3.0, Kotest: 4.6.3, Napier (Logging): 2.1.0
+   - JVM: Bouncy Castle: 1.69, Json Schema Validation Lib: 2.1.0
+   - JS: pako (ZLib): 2.0.4, pkijs: 2.1.97, util: 0.12.4, cbor: 8.0.2, node-inspect-extracted: 1.0.8, ajv (JSON schema validator): 8.6.3, ajv-formats: 2.1.1
  - JS:
    - Switch to upstream cose-js 0.7.0 (deprecates forked version)
    - Fix deprecated calls to `Buffer` constructor (possibly not all calls yet)

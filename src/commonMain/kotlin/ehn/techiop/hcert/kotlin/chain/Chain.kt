@@ -1,9 +1,10 @@
 package ehn.techiop.hcert.kotlin.chain
 
+import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.log.globalLogLevel
+import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import io.github.aakira.napier.Napier
-import kotlin.js.JsName
 
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes
@@ -19,7 +20,7 @@ class Chain(
     private val compressorService: CompressorService,
     private val base45Service: Base45Service,
     private val contextIdentifierService: ContextIdentifierService
-) {
+) : IChain {
     private val logTag = "Chain${hashCode()}"
 
     /**
@@ -33,8 +34,7 @@ class Chain(
      *
      * The result ([ChainResult]) will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
      */
-    @JsName("encode")
-    fun encode(input: GreenCertificate): ChainResult {
+    override fun encode(input: GreenCertificate): ChainResult {
         val cbor = cborService.encode(input)
         val cwt = cwtService.encode(cbor)
         val cose = coseService.encode(cwt)
@@ -55,8 +55,7 @@ class Chain(
      * - [SchemaValidationService]
      * The result ([ChainDecodeResult]) will contain the parsed data, as well as intermediate results.
      */
-    @JsName("decode")
-    fun decode(input: String): DecodeResult {
+    override fun decode(input: String): DecodeResult {
         val verificationResult = VerificationResult()
 
         var eudgc: GreenCertificate? = null
@@ -65,19 +64,57 @@ class Chain(
         var cose: ByteArray? = null
         var compressed: ByteArray? = null
         var encoded: String? = null
+        var errors = mutableListOf<Error>()
 
         try {
-            encoded = contextIdentifierService.decode(input, verificationResult)
-            compressed = base45Service.decode(encoded, verificationResult)
-            cose = compressorService.decode(compressed, verificationResult)
-            cwt = coseService.decode(cose, verificationResult)
-            val cborObj = cwtService.decode(cwt, verificationResult)
+            encoded = verificationResult.let { it.withRecovery(errors) { contextIdentifierService.decode(input, it) } }
+            compressed = verificationResult.let { it.withRecovery(errors) { base45Service.decode(encoded, it) } }
+            Napier.d(
+                """
+                QR code payload without prefix:
+                Base64:
+                ${compressed.asBase64()}
+                Hex:
+                ${compressed.toHexString()}
+            """.trimIndent()
+            )
+            cose = verificationResult.let { it.withRecovery(errors) { compressorService.decode(compressed, it) } }
+            try {
+                Napier.d("COSE structure: ${CwtHelper.fromCbor(cose)}")
+            } catch (_: Throwable) {
+                Napier.d("COSE structure cannot be decoded")
+            }
+            cwt = verificationResult.let { it.withRecovery(errors) { coseService.decode(cose, it) } }
+
+            // Napier.d("CWT structure: ${CwtHelper.fromCbor(cwt).toCborObject().toJsonString()}")
+            val cborObj = verificationResult.let { it.withRecovery(errors) { cwtService.decode(cwt, it) } }
             rawEuGcc = cborObj.toJsonString()
-            val schemaValidated = schemaValidationService.validate(cborObj, verificationResult)
-            eudgc = higherOrderValidationService.validate(schemaValidated, verificationResult)
+
+
+            val schemaValidated =
+                verificationResult.let { it.withRecovery(errors) { schemaValidationService.validate(cborObj, it) } }
+            eudgc = verificationResult.let {
+                it.withRecovery(errors) {
+                    higherOrderValidationService.validate(
+                        schemaValidated,
+                        it
+                    )
+                }
+            }
+            //TODO print certificate candidates based on KID if verification fails
+            verificationResult.encodedCertificate?.let {
+                Napier.d(
+                    """Signature Certificate Info
+                    DER:
+                    ${it.toHexString()}
+                    Base64:
+                    ${it.asBase64()}
+                    Certificate Description: ${CertificateAdapter(it).prettyPrint()}
+                """.trimMargin()
+                )
+            }
         } catch (e: VerificationException) {
-            verificationResult.error = e.error
-            verificationResult.errorDetails = e.details
+            verificationResult.addError(e)
             Napier.w(
                 message = e.message ?: "Decode Chain error",
                 throwable = if (globalLogLevel == Napier.Level.VERBOSE) e else null,
@@ -85,8 +122,27 @@ class Chain(
             )
         }
 
-        val chainDecodeResult = ChainDecodeResult(eudgc, rawEuGcc, cwt, cose, compressed, encoded)
+        val chainDecodeResult = ChainDecodeResult(errors, eudgc, rawEuGcc, cwt, cose, compressed, encoded)
         return DecodeResult(verificationResult, chainDecodeResult)
     }
-}
 
+    private inline fun <reified T> VerificationResult.withRecovery(
+        aggregatedErrors: MutableList<Error>,
+        verify: () -> T
+    ): T {
+        return try {
+            verify()
+        } catch (e: Throwable) {
+            if (e is NonFatalVerificationException) {
+                addError(e)
+                aggregatedErrors += e.error
+                e.result as T
+            } else throw e
+        }
+    }
+
+    private fun VerificationResult.addError(e: VerificationException) {
+        error = e.error
+        e.details?.forEach { (k, v) -> errorDetails[k] = v }
+    }
+}

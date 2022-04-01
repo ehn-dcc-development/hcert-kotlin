@@ -1,11 +1,23 @@
 package ehn.techiop.hcert.kotlin.trust
 
+import COSE.Message
+import COSE.Sign1Message
+import COSE.signature
 import com.upokecenter.cbor.CBORObject
+import ehn.techiop.hcert.kotlin.chain.asBase64
+import ehn.techiop.hcert.kotlin.chain.toHexString
+import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
+import ehn.techiop.hcert.kotlin.crypto.CwtAlgorithm
+import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import ehn.techiop.hcert.kotlin.data.CborObject
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.*
 
 actual object CwtHelper {
     actual fun fromCbor(input: ByteArray): CwtAdapter = JvmCwtAdapter(input)
 }
+
+private val jsonHelper = Json { prettyPrint = true }
 
 class JvmCwtAdapter(input: ByteArray) : CwtAdapter {
 
@@ -28,6 +40,66 @@ class JvmCwtAdapter(input: ByteArray) : CwtAdapter {
         } catch (e: Throwable) {
             JvmCwtAdapter(map[key].EncodeToBytes())
         }
+    }
+
+    override fun toString(): String {
+        try {
+
+
+        val msg = Message.DecodeFromBytes(map.EncodeToBytes())
+        val payload = msg.GetContent()
+
+        val unprotecedHeader =
+            try {
+                extractMap(msg.unprotectedAttributes)
+            } catch (t: Throwable) {
+                mapOf(
+                    "Decoding Error" to t.message
+                )
+            }
+        val protecedHeader =  try {
+            extractMap(msg.protectedAttributes)
+        } catch (t: Throwable) {
+            mapOf(
+                "Decoding Error" to t.message
+            )
+        }
+
+        val json = JsonObject(
+            mapOf(
+                "protectedHeader" to Json.encodeToJsonElement(protecedHeader),
+                "payload" to JsonPrimitive(payload.toHexString()),
+                "type" to JsonPrimitive(msg::class.java.simpleName),
+                "unprotectedHeader" to Json.encodeToJsonElement(unprotecedHeader),
+            ).let { map ->
+                if (msg is Sign1Message) map.toMutableMap().also {
+                    it["signature"] =
+                        JsonPrimitive(msg.signature.asBase64())
+                } else map
+            }
+        )
+
+        return jsonHelper.encodeToString(json)
+        }catch (t:Throwable){
+            return "Decoding Error: ${t.message}"
+        }
+    }
+
+    private fun extractMap(attributes: CBORObject?): MutableMap<String, String> {
+        val unprotecedHeader = mutableMapOf<String, String>()
+        attributes?.let {
+            it.keys.map { key ->
+                val parserHeaderKey =
+                    CoseHeaderKeys.fromIntVal(key.AsInt32())?.stringVal ?: key.AsInt32()
+                        .toString()
+                val value = if (parserHeaderKey == CoseHeaderKeys.ALGORITHM.stringVal) {
+
+                    CwtAlgorithm.fromIntVal(attributes[key].AsInt32())?.stringVal ?: attributes[key].AsInt32().toString()
+                } else attributes[key].Untag().GetByteString().toHexString()
+                unprotecedHeader[parserHeaderKey] = value
+            }
+        }
+        return unprotecedHeader
     }
 
     override fun toCborObject(): CborObject = JvmCborObject(map)

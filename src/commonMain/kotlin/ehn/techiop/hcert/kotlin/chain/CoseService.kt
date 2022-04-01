@@ -9,4 +9,6 @@ interface CoseService {
 
     fun decode(input: ByteArray, verificationResult: VerificationResult): ByteArray
 
+    fun getVerificationRepo(): CertificateRepository?
+
 }

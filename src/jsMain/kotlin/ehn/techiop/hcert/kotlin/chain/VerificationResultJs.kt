@@ -35,6 +35,6 @@ data class VerificationResultJs(
         result.certificateValidContent.map { it.name }.toTypedArray(),
         result.certificateSubjectCountry,
         result.content.map { it.name }.toTypedArray(),
-        result.error?.toString()
+        result.error?.name
     )
 }

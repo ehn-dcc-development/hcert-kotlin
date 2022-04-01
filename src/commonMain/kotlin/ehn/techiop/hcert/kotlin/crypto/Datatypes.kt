@@ -10,7 +10,11 @@ enum class CoseHeaderKeys(val intVal: Int, val stringVal: String) {
     PARTIAL_IV(6, "Partial IV"),
     TRUSTLIST_VERSION(42, "tlv"),
     BUSINESS_RULES_VERSION(-65537, "brv"),
-    VALUE_SET_VERSION(-65538, "vsv"),
+    VALUE_SET_VERSION(-65538, "vsv");
+
+    companion object {
+        fun fromIntVal(intVal: Int) = values().firstOrNull { it.intVal == intVal }
+    }
 }
 
 enum class CwtHeaderKeys(val intVal: Int, val stringVal: String) {
@@ -22,12 +26,24 @@ enum class CwtHeaderKeys(val intVal: Int, val stringVal: String) {
     ISSUED_AT(6, "iat"),
     CWT_ID(7, "cti"),
     HCERT(-260, "hcert"),
-    EUDGC_IN_HCERT(1, "eu_dgc_v1"),
+    EUDGC_IN_HCERT(1, "eu_dgc_v1");
+
+
+    companion object {
+        fun fromIntVal(intVal: Int) = values().firstOrNull { it.intVal == intVal }
+    }
 }
 
 
 enum class CwtAlgorithm(val intVal: Int, val stringVal: String) {
+
+
     ECDSA_256(-7, "ES256"),
     ECDSA_384(-35, "ES384"),
-    RSA_PSS_256(-37, "PS256"),
+    RSA_PSS_256(-37, "PS256");
+
+
+    companion object {
+        fun fromIntVal(intVal: Int) = values().firstOrNull { it.intVal == intVal }
+    }
 }

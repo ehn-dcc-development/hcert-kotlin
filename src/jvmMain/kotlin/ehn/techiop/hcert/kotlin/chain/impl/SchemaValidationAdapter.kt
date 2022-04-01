@@ -10,7 +10,7 @@ import net.pwall.json.schema.parser.Parser
 import java.io.InputStream
 import java.net.URI
 
-class JvmSchemaLoader : SchemaLoader<JSONSchema>() {
+class JvmSchemaLoader(vararg validVersions: String) : SchemaLoader<JSONSchema>(*validVersions) {
 
     override fun loadSchema(version: String) = getSchemaResource(version).use(this@JvmSchemaLoader::parse)
 
@@ -30,9 +30,9 @@ class JvmSchemaLoader : SchemaLoader<JSONSchema>() {
 
 }
 
-actual class SchemaValidationAdapter actual constructor(private val cbor: CborObject) {
+actual class SchemaValidationAdapter actual constructor(private val cbor: CborObject, validVersions: Array<String>) {
 
-    private val schemaLoader = JvmSchemaLoader()
+    private val schemaLoader = JvmSchemaLoader(*validVersions)
     private val json = (cbor as JvmCwtAdapter.JvmCborObject).toJsonString()
 
     actual fun hasValidator(versionString: String): Boolean {

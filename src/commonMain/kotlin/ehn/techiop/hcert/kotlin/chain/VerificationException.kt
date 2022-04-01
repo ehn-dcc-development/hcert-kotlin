@@ -1,8 +1,16 @@
 package ehn.techiop.hcert.kotlin.chain
 
-class VerificationException(
+open class VerificationException(
     val error: Error,
     message: String? = null,
     cause: Throwable? = null,
-    val details: Map<String, String>? = null
-) : Exception(message, cause)
+    val details: ErrorDetails? = null
+) : Throwable(message, cause)
+
+class NonFatalVerificationException(
+    val result: Any,
+    error: Error,
+    message: String? = null,
+    cause: Throwable? = null,
+    details: ErrorDetails? = null
+) : VerificationException(error, message, cause, details)
