@@ -1,10 +1,17 @@
 package ehn.techiop.hcert.kotlin.chain.ext
 
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.DefaultChain
+import ehn.techiop.hcert.kotlin.chain.Error
+import ehn.techiop.hcert.kotlin.chain.FixedClock
+import ehn.techiop.hcert.kotlin.chain.IChain
+import ehn.techiop.hcert.kotlin.chain.VerificationResult
+import ehn.techiop.hcert.kotlin.chain.fromHexString
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultHigherOrderValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
+import ehn.techiop.hcert.kotlin.chain.toHexString
 import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.StringSpec
@@ -148,7 +155,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
     withData(cases.workaroundKotestNamingBug()) { testcase ->
         val case = json.decodeFromString<TestCase>(testcase)
         val clock = FixedClock(case.context.validationClock)
-        val (decodingChain, repo, atRepo) = buildDecodingChain(case, clock)
+        val chainWithRepos = buildDecodingChain(case, clock)
         val qrCodeContent = case.base45WithPrefix ?: if (case.qrCodePng != null) {
             try {
                 // TODO decode QRCode?
@@ -159,7 +166,7 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
             }
         } else throw IllegalArgumentException("Input")
 
-        val chainResult = decodingChain.decode(qrCodeContent)
+        val chainResult = chainWithRepos.chain.decode(qrCodeContent)
         val verificationResult = chainResult.verificationResult
         var errorExpected = false
 
@@ -212,9 +219,9 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
                         chainResult.chainDecodeResult.eudgc shouldBe case.eudgc
                     } else if (case.coseHex != null) {
                         val newResult = VerificationResult()
-                        DefaultCoseService(
-                            verificationRepo = if (case.base45WithPrefix?.startsWith("AT1:") == true) atRepo else repo
-                        ).decode(case.coseHex.fromHexString(), newResult)
+                        val verificationRepo =
+                            if (case.base45WithPrefix?.startsWith("AT1:") == true) chainWithRepos.atRepository else chainWithRepos.euRepository
+                        DefaultCoseService(verificationRepo).decode(case.coseHex.fromHexString(), newResult)
                         newResult.error shouldBe null
                     }
                 }
@@ -327,27 +334,34 @@ abstract class ExtendedTestRunner(cases: Map<String, String>) : StringSpec({
     }
 })
 
-private fun buildDecodingChain(
-    case: TestCase,
-    clock: FixedClock
-): Triple<IChain, CertificateRepository, CertificateRepository> {
-    //Yes this is ugly, but JS deserialisation does some pretty wicked stuff and introduced undefined (not null) props
-
-    val certString = case.context.certificate
+/**
+ * Yes this is ugly, but JS deserialisation does some pretty wicked stuff and introduced undefined (not null) props
+ */
+private fun buildDecodingChain(case: TestCase, clock: FixedClock): DecodeChainWithRepos {
+    val euCertString = case.context.certificate
     val atCertString = case.context.atCertificate
-
-    if (certString == null && atCertString == null) throw IllegalArgumentException("certificate")
-    val repository =
-        if (certString != null) PrefilledCertificateRepository(certString) else PrefilledCertificateRepository()
-    val atRepository =
-        if (atCertString != null) PrefilledCertificateRepository(atCertString) else PrefilledCertificateRepository()
-    return Triple(
-        DefaultChain.buildVerificationChain(
-            repository = repository,
-            atRepository = atRepository,
-            clock = clock
-        ), repository, atRepository
-    )
+    if (euCertString != null && atCertString != null) {
+        val euRepository = PrefilledCertificateRepository(euCertString)
+        val atRepository = PrefilledCertificateRepository(atCertString)
+        val chain = DefaultChain.buildVerificationChain(euRepository, atRepository, clock)
+        return DecodeChainWithRepos(chain, euRepository, atRepository)
+    } else if (euCertString != null) {
+        val euRepository = PrefilledCertificateRepository(euCertString)
+        val atRepository = PrefilledCertificateRepository()
+        val chain = DefaultChain.buildVerificationChain(euRepository, atRepository, clock)
+        return DecodeChainWithRepos(chain, euRepository, atRepository)
+    } else if (atCertString != null) {
+        val euRepository = PrefilledCertificateRepository()
+        val atRepository = PrefilledCertificateRepository(atCertString)
+        val chain = DefaultChain.buildVerificationChain(euRepository, atRepository, clock)
+        return DecodeChainWithRepos(chain, euRepository, atRepository)
+    } else {
+        throw IllegalArgumentException("certificate")
+    }
 }
 
-
+data class DecodeChainWithRepos(
+    val chain: IChain,
+    val euRepository: CertificateRepository,
+    val atRepository: CertificateRepository,
+)
