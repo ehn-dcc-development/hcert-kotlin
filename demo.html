@@ -12,6 +12,7 @@
     <script>
         var debug = false;
         var verifier;
+        var dateString=null;
 
         document.onload = function () {
             let tQR = document.getElementById("tQR");
@@ -60,7 +61,7 @@
             let pemCert = tCert.value.trim();
             let atPemCert = atTCert.value.trim();
             tRes.value = "Verifying ...";
-            verifier = new hcert.VerifierDirect([pemCert], [atPemCert], debug);
+            verifier = new hcert.VerifierDirect([pemCert], [atPemCert], dateString, debug);
             let result = callVerifier(showDataClass, qr);
             console.info(result);
             tRes.value = JSON.stringify(result, null, 2);

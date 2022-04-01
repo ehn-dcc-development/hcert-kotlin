@@ -54,7 +54,7 @@ object LenientNullableInstantParser : KSerializer<Instant?> {
 }
 
 
-private object InstantParser {
+internal object InstantParser {
 
     /**
      * Some countries encode Instants in a wrong format,

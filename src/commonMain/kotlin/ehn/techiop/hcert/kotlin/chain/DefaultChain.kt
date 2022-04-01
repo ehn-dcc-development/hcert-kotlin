@@ -33,6 +33,7 @@ object DefaultChain {
         atRepository: CertificateRepository? = null,
         clock: Clock = Clock.System
     ): IChain {
+        val euContextService = DefaultContextIdentifierService("HC1:")
         val euChain = Chain(
             DefaultHigherOrderValidationService(),
             DefaultSchemaValidationService(),
@@ -41,11 +42,13 @@ object DefaultChain {
             DefaultCoseService(repository),
             DefaultCompressorService(),
             DefaultBase45Service(),
-            DefaultContextIdentifierService("HC1:")
+            euContextService
         )
         if (atRepository == null)
             return euChain
 
+
+        val atContextService = DefaultContextIdentifierService("AT1:")
         val atChain = Chain(
             DefaultHigherOrderValidationService(),
             DefaultSchemaValidationService(false, arrayOf("AT-1.0.0")),
@@ -54,7 +57,7 @@ object DefaultChain {
             DefaultCoseService(atRepository),
             DefaultCompressorService(),
             DefaultBase45Service(),
-            DefaultContextIdentifierService("AT1:")
+            atContextService
         )
 
         return object : IChain {
@@ -62,15 +65,23 @@ object DefaultChain {
                 return euChain.encode(input)
             }
 
-            override fun decode(input: String) = when {
-                input.startsWith("AT1:") -> atChain.decode(input)
-                input.startsWith("HC1:") -> euChain.decode(input)
-                else -> DecodeResult(
-                    VerificationResult(),
-                    ChainDecodeResult(listOf(Error.INVALID_SCHEME_PREFIX), null, null, null, null, null, null)
-                )
+            override fun decode(input: String): DecodeResult {
+                val check = VerificationResult()
+                return try {
+                    euContextService.decode(input, check)
+                    euChain.decode(input)
+                } catch (_: VerificationException) {
+                    try {
+                        atContextService.decode(input, check)
+                        atChain.decode(input)
+                    } catch (e: VerificationException) {
+                        DecodeResult(
+                            VerificationResult().apply { error = e.error;e.details?.let { errorDetails.putAll(it) } },
+                            ChainDecodeResult(listOf(e.error), null, null, null, null, null, null)
+                        )
+                    }
+                }
             }
-
         }
     }
 }

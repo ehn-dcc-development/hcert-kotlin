@@ -3,6 +3,7 @@ import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.catch
 import ehn.techiop.hcert.kotlin.chain.NullableTryCatch.jsTry
 import ehn.techiop.hcert.kotlin.chain.debug.DebugChain
 import ehn.techiop.hcert.kotlin.chain.impl.*
+import ehn.techiop.hcert.kotlin.data.InstantParser
 import ehn.techiop.hcert.kotlin.log.BasicLogger
 import ehn.techiop.hcert.kotlin.log.JsLogger
 import ehn.techiop.hcert.kotlin.rules.BusinessRulesDecodeService
@@ -11,6 +12,7 @@ import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
 import ehn.techiop.hcert.kotlin.valueset.ValueSetDecodeService
 import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.Napier
+import kotlinx.datetime.Clock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -62,12 +64,15 @@ class Verifier(private val debug: Boolean) {
     constructor(
         vararg pemEncodedCertCertificates: String,
         atPemEncodedCertCertificates: Array<String>? = null,
+        dateString: String? = null,
         debug: Boolean
     ) : this(debug) {
         repo = PrefilledCertificateRepository(pemEncodedCertificates = pemEncodedCertCertificates)
-        atRepo = atPemEncodedCertCertificates?.let { PrefilledCertificateRepository(pemEncodedCertificates = *it) }
+        atRepo = atPemEncodedCertCertificates?.let { PrefilledCertificateRepository(pemEncodedCertificates = it) }
         chain = if (debug) DebugChain.buildVerificationChain(
             repository = repo,
+            clock = if (dateString == null || dateString == undefined) Clock.System
+            else FixedClock(InstantParser.parseInstant(dateString)),
             atRepository = atRepo
         ) else DefaultChain.buildVerificationChain(repository = repo, atRepository = atRepo)
     }

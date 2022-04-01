@@ -331,39 +331,23 @@ private fun buildDecodingChain(
     case: TestCase,
     clock: FixedClock
 ): Triple<IChain, CertificateRepository, CertificateRepository> {
-    if (case.context.certificate != null && case.context.atCertificate != null) {
-        val repository = PrefilledCertificateRepository(case.context.certificate)
-        val atRepository = PrefilledCertificateRepository(case.context.atCertificate)
-        return Triple(
-            DefaultChain.buildVerificationChain(
-                repository = repository,
-                atRepository = atRepository,
-                clock = clock
-            ), repository, atRepository
-        )
-    } else if (case.context.atCertificate != null) {
-        val repository = PrefilledCertificateRepository()
-        val atRepository = PrefilledCertificateRepository(case.context.atCertificate)
-        return Triple(
-            DefaultChain.buildVerificationChain(
-                repository = repository,
-                atRepository = atRepository,
-                clock = clock
-            ), repository, atRepository
-        )
-    } else if (case.context.certificate != null) {
-        val repository = PrefilledCertificateRepository(case.context.certificate)
-        val atRepository = PrefilledCertificateRepository()
-        return Triple(
-            DefaultChain.buildVerificationChain(
-                repository = repository,
-                atRepository = atRepository,
-                clock = clock
-            ), repository, atRepository
-        )
-    } else {
-        throw IllegalArgumentException("certificate")
-    }
+    //Yes this is ugly, but JS deserialisation does some pretty wicked stuff and introduced undefined (not null) props
+
+    val certString = case.context.certificate
+    val atCertString = case.context.atCertificate
+
+    if (certString == null && atCertString == null) throw IllegalArgumentException("certificate")
+    val repository =
+        if (certString != null) PrefilledCertificateRepository(certString) else PrefilledCertificateRepository()
+    val atRepository =
+        if (atCertString != null) PrefilledCertificateRepository(atCertString) else PrefilledCertificateRepository()
+    return Triple(
+        DefaultChain.buildVerificationChain(
+            repository = repository,
+            atRepository = atRepository,
+            clock = clock
+        ), repository, atRepository
+    )
 }
 
 

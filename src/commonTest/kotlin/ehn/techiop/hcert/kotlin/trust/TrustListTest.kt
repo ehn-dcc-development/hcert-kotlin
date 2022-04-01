@@ -3,7 +3,7 @@ package ehn.techiop.hcert.kotlin.trust
 import ehn.techiop.hcert.kotlin.chain.CryptoServiceHolder
 import ehn.techiop.hcert.kotlin.chain.VerificationResult
 import ehn.techiop.hcert.kotlin.chain.asBase64
-import ehn.techiop.hcert.kotlin.chain.ext.FixedClock
+import ehn.techiop.hcert.kotlin.chain.FixedClock
 import ehn.techiop.hcert.kotlin.chain.fromHexString
 import ehn.techiop.hcert.kotlin.chain.impl.PrefilledCertificateRepository
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
