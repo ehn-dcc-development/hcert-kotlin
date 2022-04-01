@@ -608,7 +608,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:1.4.0'
+    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:master-SNAPSHOT'
 }
 ```
 
@@ -647,6 +647,9 @@ See these links for details:
  - [Android documentation](https://developer.android.com/studio/write/java8-support#library-desugaring)
 
 ## Changelog
+
+Version NEXT:
+ - tbd
 
 Version 1.4.0:
  - Add second respository for trust anchors to verify AT-specific vaccination exemptions (prefix AT1:) against (see `buildVerificationChain`)
