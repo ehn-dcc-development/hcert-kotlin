@@ -5,37 +5,6 @@ import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.log.globalLogLevel
 import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import io.github.aakira.napier.Napier
-import kotlin.js.JsName
-
-interface IChain {
-    /**
-     * Process the [input], apply encoding in this order:
-     * - [CborService]
-     * - [CwtService]
-     * - [CoseService]
-     * - [CompressorService]
-     * - [Base45Service]
-     * - [ContextIdentifierService]
-     *
-     * The result ([ChainResult]) will contain all intermediate steps, as well as the final result in [ChainResult.step5Prefixed].
-     */
-    @JsName("encode")
-    fun encode(input: GreenCertificate): ChainResult
-
-    /**
-     * Process the [input], apply decoding in this order:
-     * - [ContextIdentifierService]
-     * - [Base45Service]
-     * - [CompressorService]
-     * - [CoseService]
-     * - [CwtService]
-     * - [CborService]
-     * - [SchemaValidationService]
-     * The result ([ChainDecodeResult]) will contain the parsed data, as well as intermediate results.
-     */
-    @JsName("decode")
-    fun decode(input: String): DecodeResult
-}
 
 /**
  * Main entry point for the creation/encoding and verification/decoding of HCERT data into QR codes

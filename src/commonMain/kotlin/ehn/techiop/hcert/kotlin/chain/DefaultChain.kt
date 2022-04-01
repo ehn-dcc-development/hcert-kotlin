@@ -1,7 +1,13 @@
 package ehn.techiop.hcert.kotlin.chain
 
-import ehn.techiop.hcert.kotlin.chain.impl.*
-import ehn.techiop.hcert.kotlin.data.GreenCertificate
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultContextIdentifierService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultCwtService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultHigherOrderValidationService
+import ehn.techiop.hcert.kotlin.chain.impl.DefaultSchemaValidationService
 import kotlinx.datetime.Clock
 import kotlin.js.JsName
 import kotlin.jvm.JvmOverloads
@@ -47,7 +53,6 @@ object DefaultChain {
         if (atRepository == null)
             return euChain
 
-
         val atContextService = DefaultContextIdentifierService("AT1:")
         val atChain = Chain(
             DefaultHigherOrderValidationService(),
@@ -60,28 +65,6 @@ object DefaultChain {
             atContextService
         )
 
-        return object : IChain {
-            override fun encode(input: GreenCertificate): ChainResult {
-                return euChain.encode(input)
-            }
-
-            override fun decode(input: String): DecodeResult {
-                val check = VerificationResult()
-                return try {
-                    euContextService.decode(input, check)
-                    euChain.decode(input)
-                } catch (_: VerificationException) {
-                    try {
-                        atContextService.decode(input, check)
-                        atChain.decode(input)
-                    } catch (e: VerificationException) {
-                        DecodeResult(
-                            VerificationResult().apply { error = e.error;e.details?.let { errorDetails.putAll(it) } },
-                            ChainDecodeResult(listOf(e.error), null, null, null, null, null, null)
-                        )
-                    }
-                }
-            }
-        }
+        return DelegatingChain(euChain, euContextService, atChain, atContextService)
     }
 }

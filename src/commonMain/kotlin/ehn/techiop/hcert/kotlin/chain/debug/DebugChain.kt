@@ -1,10 +1,12 @@
 package ehn.techiop.hcert.kotlin.chain.debug
 
-import ehn.techiop.hcert.kotlin.chain.*
+import ehn.techiop.hcert.kotlin.chain.CertificateRepository
+import ehn.techiop.hcert.kotlin.chain.Chain
+import ehn.techiop.hcert.kotlin.chain.DelegatingChain
+import ehn.techiop.hcert.kotlin.chain.IChain
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultBase45Service
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCborService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCompressorService
-import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import kotlinx.datetime.Clock
 import kotlin.js.JsName
 import kotlin.jvm.JvmOverloads
@@ -50,28 +52,7 @@ object DebugChain {
             atContextService
         )
 
-        return object : IChain {
-            override fun encode(input: GreenCertificate): ChainResult {
-                return euChain.encode(input)
-            }
-
-            override fun decode(input: String): DecodeResult {
-                val check = VerificationResult()
-                return try {
-                    euContextService.decode(input, check)
-                    euChain.decode(input)
-                } catch (_: VerificationException) {
-                    try {
-                        atContextService.decode(input, check)
-                        atChain.decode(input)
-                    } catch (e: VerificationException) {
-                        DecodeResult(
-                            VerificationResult().apply { error = e.error;e.details?.let { errorDetails.putAll(it) } },
-                            ChainDecodeResult(listOf(e.error), null, null, null, null, null, null)
-                        )
-                    }
-                }
-            }
-        }
+        return DelegatingChain(euChain, euContextService, atChain, atContextService)
     }
 }
+
