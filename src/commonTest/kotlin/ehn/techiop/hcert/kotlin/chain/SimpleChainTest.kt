@@ -10,15 +10,12 @@ import ehn.techiop.hcert.kotlin.crypto.KeyType.EC
 import ehn.techiop.hcert.kotlin.crypto.KeyType.RSA
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.trust.ContentType
-import ehn.techiop.hcert.kotlin.trust.ContentType.RECOVERY
-import ehn.techiop.hcert.kotlin.trust.ContentType.TEST
-import ehn.techiop.hcert.kotlin.trust.ContentType.VACCINATION
+import ehn.techiop.hcert.kotlin.trust.ContentType.*
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 class SimpleChainTest : DescribeSpec({

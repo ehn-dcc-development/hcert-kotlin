@@ -1,13 +1,8 @@
 package ehn.techiop.hcert.kotlin.chain.faults
 
-import COSE.Attribute
-import COSE.OneKey
-import COSE.Sign1Message
-import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
-import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import ehn.techiop.hcert.kotlin.trust.CoseCreationAdapter
 
 /**

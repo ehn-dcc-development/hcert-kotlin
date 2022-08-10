@@ -4,8 +4,8 @@
 
 package qrcode
 
-import kotlin.js.*
-import org.khronos.webgl.*
+import org.khronos.webgl.Uint8ClampedArray
+import kotlin.js.Promise
 
 external enum class ErrorCorrectionLevel {
     L /* = 1 */,

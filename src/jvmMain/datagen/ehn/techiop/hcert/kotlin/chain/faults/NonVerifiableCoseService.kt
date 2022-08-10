@@ -1,8 +1,5 @@
 package ehn.techiop.hcert.kotlin.chain.faults
 
-import COSE.Attribute
-import COSE.Sign1Message
-import com.upokecenter.cbor.CBORObject
 import ehn.techiop.hcert.kotlin.chain.CryptoService
 import ehn.techiop.hcert.kotlin.chain.impl.DefaultCoseService
 import ehn.techiop.hcert.kotlin.chain.impl.RandomEcKeyCryptoService
