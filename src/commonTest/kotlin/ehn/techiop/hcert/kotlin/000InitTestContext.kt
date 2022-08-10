@@ -5,6 +5,7 @@ import ehn.techiop.hcert.kotlin.crypto.KeyType
 import ehn.techiop.hcert.kotlin.log.BasicLogger
 import ehn.techiop.hcert.kotlin.log.setLogLevel
 import ehn.techiop.hcert.kotlin.trust.ContentType
+import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
@@ -14,7 +15,7 @@ import io.kotest.datatest.withData
 class A000InitTestContext : FunSpec({
 
     test("Enabling logging") {
-        setLogLevel(Napier.Level.ERROR)
+        setLogLevel(LogLevel.ERROR)
 
         //This is pretty awesome, as it supports an arbitrary number of arbitrary loggers
         //So we could create a custom test logger, which collects all log messages their parameters

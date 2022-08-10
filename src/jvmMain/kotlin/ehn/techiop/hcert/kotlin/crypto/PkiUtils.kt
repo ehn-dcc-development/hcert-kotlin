@@ -5,11 +5,7 @@ import kotlinx.datetime.Clock
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.x500.X500Name
-import org.bouncycastle.asn1.x509.ExtendedKeyUsage
-import org.bouncycastle.asn1.x509.Extension
-import org.bouncycastle.asn1.x509.KeyPurposeId
-import org.bouncycastle.asn1.x509.KeyUsage
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import org.bouncycastle.asn1.x509.*
 import org.bouncycastle.cert.X509v3CertificateBuilder
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import java.io.ByteArrayInputStream
@@ -18,9 +14,8 @@ import java.security.PrivateKey
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPrivateKey
-import java.util.Date
-import java.util.Random
-import kotlin.time.Duration
+import java.util.*
+import kotlin.time.Duration.Companion.days
 
 actual object PkiUtils {
     actual fun selfSignCertificate(
@@ -37,7 +32,7 @@ actual object PkiUtils {
         val extendedKeyUsage = ExtendedKeyUsage(certTypeToKeyUsages(contentType))
         val testUsage = Extension.create(Extension.extendedKeyUsage, false, extendedKeyUsage)
         val notBefore = clock.now()
-        val notAfter = notBefore.plus(Duration.days(30))
+        val notAfter = notBefore + 30.days
         val serialNumber = BigInteger(32, Random()).abs()
         val builder = X509v3CertificateBuilder(
             X500Name("CN=SelfSigned,C=XX"),

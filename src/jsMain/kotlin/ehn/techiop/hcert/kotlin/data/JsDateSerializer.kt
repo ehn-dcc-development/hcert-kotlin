@@ -16,7 +16,7 @@ object JsDateSerializer : KSerializer<Date> {
 
     override fun deserialize(decoder: Decoder): Date {
         val value = decoder.decodeString()
-        return Date(value)
+        return Date(dateString = value)
     }
 
     override fun serialize(encoder: Encoder, value: Date) {

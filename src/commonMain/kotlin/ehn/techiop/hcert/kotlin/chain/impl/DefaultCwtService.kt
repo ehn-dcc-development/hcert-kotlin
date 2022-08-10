@@ -12,18 +12,19 @@ import ehn.techiop.hcert.kotlin.trust.CwtHelper
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 /**
  * Encodes/decodes input as a CWT structure, ready to sign with COSE
  */
 open class DefaultCwtService constructor(
     private val countryCode: String = "AT",
-    private val validity: Duration = Duration.hours(48),
+    private val validity: Duration = 48.hours,
     private val clock: Clock = Clock.System,
 ) : CwtService {
 
     constructor(countryCode: String, validityHours: Int)
-            : this(countryCode, Duration.hours(validityHours), Clock.System)
+            : this(countryCode, validityHours.hours, Clock.System)
 
     override fun encode(input: ByteArray): ByteArray {
         val issueTime = clock.now()

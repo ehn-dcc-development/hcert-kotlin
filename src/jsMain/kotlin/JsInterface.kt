@@ -11,6 +11,7 @@ import ehn.techiop.hcert.kotlin.trust.SignedData
 import ehn.techiop.hcert.kotlin.trust.TrustListDecodeService
 import ehn.techiop.hcert.kotlin.valueset.ValueSetDecodeService
 import io.github.aakira.napier.Antilog
+import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 import kotlinx.serialization.decodeFromString
@@ -37,7 +38,7 @@ fun removeLogger(logger: Antilog) = Napier.takeLogarithm(logger)
 @JsExport
 @JsName("setLogLevel")
 fun setLogLevel(level: String?) {
-    ehn.techiop.hcert.kotlin.log.setLogLevel(Napier.Level.values().firstOrNull { it.name == level?.uppercase() })
+    ehn.techiop.hcert.kotlin.log.setLogLevel(LogLevel.values().firstOrNull { it.name == level?.uppercase() })
 }
 
 @JsExport

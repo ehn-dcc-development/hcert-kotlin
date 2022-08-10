@@ -1,13 +1,14 @@
 package ehn.techiop.hcert.kotlin.log
 
 import io.github.aakira.napier.Antilog
+import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
 import kotlin.math.floor
 import kotlin.math.roundToLong
 
-internal var globalLogLevel: Napier.Level? = null
+internal var globalLogLevel: LogLevel? = null
 
-fun setLogLevel(level: Napier.Level?) {
+fun setLogLevel(level:LogLevel?) {
     globalLogLevel = level
 }
 

@@ -9,6 +9,7 @@ import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
 import kotlin.jvm.JvmOverloads
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 
 /**
@@ -16,13 +17,13 @@ import kotlin.time.Duration
  */
 class ValueSetV1EncodeService constructor(
     signingService: CryptoService,
-    validity: Duration = Duration.hours(48),
+    validity: Duration = 48.hours,
     clock: Clock = Clock.System,
 ) {
 
     @JvmOverloads
     constructor(signingService: CryptoService, validityHours: Int = 48)
-            : this(signingService, Duration.hours(validityHours), Clock.System)
+            : this(signingService, validityHours.hours, Clock.System)
 
     private val signedDataService = SignedDataEncodeService(signingService, validity, clock)
 

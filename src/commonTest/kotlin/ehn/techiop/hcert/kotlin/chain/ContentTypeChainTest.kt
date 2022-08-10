@@ -19,10 +19,11 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class ContentTypeChainTest : DescribeSpec({
 
-    timeout = Duration.seconds(5).inWholeMilliseconds
+    timeout =5.seconds.inWholeMilliseconds
 
     val listOfInput = listOf(
         CTInput(testRat, TEST, EC, 256, TEST),

@@ -29,6 +29,7 @@ import kotlin.js.Date
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 
 actual object PkiUtils {
 
@@ -71,7 +72,7 @@ actual object PkiUtils {
             val value = country
         })
         (certificate.notBefore as Time).value = Date(clock.now().toEpochMilliseconds())
-        (certificate.notAfter as Time).value = Date(clock.now().plus(Duration.days(30)).toEpochMilliseconds())
+        (certificate.notAfter as Time).value = Date((clock.now() +30.days).toEpochMilliseconds())
 
         val extKeyUsage = ExtKeyUsage().also {
             it.keyPurposes = contentType.map { it.oid }.toTypedArray()
