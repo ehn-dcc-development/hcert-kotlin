@@ -11,7 +11,6 @@ import kotlinx.datetime.Clock
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import kotlin.jvm.JvmOverloads
-import kotlin.time.Duration
 
 /**
  * Decodes a [SignedData] blob, expected to contain the content and signature of a [ValueSetContainer]

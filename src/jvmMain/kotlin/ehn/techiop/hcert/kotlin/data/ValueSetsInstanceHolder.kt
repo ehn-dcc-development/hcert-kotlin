@@ -2,7 +2,6 @@ package ehn.techiop.hcert.kotlin.data
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.io.File
 
 actual object ValueSetsInstanceHolder {
 

@@ -7,7 +7,6 @@ import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.random.Random
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 class RandomCryptoServiceTest : DescribeSpec({
