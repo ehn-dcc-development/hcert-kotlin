@@ -9,6 +9,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.jvm.JvmOverloads
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 
 /**
@@ -34,7 +35,7 @@ class SignedDataDecodeService @JvmOverloads constructor(
         if (!validated)
             throw VerificationException(Error.TRUST_LIST_SIGNATURE_INVALID, "Not validated")
 
-        val headers = headersToParse.map { it to cose.getProtectedAttributeInt(it.intVal) }.toMap()
+        val headers = headersToParse.associateWith { cose.getProtectedAttributeInt(it.intVal) }
         val actualHash = Hash(input.content).calc()
 
         val map = cose.getContentMap()
@@ -50,7 +51,7 @@ class SignedDataDecodeService @JvmOverloads constructor(
             )
 
         val validFrom = Instant.fromEpochSeconds(notBefore.toLong())
-        if (validFrom > clock.now().plus(Duration.seconds(clockSkewSeconds)))
+        if (validFrom > clock.now() + clockSkewSeconds.seconds)
             throw VerificationException(
                 Error.TRUST_LIST_NOT_YET_VALID,
                 "NotBefore>clock.now()",
@@ -64,7 +65,7 @@ class SignedDataDecodeService @JvmOverloads constructor(
             )
 
         val validUntil = Instant.fromEpochSeconds(expiration.toLong())
-        if (validUntil < clock.now().minus(Duration.seconds(clockSkewSeconds)))
+        if (validUntil < clock.now() - clockSkewSeconds.seconds)
             throw VerificationException(
                 Error.TRUST_LIST_EXPIRED, "Expiration<clock.now()",
                 details = mapOf("expirationTime" to validUntil.toString(), "currentTime" to clock.now().toString())

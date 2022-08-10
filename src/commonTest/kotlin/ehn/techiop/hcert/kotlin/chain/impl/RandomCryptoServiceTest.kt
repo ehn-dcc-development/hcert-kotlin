@@ -8,11 +8,12 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class RandomCryptoServiceTest : DescribeSpec({
 
     //RSA key generation can take ages in JS
-    timeout = Duration.seconds(50).inWholeMilliseconds
+    timeout = 50.seconds.inWholeMilliseconds
 
     withData(nameFn = { "EC$it" }, 256, 384) { keySize ->
         val service = RandomEcKeyCryptoService(keySize)

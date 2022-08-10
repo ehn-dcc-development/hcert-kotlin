@@ -5,6 +5,7 @@ import ehn.techiop.hcert.kotlin.crypto.CoseHeaderKeys
 import ehn.techiop.hcert.kotlin.crypto.CwtHeaderKeys
 import kotlinx.datetime.Clock
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 
 /**
@@ -12,7 +13,7 @@ import kotlin.time.Duration
  */
 class SignedDataEncodeService constructor(
     private val signingService: CryptoService,
-    private val validity: Duration = Duration.hours(48),
+    private val validity: Duration = 48.hours,
     private val clock: Clock = Clock.System,
 ) {
 

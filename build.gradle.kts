@@ -41,6 +41,7 @@ val faultAttribute = Attribute.of("ehn.techiop.hcert.faults", String::class.java
 
 kotlin {
     targets.all {
+
         compilations.all {
             kotlinOptions {
                 freeCompilerArgs = listOf(

@@ -4,6 +4,7 @@ import ehn.techiop.hcert.kotlin.crypto.CertificateAdapter
 import ehn.techiop.hcert.kotlin.data.GreenCertificate
 import ehn.techiop.hcert.kotlin.log.globalLogLevel
 import ehn.techiop.hcert.kotlin.trust.CwtHelper
+import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
 
 /**
@@ -117,7 +118,7 @@ class Chain(
             verificationResult.addError(e)
             Napier.w(
                 message = e.message ?: "Decode Chain error",
-                throwable = if (globalLogLevel == Napier.Level.VERBOSE) e else null,
+                throwable = if (globalLogLevel == LogLevel.VERBOSE) e else null,
                 tag = logTag
             )
         }
