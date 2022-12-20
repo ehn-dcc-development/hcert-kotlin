@@ -648,8 +648,11 @@ See these links for details:
 
 ## Changelog
 
-Version NEXT:
+Version next:
  - tbd
+
+Version 1.5.0:
+ - Add support for schema 1.3.1 & 1.3.2
 
 Version 1.4.0:
  - Add second respository for trust anchors to verify AT-specific vaccination exemptions (prefix AT1:) against (see `buildVerificationChain`)
