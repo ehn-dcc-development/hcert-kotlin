@@ -11,7 +11,7 @@ This library implements a very basic validation and creation chain for electroni
 
 All services are implemented according to <https://github.com/ehn-digital-green-development/hcert-spec>, Version 1.0.5 from 2021-04-18.
 
-The schemata for data classes are imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, up to Version 1.3.0, from 2021-06-11.
+The schemata for data classes are imported from <https://github.com/ehn-digital-green-development/ehn-dgc-schema>, up to Version 1.3.2, from 2022-07-07.
 
 Several other git repositories are included as submodules. Please clone this repository with `git clone --recursive` or run `git submodule init && git submodule update --recursive` afterwards.
 
