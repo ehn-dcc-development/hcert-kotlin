@@ -608,7 +608,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:master-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:1.4.1'
 }
 ```
 
@@ -648,8 +648,8 @@ See these links for details:
 
 ## Changelog
 
-Version NEXT:
- - tbd
+Version 1.4.1:
+ - Import ehn-dcc-schema version 1.3.1 and 1.3.2
 
 Version 1.4.0:
  - Add second respository for trust anchors to verify AT-specific vaccination exemptions (prefix AT1:) against (see `buildVerificationChain`)
