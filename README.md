@@ -608,7 +608,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:master-SNAPSHOT'
+    implementation 'com.github.ehn-dcc-development.hcert-kotlin:hcert-kotlin-jvm:1.5.0'
 }
 ```
 
@@ -648,8 +648,11 @@ See these links for details:
 
 ## Changelog
 
-Version NEXT:
- - tbd
+Version 1.5.0:
+ - Update dependencies:
+   - Common: Kotlin 1.7.10, Datetime 0.4.0, Napier 2.6.1, Gradle 7.5.1
+   - JVM: Zxing 3.5.0, Bouncycastle 1.70, JSON Schema validator 0.36
+   - JS: pki.js 2.4.0, cbor 8.1.0, ajv (JSON Schema validator) 8.11.0, QR Code 3.3.0, Bignumber 9.1.0
 
 Version 1.4.1:
  - Import ehn-dcc-schema version 1.3.1 and 1.3.2
